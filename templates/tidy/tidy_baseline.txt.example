@@ -1,0 +1,25 @@
+# tidy_baseline.txt — kingdom `tidy` lint baseline.
+#
+# One entry per over-length function, format: path:function_name:lines
+#   path           relative to --root (the same form tidy prints in findings)
+#   function_name  the bare identifier after `fn`
+#   lines          the function's current measured span (inclusive, fn line to closing brace)
+#
+# Blank lines and lines starting with `#` are ignored.
+#
+# The baseline may only SHRINK:
+#   - shorten the function, re-run tidy, and lower `lines` to match — never raise it
+#   - a function that shrinks to <= 70 lines must have its entry deleted (tidy fails
+#     with "stale baseline: ... shrank to N lines" until you do)
+#   - a function that grows past its recorded `lines` fails as "stale baseline: ... grew
+#     to N lines"; fix the function, don't edit the number upward
+#   - a renamed or removed function's leftover entry fails as "matches no function";
+#     delete the line
+#
+# These are illustrative only — copy this file to tidy_baseline.txt and replace every
+# entry with your own realm's actual long functions (run tidy once with an empty
+# baseline to see what needs listing).
+
+src/pool.zig:Pool:136
+src/terminal_detect.zig:detectWith:162
+build.zig:build:1918
