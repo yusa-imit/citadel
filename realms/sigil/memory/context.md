@@ -1,17 +1,24 @@
 # sigil — context
 
-## Cycle 0 — 2026-09-05 — RESTRUCTURE
+## Cycle 1 — 2026-09-05 — FEATURE
 
-- Realm created by citadel restructure. Memory migrated from the repo's former
-  `.claude/memory/`. First plan `001` prescribed by `citadel/docs/ROADMAP.md`.
-- Survey found: pure scaffold, nothing functional yet (285 LOC, all stub modules). Zig
-  0.16 probe found sigil is nearly migration-ready — 1 trivial error (`main.zig`'s
-  `GeneralPurposeAllocator` rename), library surface already compiles clean on 0.16.
-  Full detail in `REALM.md` and `STATE.md`.
-- Next: open plan 001 PR (if not open) -> await human merge. Plan 001 should cover both
-  the Zig 0.16 migration (trivial, see `STATE.md`) and/or Phase 1 (core + reflect) — the
-  Zig 0.16 migration skill can likely close it in one cycle since the fix is one line.
+- Done: preflight (CI green, no bug/question issues, tree clean); inbox found nothing
+  actionable — plan PR #2 has zero review comments, just awaiting human merge.
+- PRs: none opened this cycle.
+- Next: same as cycle 0 — once #2 merges, run plan 001 (Zig 0.16 migration + tidy step +
+  `io: Io` convention spike). Until then, no milestone issue exists so no implementation
+  work is possible.
+- Blockers: plan 001 PR #2 awaiting human merge (no action needed from us — GitHub
+  protocol says merge=approve, comment=request changes, close=reject).
 - Open questions: none.
+
+## History
+
+Cycle 0 (2026-09-05, RESTRUCTURE): realm created by the citadel restructure; memory
+migrated from the repo's former `.claude/memory/`. Survey found a pure scaffold (285 LOC,
+all stub modules, 2 commits). Zig 0.16 probe found sigil nearly migration-ready — 1 trivial
+error (`main.zig`'s `GeneralPurposeAllocator` rename), library surface already compiles
+clean on 0.16. Full detail in `REALM.md`/`STATE.md`. Plan 001 PR opened, awaiting merge.
 
 ## Standing backlog (carried over from repo's former `project-context.md`)
 
