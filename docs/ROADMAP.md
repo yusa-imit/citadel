@@ -1,48 +1,68 @@
-# Kingdom Roadmap — foundation extraction & integration
+# Kingdom Roadmap
 
-각 foundation 레포의 내부 마일스톤은 해당 레포의 `docs/milestones.md`가 관리한다.
-이 문서는 **레포 경계를 넘는** 작업만 다룬다.
+Cross-repo order and the prescribed first plan of every realm. Realm-internal detail lives in
+each repo's `docs/plans/`. Updated by citadel cycles and by `/integrate`.
 
-## Phase 0 — Housekeeping (즉시)
+## Phase 0 — Restructure (2026-09-05, done by citadel)
 
-- [ ] zr의 zuda 의존을 git ref 2.0.4 → 태그 v2.3.0으로 통일
-- [ ] zoltraak `storage/{bloom,cuckoo,cms,topk,tdigest,heavykeeper}.zig` → zuda 사용으로 교체; topk/tdigest/heavykeeper는 zuda `containers/probabilistic/`로 상향
-- [ ] 4개 foundation 레포 GitHub CI 첫 실행 녹색 확인
-- [ ] cron 잡 4개 등록 (`zr jobs-apply`)
+- [x] Per-repo `CLAUDE.md`/`.claude/` removed; core moved to `citadel/core`, loaded via
+      `/Users/fn/codespace/CLAUDE.md` → `citadel/core/KINGDOM.md`.
+- [x] Interrupted work preserved on `wip/*` branches (silica, sailor, zoltraak, zr, zuda).
+- [x] Old cron jobs paused; new `<realm>-cycle` jobs defined in `workflows/`.
+- [ ] Repo hygiene PRs merged (root artifacts, docs layout, `.gitignore`, CI paths-ignore).
+- [ ] `001` plan PRs open in all nine realms, awaiting human merge.
 
-## Phase 1 — Foundation v0.1 (각 레포 Phase 1–2 완료 시점)
+## Phase 1 — Plan 001 everywhere: Zig 0.16 + Tiger Style baseline
 
-목표: 소비자가 실험적으로 붙여볼 수 있는 최소 API.
+Every realm's first plan has the same skeleton; the probe numbers set the size.
+
+| Realm | 0.16 errors (probe) | Effort | Blocked by | Version impact |
+|---|---|---|---|---|
+| sigil | 1 | trivial | — | none (0.1 → 0.2) |
+| strata | 1 | trivial | — | none |
+| synod | 1 | trivial | — | none |
+| sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none |
+| zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 |
+| sailor | 368 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 |
+| zr | 79 + deps | large | zuda v3, sailor v3 | MINOR |
+| silica | 275 + deps | medium | zuda v3, sailor v3 | MINOR |
+| zoltraak | ~110 + luajit link + deps | large | zuda v3, sailor v3 | MINOR (zon 0.2.0 → 0.3.0; reconcile with claimed 0.2.13) |
+
+Plan 001 skeleton (planner adapts):
+1. Hygiene leftovers not covered by the restructure PR.
+2. `tidy` test: a `zig build test` step that enforces line length 100, function length 70
+   (ratchet: red zone 71–72 for existing code), ban list (`catch unreachable` without proof,
+   `std.debug.print` in lib, `std.time.*` in lib, `usize` in formats), `//!` headers.
+3. Zig 0.16 migration in checklist order (`citadel/core/rules/zig-0.16.md`), `io: Io`
+   convention applied, `minimum_zig_version = "0.16.0"`, CI on 0.16.
+4. Assertion baseline: every public function of the top-N hot modules gets pre/post assertions
+   (N sized to the realm).
+5. Finish or discard the `wip/*` branch (decision recorded).
+6. README/CHANGELOG reconciled with reality; release per version impact.
+
+Order of execution across realms (cron runs all realms; blocked items wait):
+sigil (spike — sets the `io: Io` convention, records it in `zig-0.16.md`) → strata, synod,
+sirocco → zuda, sailor (release v3.0.0) → zr → silica → zoltraak.
+
+## Phase 2 — Foundation v0.1 and first consumers
 
 | Repo | v0.1 scope | First consumer PoC |
 |---|---|---|
-| sigil | core + reflect + JSON | zoltraak `JSON.GET` 경로에서 `sigil.path.jsonpath` |
-| sirocco | Loop(kqueue/epoll) + net.tcp + timer | zr `toolchain/downloader.zig` HTTP client (Phase 4 이후) |
-| strata | codec + file + page + cache + WAL | synod `LogStore` 어댑터 |
-| synod | types + log + raft election/replication + sim | zoltraak `sentinel.zig` 선출 로직 대체 |
+| sigil | core + reflect + JSON (+path) | zoltraak `JSON.GET` on `sigil.path.jsonpath` |
+| sirocco | `std.Io.VTable` implementation: kqueue + epoll, net + sleep/now, hybrid with `Io.Threaded` | swap `Io` at `main` in zoltraak |
+| strata | codec + file + page + cache + WAL | synod `LogStore` adapter |
+| synod | types + log + raft election/replication + simulator | zoltraak sentinel election |
 
-## Phase 2 — First migrations
+## Phase 3 — Migrations
 
-- [ ] **zr → sigil**: TOML/YAML 파서 교체. zr 전체 테스트를 sigil 백엔드로 통과 (`zr/src/config/`)
-- [ ] **zoltraak → sigil**: `json_value.zig`, `jsonpath.zig` 제거
-- [ ] **synod ↔ strata**: `adapters/strata_logstore.zig`; 크래시 주입 + 시뮬레이션 동시 실행
-- [ ] **synod ↔ sirocco**: `adapters/sirocco_transport.zig`; 3노드 실네트워크 통합 테스트 CI
+- zr → sigil (TOML/YAML), zoltraak → sigil (JSON), synod ↔ strata/sirocco adapters,
+  zoltraak → strata (AOF/RDB), zoltraak/silica → synod (failover), silica → strata
+  (page/cache/WAL), sailor → sirocco (network widgets).
+- Structural debt flagged by the survey, one plan each: silica `engine.zig` 43k lines /
+  `executor.zig` 35k; zoltraak `memory.zig` 15.6k; zr `parseToml` 5.1k-line function; zuda
+  `distributions.zig` 128k lines; sailor 52 files > 800 lines.
 
-## Phase 3 — Service migrations
+## Phase 4 — Next components
 
-- [ ] **zoltraak → strata**: AOF를 strata WAL로, RDB를 strata snapshot으로
-- [ ] **zoltraak → synod**: cluster/sentinel/replication을 synod Raft + SWIM으로
-- [ ] **zoltraak → sirocco**: `server.zig`, `network/tls.zig`를 sirocco로
-- [ ] **silica → strata**: `src/storage/{page,buffer_pool,wal}` → strata (silica는 B+Tree 위 SQL/MVCC만 유지, 또는 strata btree 채택)
-- [ ] **silica → synod**: replication failover/promotion을 synod 선출로
-- [ ] **silica → sirocco**: `src/server/{server,connection}.zig`, TLS → sirocco
-- [ ] **sailor → sirocco**: `tui/widgets/{httpclient,websocket}.zig` 위임
-
-## Phase 4 — Next components (after foundation stabilizes)
-
-후보 (순서 미정): 관측성(구조화 로깅·메트릭·트레이싱), 인증/암호 유틸(SCRAM/JWT/ACL 모델), 플러그인 VM(WASM), 클라이언트 SDK(silica/zoltraak 드라이버), 메시지 스트림(Kafka 포지션), S3 호환 오브젝트 스토리지, 웹 프레임워크.
-
-## Version policy
-
-- foundation: `0.x` 동안 마이너마다 API 변경 가능. 소비자 PoC가 두 개 이상 붙으면 `1.0` 검토
-- 소비자 레포는 foundation을 **태그로만** 의존 (git ref 금지)
+Observability, auth/crypto utilities, plugin VM (WASM), client SDKs, message stream, S3-compatible
+object store, web framework. Each starts with `/new-realm`.

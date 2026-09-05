@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Manage the kingdom's autonomous-development cron jobs from version-controlled files.
 
+    scripts/jobs.py render          # realms/<r>/settings.json + prompts/system for every realm job
     scripts/jobs.py export          # cron server → workflows/{jobs.toml, prompts/, system/}
     scripts/jobs.py plan            # show what apply would create/update (no changes)
     scripts/jobs.py apply [--yes]   # workflows/ → cron server (create or PATCH by job name)
@@ -20,7 +21,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 WF = ROOT / "workflows"
 SERVER = os.environ.get("CRON_SERVER_URL", "http://localhost:3000")
 FIELDS = ["expression", "cwd", "model", "permissionMode", "timeoutMs", "maxBudget",
-          "allowedTools", "sessionLimitThreshold", "dailyBudgetUsd", "blockTokenLimit"]
+          "allowedTools", "extraArgs", "sessionLimitThreshold", "dailyBudgetUsd", "blockTokenLimit"]
+REALMS = ["sigil", "sirocco", "strata", "synod", "zuda", "sailor", "zr", "silica", "zoltraak"]
 
 
 def http(method, path, body=None):
@@ -89,6 +91,23 @@ def local_jobs():
         if s.exists():
             j["appendSystemPrompt"] = s.read_text().rstrip("\n")
     return jobs
+
+
+def cmd_render():
+    """Render per-realm settings from core/fleet-settings.json and the cycle prompt/system files.
+    jobs.toml is hand-maintained; extraArgs there must match `scripts/kingdom argv <realm>`."""
+    fleet = (ROOT / "core" / "fleet-settings.json").read_text()
+    contract = (ROOT / "core" / "CONTRACT.md").read_text().rstrip("\n")
+    (WF / "prompts").mkdir(exist_ok=True)
+    (WF / "system").mkdir(exist_ok=True)
+    for r in REALMS:
+        d = ROOT / "realms" / r
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "settings.json").write_text(fleet.replace("{{REALM}}", r))
+        (WF / "prompts" / f"{r}-cycle.md").write_text(f"/cycle {r}\n")
+        (WF / "system" / f"{r}-cycle.md").write_text(contract.replace("the realm name is in the prompt", f"the realm is {r}") + "\n")
+    (WF / "prompts" / "citadel-cycle.md").write_text((ROOT / "workflows" / "citadel-cycle.prompt.md").read_text())
+    print(f"rendered settings + prompts for {len(REALMS)} realms")
 
 
 def remote_jobs():
@@ -160,7 +179,9 @@ def cmd_plan(apply=False, yes=False):
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "plan"
-    if cmd == "export":
+    if cmd == "render":
+        cmd_render()
+    elif cmd == "export":
         cmd_export()
     elif cmd == "plan":
         cmd_plan()

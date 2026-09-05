@@ -266,16 +266,11 @@ def main():
         "gitignore": ".gitignore",
         "LICENSE": "LICENSE",
         "README.md": "README.md",
-        "CLAUDE.md": "CLAUDE.md",
         "ci.yml": ".github/workflows/ci.yml",
-        "settings.json": ".claude/settings.json",
-        "milestones.md": "docs/milestones.md",
+        "milestones.md": "docs/plans/000-inherited.md",
     }
     for src, dst in mapping.items():
         write(repo / dst, render((TEMPLATES / src).read_text(), ctx), a.force, made)
-    for sub in ("agents", "commands", "memory"):
-        for f in sorted((TEMPLATES / sub).glob("*.md")):
-            write(repo / ".claude" / sub / f.name, render(f.read_text(), ctx), a.force, made)
     write(repo / "docs" / "PRD.md", (SPECS / f"{spec['name']}.PRD.md").read_text(), a.force, made)
 
     # Source files: created once, never overwritten (developers own them after bootstrap)

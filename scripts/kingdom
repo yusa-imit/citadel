@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# kingdom — launch kingdom sessions with the citadel brain attached.
+#   kingdom cycle <realm> [-p|--print] [--model M] [--effort E]   run one /cycle (interactive unless -p)
+#   kingdom shell <realm>                                          interactive session in a realm, brain attached
+#   kingdom argv  <realm>                                          print the claude argv (used by jobs.py)
+#   kingdom status                                                 delegate to /status in citadel
+set -euo pipefail
+CITADEL="$(cd "$(dirname "$0")/.." && pwd)"
+CODESPACE="$(dirname "$CITADEL")"
+
+usage() { sed -n '2,7p' "$0"; exit 1; }
+cmd="${1:-}"; shift || usage
+case "$cmd" in
+  cycle|shell|argv)
+    realm="${1:?realm required}"; shift
+    repo="$CODESPACE/$realm"; [ -d "$repo" ] || { echo "no such realm dir: $repo" >&2; exit 2; }
+    settings="$CITADEL/realms/$realm/settings.json"
+    [ -f "$settings" ] || { echo "missing $settings — run: python3 scripts/jobs.py render" >&2; exit 2; }
+    model="sonnet"; effort="high"; print=0
+    while [ $# -gt 0 ]; do case "$1" in
+      -p|--print) print=1;; --model) model="$2"; shift;; --effort) effort="$2"; shift;; *) echo "unknown arg $1" >&2; exit 2;; esac; shift; done
+    prompt="/cycle $realm"
+    common=(--add-dir "$CITADEL" --settings "$settings" --append-system-prompt-file "$CITADEL/core/CONTRACT.md"
+            --permission-mode bypassPermissions --permission-prompts none --effort "$effort" --model "$model")
+    if [ "$cmd" = argv ]; then printf '%s\n' "${common[@]}"; exit 0; fi
+    cd "$repo"
+    if [ "$cmd" = shell ]; then exec claude "${common[@]}"; fi
+    if [ $print = 1 ]; then exec claude -p "$prompt" --output-format json --verbose "${common[@]}"; fi
+    exec claude "${common[@]}" "$prompt"
+    ;;
+  status) cd "$CITADEL" && exec claude "/status" ;;
+  *) usage ;;
+esac

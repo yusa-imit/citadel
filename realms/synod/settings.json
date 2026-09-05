@@ -1,0 +1,36 @@
+{
+  "$comment": "Passed with --settings to every realm session. autoMemoryDirectory is rendered per realm into realms/<realm>/settings.json by scripts/jobs.py render.",
+  "autoMemoryDirectory": "/Users/fn/codespace/citadel/realms/synod/auto-memory",
+  "permissions": {
+    "allow": [
+      "Bash(zig:*)",
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(python3:*)",
+      "Bash(openclaw:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)", "Bash(cat:*)", "Bash(grep:*)", "Bash(find:*)", "Bash(wc:*)", "Bash(head:*)", "Bash(tail:*)",
+      "Bash(mkdir:*)", "Bash(rm:*)", "Bash(mv:*)", "Bash(cp:*)", "Bash(pgrep:*)", "Bash(pkill:*)", "Bash(kill:*)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git add -A:*)",
+      "Bash(git add .:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(python3 -c 'import sys,json;print(json.load(sys.stdin).get(\"tool_input\",{}).get(\"file_path\",\"\"))'); case \"$f\" in *.zig) zig fmt \"$f\" >/dev/null 2>&1 || true;; esac"
+          }
+        ]
+      }
+    ]
+  }
+}

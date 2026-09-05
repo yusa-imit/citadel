@@ -1,1 +1,0 @@
-CRITICAL: You must write code, run tests, commit, and push EVERY cycle. A cycle without a git commit containing code changes is a FAILED cycle. Pick the next uncompleted item from .claude/memory/project-context.md and implement it. Do not just read and summarize.

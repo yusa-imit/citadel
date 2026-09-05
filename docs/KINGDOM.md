@@ -21,14 +21,14 @@
 | Repo | Layer | One line | Status |
 |---|---|---|---|
 | [sigil](https://github.com/yusa-imit/sigil) | Foundation | Value IR + comptime reflection; JSON/TOML/YAML/MessagePack/CBOR/Protobuf/CSV; layered config | Bootstrap |
-| [sirocco](https://github.com/yusa-imit/sirocco) | Foundation | Completion-based event loop (kqueue/epoll/io_uring/IOCP), sockets, DNS, pool, TLS, HTTP/1.1+2, WebSocket | Bootstrap |
+| [sirocco](https://github.com/yusa-imit/sirocco) | Foundation | Production `std.Io.VTable` implementation (kqueue/epoll/io_uring), powering std net/http/tls | Bootstrap — PRD to be rewritten for std.Io |
 | [strata](https://github.com/yusa-imit/strata) | Foundation | File I/O abstraction, pages + buffer pool, segmented WAL + recovery, B+Tree, LSM, KV engine, snapshots | Bootstrap |
 | [synod](https://github.com/yusa-imit/synod) | Foundation | Pure-state-machine Raft, joint consensus, SWIM, φ-accrual, HLC, deterministic simulator | Bootstrap |
-| [zuda](https://github.com/yusa-imit/zuda) | Library | 100+ data structures, 80+ algorithms, NDArray/linalg/stats/FFT/optimize | v2.3 stable |
-| [sailor](https://github.com/yusa-imit/sailor) | Library | TUI framework, 40+ widgets, CLI toolkit | v2.99 stable |
-| [zr](https://github.com/yusa-imit/zr) | Tooling | Task runner + toolchain manager + monorepo + MCP/LSP server | v1.114 |
-| [silica](https://github.com/yusa-imit/silica) | Service | Embedded/server RDBMS, SQL:2016, MVCC, PG wire, replication | v1.0.1 |
-| [zoltraak](https://github.com/yusa-imit/zoltraak) | Service | Redis-compatible in-memory store, RESP, cluster, Lua | active |
+| [zuda](https://github.com/yusa-imit/zuda) | Library | ~60 containers, 24 algorithm families, 209 distributions, NDArray/linalg/stats/FFT/optimize, ML (461k LOC) | v2.3.0 (+92 unreleased commits) |
+| [sailor](https://github.com/yusa-imit/sailor) | Library | TUI framework, 140 widgets, CLI toolkit (150k LOC) | v2.99.0 |
+| [zr](https://github.com/yusa-imit/zr) | Tooling | Task runner + toolchain manager + monorepo + MCP/LSP server (112k LOC) | v1.114.0 |
+| [silica](https://github.com/yusa-imit/silica) | Service | Embedded/server RDBMS, SQL:2016, MVCC, PG wire, replication (184k LOC) | v1.0.1 |
+| [zoltraak](https://github.com/yusa-imit/zoltraak) | Service | Redis-compatible store, 500+ commands, RESP2/3, cluster, Lua (141k LOC) | 0.2.0 in zon (0.2.13 claimed) |
 
 ## Dependency graph
 
@@ -73,9 +73,9 @@ Solid = dependency that exists today in `build.zig.zon`. Dotted = planned (see `
 1. **Foundation repos depend on Zig std only.** Kingdom integrations live in `src/adapters/` and are opt-in.
 2. **Dependencies point down.** A library never imports a service; a foundation never imports a library.
 3. **One version of each dependency across the kingdom.** `zr-repos.toml` `[deps]` is the reference; pin the same tag in every `build.zig.zon` (today zr pins zuda 2.0.4 while silica pins 2.3.0 — fix in ROADMAP Phase 0).
-4. **Every repo has the same shape.** `CLAUDE.md` orchestrator, `docs/PRD.md`, `docs/milestones.md`, `.claude/{agents,commands,memory}`, `ci.yml`. Foundation repos are rendered from `citadel/templates/repo`; re-render with `scripts/scaffold.py <name> --force`.
-5. **Every repo is driven the same way.** A cron job (see `workflows/jobs.toml`) runs `claude -p` with the repo's prompt from `workflows/prompts/<repo>.md`. citadel is the source of truth for those prompts.
-6. **Zig 0.15.2 everywhere.** Bump kingdom-wide, foundation first.
+4. **Every repo has the same shape.** Code, `docs/` (`PRD.md`, `plans/`, `adr/`, `guides/`), `.github/`. No `CLAUDE.md`, no `.claude/` — the brain is `citadel/core/KINGDOM.md`, loaded through `/Users/fn/codespace/CLAUDE.md`. Policy: `protocol/DOCS.md`.
+5. **Every repo is driven the same way.** A cron job (`workflows/jobs.toml`) runs `claude -p "/cycle <repo>"` in the repo with citadel attached (`--add-dir`). Plans are approved by merging PRs; see `protocol/GITHUB.md`.
+6. **Zig 0.16.0 everywhere.** Realms still on 0.15.2 migrate under plan `001` (`docs/ROADMAP.md`); consumers wait for zuda/sailor v3.0.0.
 
 ## Names
 
