@@ -10,7 +10,8 @@ each repo's `docs/plans/`. Updated by citadel cycles and by `/integrate`.
 - [x] Interrupted work preserved on `wip/*` branches (silica, sailor, zoltraak, zr, zuda).
 - [x] Old cron jobs paused; new `<realm>-cycle` jobs defined in `workflows/`.
 - [x] Repo hygiene PRs merged (root artifacts, docs layout, `.gitignore`, CI paths-ignore).
-- [ ] `001` plan PRs open in all nine realms, awaiting human merge.
+- [x] `001` plan PRs open in all nine realms, awaiting human merge (sigil #2, strata #2, synod #2,
+      sirocco #2, zuda #30, sailor #18, zr #154, silica #135, zoltraak #120).
 
 ## Phase 1 — Plan 001 everywhere: Zig 0.16 + Tiger Style baseline
 
