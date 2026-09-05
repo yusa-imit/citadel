@@ -245,7 +245,7 @@ files, untracked imports, and `defer` newlines. Every hit is a finding until a c
 | bare `/` on integers | unstated rounding | `@divExact` / `@divFloor` / `div_ceil` |
 | `= undefined` | uninitialized bytes | complete init, or `@memset(buf, 0)` |
 | `Self = @This()` | anonymous type alias | `const Tracer = @This();` |
-| `debug.assert(` / `usingnamespace` | banned spelling | `const assert = std.debug.assert;` once, then `assert(` |
+| `debug.assert(` / `usingnamespace` | banned spelling | alias `assert` once per file |
 | `.{}` at a call site (not fixtures) | implicit defaults | spell out every option |
 | `allocator:` as a parameter name | undeclared discipline | `gpa:` / `arena:` / `scratch:` |
 | `max_` / `min_` / `total_` prefix | little-endian naming | suffix: `latency_ms_max` |
