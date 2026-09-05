@@ -241,11 +241,11 @@ files, untracked imports, and `defer` newlines. Every hit is a finding until a c
 | `while (true)` | unbounded loop | `for (0..iterations_max)`, or the event loop |
 | `std.debug.print` / `dbg(` / `FIXME` | debug leftovers | delete before merge |
 | `std.time.` / `std.crypto.random` | hidden non-determinism | injected clock, PRNG, `Io` |
-| `: usize` in a public, serialized or wire struct | width varies | `u32`/`u64`; `usize` only at std slice boundaries |
+| `: usize` in a public/wire struct | width varies | `u32`/`u64`; `usize` only at std slices |
 | bare `/` on integers | unstated rounding | `@divExact` / `@divFloor` / `div_ceil` |
 | `= undefined` | uninitialized bytes | complete init, or `@memset(buf, 0)` |
 | `Self = @This()` | anonymous type alias | `const Tracer = @This();` |
-| `debug.assert(` / `usingnamespace` | banned spellings | `const assert = std.debug.assert;` once per file, then `assert(` |
+| `debug.assert(` / `usingnamespace` | banned spelling | `const assert = std.debug.assert;` once, then `assert(` |
 | `.{}` at a call site (not fixtures) | implicit defaults | spell out every option |
 | `allocator:` as a parameter name | undeclared discipline | `gpa:` / `arena:` / `scratch:` |
 | `max_` / `min_` / `total_` prefix | little-endian naming | suffix: `latency_ms_max` |
@@ -254,7 +254,7 @@ files, untracked imports, and `defer` newlines. Every hit is a finding until a c
 | first line is not `//!` | module states no contract | add the `//!` header |
 | `alloc`/`append` outside `init` | allocation after init | pre-allocate, or `error.OutOfSpace` |
 | `setRuntimeSafety(false)` | safety off without evidence | benchmark and comment, or revert |
-| line > 100 chars, function > 70 lines | limits | split; old offenders only via a shrinking baseline |
+| line > 100, function > 70 lines | limits | split; old offenders via a shrinking baseline |
 
 Stronger than grep: run the suite under a `FailingAllocator` past `init` to prove the
 no-allocation contract, and run one seed twice diffing byte-for-byte to prove determinism.
