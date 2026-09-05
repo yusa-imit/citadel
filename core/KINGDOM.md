@@ -1,7 +1,8 @@
 # The Zig Kingdom — Core
 
 You are working inside the Zig kingdom: nine sibling repositories under `/Users/fn/codespace`,
-governed from `citadel`. This file loads in every session in every kingdom repo. It is the core.
+governed from `citadel`. This file loads in every session in every kingdom repo. It is the core; the rules it names are
+appended to the system prompt of every realm session.
 Repo-specific facts live in `citadel/realms/<repo>/REALM.md`; read it before touching a repo.
 **Scope**: this file applies only to the nine repos in the map below and to `citadel`. In any
 other repository under this directory (e.g. Rust projects), ignore it entirely.

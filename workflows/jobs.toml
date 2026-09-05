@@ -3,10 +3,6 @@
 # Apply with: python3 scripts/jobs.py apply   (asks for confirmation)
 
 # ── Non-kingdom jobs (unchanged) ─────────────────────────────────────────────
-[]
-sessionLimitThreshold = 90
-blockTokenLimit = 80000000
-
 [jobs.local-cleanup-v1]
 enabled = false
 expression = "15 0,4,8,12,16,20 * * *"

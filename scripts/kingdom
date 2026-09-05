@@ -20,11 +20,10 @@ case "$cmd" in
     while [ $# -gt 0 ]; do case "$1" in
       -p|--print) print=1;; --model) model="$2"; shift;; --effort) effort="$2"; shift;; *) echo "unknown arg $1" >&2; exit 2;; esac; shift; done
     prompt="/cycle $realm"
-    export CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1   # citadel/.claude/rules + CLAUDE.md load via --add-dir
     mapfile_args=$(python3 "$CITADEL/scripts/jobs.py" argv "$realm") || exit 2
     common=()
     while IFS= read -r a; do common+=("$a"); done <<< "$mapfile_args"
-    common+=(--append-system-prompt-file "$CITADEL/core/CONTRACT.md" --permission-mode bypassPermissions --model "$model")
+    common+=(--append-system-prompt-file "$CITADEL/realms/$realm/system.md" --permission-mode bypassPermissions --model "$model")
     [ "$effort" != high ] && common+=(--effort "$effort")
     if [ "$cmd" = argv ]; then printf '%s\n' "${common[@]}"; exit 0; fi
     cd "$repo"

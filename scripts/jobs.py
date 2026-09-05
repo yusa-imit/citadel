@@ -125,6 +125,18 @@ def cmd_render():
     jobs.toml is hand-maintained; extraArgs there must match `scripts/kingdom argv <realm>`."""
     fleet = (ROOT / "core" / "fleet-settings.json").read_text()
     contract = (ROOT / "core" / "CONTRACT.md").read_text().rstrip("\n")
+    # Rules are appended to the system prompt: .claude/rules of an --add-dir directory and of
+    # ancestor directories do NOT load in realm sessions (probed 2026-09-06), so this is the only
+    # channel that provably reaches every session.
+    rules_dir = ROOT / "core" / "rules"
+    order = ["00-kingdom.md", "git-github.md", "docs.md", "testing.md", "tiger-style.md", "zig-0.16.md"]
+    rules = []
+    for name in order:
+        text = (rules_dir / name).read_text()
+        if text.startswith("---"):  # strip paths: frontmatter
+            text = text.split("---", 2)[2]
+        rules.append(f"\n\n<!-- rule: core/rules/{name} -->\n" + text.strip())
+    rules_blob = "".join(rules)
     (WF / "prompts").mkdir(exist_ok=True)
     (WF / "system").mkdir(exist_ok=True)
     realms = realms_from_toml()
@@ -133,7 +145,9 @@ def cmd_render():
         d.mkdir(parents=True, exist_ok=True)
         (d / "settings.json").write_text(fleet.replace("{{REALM}}", r))
         (WF / "prompts" / f"{r}-cycle.md").write_text(f"/cycle {r}\n")
-        (WF / "system" / f"{r}-cycle.md").write_text(contract.replace("the realm name is in the prompt", f"the realm is {r}") + "\n")
+        system = contract.replace("the realm name is in the prompt", f"the realm is {r}") + "\n\nKINGDOM RULES (authoritative; the same text lives in citadel/core/rules/):" + rules_blob + "\n"
+        (WF / "system" / f"{r}-cycle.md").write_text(system)
+        (d / "system.md").write_text(system)
     (WF / "prompts" / "citadel-cycle.md").write_text((ROOT / "workflows" / "citadel-cycle.prompt.md").read_text())
     print(f"rendered settings + prompts for {len(realms)} realms")
 

@@ -33,19 +33,27 @@ docs/KINGDOM.md          map · docs/ROADMAP.md cross-repo order
 ```
 cd /Users/fn/codespace/<realm>
 claude -p "/cycle <realm>" --add-dir /Users/fn/codespace/citadel \
-  --settings citadel/realms/<realm>/settings.json \
-  --append-system-prompt-file citadel/core/CONTRACT.md \
+  --settings citadel/realms/<realm>/settings.json --strict-mcp-config \
+  --append-system-prompt-file citadel/realms/<realm>/system.md \
   --permission-mode bypassPermissions --permission-prompts none --effort high --model sonnet
 ```
 
-`--add-dir` brings citadel's agents and skills; the parent-directory symlinks bring KINGDOM.md
-and rules; `--settings` brings permissions, the `zig fmt` hook and the per-realm auto-memory
-directory. `scripts/kingdom argv <realm>` prints the flags; `workflows/jobs.toml` must match.
+What reaches the session, and how (each channel was probed on 2026-09-06):
+- `core/KINGDOM.md` — via the symlink `/Users/fn/codespace/CLAUDE.md` (ancestor CLAUDE.md files
+  load; ancestor `.claude/rules` do NOT, even with `--add-dir` + env flags).
+- `core/CONTRACT.md` + all `core/rules/*.md` — rendered into `realms/<realm>/system.md` by
+  `scripts/jobs.py render` and appended to the system prompt (≈ 38 KB). Re-run `render` after
+  editing a rule or the contract; the cron job's `appendSystemPrompt` carries the same text.
+- Agents and skills — `--add-dir citadel` (verified in the `system/init` event).
+- Guard hooks, `zig fmt` hook, auto-memory dir — `--settings realms/<realm>/settings.json`.
+`python3 scripts/jobs.py argv <realm>` is the single source of the flag list; `plan` fails on
+drift.
 
 ## Operator rules
 
-- Edit the brain here, never in a realm. After editing `core/` or `.claude/`, commit citadel;
-  nothing needs to be propagated (symlinks and `--add-dir` read live files).
+- Edit the brain here, never in a realm. After editing `core/rules/` or `core/CONTRACT.md`, run
+  `python3 scripts/jobs.py render` (system prompts) and `jobs.py apply` (cron copies); KINGDOM.md,
+  agents and skills are read live.
 - After editing `workflows/`, run `python3 scripts/jobs.py render`, then `plan`; `apply` only
   when the human asked for it in this session.
 - Realm memory is written by realm cycles; the citadel cycle only compacts it.

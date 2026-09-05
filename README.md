@@ -15,7 +15,8 @@ Map and graph: [docs/KINGDOM.md](docs/KINGDOM.md) · cross-repo order: [docs/ROA
 ## How it works
 
 - `core/KINGDOM.md` is symlinked to `/Users/fn/codespace/CLAUDE.md`, so every Claude Code session
-  in any kingdom repo loads it. `core/rules/` is symlinked to `/Users/fn/codespace/.claude/rules`.
+  in any kingdom repo loads it. `core/CONTRACT.md` and `core/rules/` are rendered into each realm's
+  system prompt (`realms/<realm>/system.md`) because rules do not cross repo boundaries.
 - A realm session is `cd <repo> && claude -p "/cycle <repo>" --add-dir citadel …`
   (`scripts/kingdom cycle <repo> -p`). The `/cycle` skill runs preflight → inbox → plan or
   implement or stabilize → report ([protocol/CYCLE.md](protocol/CYCLE.md)).
