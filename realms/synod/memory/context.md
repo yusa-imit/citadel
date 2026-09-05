@@ -1,7 +1,17 @@
 # synod — context
 
-last_seen_at: 2026-09-05T00:00:00Z
+last_seen_at: 2026-09-06T00:00:00Z
 rejected_plans: []
+
+## Cycle 1 — 2026-09-06 — FEATURE
+- Plan 001 (merged as #2) approved by merge; opened milestone tracking issue #3 with its
+  11-item checklist. Implemented item 1 (hygiene leftovers from the restructure PR) via PR #4:
+  dropped the stale `.claude/memory/**` CI path-ignore, fixed `root.zig`/`bench/main.zig` doc
+  references to `docs/plans/000-inherited.md`, added `docs/adr/0001-zero-dependency-core.md`
+  and `CHANGELOG.md`. CI green on all 7 jobs; squash-merged, branch deleted.
+- Next: item 2, `tidy` step part 1 (sizes) — `tools/tidy.zig` + `zig build tidy` gating
+  `zig build test`, per plan 001.
+- Open questions: none.
 
 ## Cycle 0 — 2026-09-05 — RESTRUCTURE
 - Realm created by citadel restructure. Memory migrated from the repo's former
