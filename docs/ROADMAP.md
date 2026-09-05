@@ -9,7 +9,7 @@ each repo's `docs/plans/`. Updated by citadel cycles and by `/integrate`.
       `/Users/fn/codespace/CLAUDE.md` → `citadel/core/KINGDOM.md`.
 - [x] Interrupted work preserved on `wip/*` branches (silica, sailor, zoltraak, zr, zuda).
 - [x] Old cron jobs paused; new `<realm>-cycle` jobs defined in `workflows/`.
-- [ ] Repo hygiene PRs merged (root artifacts, docs layout, `.gitignore`, CI paths-ignore).
+- [x] Repo hygiene PRs merged (root artifacts, docs layout, `.gitignore`, CI paths-ignore).
 - [ ] `001` plan PRs open in all nine realms, awaiting human merge.
 
 ## Phase 1 — Plan 001 everywhere: Zig 0.16 + Tiger Style baseline
