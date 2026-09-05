@@ -10,6 +10,8 @@
 | Depends on | none (zero-dependency library; `build.zig.zon` has no `.dependencies`) |
 | Consumers | zr, silica, zoltraak |
 | blocked_by | — |
+| cycle_minutes_max | 22 |
+| test_command | `zig build test` takes ~50 s locally; run at most twice per cycle |
 | CI | Linux tests + macOS ARM64 (macos-15 pinned) + Windows + 6 cross-compile targets |
 
 ## What it is

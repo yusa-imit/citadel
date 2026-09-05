@@ -16,7 +16,8 @@ at the end. Tiger Style counts use `\bassert\(` (any spelling).
 3. Test quality (`test-writer`): remove always-pass assertions, add negative-space cases,
    make sure every declared error variant is provoked by a test, leak checks.
 4. Docs drift: README claims vs code (version badge, feature list, install snippet).
-5. Dependencies: tags only, kingdom-wide single version (`citadel/zr-repos.toml`).
+5. Dependencies: tags only, newest kingdom tag (`/Users/fn/codespace/citadel/zr-repos.toml`).
 6. Benchmarks (only if `pgrep -f "zig build"` shows no other Zig build): record in `STATE.md`,
    flag > 10 % regressions.
-7. Hygiene: root files vs `citadel/protocol/DOCS.md`, `.gitignore`, tracked artifacts.
+7. Hygiene: root files vs `/Users/fn/codespace/citadel/protocol/DOCS.md`, `.gitignore`,
+   tracked artifacts.

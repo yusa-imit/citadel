@@ -29,12 +29,14 @@ REALM=$CITADEL/realms/$R
    branch if it is `wip/*`, else to a new `wip/<branch-or-slug>-$(date +%Y%m%d)`; push; only then
    `git checkout main && git fetch --prune && git pull --ff-only`. Record it in memory.
 5. GitHub truth (memory is a hint, GitHub is the truth):
-   - CI: `gh run list --branch main --limit 1 --json conclusion,headSha` — red means the latest
-     completed run on main concluded `failure` or `timed_out`; `cancelled`/`skipped`/in-progress
-     are not red.
+   - CI: `gh run list --branch main --workflow CI --status completed --limit 1 --json
+     conclusion,headSha` — red means that run concluded `failure` or `timed_out` AND its
+     `headSha` equals `git rev-parse origin/main`; `cancelled`/`skipped`/older SHAs are not red.
    - `gh pr list --state all --limit 20 --json number,title,labels,state,isDraft,author,headRefName`
    - `gh issue list --state open --limit 50 --json number,title,labels,author`
-   Red CI or an open `bug` issue by the OWNER → STABILIZATION.
+   Red CI, or an open `bug` issue by the OWNER that is not labelled `needs-human`, forces
+   STABILIZATION — unless `$REALM/memory/escalated_sha` equals the red run's `headSha` (the
+   escalation issue is already open for that failure; FEATURE continues).
 
 ## 1 · Inbox
 Run `/inbox $R`. It returns `plan_pr_open: yes|no`, `plan_closed_unmerged: yes|no`,
@@ -50,17 +52,21 @@ Run `/inbox $R`. It returns `plan_pr_open: yes|no`, `plan_closed_unmerged: yes|n
       --body "<checklist>"`), record it, continue to implement in this cycle.
     - fully checked → `/plan $R` → report.
     - plan_closed_unmerged → record the closing comment as the rejection reason in
-      `memory/decisions.md`, then `/plan $R` with a different theme → report.
-  - milestone issue open and every item checked → `/release $R` if the plan has version impact;
-    close the issue with a summary; then `/plan $R` in the same cycle.
+      `$REALM/memory/decisions.md`, then `/plan $R` with a different theme → report.
+    - has unchecked items but its milestone issue was closed by the human → treat as rejected
+      mid-way: record it, `/plan $R`.
+  - milestone issue open and every item checked → read the plan's `Version impact` line; if not
+    `none`, `/release $R <major|minor|patch>` (release closes the issue); else close the issue
+    with a summary. Then `/plan $R` only if ≥ 10 min remain before the deadline.
   - otherwise pick the first unchecked item whose `blocked_by` predicate is satisfied
     (`blocked_by: zuda>=3.0.0` ⇒ `git -C /Users/fn/codespace/zuda tag -l 'v*' --sort=-v:refname
     | head -1` ≥ v3.0.0). Run `/implement $R <item>`. If every remaining item is blocked → one
     `/stabilize $R --one` task and say so in the report.
 - STABILIZATION → `/stabilize $R`. If CI is still red or the bug still open at the end, increment
   `$REALM/memory/stabilize_streak`; at 2 open a `question` + `needs-human` + `blocking` issue,
-  label the bug `needs-human`, and reset the streak so the next cycle is FEATURE again. On success
-  set the streak to 0.
+  label the bug `needs-human`, write the red run's `headSha` to `$REALM/memory/escalated_sha`,
+  and reset the streak; the forcing condition above then lets FEATURE resume. On success set the
+  streak to 0 and delete `escalated_sha`.
 
 ## 3 · Report
 Run `/report $R <mode> <summary>` (it writes the counter and commits citadel). Then kill any

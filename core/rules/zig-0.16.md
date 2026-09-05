@@ -123,8 +123,7 @@ visible until it compiles. (2) mechanical renames: GPA→DebugAllocator, `argsAl
 `error.Canceled` prongs everywhere this surfaces. (5) tests: `std.testing.io`, `tmpDir`
 options, fuzz `Smith` rewrites if any. (6) bump `.minimum_zig_version = "0.16.0"` and tag.
 
-**Across the kingdom:** sigil (spike, smallest foundation repo — settles the `io: Io`
-convention above) → strata / synod / sirocco in parallel (foundation, trivial/zero-dep) →
+**Across the kingdom:** sigil (applies the settled `io: Io` convention first) → strata / synod / sirocco in parallel (foundation, trivial/zero-dep) →
 zuda / sailor (libraries — fix the shared `linkLibC` break, tag **v3.0.0**) → zr (tooling,
 depends on both libs) → silica (service) → zoltraak (service, largest, last). Do not bump a
 consumer's dependency hash until the producer is tagged; use the 0.16 local-package-override

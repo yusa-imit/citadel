@@ -11,8 +11,9 @@ commits or records before moving on. Realms whose full test suite exceeds 5 minu
    `memory/context.md`, then `docs/ROADMAP.md` (kingdom) for blockers.
 2. Counter: `n = counter + 1` (written by `/report`, so only completed cycles count).
    `n % 5 == 0` → STABILIZATION, else FEATURE. Red CI (latest completed run on main failed) or
-   an open OWNER `bug` issue forces STABILIZATION; two consecutive failed stabilizations escalate
-   to a `needs-human` question and unblock FEATURE. Disk below 20 GB free stops the cycle.
+   an open OWNER `bug` issue not labelled `needs-human` forces STABILIZATION; two consecutive
+   failed stabilizations escalate to a `needs-human` question, remember the failing SHA, and let
+   FEATURE resume. Disk below 20 GB free stops the cycle.
 3. Preserve before switching: if the tree is dirty or not on main, commit in place (or to
    `wip/<slug>-<date>`) and push, then `git checkout main && git pull --ff-only`. Never discard;
    the AI never deletes a `wip/*` branch.

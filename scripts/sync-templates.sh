@@ -11,6 +11,11 @@ for n in sigil sirocco strata synod; do
   git -C "$repo" checkout -q -b "chore/sync-templates-$(date +%Y%m%d)"
   python3 "$here/scripts/scaffold.py" "$n" --force
   if git -C "$repo" diff --quiet; then git -C "$repo" checkout -q main; git -C "$repo" branch -q -D "chore/sync-templates-$(date +%Y%m%d)"; echo "$n: no changes"; continue; fi
-  echo "$n: changes on branch chore/sync-templates-$(date +%Y%m%d) — review, commit, and open a PR"
+  br="chore/sync-templates-$(date +%Y%m%d)"
+  git -C "$repo" add build.zig .github/workflows/ci.yml README.md LICENSE .gitignore src/stdx.zig 2>/dev/null || true
+  git -C "$repo" commit -q -m "chore: sync kingdom templates" && git -C "$repo" push -q -u origin "$br" \
+    && gh pr create -R "yusa-imit/$n" --head "$br" --title "chore: sync kingdom templates" \
+         --body "Rendered from citadel/templates. 🤖 Generated with [Claude Code](https://claude.com/claude-code)" >/dev/null
+  echo "$n: PR opened from $br"
   git -C "$repo" checkout -q main
 done

@@ -10,8 +10,9 @@ each repo's `docs/plans/`. Updated by citadel cycles and by `/integrate`.
 - [x] Interrupted work preserved on `wip/*` branches (silica, sailor, zoltraak, zr, zuda).
 - [x] Old cron jobs paused; new `<realm>-cycle` jobs defined in `workflows/`.
 - [x] Repo hygiene PRs merged (root artifacts, docs layout, `.gitignore`, CI paths-ignore).
-- [x] `001` plan PRs open in all nine realms, awaiting human merge (sigil #2, strata #2, synod #2,
-      sirocco #2, zuda #30, sailor #18, zr #154, silica #135, zoltraak #120).
+- [x] `001` plans merged in all nine realms (2026-09-05: sigil #2, strata #2, synod #2,
+      sirocco #2, zuda #30, sailor #18, zr #154, silica #135, zoltraak #120); each realm's first
+      cycle opens its `milestone` issue.
 
 ## Phase 1 — Plan 001 everywhere: Zig 0.16 + Tiger Style baseline
 
@@ -38,7 +39,8 @@ Plan 001 skeleton (planner adapts):
    convention applied, `minimum_zig_version = "0.16.0"`, CI on 0.16.
 4. Assertion baseline: every public function of the top-N hot modules gets pre/post assertions
    (N sized to the realm).
-5. Finish or discard the `wip/*` branch (decision recorded).
+5. Finish the `wip/*` branch or leave it in place with the decision recorded — the AI never
+   deletes a `wip/*` branch.
 6. README/CHANGELOG reconciled with reality; release per version impact.
 
 Order of execution across realms (cron runs all realms; blocked items wait):

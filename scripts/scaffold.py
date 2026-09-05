@@ -277,6 +277,7 @@ def main():
     write(repo / "build.zig.zon", build_zon(spec, fp), False, made)
     write(repo / "src" / "root.zig", root_zig(spec), False, made)
     write(repo / "src" / "main.zig", main_zig(spec), False, made)
+    write(repo / "src" / "stdx.zig", (TEMPLATES / "src" / "stdx.zig").read_text(), False, made)
     write(repo / "bench" / "main.zig", bench_main(spec), False, made)
     for m in spec["modules"]:
         write(repo / "src" / f"{m['name']}.zig", module_stub(spec, m), False, made)

@@ -1,6 +1,6 @@
 {
-  "$comment": "Rendered per realm into realms/<realm>/settings.json by scripts/jobs.py render (silica). Permission lists are moot under bypassPermissions; the hooks are the enforcement.",
-  "autoMemoryDirectory": "/Users/fn/.claude/kingdom-memory/silica",
+  "$comment": "Rendered per realm into realms/<realm>/settings.json by scripts/jobs.py render (citadel). Permission lists are moot under bypassPermissions; the hooks are the enforcement.",
+  "autoMemoryDirectory": "/Users/fn/.claude/kingdom-memory/citadel",
   "permissions": {
     "allow": ["Bash(zig:*)", "Bash(git:*)", "Bash(gh:*)", "Bash(openclaw message send:*)"],
     "deny": ["Bash(git push --force:*)", "Bash(git push -f:*)", "Bash(git reset --hard:*)", "Bash(git add -A:*)", "Bash(git add .:*)"]

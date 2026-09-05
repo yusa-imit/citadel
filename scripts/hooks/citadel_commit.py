@@ -27,9 +27,12 @@ with open(f"{CITADEL}/.git/kingdom.lock", "w") as lock:
     git("add", "--", *[p for p in paths if (subprocess.run(["test", "-e", f"{CITADEL}/{p}"]).returncode == 0)])
     if git("diff", "--cached", "--quiet", check=False).returncode == 0:
         print("nothing to commit"); sys.exit(0)
-    git("commit", "-q", "-m", f"chore({realm}): cycle {n} memory\n\nCo-Authored-By: Claude <noreply@anthropic.com>")
+    dirty = git("status", "--porcelain", "--", ".", f":!realms/{realm}", check=False).stdout.strip()
+    if dirty:
+        sys.exit(f"citadel has foreign uncommitted changes; not rebasing over them:\n{dirty[:400]}")
+    git("commit", "-q", "-m", f"chore({realm}): cycle {n} memory\n\nCo-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>")
     for attempt in range(3):
-        r = git("pull", "-q", "--rebase", "--autostash", check=False)
+        r = git("pull", "-q", "--rebase", check=False)
         if r.returncode != 0:
             git("rebase", "--abort", check=False); time.sleep(5); continue
         if git("push", "-q", check=False).returncode == 0:

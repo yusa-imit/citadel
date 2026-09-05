@@ -35,7 +35,10 @@ if cwd.startswith(CODESPACE + "/") and realm and not realm.startswith("."):
             block("realm repos carry no AI files (citadel/protocol/DOCS.md)")
         sys.exit(0)
     if path.startswith(CITADEL + "/"):
-        if path.startswith(f"{CITADEL}/realms/{realm}/"):
+        own = f"{CITADEL}/realms/{realm}/"
+        if path.startswith(own):
+            if os.path.basename(path) in ("settings.json", "system.md"):
+                block("render outputs are not session-authored")
             sys.exit(0)
         block(f"realm session for '{realm}' may only write citadel/realms/{realm}/")
     if path.startswith(CODESPACE + "/") and not path.startswith("/private/tmp") and not path.startswith("/tmp"):

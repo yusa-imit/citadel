@@ -4,8 +4,10 @@ commit to citadel (`git add <paths>`, push) or as a PR in the affected repo:
    `docs/KINGDOM.md` versions vs `build.zig.zon`, `zr-repos.toml [deps]` vs real `build.zig.zon`).
 2. Memory hygiene: every `realms/*/memory/*.md` under 200 lines; fold history.
 3. `docs/ROADMAP.md`: tick items that GitHub shows done (merged plan PRs, closed milestones,
-   tags); add blockers that appeared.
-4. Cron drift: `python3 scripts/jobs.py plan` — report drift; never apply.
+   tags); add blockers that appeared. Propagate releases recorded in `realms/*/STATE.md` into
+   `docs/KINGDOM.md`.
+4. Cron drift: `python3 scripts/jobs.py plan --check` — report drift and any `scheduled: false`
+   kingdom job; never apply.
 5. Open questions across realms (`gh issue list --label needs-human -R yusa-imit/<realm>`): list
    them in one comment on citadel issue "kingdom inbox" (create it if missing) so the human sees
    everything in one place.

@@ -1,4 +1,6 @@
 # tidy
+> tidy enforces the lexically-decidable subset of Tiger Style §5; assertion density, pairing and
+> the `debug.assert(` alias rule are reviewed by `code-reviewer`, not by tidy.
 
 The kingdom's reference lint. One file, `tidy.zig`, zero dependencies, compiles and passes its
 own unit tests under both `/opt/homebrew/bin/zig` (0.15.2) and

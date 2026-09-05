@@ -29,7 +29,10 @@ CITADEL = "/Users/fn/codespace/citadel"
 
 
 def expected_extra_args(realm):
-    """Single source of truth for realm-session flags (scripts/kingdom reads this via `argv`)."""
+    """Single source of truth for session flags (scripts/kingdom reads this via `argv`)."""
+    if realm == "citadel":
+        return ["--settings", f"{CITADEL}/realms/citadel/settings.json",
+                "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
     return ["--add-dir", CITADEL,
             "--settings", f"{CITADEL}/realms/{realm}/settings.json",
             "--strict-mcp-config",
@@ -101,7 +104,7 @@ def local_jobs():
     jobs = toml_load((WF / "jobs.toml").read_text())
     for name, j in jobs.items():
         j.setdefault("enabled", True)
-        if name.endswith("-cycle") and name != "citadel-cycle":
+        if name.endswith("-cycle"):
             realm = name[:-len("-cycle")]
             exp = expected_extra_args(realm)
             if j.get("extraArgs") != exp:
@@ -139,11 +142,13 @@ def cmd_render():
     rules_blob = "".join(rules)
     (WF / "prompts").mkdir(exist_ok=True)
     (WF / "system").mkdir(exist_ok=True)
-    realms = realms_from_toml()
+    realms = realms_from_toml() + ["citadel"]
     for r in realms:
         d = ROOT / "realms" / r
         d.mkdir(parents=True, exist_ok=True)
         (d / "settings.json").write_text(fleet.replace("{{REALM}}", r))
+        if r == "citadel":
+            continue
         (WF / "prompts" / f"{r}-cycle.md").write_text(f"/cycle {r}\n")
         system = contract.replace("the realm name is in the prompt", f"the realm is {r}") + "\n\nKINGDOM RULES (authoritative; the same text lives in citadel/core/rules/):" + rules_blob + "\n"
         (WF / "system" / f"{r}-cycle.md").write_text(system)
@@ -196,7 +201,13 @@ def cmd_plan(apply=False, yes=False):
             print(f"  ! {name}: on server but not in workflows/ — `jobs.py prune` deletes it")
     if not plan:
         print("no changes")
+        if "--check" in sys.argv and any(n not in local for n in remote):
+            sys.exit(1)
         return
+    if "--check" in sys.argv and not apply:
+        for op, name, j, r in plan:
+            print(f"  {op:6} {name}")
+        sys.exit(1)
     for op, name, j, r in plan:
         print(f"  {'+' if op == 'create' else '*'} {op:6} {name}")
         if r and op == "update":

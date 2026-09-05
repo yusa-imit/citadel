@@ -1,5 +1,8 @@
 # sigil — context
 
+last_seen_at: 2026-09-05T00:00:00Z
+rejected_plans: []
+
 ## Cycle 1 — 2026-09-05 — FEATURE
 
 - Done: preflight (CI green, no bug/question issues, tree clean); inbox found nothing

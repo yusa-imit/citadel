@@ -11,6 +11,8 @@
 | Consumers | {{CONSUMERS}} |
 | blocked_by | {{BLOCKED_BY}} |
 | CI | Linux tests + 6 cross-compile targets (`.github/workflows/ci.yml`) |
+| cycle_minutes_max | 22 |
+| test_command | `zig build test` (if > 5 min, name a targeted command here; CI runs the full suite) |
 
 ## What it is
 
