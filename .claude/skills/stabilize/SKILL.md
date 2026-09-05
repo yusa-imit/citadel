@@ -1,11 +1,12 @@
 ---
 name: stabilize
 description: Stabilization cycle for a realm — CI matrix, test-quality audit, Tiger Style audit, benchmark and docs drift, dependency pins. Each fix is its own PR.
-argument-hint: <realm>
+argument-hint: <realm> [--one]
 ---
 
-Realm `$ARGUMENTS`. Pick the highest-value items below that fit one cycle; each fix is a PR
-via `/implement`. Update `citadel/realms/<realm>/STATE.md` numbers at the end.
+Realm from `$ARGUMENTS`. With `--one`, do exactly one bounded task (≤ 10 min) and return. Each
+fix is a PR via `/implement`. Update `/Users/fn/codespace/citadel/realms/<realm>/STATE.md` numbers
+at the end. Tiger Style counts use `\bassert\(` (any spelling).
 
 1. CI: last 5 runs; any red → fix first.
 2. Tiger Style audit (`tidy-auditor`, sonnet): counts of `catch unreachable` without a proof

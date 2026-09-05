@@ -3,17 +3,12 @@
 # Apply with: python3 scripts/jobs.py apply   (asks for confirmation)
 
 # ── Non-kingdom jobs (unchanged) ─────────────────────────────────────────────
-[jobs.testforge-dev-v1]
-expression = "40 8,20 * * *"
-cwd = "/Users/fn/codespace/testforge"
-model = "sonnet"
-permissionMode = "bypassPermissions"
-timeoutMs = 1800000
-allowedTools = []
+[]
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
 
 [jobs.local-cleanup-v1]
+enabled = false
 expression = "15 0,4,8,12,16,20 * * *"
 cwd = "/Users/fn"
 model = "haiku"
@@ -42,113 +37,143 @@ allowedTools = []
 sessionLimitThreshold = 90
 # ── Foundation repos (added 2026-09-05; minutes chosen to avoid the existing jobs) ──
 
-# ── Kingdom realm cycles ─────────────────────────────────────────────────────
+# ── Kingdom realm cycles: one realm per hour slot, twice a day, 25-minute timeout ──
 [jobs.sigil-cycle]
-expression = "5 0,8,16 * * *"
+enabled = true
+expression = "5 0,12 * * *"
 cwd = "/Users/fn/codespace/sigil"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 4
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/sigil/settings.json", "--append-system-prompt-file", "/Users/fn/codespace/citadel/core/CONTRACT.md", "--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/sigil/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
 
 [jobs.sirocco-cycle]
-expression = "25 0,8,16 * * *"
+enabled = true
+expression = "5 1,13 * * *"
 cwd = "/Users/fn/codespace/sirocco"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 4
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/sirocco/settings.json", "--append-system-prompt-file", "/Users/fn/codespace/citadel/core/CONTRACT.md", "--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/sirocco/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
 
 [jobs.strata-cycle]
-expression = "45 0,8,16 * * *"
+enabled = true
+expression = "5 2,14 * * *"
 cwd = "/Users/fn/codespace/strata"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 4
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/strata/settings.json", "--append-system-prompt-file", "/Users/fn/codespace/citadel/core/CONTRACT.md", "--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/strata/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
 
 [jobs.synod-cycle]
-expression = "5 2,10,18 * * *"
+enabled = true
+expression = "5 3,15 * * *"
 cwd = "/Users/fn/codespace/synod"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 4
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/synod/settings.json", "--append-system-prompt-file", "/Users/fn/codespace/citadel/core/CONTRACT.md", "--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/synod/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
 
 [jobs.zuda-cycle]
-expression = "25 2,10,18 * * *"
+enabled = true
+expression = "5 4,16 * * *"
 cwd = "/Users/fn/codespace/zuda"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 4
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/zuda/settings.json", "--append-system-prompt-file", "/Users/fn/codespace/citadel/core/CONTRACT.md", "--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/zuda/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
 
 [jobs.sailor-cycle]
-expression = "45 2,10,18 * * *"
+enabled = true
+expression = "5 5,17 * * *"
 cwd = "/Users/fn/codespace/sailor"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 4
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/sailor/settings.json", "--append-system-prompt-file", "/Users/fn/codespace/citadel/core/CONTRACT.md", "--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/sailor/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
 
 [jobs.zr-cycle]
-expression = "5 4,12,20 * * *"
+enabled = true
+expression = "5 6,18 * * *"
 cwd = "/Users/fn/codespace/zr"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 4
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/zr/settings.json", "--append-system-prompt-file", "/Users/fn/codespace/citadel/core/CONTRACT.md", "--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/zr/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
 
 [jobs.silica-cycle]
-expression = "25 4,12,20 * * *"
+enabled = true
+expression = "5 7,19 * * *"
 cwd = "/Users/fn/codespace/silica"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 4
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/silica/settings.json", "--append-system-prompt-file", "/Users/fn/codespace/citadel/core/CONTRACT.md", "--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/silica/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
 
 [jobs.zoltraak-cycle]
-expression = "45 4,12,20 * * *"
+enabled = true
+expression = "5 8,20 * * *"
 cwd = "/Users/fn/codespace/zoltraak"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 4
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/zoltraak/settings.json", "--append-system-prompt-file", "/Users/fn/codespace/citadel/core/CONTRACT.md", "--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/zoltraak/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
 
 [jobs.citadel-cycle]
-expression = "15 6 * * *"
+enabled = true
+expression = "15 9 * * *"
 cwd = "/Users/fn/codespace/citadel"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 1500000
+maxBudget = 3
+dailyBudgetUsd = 12
 allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
-extraArgs = ["--permission-prompts", "none", "--effort", "high"]
+extraArgs = ["--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]

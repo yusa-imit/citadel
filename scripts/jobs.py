@@ -4,13 +4,16 @@
     scripts/jobs.py render          # realms/<r>/settings.json + prompts/system for every realm job
     scripts/jobs.py export          # cron server → workflows/{jobs.toml, prompts/, system/}
     scripts/jobs.py plan            # show what apply would create/update (no changes)
-    scripts/jobs.py apply [--yes]   # workflows/ → cron server (create or PATCH by job name)
+    scripts/jobs.py apply [--yes]   # workflows/ → cron server (create, PATCH, pause/resume by job name)
+    scripts/jobs.py prune [--yes]   # delete server-only jobs
+    scripts/jobs.py argv <realm>    # the extraArgs a realm job must carry (also used by scripts/kingdom)
 
 Job identity is the `name` field. Prompt = workflows/prompts/<name>.md, system prompt =
 workflows/system/<name>.md (optional). Schedule/model/etc. live in workflows/jobs.toml.
 Server: $CRON_SERVER_URL (default http://localhost:3000) — see ../cron.
 """
 import json
+import json as _json
 import os
 import pathlib
 import re
@@ -22,7 +25,21 @@ WF = ROOT / "workflows"
 SERVER = os.environ.get("CRON_SERVER_URL", "http://localhost:3000")
 FIELDS = ["expression", "cwd", "model", "permissionMode", "timeoutMs", "maxBudget",
           "allowedTools", "extraArgs", "sessionLimitThreshold", "dailyBudgetUsd", "blockTokenLimit"]
-REALMS = ["sigil", "sirocco", "strata", "synod", "zuda", "sailor", "zr", "silica", "zoltraak"]
+CITADEL = "/Users/fn/codespace/citadel"
+
+
+def expected_extra_args(realm):
+    """Single source of truth for realm-session flags (scripts/kingdom reads this via `argv`)."""
+    return ["--add-dir", CITADEL,
+            "--settings", f"{CITADEL}/realms/{realm}/settings.json",
+            "--strict-mcp-config",
+            "--permission-prompts", "none",
+            "--effort", "high"]
+
+
+def realms_from_toml():
+    jobs = toml_load((WF / "jobs.toml").read_text())
+    return [n[:-len("-cycle")] for n in jobs if n.endswith("-cycle") and n != "citadel-cycle"]
 
 
 def http(method, path, body=None):
@@ -83,6 +100,16 @@ def toml_load(text):
 def local_jobs():
     jobs = toml_load((WF / "jobs.toml").read_text())
     for name, j in jobs.items():
+        j.setdefault("enabled", True)
+        if name.endswith("-cycle") and name != "citadel-cycle":
+            realm = name[:-len("-cycle")]
+            exp = expected_extra_args(realm)
+            if j.get("extraArgs") != exp:
+                sys.exit(f"{name}: extraArgs drift; expected {exp}")
+            if not (ROOT / "realms" / realm / "settings.json").is_file():
+                sys.exit(f"{name}: missing realms/{realm}/settings.json — run: jobs.py render")
+            if j.get("maxBudget") is None:
+                sys.exit(f"{name}: maxBudget is required for kingdom jobs")
         p = WF / "prompts" / f"{name}.md"
         if not p.exists():
             sys.exit(f"missing prompt file: {p}")
@@ -100,14 +127,15 @@ def cmd_render():
     contract = (ROOT / "core" / "CONTRACT.md").read_text().rstrip("\n")
     (WF / "prompts").mkdir(exist_ok=True)
     (WF / "system").mkdir(exist_ok=True)
-    for r in REALMS:
+    realms = realms_from_toml()
+    for r in realms:
         d = ROOT / "realms" / r
         d.mkdir(parents=True, exist_ok=True)
         (d / "settings.json").write_text(fleet.replace("{{REALM}}", r))
         (WF / "prompts" / f"{r}-cycle.md").write_text(f"/cycle {r}\n")
         (WF / "system" / f"{r}-cycle.md").write_text(contract.replace("the realm name is in the prompt", f"the realm is {r}") + "\n")
     (WF / "prompts" / "citadel-cycle.md").write_text((ROOT / "workflows" / "citadel-cycle.prompt.md").read_text())
-    print(f"rendered settings + prompts for {len(REALMS)} realms")
+    print(f"rendered settings + prompts for {len(realms)} realms")
 
 
 def remote_jobs():
@@ -147,15 +175,17 @@ def cmd_plan(apply=False, yes=False):
             plan.append(("create", name, j, None))
         elif ch:
             plan.append(("update", name, j, r))
+        if r is not None and bool(r.get("scheduled")) != bool(j.get("enabled", True)):
+            plan.append(("resume" if j.get("enabled", True) else "pause", name, j, r))
     for name in remote:
         if name not in local:
-            print(f"  ~ {name}: on server but not in workflows/ (left untouched; run export to adopt)")
+            print(f"  ! {name}: on server but not in workflows/ — `jobs.py prune` deletes it")
     if not plan:
         print("no changes")
         return
     for op, name, j, r in plan:
         print(f"  {'+' if op == 'create' else '*'} {op:6} {name}")
-        if r:
+        if r and op == "update":
             for k, (old, new) in diff(j, r).items():
                 short = lambda v: (str(v)[:60] + "…") if len(str(v)) > 60 else v
                 print(f"        {k}: {short(old)!r} → {short(new)!r}")
@@ -172,9 +202,33 @@ def cmd_plan(apply=False, yes=False):
             body["name"] = name
             res = http("POST", "/jobs", body)
             print(f"  created {name} → id {res.get('id', res.get('job', {}).get('id', '?'))}")
-        else:
+        elif op == "update":
             http("PATCH", f"/jobs/{r['id']}", body)
             print(f"  updated {name} (id {r['id']})")
+        else:
+            http("POST", f"/jobs/{r['id']}/{op}")
+            print(f"  {op}d {name} (id {r['id']})")
+    # newly created jobs that are meant to be disabled
+    remote = remote_jobs()
+    for name, j in local.items():
+        if not j.get("enabled", True) and name in remote and remote[name].get("scheduled"):
+            http("POST", f"/jobs/{remote[name]['id']}/pause"); print(f"  paused {name}")
+
+
+def cmd_prune(yes=False):
+    local, remote = local_jobs(), remote_jobs()
+    extra = [n for n in remote if n not in local]
+    if not extra:
+        print("nothing to prune"); return
+    print("server-only jobs:", ", ".join(extra))
+    if not yes and input("delete them? [y/N] ").strip().lower() != "y":
+        print("aborted"); return
+    for n in extra:
+        http("DELETE", f"/jobs/{remote[n]['id']}"); print(f"  deleted {n}")
+
+
+def cmd_argv(realm):
+    print("\n".join(expected_extra_args(realm)))
 
 
 if __name__ == "__main__":
@@ -187,5 +241,9 @@ if __name__ == "__main__":
         cmd_plan()
     elif cmd == "apply":
         cmd_plan(apply=True, yes="--yes" in sys.argv)
+    elif cmd == "prune":
+        cmd_prune(yes="--yes" in sys.argv)
+    elif cmd == "argv":
+        cmd_argv(sys.argv[2])
     else:
         sys.exit(__doc__)

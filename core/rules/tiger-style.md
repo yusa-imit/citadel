@@ -26,6 +26,13 @@ Testing: `testing.md`. Layering and dependencies: `00-kingdom.md`. Commits and P
 1. **Assert every argument, return value, precondition, postcondition, and invariant, averaging
    at least two assertions per function.** Assertions detect programmer error; they downgrade a
    correctness bug into a crash, and each one is a tripwire a fuzzer can trip.
+1b. **Two kinds of checks.** `assert` is a programmer-error tripwire and is compiled out in
+   ReleaseFast/ReleaseSmall; an invariant that must hold in a shipped build (checksum before write,
+   page bounds, quorum math) uses `assert_always` — a check that unconditionally returns an error
+   or panics, defined once per repo in `src/stdx.zig`. Never protect user data with plain
+   `assert` alone. Libraries recommend ReleaseSafe and never `@setRuntimeSafety(false)` without a
+   benchmark.
+
 2. **Assert each property on at least two different code paths.** One assertion proves only that
    one path is self-consistent; two independent derivations form an airlock, so a refactor that
    breaks the invariant on one side is caught on the other.
@@ -49,7 +56,9 @@ Testing: `testing.md`. Layering and dependencies: `00-kingdom.md`. Commits and P
    comptime assert(no_padding(Header)); // Anything hashed, written, or sent.
    comptime assert(capacity > 0 and math.isPowerOfTwo(capacity)); // User comptime config.
    ```
-6. **Write `maybe(input.len == 0);` where a condition is legitimately sometimes true.** `assert`
+6. **Write `maybe(input.len == 0);` where a condition is legitimately sometimes true.** (`maybe`
+   is a one-line no-op each repo defines in `src/stdx.zig`: `pub fn maybe(ok: bool) void {
+   _ = ok; }` — until zuda ships it.) `assert`
    documents *always*, `maybe` documents *sometimes*; together they mean silence no longer reads
    as "nobody thought about it", and the next reader will not add a wrong `assert`.
 7. **Put a limit on everything, named `*_max`.** Every loop, queue, retry count, nesting depth,
@@ -57,8 +66,10 @@ Testing: `testing.md`. Layering and dependencies: `00-kingdom.md`. Commits and P
    unbounded loops become hangs, unbounded queues become memory exhaustion, and components that
    honour each other's limits get backpressure for free. `while (true)` is banned outside a
    top-level event loop, where non-termination is asserted; elsewhere `for (0..iterations_max)`.
-8. **Do not use recursion; use an explicit bounded stack** —
-   `var stack: BoundedArrayType(Frame, nesting_max) = .{};`. Recursion hides an input-dependent
+8. **Do not use recursion; use an explicit bounded stack** — a fixed array plus a length
+   (`var frames: [nesting_max]Frame = undefined; var depth: u32 = 0;` with `assert(depth <
+   nesting_max)` on push); `std.BoundedArray` is gone in 0.16 and zuda's `BoundedArrayType` is
+   the shared home once it exists. Recursion hides an input-dependent
    bound inside the machine stack, where it can be neither asserted nor fuzzed, and turns a data
    bug into stack overflow under hostile input. Comptime type-level recursion is exempt.
 9. **Allocate at `init` from explicit limits; never store an allocator for later growth.** Take
@@ -130,9 +141,10 @@ Testing: `testing.md`. Layering and dependencies: `00-kingdom.md`. Commits and P
 
 1. **70 lines per function, 100 columns per line, 4 spaces, `zig fmt`.** Both limits are
    physical: a function that fits on one screen, a line narrow enough to show two copies of the
-   code side by side. Braces on every `if` that does not fit on one line. When retrofitting,
-   enforce 70 as a *ratchet* — flag only the 71–72 line red zone, so long functions are
-   grandfathered while no small function grows across the line, which is where the value is.
+   code side by side. Braces on every `if` that does not fit on one line. The cap is hard for
+   every function; existing offenders live in a checked-in `tidy_baseline.txt`
+   (`path:function:lines`) that may only shrink — a listed function that grows, or a new long
+   function, fails `tidy`. Reference: `citadel/templates/tidy/`.
 2. **Push `if`s up and `for`s down.** The parent owns every `switch` and `if`; helpers take
    resolved primitives and return values the parent applies, rather than mutating `self`.
    Branching smeared across a call chain makes the state machine invisible; concentrated, it is
@@ -229,11 +241,11 @@ files, untracked imports, and `defer` newlines. Every hit is a finding until a c
 | `while (true)` | unbounded loop | `for (0..iterations_max)`, or the event loop |
 | `std.debug.print` / `dbg(` / `FIXME` | debug leftovers | delete before merge |
 | `std.time.` / `std.crypto.random` | hidden non-determinism | injected clock, PRNG, `Io` |
-| `: usize` in a public or wire struct | target-dependent width | `u32`/`u64`, cast at the edge |
+| `: usize` in a public, serialized or wire struct | width varies | `u32`/`u64`; `usize` only at std slice boundaries |
 | bare `/` on integers | unstated rounding | `@divExact` / `@divFloor` / `div_ceil` |
 | `= undefined` | uninitialized bytes | complete init, or `@memset(buf, 0)` |
 | `Self = @This()` | anonymous type alias | `const Tracer = @This();` |
-| `debug.assert(` / `usingnamespace` | banned spellings | plain `assert`; explicit re-exports |
+| `debug.assert(` / `usingnamespace` | banned spellings | `const assert = std.debug.assert;` once per file, then `assert(` |
 | `.{}` at a call site (not fixtures) | implicit defaults | spell out every option |
 | `allocator:` as a parameter name | undeclared discipline | `gpa:` / `arena:` / `scratch:` |
 | `max_` / `min_` / `total_` prefix | little-endian naming | suffix: `latency_ms_max` |
@@ -242,7 +254,7 @@ files, untracked imports, and `defer` newlines. Every hit is a finding until a c
 | first line is not `//!` | module states no contract | add the `//!` header |
 | `alloc`/`append` outside `init` | allocation after init | pre-allocate, or `error.OutOfSpace` |
 | `setRuntimeSafety(false)` | safety off without evidence | benchmark and comment, or revert |
-| line > 100 chars, function > 70 lines | limits | split (ratchet 71–72 when retrofitting) |
+| line > 100 chars, function > 70 lines | limits | split; old offenders only via a shrinking baseline |
 
 Stronger than grep: run the suite under a `FailingAllocator` past `init` to prove the
 no-allocation contract, and run one seed twice diffing byte-for-byte to prove determinism.

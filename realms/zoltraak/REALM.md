@@ -10,7 +10,7 @@
 | Depends on | sailor v2.99.0, zuda v2.0.4 |
 | Consumers | none (leaf service) |
 | blocked_by | zuda v3.0.0, sailor v3.0.0 |
-| CI | Linux tests + 6 cross-compile targets (`.github/workflows/ci.yml`) |
+| CI | Linux build + unit tests + shell integration tests; **no cross-compile job yet** (plan 001 adds it) |
 
 ## What it is
 

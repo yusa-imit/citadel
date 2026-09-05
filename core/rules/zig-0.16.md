@@ -77,7 +77,8 @@ Each entry: before → after, then a one-line note. Grep the exact spelling in
 - **format**: custom `pub fn format(...)` now takes `w: *std.Io.Writer`; `fmt.format` and
   `fmt.Formatter` are gone (`Formatter` → `fmt.Alt`); use `Writer.print` to render.
 - **@Type**: removed outright → `@Int`/`@Tuple`/`@Pointer`/`@Fn`/`@Struct`/`@Union`/`@Enum`.
-  `@intFromFloat(f)` is deprecated in favor of `@trunc(f)` (int result types now allowed there).
+  (`@floor`/`@ceil`/`@round`/`@trunc` may now return integers; `@intFromFloat` still exists —
+  verify rounding before switching.)
 - **Cancelation**: any exhaustive `switch (err) { ... }` over an I/O error set now needs an
   `error.Canceled => ...` prong — propagate it, don't swallow with `else => unreachable`.
 - **posix**: most mid-level `std.posix.*` convenience wrappers (env access, `isatty`, ...) are

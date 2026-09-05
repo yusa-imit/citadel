@@ -12,7 +12,8 @@ in progress (or needs its `milestone` issue opened by `/cycle`); do not write th
    `citadel/realms/<realm>/{REALM.md,STATE.md,memory/*.md}`, the repo's `docs/PRD.md`,
    `docs/plans/000-inherited.md` (unfinished inherited items), open `directive` issues, and
    the last closed `milestone` issue. Call `planner` (opus) with all of this.
-2. Number: `NNN` = last existing plan number + 1 (`ls docs/plans`).
+2. Number: `NNN` = last existing plan number + 1 (`ls docs/plans`). Items touching a `wip/*`
+   branch may finish or leave it; the AI never deletes a `wip/*` branch.
 3. Write `docs/plans/NNN-<theme>.md` (≤ 120 lines, 100 columns) with sections:
    `# Plan NNN — <theme>` · Goal · Why now · Scope (checklist; each item ≤ one cycle; blockers
    noted as `blocked_by: <repo> vX.Y`) · Out of scope · Risks · Done when · Version impact

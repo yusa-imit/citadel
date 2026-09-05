@@ -1,5 +1,8 @@
 # citadel — operator instructions
 
+**Scope**: only for sessions whose cwd is `citadel`. A realm session sees this file because citadel
+is attached with `--add-dir`; in that case ignore it and follow `core/KINGDOM.md`.
+
 citadel is the control room of the Zig kingdom. The shared brain is `core/KINGDOM.md`, reached
 by every realm session through the symlink `/Users/fn/codespace/CLAUDE.md`; shared rules are
 `core/rules/` via `/Users/fn/codespace/.claude/rules`. This file is only for sessions whose cwd

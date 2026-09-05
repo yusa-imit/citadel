@@ -10,7 +10,9 @@
 | Depends on | none (`build.zig.zon` `.dependencies` is empty — self-contained) |
 | Consumers | zr, silica, zoltraak (sailor: reference only, not a dependent) |
 | blocked_by | — |
-| CI | Linux tests + 6 cross-compile targets (`.github/workflows/ci.yml`) |
+| CI | Linux tests (8–10 min) + 6 cross-compile targets (`.github/workflows/ci.yml`) |
+| cycle_minutes_max | 22 (full `zig build test` takes 8–10 min locally: run it at most once per cycle) |
+| test_command | `zig test src/<touched file>.zig` (module-level) during the cycle; CI runs the full suite |
 
 ## What it is
 

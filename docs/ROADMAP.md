@@ -42,8 +42,9 @@ Plan 001 skeleton (planner adapts):
 6. README/CHANGELOG reconciled with reality; release per version impact.
 
 Order of execution across realms (cron runs all realms; blocked items wait):
-sigil (spike — sets the `io: Io` convention, records it in `zig-0.16.md`) → strata, synod,
-sirocco → zuda, sailor (release v3.0.0) → zr → silica → zoltraak.
+sigil, strata, synod, sirocco (the `io: Io` convention is already settled in `zig-0.16.md`;
+sigil merely applies it first) → zuda, sailor (release v3.0.0) → zr → silica → zoltraak.
+`blocked_by` is a predicate on tags (`zuda>=3.0.0`), resolved by the cycle each run.
 
 ## Phase 2 — Foundation v0.1 and first consumers
 

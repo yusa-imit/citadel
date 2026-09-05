@@ -4,3 +4,4 @@
 .claude/session-counter
 .zr_history
 workflows/.export-raw.json
+realms/*/auto-memory/
