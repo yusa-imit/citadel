@@ -41,3 +41,20 @@ _(migrated from the repo's former `.claude/memory/decisions.md`, 2026-09-05)_
   deinit'd before creating new ones.
 - **Documentation**: clear doc comments with safe/unsafe pattern examples.
 - **Future**: can add a reference-counted variant if demand arises (`PersistentRBTreeRC`).
+
+## Decision: keep 4 of the 13 legacy per-file distribution duplicates, drop 9
+- **Date**: 2026-09-06
+- **Context**: `src/stats/distributions/*.zig` had 13 files duplicating (or, for
+  `multivariate_normal`, never reaching) names already in the canonical
+  `src/stats/distributions.zig` catalog — REALM.md/STATE.md described all 13 as reachable only
+  from `root.zig`'s test-trigger block, but a pre-delete grep showed `chi_squared.zig`,
+  `student_t.zig`, `f_distribution.zig` are real dependencies of `stats/hypothesis.zig` and
+  `stats/correlation.zig`, and `chi_squared.zig` internally imports `gamma.zig`.
+- **Decision**: deleted the 9 files with zero real consumers (`uniform`, `normal`,
+  `exponential`, `poisson`, `binomial`, `bernoulli`, `geometric`, `beta`,
+  `multivariate_normal`) plus their `root.zig` test-import lines (PR #32). Kept `gamma`,
+  `chi_squared`, `student_t`, `f_distribution` in place.
+- **Consequence / follow-up**: `hypothesis.zig`/`correlation.zig` still depend on the legacy
+  per-file `StudentT`/`ChiSquared`/`FDistribution` instead of `distributions.zig`'s versions —
+  migrating those two call sites to the canonical catalog (then deleting the last 4 legacy
+  files) is separate follow-up work, not done this cycle.

@@ -1,7 +1,20 @@
 # zuda — context
 
-last_seen_at: 2026-09-05T00:00:00Z
+last_seen_at: 2026-09-06T00:00:00Z
 rejected_plans: []
+
+## Cycle 1 — 2026-09-06 — FEATURE
+- Done: plan 001 (Zig 0.16 migration) merged by owner before this cycle started. Opened
+  milestone tracking issue #31. Implemented item 1 "Clear the decks" on PR #32: fixed
+  `RandomForest.fit()` hardcoding `.gini` for regression forests (finished the preserved
+  `wip/random-forest-regression-criterion` TDD cycle — branch fixed itself, wip branch still
+  present, not deleted), dropped 9 orphaned distribution duplicates (kept 4 with real
+  consumers, see `decisions.md`), removed dead `.claude/memory/**` `ci.yml` entry, synced
+  `zr.toml`/`main.zig` version strings to 2.3.0.
+- PRs: #32 open, Build & Test + wasm32-wasi green, 5 cross-compile targets still pending at
+  the cycle deadline — left a status comment, next cycle's inbox merges it.
+- Next: merge #32 once CI is green, then plan 001 item 2 (`tidy` build step).
+- Blockers: none. Open questions: none.
 
 ## Cycle 0 — 2026-09-05 — RESTRUCTURE
 - Realm created by citadel restructure. Memory migrated from the repo's former
