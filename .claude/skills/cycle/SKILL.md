@@ -26,7 +26,11 @@ Run `/inbox $ARGUMENTS`. It returns `plan_pr_open: yes|no`, `milestone_issue: <n
 
 ## 2 · Mode
 - FEATURE and plan PR open → skip to report.
-- FEATURE and no milestone issue → `/plan $ARGUMENTS` → report.
+- FEATURE and no milestone issue → look at the newest `docs/plans/NNN-*.md` on `main`. If it
+  has unchecked items, the human has approved it by merging: open the tracking issue now
+  (`gh issue create --label milestone --title "milestone: NNN <theme>" --body "<the checklist>"`),
+  record it in memory, and continue to the implement branch below in this same cycle.
+  Only if every existing plan is fully checked → `/plan $ARGUMENTS` → report.
 - FEATURE with a milestone → find the first unchecked item whose blockers are clear
   (`REALM.md` `blocked_by`, `ROADMAP.md`) → `/implement $ARGUMENTS <item>` → if the checklist
   is now complete and the plan declares version impact → `/release $ARGUMENTS`.

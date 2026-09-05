@@ -28,8 +28,9 @@ The AI runs on the user's machine; the human reads and answers on GitHub. One ac
 
 ## Tracking issues
 
-- On merge of `docs/plans/NNN-*.md`, the AI opens issue `milestone: NNN <theme>` (label
-  `milestone`) whose body is the plan checklist. Each cycle updates the checklist and leaves a
+- On merge of `docs/plans/NNN-*.md`, the next cycle opens issue `milestone: NNN <theme>` (label
+  `milestone`) whose body is the plan checklist, and starts implementing in the same cycle.
+  The human is not asked again until the next plan. Each cycle updates the checklist and leaves a
   one-paragraph progress comment. The issue closes when every item is done and the release is
   tagged (if the plan has version impact).
 

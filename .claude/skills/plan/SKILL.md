@@ -4,7 +4,9 @@ description: Write the next milestone plan for a realm as docs/plans/NNN-<theme>
 argument-hint: <realm> [theme]
 ---
 
-Realm `$ARGUMENTS`. Only one open `plan` PR per realm; if one exists, stop.
+Realm `$ARGUMENTS`. Only one open `plan` PR per realm; if one exists, stop. Also stop if the
+newest `docs/plans/NNN-*.md` on `main` still has unchecked items — that plan is approved and
+in progress (or needs its `milestone` issue opened by `/cycle`); do not write the next one.
 
 1. Inputs: `citadel/docs/ROADMAP.md` (prescribes `001` and cross-repo order),
    `citadel/realms/<realm>/{REALM.md,STATE.md,memory/*.md}`, the repo's `docs/PRD.md`,
