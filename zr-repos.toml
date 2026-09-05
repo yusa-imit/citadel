@@ -1,0 +1,73 @@
+# citadel — Zig kingdom multi-repo registry (consumed by `zr repo sync|status|run`)
+# Paths are relative to this file. Clone missing repos with: zr repo sync --clone-missing
+
+[workspace]
+name = "zig-kingdom"
+
+# ── Foundation layer ─────────────────────────────────────────────────────────
+[repos.sigil]
+url = "git@github.com:yusa-imit/sigil.git"
+path = "../sigil"
+branch = "main"
+tags = ["foundation", "lib", "zig"]
+
+[repos.sirocco]
+url = "git@github.com:yusa-imit/sirocco.git"
+path = "../sirocco"
+branch = "main"
+tags = ["foundation", "lib", "zig"]
+
+[repos.strata]
+url = "git@github.com:yusa-imit/strata.git"
+path = "../strata"
+branch = "main"
+tags = ["foundation", "lib", "zig"]
+
+[repos.synod]
+url = "git@github.com:yusa-imit/synod.git"
+path = "../synod"
+branch = "main"
+tags = ["foundation", "lib", "zig"]
+
+# ── Library layer ────────────────────────────────────────────────────────────
+[repos.zuda]
+url = "git@github.com:yusa-imit/zuda.git"
+path = "../zuda"
+branch = "main"
+tags = ["lib", "zig"]
+
+[repos.sailor]
+url = "git@github.com:yusa-imit/sailor.git"
+path = "../sailor"
+branch = "main"
+tags = ["lib", "zig", "tui"]
+
+# ── Tooling ──────────────────────────────────────────────────────────────────
+[repos.zr]
+url = "git@github.com:yusa-imit/zr.git"
+path = "../zr"
+branch = "main"
+tags = ["tool", "zig"]
+
+# ── Services ─────────────────────────────────────────────────────────────────
+[repos.silica]
+url = "git@github.com:yusa-imit/silica.git"
+path = "../silica"
+branch = "main"
+tags = ["service", "zig", "database"]
+
+[repos.zoltraak]
+url = "git@github.com:yusa-imit/zoltraak.git"
+path = "../zoltraak"
+branch = "main"
+tags = ["service", "zig", "cache"]
+
+# ── Cross-repo dependencies (build order: foundation → lib → tool → service) ─
+# Today's real build.zig.zon deps are: silica→{sailor,zuda}, zr→{sailor,zuda}, zoltraak→{sailor,zuda}.
+# Planned deps (ROADMAP.md) are listed so `zr affected` already respects the target graph.
+[deps]
+synod = ["sigil"]
+sailor = ["sirocco"]
+zr = ["sailor", "zuda", "sigil", "sirocco"]
+silica = ["sailor", "zuda", "sigil", "sirocco", "strata", "synod"]
+zoltraak = ["sailor", "zuda", "sigil", "sirocco", "strata", "synod"]

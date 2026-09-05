@@ -1,0 +1,62 @@
+{
+  "name": "strata",
+  "tagline": "Layers beneath the data — WAL, pages, and a key-value engine for Zig",
+  "description": "strata는 플랫폼 파일 I/O 추상화(fsync 정책, mmap, 락), 체크섬이 붙은 페이지 계층과 CLOCK 버퍼 풀, 세그먼트 WAL과 그룹 커밋·체크포인트·크래시 복구, 페이지 기반 B+Tree와 LSM 트리, 그리고 그 위의 임베디드 KV 엔진(RocksDB/LMDB 포지션)과 스트리밍 스냅샷 포맷을 제공한다. silica 스토리지 엔진의 범용 부분을 추출한 것이며, zoltraak의 AOF/RDB, zr의 캐시 스토어, synod의 LogStore가 이 위로 이식된다.",
+  "consumers": "silica, zoltraak, zr, synod",
+  "modules": [
+    {"name": "codec", "doc": "varint (LEB128/zigzag), fixed-width LE, CRC32C (hw-accelerated), xxhash64.", "files": ["varint.zig", "fixed.zig", "crc32c.zig", "xxhash.zig"]},
+    {"name": "file", "doc": "Platform file I/O: sync policies (fdatasync/fsync/F_FULLFSYNC), O_DIRECT, preallocate, locks, mmap.", "files": ["file.zig", "mmap.zig", "lock.zig"]},
+    {"name": "page", "doc": "Page header/format, page manager, freelist, file header.", "files": ["header.zig", "manager.zig", "freelist.zig"]},
+    {"name": "cache", "doc": "Buffer pool (CLOCK), pin/unpin guards, dirty tracking, stats.", "files": ["buffer_pool.zig", "guard.zig"]},
+    {"name": "wal", "doc": "Segmented write-ahead log: frames, group-commit writer, reader, checkpoint, recovery.", "files": ["frame.zig", "segment.zig", "writer.zig", "reader.zig", "checkpoint.zig", "recovery.zig"]},
+    {"name": "btree", "doc": "Page-based B+Tree: slotted nodes, split/merge, overflow pages, range cursors, bulk load.", "files": ["node.zig", "tree.zig", "cursor.zig", "overflow.zig"]},
+    {"name": "lsm", "doc": "LSM tree: skiplist memtable, SSTable (blocks, index, bloom), compaction, manifest.", "files": ["memtable.zig", "sstable.zig", "compaction.zig", "manifest.zig"]},
+    {"name": "kv", "doc": "Embedded KV engine: Db open/get/put/delete/scan, WriteBatch, Snapshot, engine selection.", "files": ["db.zig", "batch.zig", "iterator.zig", "snapshot.zig"]},
+    {"name": "snapshot", "doc": "Streaming snapshot writer/reader with versioned chunked format.", "files": ["writer.zig", "reader.zig"]},
+    {"name": "testing", "doc": "Crash-injection harness (torn writes, truncation at arbitrary offsets), differential model.", "files": ["crash.zig", "model.zig"]}
+  ],
+  "domain_rules": [
+    "**모든 디스크 바이트에 체크섬** — 페이지, WAL 프레임, SSTable 블록, 스냅샷 청크. 예외 없음",
+    "**fsync는 정책** — 호출자가 `SyncPolicy`를 고른다. 라이브러리가 몰래 생략하지 않는다",
+    "**복구는 멱등** — 같은 WAL을 두 번 재생해도 결과 동일",
+    "**파일 포맷에 magic + version** — 포맷 변경 시 version bump와 마이그레이션 노트 필수",
+    "**빌려주는 값** — `get()`은 다음 쓰기까지 유효한 슬라이스. 수명 규칙을 doc comment에 명시",
+    "**손상은 에러** — `error.Corrupted`, `error.ChecksumMismatch`, `error.TornWrite`. 절대 `@panic`",
+    "**페이지 크기는 512B–64KB 어디서든 동작** — 매트릭스 테스트 필수",
+    "**플랫폼 차이는 `file/`에만** — 상위 계층에 `builtin.os.tag` 분기 금지"
+  ],
+  "review_checklist": [
+    "체크섬 계산 범위가 헤더의 checksum 필드 자신을 제외하는가",
+    "torn write: 프레임 길이 필드가 손상됐을 때 무한 읽기/과할당이 없는가",
+    "버퍼 풀: pin 카운트 > 0 인 페이지가 evict되지 않는가; dirty 페이지가 WAL lsn보다 먼저 flush되지 않는가 (WAL-before-data)",
+    "B+Tree: split 후 부모 키 갱신, merge 후 next_leaf 연결, 오버플로 페이지 free",
+    "WAL: 그룹 커밋에서 fsync 완료 전에 커밋 ack가 나가지 않는가",
+    "복구: 체크포인트 lsn 이전 프레임 스킵, 이후 프레임 멱등 적용",
+    "정렬(alignment): O_DIRECT 버퍼 정렬, `@alignCast` 근거",
+    "macOS: `full_fsync` 정책이 F_FULLFSYNC를 실제로 호출하는가"
+  ],
+  "test_categories": [
+    "**Codec**: 알려진 벡터(CRC32C, xxhash), varint 경계(0, 127, 128, u64 max), 하드웨어/소프트웨어 CRC 일치",
+    "**File**: sync 정책별 호출 확인, preallocate 후 크기, 락 경합(두 핸들)",
+    "**Page/Cache**: 페이지 크기 매트릭스(512/4096/65536), 프리리스트 재사용, CLOCK 교체 순서, pin 중 evict 금지",
+    "**WAL**: 프레임 라운드트립, 세그먼트 롤오버, torn write at every offset → 복구 후 불변식, 이중 재생 멱등",
+    "**Crash injection**: `testing/crash.zig`로 임의 지점 절단 → open → 모델과 비교",
+    "**B+Tree**: 순차/역순/랜덤 insert, delete until empty, 범위 커서 전후 이동, 큰 값 오버플로, `validate()` after every op, fuzz",
+    "**LSM**: memtable flush, 컴팩션 후 읽기 일관성, 블룸 오탐률",
+    "**KV differential**: 랜덤 op 시퀀스를 `testing/model.zig`(HashMap)와 비교",
+    "**Leak**: `std.testing.allocator` + `tmpDir` cleanup"
+  ],
+  "phases": [
+    {"title": "Phase 1 — Codec & File", "items": ["1A `codec/{varint,fixed,crc32c,xxhash}.zig`", "1B `file/file.zig` — sync/preallocate/lock", "1C `file/mmap.zig`", "1D `testing/crash.zig` — torn-write generator"]},
+    {"title": "Phase 2 — Page & Cache", "items": ["2A `page/{header,manager,freelist}.zig`", "2B `cache/buffer_pool.zig` (CLOCK), `cache/guard.zig`", "2C page-size matrix tests"]},
+    {"title": "Phase 3 — WAL & Recovery", "items": ["3A `wal/frame.zig`, `wal/segment.zig`", "3B `wal/writer.zig` — group commit", "3C `wal/reader.zig`, `wal/recovery.zig`", "3D `wal/checkpoint.zig`", "3E crash-recovery property tests"]},
+    {"title": "Phase 4 — B+Tree & KV", "items": ["4A `btree/node.zig` — slotted page", "4B `btree/tree.zig` — insert/get/delete, split/merge", "4C `btree/cursor.zig`, `btree/overflow.zig`", "4D `kv/{db,batch,iterator}.zig` (btree engine)", "4E B+Tree fuzz campaign"]},
+    {"title": "Phase 5 — LSM", "items": ["5A `lsm/memtable.zig`, `lsm/sstable.zig`", "5B `lsm/compaction.zig`, `lsm/manifest.zig`", "5C `kv/db.zig` LSM engine option", "5D block compression (optional)"]},
+    {"title": "Phase 6 — Snapshot & Integration", "items": ["6A `snapshot/{writer,reader}.zig`", "6B synod LogStore adapter", "6C zoltraak AOF on strata WAL (PoC)", "6D silica page/cache/wal on strata (PoC)"]}
+  ],
+  "first_tasks": [
+    "1A: CRC32C(하드웨어 감지 + 폴백)와 varint — 테스트: 표준 벡터, 경계값, hw/sw 일치",
+    "1B: `File` with `SyncPolicy` — 테스트: tmpDir에서 writeAt/readAt/sync/preallocate/lock",
+    "1D: 크래시 주입 하네스 — 테스트: 절단 지점 열거, 생성된 파일이 지정 오프셋에서 끝나는지"
+  ]
+}

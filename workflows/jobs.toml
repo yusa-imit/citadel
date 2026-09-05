@@ -1,0 +1,140 @@
+# Kingdom cron jobs — one table per job. Prompts live in prompts/<name>.md.
+# Apply with: python3 scripts/jobs.py apply
+
+[jobs.zr-dev-v1]
+expression = "0 * * * *"
+cwd = "/Users/fn/codespace/zr"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.zoltraak-dev-v1]
+expression = "5 0,6,12,18 * * *"
+cwd = "/Users/fn/codespace/zoltraak"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.testforge-dev-v1]
+expression = "40 8,20 * * *"
+cwd = "/Users/fn/codespace/testforge"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.zr-dev-v2]
+expression = "10 1,7,13,19 * * *"
+cwd = "/Users/fn/codespace/zr"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.silica-dev-v1]
+expression = "20 2,8,14,20 * * *"
+cwd = "/Users/fn/codespace/silica"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.sailor-dev-v1]
+expression = "25 3,9,15,21 * * *"
+cwd = "/Users/fn/codespace/sailor"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.zuda-dev-v1]
+expression = "30 0,4,8,12,16,20 * * *"
+cwd = "/Users/fn/codespace/zuda"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.local-cleanup-v1]
+expression = "15 0,4,8,12,16,20 * * *"
+cwd = "/Users/fn"
+model = "haiku"
+permissionMode = "bypassPermissions"
+timeoutMs = 120000
+allowedTools = []
+sessionLimitThreshold = 90
+
+[jobs.powehi-dev-v1]
+expression = "45 1,4,7,10,13,16,19,22 * * *"
+cwd = "/Users/fn/codespace/powehi"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+
+[jobs.the-kernel-dev-v1]
+expression = "50 */2 * * *"
+cwd = "/Users/fn/codespace/the_kernel"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 3600000
+maxBudget = 10
+allowedTools = []
+sessionLimitThreshold = 90
+# ── Foundation repos (added 2026-09-05; minutes chosen to avoid the existing jobs) ──
+[jobs.sirocco-dev-v1]
+expression = "35 1,7,13,19 * * *"
+cwd = "/Users/fn/codespace/sirocco"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.strata-dev-v1]
+expression = "55 2,8,14,20 * * *"
+cwd = "/Users/fn/codespace/strata"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.synod-dev-v1]
+expression = "35 4,10,16,22 * * *"
+cwd = "/Users/fn/codespace/synod"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000
+
+[jobs.sigil-dev-v1]
+expression = "55 5,11,17,23 * * *"
+cwd = "/Users/fn/codespace/sigil"
+model = "sonnet"
+permissionMode = "bypassPermissions"
+timeoutMs = 1800000
+allowedTools = []
+sessionLimitThreshold = 90
+blockTokenLimit = 80000000

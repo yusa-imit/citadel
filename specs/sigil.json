@@ -1,0 +1,63 @@
+{
+  "name": "sigil",
+  "tagline": "Marks that carry meaning — serialization and configuration formats for Zig",
+  "description": "sigil은 하나의 `Value` 중간 표현과 comptime 리플렉션(struct ↔ Value) 위에 JSON(+JSONPath/Pointer/Patch), TOML 1.0, YAML 1.2 코어 서브셋, MessagePack, CBOR, Protobuf 와이어 포맷, CSV를 제공하고, 파일+환경변수+CLI 인자를 병합하는 계층형 설정 로더를 포함한다. 모든 파서는 line:col 진단을 내고 fuzz로 검증된다. zr의 TOML/YAML, zoltraak의 JSON/JSONPath, silica의 JSON 타입, sailor의 state_persist, synod의 메시지 인코딩이 이 위로 이식된다.",
+  "consumers": "zr, zoltraak, silica, sailor, synod",
+  "modules": [
+    {"name": "core", "doc": "Value union, arena-owned ValueTree, Number parsing/formatting, Timestamp, Diagnostics (line:col), UTF-8/escape utils.", "files": ["value.zig", "tree.zig", "number.zig", "timestamp.zig", "diagnostics.zig", "unicode.zig"]},
+    {"name": "reflect", "doc": "comptime struct ↔ Value mapping: parse(T), stringify(T), field options (rename, defaults, deny_unknown), custom hooks, Schema(T) validation.", "files": ["parse.zig", "stringify.zig", "options.zig", "schema.zig"]},
+    {"name": "json", "doc": "RFC 8259 pull scanner, DOM builder, pretty/minify writer, direct-to-struct streaming parse.", "files": ["scanner.zig", "dom.zig", "writer.zig", "reflect.zig"]},
+    {"name": "path", "doc": "JSON Pointer (RFC 6901), JSONPath (RFC 9535 subset), JSON Patch (RFC 6902), Merge Patch (RFC 7386) — all over Value.", "files": ["pointer.zig", "jsonpath.zig", "patch.zig", "merge.zig"]},
+    {"name": "toml", "doc": "TOML v1.0.0 lexer, parser, writer (order-preserving). toml-test suite.", "files": ["lexer.zig", "parser.zig", "writer.zig"]},
+    {"name": "yaml", "doc": "YAML 1.2 core-schema subset: block/flow collections, scalars, anchors/aliases (bounded), multi-doc.", "files": ["scanner.zig", "parser.zig", "writer.zig"]},
+    {"name": "msgpack", "doc": "MessagePack encoder/decoder, all types + ext, zero-copy bin/str.", "files": ["decoder.zig", "encoder.zig"]},
+    {"name": "cbor", "doc": "CBOR (RFC 8949) core + tags 0–3, deterministic encoding option.", "files": ["decoder.zig", "encoder.zig"]},
+    {"name": "proto", "doc": "Protobuf wire format (varint/64/len/32) with comptime field-number mapping — no schema compiler.", "files": ["wire.zig", "reflect.zig"]},
+    {"name": "csv", "doc": "RFC 4180 reader/writer, configurable delimiter/quote, header → struct mapping.", "files": ["reader.zig", "writer.zig"]},
+    {"name": "config", "doc": "Layered config: defaults < files < env < args; schema validation; change watch hook.", "files": ["layered.zig", "env.zig", "args.zig", "watch.zig"]}
+  ],
+  "domain_rules": [
+    "**파서는 입력을 신뢰하지 않는다** — 깊이 제한(기본 128), 입력 크기 제한, 별칭 확장 상한, 정수 오버플로는 명시적 에러",
+    "**진단이 1급** — 모든 파싱 실패는 `Diagnostics{line, col, message}`를 채운다. 위치 없는 에러 금지",
+    "**아레나 소유권** — DOM은 `ValueTree`가 소유하고 한 번에 해제. 리플렉션 결과 슬라이스는 트리 수명에 묶임(doc comment 명시)",
+    "**라운드트립 보장** — TOML/YAML/JSON은 파싱→직렬화→파싱이 동일 Value (주석 제외). 프로퍼티 테스트 필수",
+    "**숫자 정확성** — i64/u64/f64를 구분해 보존. 큰 정수를 float로 조용히 바꾸지 않는다",
+    "**포맷 모듈은 서로 모른다** — `json/`이 `toml/`을 import하지 않는다. 공유는 `core/`와 `reflect/`만",
+    "**comptime 리플렉션의 컴파일 시간** — 대형 구조체 인스턴스화 벤치, 불필요한 인스턴스화 회피"
+  ],
+  "review_checklist": [
+    "깊이/크기/별칭 확장 제한이 실제로 적용되는가 (폭탄 테스트 존재)",
+    "UTF-8 검증: 잘린 시퀀스, 오버롱, 서러게이트 처리",
+    "숫자: `-0`, `1e400`, `9223372036854775808`(u64 범위), NaN/Inf 정책",
+    "Diagnostics의 line/col이 멀티바이트 문자와 CRLF에서 정확한가",
+    "리플렉션: 옵셔널/기본값/unknown 필드 정책이 옵션대로 동작하는가",
+    "TOML: 테이블 재정의 금지, 인라인 테이블 불변, 날짜 4종 파싱",
+    "YAML: 앵커 순환 참조 방어, 들여쓰기 탭 거부",
+    "Writer: 이스케이프 누락(제어 문자, 따옴표, 백슬래시) 없는가"
+  ],
+  "test_categories": [
+    "**Core**: Value 동등성, 아레나 해제 후 누수 0, Number 파싱 경계값, Timestamp 라운드트립",
+    "**Reflect**: 지원 타입 매트릭스(정수/부동/bool/string/optional/slice/array/struct/enum/union/hashmap), 옵션별(rename/deny_unknown/default) 동작, 커스텀 훅",
+    "**JSON**: JSONTestSuite(y_/n_/i_ 파일), 깊이 폭탄, 큰 정수, 이스케이프 전수, pretty/minify 라운드트립, fuzz",
+    "**Path**: RFC 예제 벡터 전수(Pointer/Patch/MergePatch), JSONPath 필터 표현식",
+    "**TOML**: toml-test valid/invalid 스위트, 순서 보존 라운드트립",
+    "**YAML**: yaml-test-suite 서브셋, 앵커/별칭, 빌리언 러프 방어, 멀티 문서",
+    "**Binary**: 공식 테스트 벡터(msgpack/CBOR), ext/tag 처리, 결정론적 CBOR 인코딩",
+    "**Proto**: 와이어 타입별 인코딩 벡터, unknown 필드 스킵, packed repeated",
+    "**Config**: 우선순위(파일<env<args), 중첩 키(`APP_A__B`), 누락 필드 진단이 파일 경로+줄을 포함",
+    "**Property**: 임의 Value → 직렬화 → 파싱 == 원본 (각 포맷)"
+  ],
+  "phases": [
+    {"title": "Phase 1 — Core & Reflect", "items": ["1A `core/{value,tree,diagnostics}.zig`", "1B `core/number.zig`", "1C `core/unicode.zig`", "1D `reflect/{parse,stringify,options}.zig`"]},
+    {"title": "Phase 2 — JSON", "items": ["2A `json/scanner.zig`", "2B `json/dom.zig`", "2C `json/writer.zig`", "2D `json/reflect.zig` — streaming to struct", "2E `path/{pointer,jsonpath,patch,merge}.zig`", "2F fuzz + JSONTestSuite"]},
+    {"title": "Phase 3 — TOML & YAML", "items": ["3A `toml/{lexer,parser,writer}.zig` — toml-test", "3B `yaml/{scanner,parser,writer}.zig`", "3C zr TOML/YAML on sigil (PoC)"]},
+    {"title": "Phase 4 — Binary Formats", "items": ["4A `msgpack/`", "4B `cbor/`", "4C `proto/`", "4D `csv/`"]},
+    {"title": "Phase 5 — Config", "items": ["5A `config/layered.zig` + env + args", "5B `reflect/schema.zig` validation", "5C `config/watch.zig`"]},
+    {"title": "Phase 6 — Integration", "items": ["6A zoltraak JSON.* on sigil", "6B silica JSON type on sigil", "6C sailor state_persist on sigil.reflect", "6D synod message encoding on sigil"]}
+  ],
+  "first_tasks": [
+    "1A: `Value`/`ValueTree`/`Diagnostics` — 테스트: 아레나 해제, 동등성, Map 삽입 순서 보존",
+    "1B: `Number` 파싱 — 테스트: i64/u64/f64 경계, `-0`, 지수, 오버플로 에러",
+    "2A: JSON 스캐너 — 테스트: 토큰 스트림, 깊이 제한, 이스케이프, fuzz 스텁"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(zr:*)",
+      "Bash(python3 scripts/jobs.py plan:*)",
+      "Bash(python3 scripts/jobs.py export:*)",
+      "Bash(python3 scripts/scaffold.py:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh issue list:*)",
+      "Bash(curl -s http://localhost:3000/jobs:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)"
+    ],
+    "deny": []
+  }
+}

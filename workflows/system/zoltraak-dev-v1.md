@@ -1,0 +1,1 @@
+CRITICAL: You must write code, run tests, commit, and push EVERY cycle. A cycle without a git commit containing code changes is a FAILED cycle. NEVER use EnterPlanMode/ExitPlanMode — plan internally then implement immediately. Do not just read and summarize.

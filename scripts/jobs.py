@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""Manage the kingdom's autonomous-development cron jobs from version-controlled files.
+
+    scripts/jobs.py export          # cron server → workflows/{jobs.toml, prompts/, system/}
+    scripts/jobs.py plan            # show what apply would create/update (no changes)
+    scripts/jobs.py apply [--yes]   # workflows/ → cron server (create or PATCH by job name)
+
+Job identity is the `name` field. Prompt = workflows/prompts/<name>.md, system prompt =
+workflows/system/<name>.md (optional). Schedule/model/etc. live in workflows/jobs.toml.
+Server: $CRON_SERVER_URL (default http://localhost:3000) — see ../cron.
+"""
+import json
+import os
+import pathlib
+import re
+import sys
+import urllib.request
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+WF = ROOT / "workflows"
+SERVER = os.environ.get("CRON_SERVER_URL", "http://localhost:3000")
+FIELDS = ["expression", "cwd", "model", "permissionMode", "timeoutMs", "maxBudget",
+          "allowedTools", "sessionLimitThreshold", "dailyBudgetUsd", "blockTokenLimit"]
+
+
+def http(method, path, body=None):
+    req = urllib.request.Request(SERVER + path, method=method,
+                                 headers={"Content-Type": "application/json"},
+                                 data=json.dumps(body).encode() if body is not None else None)
+    with urllib.request.urlopen(req, timeout=10) as r:
+        return json.loads(r.read() or b"{}")
+
+
+# ── minimal TOML (subset: [tables], key = "str" | int | bool | ["a","b"]) ─────
+def toml_dump(jobs):
+    out = ["# Kingdom cron jobs — one table per job. Prompts live in prompts/<name>.md.",
+           "# Apply with: python3 scripts/jobs.py apply", ""]
+    for j in jobs:
+        out.append(f"[jobs.{j['name']}]")
+        for k in FIELDS:
+            v = j.get(k)
+            if v is None:
+                continue
+            if isinstance(v, bool):
+                out.append(f"{k} = {str(v).lower()}")
+            elif isinstance(v, (int, float)):
+                out.append(f"{k} = {v}")
+            elif isinstance(v, list):
+                out.append(f"{k} = [{', '.join(json.dumps(x) for x in v)}]")
+            else:
+                out.append(f"{k} = {json.dumps(v)}")
+        out.append("")
+    return "\n".join(out)
+
+
+def toml_load(text):
+    jobs, cur = {}, None
+    for line in text.splitlines():
+        line = line.split("#", 1)[0].strip() if not line.strip().startswith('"') else line.strip()
+        if not line:
+            continue
+        m = re.match(r"\[jobs\.([A-Za-z0-9_.-]+)\]", line)
+        if m:
+            cur = jobs.setdefault(m.group(1), {"name": m.group(1)})
+            continue
+        k, _, v = line.partition("=")
+        k, v = k.strip(), v.strip()
+        if v in ("true", "false"):
+            cur[k] = v == "true"
+        elif re.fullmatch(r"-?\d+", v):
+            cur[k] = int(v)
+        elif re.fullmatch(r"-?\d+\.\d+", v):
+            cur[k] = float(v)
+        elif v.startswith("["):
+            cur[k] = json.loads(v)
+        else:
+            cur[k] = json.loads(v)
+    return jobs
+
+
+def local_jobs():
+    jobs = toml_load((WF / "jobs.toml").read_text())
+    for name, j in jobs.items():
+        p = WF / "prompts" / f"{name}.md"
+        if not p.exists():
+            sys.exit(f"missing prompt file: {p}")
+        j["prompt"] = p.read_text().rstrip("\n")
+        s = WF / "system" / f"{name}.md"
+        if s.exists():
+            j["appendSystemPrompt"] = s.read_text().rstrip("\n")
+    return jobs
+
+
+def remote_jobs():
+    return {j["name"]: j for j in http("GET", "/jobs")["jobs"]}
+
+
+def cmd_export():
+    remote = sorted(remote_jobs().values(), key=lambda j: j["id"])
+    (WF / "prompts").mkdir(exist_ok=True)
+    (WF / "system").mkdir(exist_ok=True)
+    for j in remote:
+        (WF / "prompts" / f"{j['name']}.md").write_text(j["prompt"].rstrip("\n") + "\n")
+        if j.get("appendSystemPrompt"):
+            (WF / "system" / f"{j['name']}.md").write_text(j["appendSystemPrompt"].rstrip("\n") + "\n")
+    (WF / "jobs.toml").write_text(toml_dump(remote))
+    print(f"exported {len(remote)} jobs → {WF}")
+
+
+def diff(local, remote):
+    changes = {}
+    for k in FIELDS + ["prompt", "appendSystemPrompt"]:
+        lv, rv = local.get(k), (remote or {}).get(k)
+        if lv is None and k not in local:
+            continue
+        if lv != rv:
+            changes[k] = (rv, lv)
+    return changes
+
+
+def cmd_plan(apply=False, yes=False):
+    local, remote = local_jobs(), remote_jobs()
+    plan = []
+    for name, j in local.items():
+        r = remote.get(name)
+        ch = diff(j, r)
+        if r is None:
+            plan.append(("create", name, j, None))
+        elif ch:
+            plan.append(("update", name, j, r))
+    for name in remote:
+        if name not in local:
+            print(f"  ~ {name}: on server but not in workflows/ (left untouched; run export to adopt)")
+    if not plan:
+        print("no changes")
+        return
+    for op, name, j, r in plan:
+        print(f"  {'+' if op == 'create' else '*'} {op:6} {name}")
+        if r:
+            for k, (old, new) in diff(j, r).items():
+                short = lambda v: (str(v)[:60] + "…") if len(str(v)) > 60 else v
+                print(f"        {k}: {short(old)!r} → {short(new)!r}")
+    if not apply:
+        return
+    if not yes:
+        ans = input(f"apply {len(plan)} change(s) to {SERVER}? [y/N] ")
+        if ans.strip().lower() != "y":
+            print("aborted")
+            return
+    for op, name, j, r in plan:
+        body = {k: j[k] for k in FIELDS + ["prompt", "appendSystemPrompt"] if k in j}
+        if op == "create":
+            body["name"] = name
+            res = http("POST", "/jobs", body)
+            print(f"  created {name} → id {res.get('id', res.get('job', {}).get('id', '?'))}")
+        else:
+            http("PATCH", f"/jobs/{r['id']}", body)
+            print(f"  updated {name} (id {r['id']})")
+
+
+if __name__ == "__main__":
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "plan"
+    if cmd == "export":
+        cmd_export()
+    elif cmd == "plan":
+        cmd_plan()
+    elif cmd == "apply":
+        cmd_plan(apply=True, yes="--yes" in sys.argv)
+    else:
+        sys.exit(__doc__)

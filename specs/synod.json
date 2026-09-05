@@ -1,0 +1,59 @@
+{
+  "name": "synod",
+  "tagline": "The council where nodes reach consensus — Raft, membership, and failure detection for Zig",
+  "description": "synod는 I/O를 전혀 하지 않는 순수 상태기계 Raft 코어(선출, 로그 복제, 스냅샷, 조인트 합의 멤버십, ReadIndex/리스 읽기)와 SWIM 가십 멤버십, φ-accrual 장애 감지기, 하이브리드 논리 시계를 제공한다. 네트워크·디스크·시계는 vtable로 주입되며, 같은 코어가 결정론적 시뮬레이터 안에서 수백만 시나리오로 검증된다. silica의 복제/failover와 zoltraak의 cluster/sentinel이 이 위로 이식된다.",
+  "consumers": "silica, zoltraak",
+  "modules": [
+    {"name": "types", "doc": "NodeId, Term, Index, Entry, HardState, Snapshot, Message union, ConfChange.", "files": []},
+    {"name": "interfaces", "doc": "Transport, LogStore, StateMachine, Clock, Rng vtables.", "files": []},
+    {"name": "log", "doc": "In-memory Raft log with append/truncate/term lookup and invariant validation.", "files": []},
+    {"name": "raft", "doc": "Pure state machine: election (PreVote), replication, progress tracking, snapshot, joint-consensus membership, ReadIndex and lease reads.", "files": ["node.zig", "progress.zig", "snapshot.zig", "membership.zig", "read.zig"]},
+    {"name": "driver", "doc": "Executes Effects against Transport / LogStore / StateMachine.", "files": []},
+    {"name": "membership", "doc": "SWIM gossip protocol: ping, ping-req, suspicion, incarnation numbers.", "files": ["swim.zig"]},
+    {"name": "detector", "doc": "φ-accrual failure detector.", "files": ["phi_accrual.zig"]},
+    {"name": "clock", "doc": "Hybrid logical clock, Lamport clock, monotonic Clock interface.", "files": ["hlc.zig", "lamport.zig"]},
+    {"name": "store", "doc": "In-memory LogStore for tests and simulation.", "files": ["memory.zig"]},
+    {"name": "sim", "doc": "Deterministic simulation: virtual clock, virtual network (delay, loss, partition, reorder), scenarios, Raft safety invariants, linearizability checker.", "files": ["clock.zig", "network.zig", "simulation.zig", "invariants.zig", "linearizability.zig"]},
+    {"name": "adapters", "doc": "Opt-in adapters: sirocco Transport, strata LogStore.", "files": ["sirocco_transport.zig", "strata_logstore.zig"]}
+  ],
+  "domain_rules": [
+    "**코어는 절대 I/O 하지 않는다** — `raft/`, `membership/`, `detector/`는 std.net/std.fs/std.time을 import하지 않는다 (리뷰에서 grep으로 검사)",
+    "**시계와 난수는 주입** — `std.time.milliTimestamp()` 직접 호출 금지",
+    "**모든 상태 전이는 `step()`/`tick()`을 통해서만** — 외부에서 필드를 직접 수정하지 않는다",
+    "**Effect는 값으로 반환** — 코어가 콜백을 호출하지 않는다",
+    "**멤버십 변경은 조인트 합의만** — 단일 서버 변경 방식 구현 금지",
+    "**불변식 위반은 `error.Invariant*`** — 시뮬레이터가 시드와 함께 보고할 수 있도록",
+    "**메시지에 프로토콜 버전 필드** — 롤링 업그레이드 대비"
+  ],
+  "review_checklist": [
+    "Raft 안전 속성: Election Safety, Leader Append-Only, Log Matching, Leader Completeness, State Machine Safety를 깨는 경로가 없는가",
+    "term 비교: 모든 수신 메시지에서 term > currentTerm 시 follower 전환",
+    "커밋 인덱스: 현재 term의 엔트리만 다수결로 커밋(Figure 8 문제)",
+    "스냅샷 중 로그 절단과 진행 추적의 일관성",
+    "조인트 합의: C_old,new 동안 양쪽 다수결 요구",
+    "코어 모듈에 I/O import가 없는가",
+    "시뮬레이션 테스트가 새 기능의 실패 시나리오(분할/유실/재시작)를 포함하는가"
+  ],
+  "test_categories": [
+    "**Log**: append/truncate/conflict 해소, term lookup, `validate()` 불변식",
+    "**State transitions**: follower→candidate→leader, 타임아웃, 높은 term 수신, PreVote 거부 조건 — 상태 전이 표 전수",
+    "**Replication**: 로그 불일치 백트래킹, 배치, 커밋 전진, Figure 8 시나리오",
+    "**Simulation**: 시드 기반 — 분할/복구, 메시지 유실·재정렬, crash/restart, 멤버십 변경 중 분할. 5개 안전 속성 검사",
+    "**Property**: 임의 Input 시퀀스에도 안전 속성 유지 (`std.testing.fuzz`)",
+    "**SWIM/Detector**: 오탐 복구(incarnation), φ 임계값 동작, 하트비트 결측",
+    "**Clocks**: HLC 단조성, 물리 시계 역행 시 동작"
+  ],
+  "phases": [
+    {"title": "Phase 1 — Core Types & Log", "items": ["1A `types.zig`", "1B `log.zig` + `validate()`", "1C `interfaces.zig` vtables", "1D `store/memory.zig`"]},
+    {"title": "Phase 2 — Raft Election & Replication", "items": ["2A `raft/node.zig` — states, election, PreVote", "2B AppendEntries, commit advance, conflict resolution", "2C `raft/progress.zig`", "2D `driver.zig`"]},
+    {"title": "Phase 3 — Simulation Harness", "items": ["3A `sim/clock.zig`, `sim/network.zig`, `sim/simulation.zig`", "3B `sim/invariants.zig` — 5 safety properties", "3C seeded CI test step (`zig build sim -Dseeds=N`)", "3D `sim/linearizability.zig`"]},
+    {"title": "Phase 4 — Snapshot & Membership", "items": ["4A `raft/snapshot.zig` + InstallSnapshot", "4B `raft/membership.zig` — joint consensus", "4C `raft/read.zig` — ReadIndex, lease", "4D log compaction policy"]},
+    {"title": "Phase 5 — SWIM & Clocks", "items": ["5A `membership/swim.zig`", "5B `detector/phi_accrual.zig`", "5C `clock/hlc.zig`, `clock/lamport.zig`"]},
+    {"title": "Phase 6 — Adapters & Integration", "items": ["6A `adapters/sirocco_transport.zig`", "6B `adapters/strata_logstore.zig`", "6C zoltraak cluster on synod (PoC)", "6D silica failover on synod (PoC)"]}
+  ],
+  "first_tasks": [
+    "1A: 타입 정의 — 테스트: Message 유니온 태그 전수, HardState 비교",
+    "1B: 인메모리 로그 — 테스트: append/truncate/termAt, 충돌 지점 탐색, validate()",
+    "1C+1D: vtable 인터페이스와 인메모리 LogStore — 테스트: 저장/복원 라운드트립"
+  ]
+}

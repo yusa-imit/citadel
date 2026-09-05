@@ -1,0 +1,6 @@
+.DS_Store
+.claude/settings.local.json
+.claude/scratchpad.md
+.claude/session-counter
+.zr_history
+workflows/.export-raw.json

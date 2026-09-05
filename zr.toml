@@ -1,0 +1,41 @@
+# citadel tasks — run with `zr <task>` from this directory (zr: ../zr/zig-out/bin/zr or install.sh)
+
+[tasks.sync]
+description = "Clone missing / pull all kingdom repos"
+cmd = "zr repo sync --clone-missing"
+
+[tasks.status]
+description = "Git status across all kingdom repos"
+cmd = "zr repo status"
+
+[tasks.build]
+description = "zig build in every Zig repo (dependency order)"
+cmd = "zr repo run build --tags=zig"
+
+[tasks.test]
+description = "zig build test in every Zig repo"
+cmd = "zr repo run test --tags=zig"
+
+[tasks.foundation-test]
+description = "Tests for the four foundation libraries only"
+cmd = "zr repo run test --tags=foundation"
+
+[tasks.jobs-export]
+description = "Pull current cron job definitions into workflows/"
+cmd = "python3 scripts/jobs.py export"
+
+[tasks.jobs-plan]
+description = "Diff workflows/ against the running cron server (no changes)"
+cmd = "python3 scripts/jobs.py plan"
+
+[tasks.jobs-apply]
+description = "Create/update cron jobs from workflows/ (asks for confirmation)"
+cmd = "python3 scripts/jobs.py apply"
+
+[tasks.scaffold]
+description = "Re-render template-owned files into a component repo: zr scaffold -- <name> --force"
+cmd = "python3 scripts/scaffold.py"
+
+[tasks.kingdom]
+description = "Print the kingdom map"
+cmd = "cat docs/KINGDOM.md"

@@ -1,0 +1,54 @@
+{
+  "name": "sirocco",
+  "tagline": "The wind that drives the fleet — async I/O runtime and network stack for Zig",
+  "description": "sirocco는 kqueue/epoll/io_uring/IOCP를 하나의 완성 기반(completion-based) API로 추상화한 이벤트 루프 위에 TCP/UDP/Unix 소켓, DNS, 커넥션 풀, TLS 1.3, HTTP/1.1·HTTP/2, WebSocket을 얇게 쌓은 제로 의존성 네트워크 스택이다. silica·zoltraak 서버, zr의 다운로더·원격 캐시, sailor의 네트워크 위젯, synod의 Transport가 이 위에서 동작한다.",
+  "consumers": "silica, zoltraak, zr, sailor, synod",
+  "modules": [
+    {"name": "io", "doc": "Event loop, completions, timers, cancellation. Backends: kqueue, epoll, io_uring, iocp.", "files": ["completion.zig", "loop.zig", "timer.zig", "backend/kqueue.zig", "backend/epoll.zig", "backend/io_uring.zig", "backend/iocp.zig"]},
+    {"name": "net", "doc": "Sockets (tcp, udp, unix), address parsing, DNS resolver, connection pool.", "files": ["address.zig", "tcp.zig", "udp.zig", "unix.zig", "dns.zig", "pool.zig"]},
+    {"name": "tls", "doc": "TLS 1.3 client/server on std.crypto.tls with async handshake, ALPN, SNI, PEM loading.", "files": ["client.zig", "server.zig", "pem.zig"]},
+    {"name": "http", "doc": "HTTP/1.1 parser, client (retry/redirect/pool/proxy), server (graceful shutdown), HTTP/2 (HPACK, streams).", "files": ["parser.zig", "client.zig", "server.zig", "h2/hpack.zig", "h2/stream.zig"]},
+    {"name": "ws", "doc": "WebSocket (RFC 6455) client and server framing, ping/pong, close handshake.", "files": ["frame.zig", "client.zig", "server.zig"]},
+    {"name": "task", "doc": "Thread pool, bounded channel, wait group, hierarchical cancellation, multi-loop scheduler.", "files": ["thread_pool.zig", "channel.zig", "cancel.zig", "scheduler.zig"]}
+  ],
+  "domain_rules": [
+    "**Completion은 호출자 소유, 인트루시브** — 루프는 op당 힙 할당을 하지 않는다",
+    "**모든 블로킹 지점에 데드라인** — connect/read/write/dns 모두 timeout 파라미터 필수",
+    "**버퍼는 호출자 소유** — 런타임은 사용자 버퍼를 복사하지 않는다",
+    "**취소는 1급** — 모든 op는 `cancel()` 가능하고 `error.Cancelled`로 완료된다",
+    "**백엔드 격리** — `io/backend/*`만 OS API를 안다. 상위 계층은 `Completion`/`Result`만 본다",
+    "**파서는 입력을 신뢰하지 않는다** — HTTP/WS 파서는 크기 제한, 상태기계, fuzz 필수",
+    "**graceful shutdown** — 서버는 listen 중단 → in-flight 완료 대기 → 강제 종료 순서를 지킨다"
+  ],
+  "review_checklist": [
+    "Completion 생명주기: submit 후 완료 전 해제되는 경로가 없는가",
+    "취소와 완료의 경합: cancel 직후 도착한 완료가 이중 콜백을 만들지 않는가",
+    "타이머 휠: 등록/취소 O(1), 시간 역행(monotonic) 안전",
+    "소켓 fd 누수: 모든 에러 경로에서 close",
+    "HTTP 파서: 청크 경계, 헤더 크기 상한, CRLF 주입, 요청 스머글링 방어",
+    "TLS: 핸드셰이크 중 부분 읽기/쓰기 재개가 올바른가",
+    "플랫폼 차이(kqueue EV_CLEAR vs epoll EPOLLET)가 상위 계층으로 새지 않는가"
+  ],
+  "test_categories": [
+    "**Loop**: 루프백 echo(모든 op 타입), 타이머 정확도(±1ms), cancel 경합, run 모드별 종료 조건, 다중 스레드 wakeup",
+    "**Net**: 주소 파싱 라운드트립(IPv4/IPv6/scope/Unix), DNS 실패·타임아웃, 풀 min/max/idle 회수",
+    "**TLS**: 핸드셰이크 성공/실패(잘못된 인증서, ALPN 불일치), 부분 레코드",
+    "**HTTP**: 파서 fuzz, keep-alive 재사용, 청크 인코딩, 리다이렉트 루프 상한, 프록시 환경변수",
+    "**WS**: 프레이밍 fuzz, 마스킹, 조각 메시지, close 코드",
+    "**Task**: 채널 백프레셔, 취소 전파 순서, 풀 종료 시 잔여 작업 처리",
+    "**Leak**: 모든 테스트 `std.testing.allocator`; fd 수 before/after 비교"
+  ],
+  "phases": [
+    {"title": "Phase 1 — Loop Core", "items": ["1A `io/completion.zig` — Op union, Result, intrusive queue", "1B `io/backend/kqueue.zig`", "1C `io/backend/epoll.zig`", "1D `io/timer.zig` — timing wheel", "1E `io/loop.zig` — dispatch, run modes, wakeup, cancel", "1F loopback echo / timer / cancel race tests"]},
+    {"title": "Phase 2 — Net", "items": ["2A `net/address.zig`", "2B `net/tcp.zig`, `net/udp.zig`, `net/unix.zig`", "2C `net/dns.zig`", "2D `net/pool.zig`", "2E `bench/echo.zig`"]},
+    {"title": "Phase 3 — TLS", "items": ["3A `tls/client.zig`", "3B `tls/pem.zig`", "3C `tls/server.zig`", "3D ALPN / SNI"]},
+    {"title": "Phase 4 — HTTP & WS", "items": ["4A `http/parser.zig` + fuzz", "4B `http/client.zig`", "4C `http/server.zig`", "4D `ws/`", "4E `http/h2/`"]},
+    {"title": "Phase 5 — Task & Multi-core", "items": ["5A `task/thread_pool.zig`, `task/channel.zig`", "5B `task/cancel.zig`", "5C `task/scheduler.zig` (SO_REUSEPORT)", "5D io_uring backend", "5E IOCP backend"]},
+    {"title": "Phase 6 — Integration", "items": ["6A silica server on sirocco (PoC)", "6B zr downloader → `sirocco.http.Client`", "6C sailor httpclient/websocket widgets delegate", "6D synod Transport adapter"]}
+  ],
+  "first_tasks": [
+    "1A: `Completion`/`Op`/`Result` 타입과 인트루시브 큐 — 테스트: 큐 push/pop/remove, Op 태그 커버리지",
+    "1B: kqueue 백엔드 — 테스트: 루프백 TCP accept/connect/read/write/close",
+    "1D: 타이밍 휠 — 테스트: 등록/취소/만료 순서, 대량 타이머(100k) 성능"
+  ]
+}
