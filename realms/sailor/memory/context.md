@@ -1,7 +1,22 @@
 # sailor — context
 
-last_seen_at: 2026-09-05T00:00:00Z
+last_seen_at: 2026-09-05T20:14:00Z
 rejected_plans: []
+
+## Cycle 1 — 2026-09-05 — FEATURE
+
+- Done: plan `001` (Zig 0.16 migration + Tiger Style baseline) was already merged (#18) when
+  this cycle started; opened tracking issue #19 with its 12-item checklist. Implemented item 1
+  (hygiene leftovers): dropped the dead memory-dir entry from `ci.yml` `paths-ignore`, fixed 3
+  dangling doc links (a removed root config doc, a `memory-profiling.md` that never existed, a
+  mistyped `benchmark_runner.zig`). PR #20, CI green on all 3 native runners + 6 cross-compile +
+  benchmarks, squash-merged, labelled `auto-merged`, checklist item 1 ticked on #19.
+- PRs: #20 (merged).
+- Next: item 2 — `tidy` step in `build.zig` (line/function-length limits, ban list, `//!`
+  header check), wired into `zig build test`.
+- Blockers: none. `wip/timeline-description-rendering` still undecided — plan item 3, not yet
+  reached.
+- Open questions: none.
 
 ## Cycle 0 — 2026-09-05 — RESTRUCTURE
 
