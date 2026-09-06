@@ -1,18 +1,19 @@
 # sigil — context
 
-last_seen_at: 2026-09-05T00:00:00Z
+last_seen_at: 2026-09-06T00:00:00Z
 rejected_plans: []
 
-## Cycle 1 — 2026-09-05 — FEATURE
+## Cycle 2 — 2026-09-06 — FEATURE
 
-- Done: preflight (CI green, no bug/question issues, tree clean); inbox found nothing
-  actionable — plan PR #2 has zero review comments, just awaiting human merge.
-- PRs: none opened this cycle.
-- Next: same as cycle 0 — once #2 merges, run plan 001 (Zig 0.16 migration + tidy step +
-  `io: Io` convention spike). Until then, no milestone issue exists so no implementation
-  work is possible.
-- Blockers: plan 001 PR #2 awaiting human merge (no action needed from us — GitHub
-  protocol says merge=approve, comment=request changes, close=reject).
+- Done: plan 001 (PR #2) had merged since last cycle with no milestone issue yet — opened
+  tracking issue #3 (11-item checklist). Implemented + merged item 1 (Hygiene leftovers):
+  fixed stale `docs/milestones.md` doc-comment references (now `docs/plans/`), dropped the
+  dead AI-scaffold-memory CI paths-ignore entry and matching `.gitignore` lines, extended
+  `zig fmt --check` and `build.zig.zon` `.paths` to cover `bench/`.
+- PRs: #4 opened, CI green (7/7 jobs), squash-merged, branch deleted.
+- Next: item 2 (Branch decision, `wip/*`) — pure recording step, no `wip/*` branch exists
+  for sigil. Then item 3 (`tidy` step in `build.zig`) is the first real implementation work.
+- Blockers: none.
 - Open questions: none.
 
 ## History
@@ -23,9 +24,14 @@ all stub modules, 2 commits). Zig 0.16 probe found sigil nearly migration-ready 
 error (`main.zig`'s `GeneralPurposeAllocator` rename), library surface already compiles
 clean on 0.16. Full detail in `REALM.md`/`STATE.md`. Plan 001 PR opened, awaiting merge.
 
+Cycle 1 (2026-09-05, FEATURE): plan 001 PR #2 still open awaiting human merge, zero review
+comments; no milestone issue existed yet so no implementation work was possible. No action
+taken beyond a status comment on the PR.
+
 ## Standing backlog (carried over from repo's former `project-context.md`)
 
-In milestone order (`docs/milestones.md` Phase 1, unchanged since bootstrap):
+Plan 001 (Zig 0.16 migration + Tiger Style baseline) is now the active milestone, tracked in
+issue #3. In milestone order for the *next* plan (002, Phase 1 — unchanged since bootstrap):
 
 - **1A** — `core/{value,tree,diagnostics}.zig`: `Value` union, arena-owned `ValueTree`,
   `Diagnostics{line,col,message}`. Tests: arena release, equality, Map insertion-order
@@ -37,12 +43,11 @@ In milestone order (`docs/milestones.md` Phase 1, unchanged since bootstrap):
   field rename/defaults/deny-unknown-fields options.
 - **2A-2C** (after Phase 1) — `json/{scanner,dom,writer}.zig`: RFC 8259 pull scanner,
   DOM builder, pretty/minify writer.
-- Housekeeping: populate the empty performance-targets table in `docs/milestones.md` and
+- Housekeeping: populate the empty performance-targets table in `docs/plans/` and
   `docs/PRD.md` §5 once any module is benchmarkable.
 
 ## Next priority
 
-Phase 1A (`core/value.zig` + `ValueTree` + `Diagnostics`) is the actual next priority once
-the repo's own `.claude/`/`CLAUDE.md` files are removed and the Zig 0.16 migration (or a
-decision to defer it past Phase 1) is settled — nothing in Phase 1-6 has dependencies
-outside `core/`, so 1A can start immediately either way.
+Finish plan 001 (issue #3), one checklist item per cycle, before starting Phase 1A. Item 2
+(Branch decision) is a no-op recording step; item 3 (`tidy` step) is the first real build.zig
+work and has no blockers.
