@@ -1,18 +1,17 @@
 # sigil — context
 
-last_seen_at: 2026-09-06T00:00:00Z
+last_seen_at: 2026-09-07T00:00:00Z
 rejected_plans: []
 
-## Cycle 2 — 2026-09-06 — FEATURE
+## Cycle 3 — 2026-09-07 — FEATURE
 
-- Done: plan 001 (PR #2) had merged since last cycle with no milestone issue yet — opened
-  tracking issue #3 (11-item checklist). Implemented + merged item 1 (Hygiene leftovers):
-  fixed stale `docs/milestones.md` doc-comment references (now `docs/plans/`), dropped the
-  dead AI-scaffold-memory CI paths-ignore entry and matching `.gitignore` lines, extended
-  `zig fmt --check` and `build.zig.zon` `.paths` to cover `bench/`.
-- PRs: #4 opened, CI green (7/7 jobs), squash-merged, branch deleted.
-- Next: item 2 (Branch decision, `wip/*`) — pure recording step, no `wip/*` branch exists
-  for sigil. Then item 3 (`tidy` step in `build.zig`) is the first real implementation work.
+- Done: implemented plan 001 item 2 (Branch decision) — recorded that no `wip/*` branch exists
+  for sigil and the stale local ref for the merged `chore/kingdom-restructure` (PR #1) was
+  already absent; ticked the checklist box in `docs/plans/001-*.md`.
+- PRs: #5 opened, CI green (7/7 jobs), squash-merged, branch deleted, labelled `auto-merged`.
+- Tracking issue #3 checklist updated: 2/11 done.
+- Next: item 3 (`tidy` step in `build.zig`) — the first real implementation work on this plan;
+  no `blocked_by`.
 - Blockers: none.
 - Open questions: none.
 
@@ -27,6 +26,10 @@ clean on 0.16. Full detail in `REALM.md`/`STATE.md`. Plan 001 PR opened, awaitin
 Cycle 1 (2026-09-05, FEATURE): plan 001 PR #2 still open awaiting human merge, zero review
 comments; no milestone issue existed yet so no implementation work was possible. No action
 taken beyond a status comment on the PR.
+
+Cycle 2 (2026-09-06, FEATURE): plan 001 (PR #2) had merged since last cycle — opened tracking
+issue #3 (11-item checklist). Implemented + merged item 1 (Hygiene leftovers) via PR #4, CI
+green (7/7).
 
 ## Standing backlog (carried over from repo's former `project-context.md`)
 
@@ -48,6 +51,9 @@ issue #3. In milestone order for the *next* plan (002, Phase 1 — unchanged sin
 
 ## Next priority
 
-Finish plan 001 (issue #3), one checklist item per cycle, before starting Phase 1A. Item 2
-(Branch decision) is a no-op recording step; item 3 (`tidy` step) is the first real build.zig
-work and has no blockers.
+Finish plan 001 (issue #3), one checklist item per cycle, before starting Phase 1A. Item 3
+(`tidy` step in `build.zig`) is next — the first real implementation work on this plan, no
+`blocked_by`: a `zig build tidy` step over `src/**.zig` + `build.zig` + `bench/**.zig` failing
+on the seven rules listed in `docs/plans/001-*.md` (line length, function length, `catch
+unreachable` without proof, `std.debug.print` outside main.zig, `std.time.*` in lib, `usize`
+in wire formats, missing `//!` headers).
