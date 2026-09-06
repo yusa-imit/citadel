@@ -1,7 +1,27 @@
 # synod — context
 
-last_seen_at: 2026-09-06T01:00:00Z
+last_seen_at: 2026-09-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 3 — 2026-09-07 — FEATURE
+- Inbox: merged PR #5 (item 2, tidy sizes) — CI was green; ticked item 2 in #3.
+- Implemented item 3 (`tidy` step, part 2 — ban list): `tools/tidy.zig` gained
+  `checkCatchUnreachable` (no `catch unreachable` without `// proof:` same/previous line),
+  `checkBannedPattern` (`std.debug.print`, `std.time.*` in `src/`), `checkWireUsize` (no
+  `usize` field inside `Message`/`Entry`/`HardState`/`Snapshot`), `hasModuleHeader` (every
+  `.zig` file needs `//!`); added missing headers to `build.zig`/`src/main.zig`. TDD: 25 tests.
+  Opened PR #6, merged after CI green on all 7 jobs.
+- A code-reviewer pass (before merge) caught two real bugs a first "all green" pass missed:
+  `zig build test` never actually ran `tools/tidy.zig`'s own `test` blocks — only `main()`'s
+  repo scan was wired into the build graph, so the file's 42 tests were silently dead weight.
+  Fixed by adding `b.addTest(.{.root_module = tidy_exe.root_module})` + `dependOn` from
+  `test_step` (see `patterns.md`). That then surfaced a genuine off-by-one in
+  `checkWireUsize`'s reported line number, plus 4 lines over 100 cols the tool wasn't checking
+  against itself (tidy only walks `src/`, self-exempting `tools/`). Lesson: don't trust
+  "zig build test is green" for a new executable target without confirming its own tests are
+  actually wired into a `b.addTest`, not just `addRunArtifact` of the binary's `main()`.
+- Next: item 4, 0.16 migration starting at `src/main.zig` (trivial — see `STATE.md`).
+- Open questions: none.
 
 ## Cycle 2 — 2026-09-06 — FEATURE
 - Inbox: no new owner actions since the watermark; milestone #3 open, item 1 done.

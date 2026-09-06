@@ -51,3 +51,16 @@ The "no I/O in core" rule (`REALM.md`) applies to `src/`, not `tools/*.zig` (tid
 future codegen/lint scripts) — those may use `std.fs.cwd()` etc. freely since they run at
 build time on the host, never ship in the library, and are not under the Zig 0.16 `io: Io`
 convention either (that's a `src/` boundary rule). See `tools/tidy.zig` (plan 001 item 2).
+
+## A build.zig executable's own `test` blocks need their own `b.addTest`
+
+`b.addRunArtifact(some_exe)` only runs `some_exe`'s `main()`; it does not execute any `test`
+blocks in that binary's source, even though `zig test` on the same file would. If a `src`-like
+tool (e.g. `tools/tidy.zig`) has both a real `main()` and unit tests in the same file, wire a
+second `b.addTest(.{ .root_module = the_exe.root_module })` + `b.addRunArtifact` +
+`test_step.dependOn` alongside the `run`-artifact step — otherwise `zig build test` reports
+green while every test in that file is silently never run. Caught by a code-reviewer pass in
+cycle 3 (plan 001 item 3) after a first "all green" pass had missed it; the review also then
+caught a real off-by-one bug the dead tests would have flagged. Lesson: for any new
+`b.addExecutable` that carries `test` blocks, check `build.zig` wires a matching `b.addTest`
+before trusting `zig build test`'s green as covering that file.
