@@ -1,7 +1,24 @@
 # strata — context
 
-last_seen_at: 2026-09-06T05:08:21Z
+last_seen_at: 2026-09-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 2 — 2026-09-07 — FEATURE
+- Done: inbox clean (no owner actions, CI green on main, milestone issue #3 open with
+  plan 001 in progress). Implemented plan 001 item 2 (`tidy` step, part 1 — shape):
+  vendored a trimmed subset of the kingdom reference `tidy.zig`
+  (`citadel/templates/tidy/tidy.zig`) into `tools/tidy.zig` — line length (≤100 Unicode
+  code points) and doc header (`.zig` files under `src/` open with `//!`) — wired into
+  `zig build test` via a new `zig build tidy` step. TDD: test-writer wrote 17 in-memory
+  unit tests against stub bodies (confirmed 9/17 red), zig-developer implemented
+  splitLines/checkLineLength/checkDocHeader/formatFindings + a bounded non-recursive
+  directory walk + main() to turn them green. Wiring tidy in surfaced 6 pre-existing
+  shape violations in src/ (missing header in main.zig, 5 over-100-column doc comments)
+  — fixed in the same PR.
+- PRs: #5 merged (auto-merged label), all 7 CI checks green.
+- Next: plan 001 item 3 (`tidy` step, part 2 — function length ratchet + ban list).
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 1 — 2026-09-06 — FEATURE
 - Done: plan 001 (PR #2, merged prior cycle) had unchecked items and no milestone issue →
