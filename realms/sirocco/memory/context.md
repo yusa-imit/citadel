@@ -1,7 +1,18 @@
 # sirocco — context
 
-last_seen_at: 2026-09-06T00:00:00Z
+last_seen_at: 2026-09-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 2 — 2026-09-07 — FEATURE
+- Done: implemented and merged item 2, PR #5: `zig build tidy` mechanical Tiger Style checker
+  (`tools/tidy.zig`/`tidy_main.zig`, 22 unit tests + integration test over real `src/` files),
+  wired as a dependency of `zig build test`. Baseline file `tools/tidy_baseline.txt` starts
+  empty (shrink-only ratchet, 71-72 red zone). Fixed gaps it caught: `src/main.zig` had no
+  `//!` header; `io/tls/http/task.zig` headers ran past 100 columns. CI green (Build & Test +
+  6 cross-compile targets).
+- Next: item 3, `src/main.zig` 0.16 migration (`process.Init`, `init.gpa`, `argsAlloc` →
+  `init.minimal.args.toSlice`, stdout via `Io` handle).
+- Blockers: none. Open questions: none.
 
 ## Cycle 0 — 2026-09-05 — RESTRUCTURE
 - Realm created by citadel restructure. Memory migrated from the repo's former
