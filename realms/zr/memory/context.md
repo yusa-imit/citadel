@@ -1,7 +1,26 @@
 # zr — context
 
-last_seen_at: 2026-09-06T06:05:00Z
+last_seen_at: 2026-09-06T21:06:26Z
 rejected_plans: []
+
+## Cycle 1 — 2026-09-06 — FEATURE
+- Preflight found the tree dirty on `feat/tidy-build-step` (uncommitted `tidy` build-step work
+  from a prior session: `tools/tidy.zig`, `build.zig` wiring, `tidy_baseline.txt`) — preserved
+  to `wip/feat-tidy-build-step-20260907`, pushed, then returned to `main`.
+- Inbox: CI green, no bug issues, no plan PR open, plan 001 (#154) merged, milestone #155 open
+  with item 1 done. PR #30 (zuda graph migration) still draft/OWNER — untouched per rule
+  (never touch draft PRs); listed for a future cycle's decision, not acted on.
+- Implemented milestone #155 item 2 (`tidy` build step): finished the wip work into
+  `feat/tidy-build-step-lint`. Found and fixed a real **use-after-free** in the vendored
+  `tools/tidy.zig`'s `checkFunctionLength` — see `debugging.md`. Same bug lives in
+  `citadel/templates/tidy` upstream; not fixed here (out of scope for a realm session — only
+  `/report` may touch citadel — but flagged for a citadel cycle).
+- PR #157 opened; `Build & Unit Test` and `Integration Test` green, 6-target cross-compile
+  matrix still running at the cycle deadline. Comment posted on the PR; left for next cycle's
+  `/inbox` to merge once green (or fix if red).
+- Next: merge #157 once CI is green, tick milestone #155 item 2, then item 3 (assertion
+  baseline) or item 4 (wip/advanced-retry-config + PR #30 decision) — both unblocked.
+- Open questions: none.
 
 ## Cycle 0 — 2026-09-05 — RESTRUCTURE
 - Realm created by citadel restructure. Memory migrated from the repo's former

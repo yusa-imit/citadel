@@ -3,6 +3,23 @@
 Solutions to tricky bugs, carried over and condensed from the repo's old `.claude/memory/`.
 Check here before re-debugging something that already has a known fix.
 
+## `tools/tidy.zig` (vendored) — use-after-free on repeated function names
+
+- **[2026-09-06] `checkFunctionLength` false "unbaselined" failures**: on landing the tidy
+  build step (plan 001 item 2), `zig build tidy` failed 2 findings whose baseline entries
+  visibly matched (`src/config/types.zig:deinit:142`, `src/watch/native.zig:waitForEvent:74`).
+  Root cause: both files declare many same-named methods across sibling structs (10+
+  `deinit`s, 7 `waitForEvent`s). `checkFunctionLength`'s per-occurrence loop called
+  `allocator.free(key)` on the second+ occurrence's `getOrPut` hit, then read that same freed
+  `key` on the very next line via `baseline.get(key)` — under `std.testing.allocator` the freed
+  bytes get poisoned, the hash changes, and the lookup misses even though the baseline has the
+  right entry. Fix: defer the free until after the `baseline.get` read. Reproduced first with a
+  regression test (two same-named functions, second one baselined) before fixing — see
+  `tools/tidy.zig` test "checkFunctionLength passes the second of two same-named baselined
+  functions". **The identical bug is present in `citadel/templates/tidy` upstream** (the file
+  this was vendored from) — not fixed there this cycle (only `/report` may touch citadel from a
+  realm session); worth a citadel cycle picking it up so newly-vendoring realms don't repeat it.
+
 ## CI red history (context for the "0 failed but still red" trap)
 
 - **[2026-08-28] "0 failed" but CI still exited 1**: GPA leak detection (23 tests leaked memory)
