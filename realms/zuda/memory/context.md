@@ -1,7 +1,22 @@
 # zuda — context
 
-last_seen_at: 2026-09-06T00:00:00Z
+last_seen_at: 2026-09-06T07:30:00Z
 rejected_plans: []
+
+## Cycle 2 — 2026-09-06 — FEATURE
+- Done: merged PR #32 (cycle 1's clear-the-decks work, CI was green), ticked milestone #31
+  item 1. Implemented item 2: vendored the kingdom reference tidy lint
+  (`citadel/templates/tidy/tidy.zig`) into `tools/tidy.zig`, wired as a standalone
+  `zig build tidy` step. `tidy_baseline.txt` (620 entries) makes function-length clean (0
+  findings); deliberately did NOT wire tidy into `test_step` — `main` has 4,608 pre-existing
+  failing findings outside function-length (3,728 line-length, 575 ban-list, 301 missing `//!`
+  headers). Amended `docs/plans/001-*.md` item 2 in the same PR to record this and added a new
+  unchecked item for wiring tidy into `test` once later migration items shrink the count — see
+  `decisions.md` for the full reasoning.
+- PRs: #33 open, CI still pending (queued) at the cycle deadline — left a status comment,
+  next cycle's inbox merges it once green.
+- Next: merge #33, then plan 001 item 3 (`build.zig` 0.16 API pass, `linkLibC`).
+- Blockers: none. Open questions: none.
 
 ## Cycle 1 — 2026-09-06 — FEATURE
 - Done: plan 001 (Zig 0.16 migration) merged by owner before this cycle started. Opened

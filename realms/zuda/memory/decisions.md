@@ -58,3 +58,31 @@ _(migrated from the repo's former `.claude/memory/decisions.md`, 2026-09-05)_
   per-file `StudentT`/`ChiSquared`/`FDistribution` instead of `distributions.zig`'s versions —
   migrating those two call sites to the canonical catalog (then deleting the last 4 legacy
   files) is separate follow-up work, not done this cycle.
+
+## Decision: ship `zig build tidy` standalone, don't gate `test` on it yet
+- **Date**: 2026-09-06
+- **Context**: plan 001 item 2 said "add a tidy step ... wired into `zig build test`" and its
+  verify line assumed `zig build tidy` would exit 0 on `main`. Vendoring the kingdom reference
+  lint (`citadel/templates/tidy/tidy.zig` → `tools/tidy.zig`, PR #33) and running it against
+  `main` found **4,608 failing findings** outside function-length: 3,728 line-length (>100
+  cols), 575 ban-list (mostly `catch unreachable`, `std.time.*`, `anyerror` on `pub fn`), 301
+  missing `//!` headers — the accumulated cost of 445 files written before this lint existed.
+  Function-length is the one check with a baseline mechanism (shrink-only ratchet); the other
+  four checks have no such escape hatch in the reference tool.
+- **Decision**: wired `tidy` as its own `zig build tidy` step, not a dependency of `test_step`.
+  Populated `tidy_baseline.txt` with all 620 pre-existing over-length functions so that check is
+  clean today. Amended `docs/plans/001-*.md` in the same PR: item 2's text and verify line now
+  describe what shipped, and a new unchecked item tracks gating `test` on tidy once later
+  migration items (mechanical renames; `std.time`/`std.fs`/`std.Thread` → `Io`) remove most
+  ban-list sources, plus a dedicated line-length/doc-header cleanup pass.
+- **Rationale**: rule 6 (every commit passes `zig build test`) forbids landing a change that
+  turns CI red; gating `test` on 4,608 pre-existing findings now would do exactly that, for a
+  scope far larger than one cycle's item. This is a judgment call, not something the plan text
+  anticipated — flagged here rather than silently deviating.
+- **Known tool limitation found while generating the baseline**: `tidy.zig`'s function-length
+  baseline keys on `"path:function_name"` — a file with two functions sharing a name (found in
+  `btree.zig`, `skip_list.zig`, `concurrent_skip_list.zig`, all a private `compare` helper, and
+  `dueling_dqn.zig`'s `init`) collide on one key, so the baseline can't cleanly cover both. Left
+  as 4 residual unbaselined findings (harmless while tidy isn't gating anything) rather than
+  reworking the vendored reference tool; worth an upstream citadel fix (per-line-number keys, or
+  first-occurrence-only actual tracking) before tidy is made to gate `test`.
