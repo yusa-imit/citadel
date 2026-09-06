@@ -31,6 +31,12 @@ zig-015-compat.md, 2026-09-05; further compressed from the 2026-07-17 version)_
 - `std.mem.Allocator.alignedAlloc(T, comptime alignment: usize, n)` →
   `alignedAlloc(T, alignment: std.mem.Alignment, n)`; use `@enumFromInt(log2_alignment)` to
   convert (e.g. `@enumFromInt(4)` for 16-byte alignment).
+- Windows CI checks out the repo with CRLF line endings; any line-length/byte-counting check
+  that splits `text` on `'\n'` alone (`std.mem.splitScalar(u8, text, '\n')`) picks up a trailing
+  `\r` as part of the line, inflating counts by 1+ byte per line versus a Linux/macOS checkout.
+  Hit sailor's own `tidy` line-length checker this way (PR #21, cycle 3): a baseline generated
+  on a LF checkout failed on Windows alone. Fix: `std.mem.trimRight(u8, line, "\r")`
+  after splitting, before measuring length — applies to any future line-oriented text check.
 
 ## Precise formulas / overflow findings (keep verbatim)
 

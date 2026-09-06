@@ -1,7 +1,24 @@
 # sailor — context
 
-last_seen_at: 2026-09-06T00:00:00Z
+last_seen_at: 2026-09-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 3 — 2026-09-07 — FEATURE
+
+- Done: inbox found PR #21 (item 2, tidy step) red on Windows CI only — root-caused to a CRLF
+  bug in `countLongLines` (git checks out `\r\n` on Windows, inflating byte-counted line lengths
+  past the LF-computed baseline). Wrote a regression test, fixed with `trimRight(..., "\r")`,
+  CI went green on all 10 checks, merged. Then picked item 3: rebased
+  `wip/timeline-description-rendering` onto main as PR #22 (dropped a stray pre-restructure
+  `.claude/logs/` file that conflicted with the delete already on main; also ran `zig fmt` on
+  `timeline.zig`'s pre-existing comment-alignment drift while touching the file), CI green,
+  merged. Both ticked on issue #19. See [[debugging]] for the CRLF finding (durable pattern for
+  any future line-oriented text check).
+- PRs: #21 (merged), #22 (merged).
+- Next: item 4 — `build.zig` fix (`linkLibC` rename) + mechanical Zig 0.16 renames
+  (GPA→DebugAllocator, `ArrayList{}`→`.empty`, `mem.indexOf*`→`find*`).
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 2 — 2026-09-06 — FEATURE
 
