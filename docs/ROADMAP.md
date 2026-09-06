@@ -48,6 +48,15 @@ sigil, strata, synod, sirocco (the `io: Io` convention is already settled in `zi
 sigil merely applies it first) → zuda, sailor (release v3.0.0) → zr → silica → zoltraak.
 `blocked_by` is a predicate on tags (`zuda>=3.0.0`), resolved by the cycle each run.
 
+### Blocker: zuda pin has diverged (2026-09-06 survey)
+
+`zr-repos.toml [deps]` names zuda as a shared dependency of zr, silica, zoltraak, but the three
+`build.zig.zon` pins have split three ways: zr pins `git+…?ref=main#4ff2325` (a forbidden
+`git+…?ref=` pin, `core/rules/00-kingdom.md`) resolving to zuda 2.0.4, zoltraak pins tag v2.0.4,
+silica pins tag v2.3.0. Converges naturally once zr and zoltraak complete their `001` migration
+(both are `blocked_by zuda>=3.0.0` already) and move to tag-pinned zuda v3.0.0 — no separate
+action needed unless a realm cycle lands a non-tag pin again.
+
 ## Phase 2 — Foundation v0.1 and first consumers
 
 | Repo | v0.1 scope | First consumer PoC |
