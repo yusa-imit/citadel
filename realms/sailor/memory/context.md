@@ -1,7 +1,25 @@
 # sailor — context
 
-last_seen_at: 2026-09-05T20:14:00Z
+last_seen_at: 2026-09-06T00:00:00Z
 rejected_plans: []
+
+## Cycle 2 — 2026-09-06 — FEATURE
+
+- Done: implemented plan 001 item 2 (`tidy` build step). Pure checker (line length, function
+  length w/ shrinking baseline, missing `//!` header, unproven `catch unreachable`,
+  `std.debug.print`/`std.time.*` usage, `usize` in known wire-format files) in
+  `build_support/tidy.zig` with 30 TDD unit tests; CLI/walker in `build_support/tidy_main.zig`;
+  wired into `zig build test` via new `tidy` step. Generated `tidy_baseline.txt` (447 entries)
+  from real `src/`+`build.zig` so `zig build tidy` is green today; only new debt or growth fails.
+  Fixed one off-by-one bug in a test-writer-authored test (`findFunctions` "two functions" case
+  expected 4 lines for a 5-line function) before committing.
+- PRs: #21 (open, CI still running at cycle deadline — comment left asking next cycle's inbox
+  to merge when green).
+- Next: inbox should merge #21 once CI is green, tick item 2 on issue #19, then pick item 3
+  (`wip/timeline-description-rendering` decision) or item 4 (`build.zig` fix + mechanical
+  renames) as the next unblocked item.
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 1 — 2026-09-05 — FEATURE
 
