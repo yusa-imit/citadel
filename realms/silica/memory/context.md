@@ -1,36 +1,42 @@
 # silica — context
 
-last_seen_at: 2026-09-06T00:00:00Z
+last_seen_at: 2026-09-06T22:06:48Z
 rejected_plans: []
 
-## Cycle 1 — 2026-09-06 — FEATURE
-- Done: inbox merged PR #138 (WAL checkpoint retention callback, plan 001
-  item 1) — CI was green/clean, ticked milestone #137 item 1, commented with
-  the summary (root-cause was a test bug, not prod; also fixed a real
-  truncate-before-durable-header-write ordering bug). Then implemented plan
-  001 item 2 part 1: deleted the empty untracked `src/query/`, added
-  README/LICENSE/docs to `build.zig.zon` .paths.
-- PRs: #138 merged. #139 opened (item 2 part 1) — CI still pending at the
-  22-min cycle deadline (build-and-test alone historically ~12-16 min);
-  commented "awaiting CI; merge next cycle", left for next cycle's inbox.
-- Split: item 2's scratch-DB-to-tmp-dir part turned out to be 1,350+ literal
-  `"test_*.db"` paths across 23 files (`storage/btree.zig`, `page.zig`,
-  `sql/engine.zig`, `sql/executor.zig`, ...) — an order of magnitude past one
-  cycle. Split into its own checklist item in
-  `docs/plans/001-zig-0.16-and-tiger-baseline.md`; do it in batches of a few
-  files per cycle, pattern already used in `config/file.zig`/
-  `tx/jepsen_test.zig` (`std.testing.tmpDir`).
-- Next: cycle 2's inbox should merge #139 if green, then pick the next
-  unblocked item — `zig build tidy` step (no blocked_by) or the new
-  scratch-DB tmp-dir item; the rest of the plan's items are
-  `blocked_by: zuda v3.0.0, sailor v3.0.0`.
-- Blockers: none new. Standing blocker unchanged — most of plan 001 past the
-  mechanical-rename stage needs zuda v3.0.0 + sailor v3.0.0.
+## Cycle 2 — 2026-09-06 — FEATURE
+- Done: inbox merged PR #139 (hygiene part 1 — dropped `src/query/`, packaged
+  README/LICENSE/docs into `build.zig.zon` .paths), ticked milestone #137's
+  part-1 checklist item. Implemented plan 001 item 2 part 2 batch 1: routed 9
+  scratch-DB path occurrences across 4 files (`storage/gist_index.zig`,
+  `replication/integration_test.zig`, `tui.zig`, `replication/receiver.zig`)
+  through `std.testing.tmpDir`, matching `config/file.zig`/`tx/jepsen_test.zig`.
+  Side effect: `zig fmt` hook fixed 3 of those files' pre-existing fmt-check
+  failures (whitespace only, confirmed via `git stash` diff).
+- PRs: #139 merged. #140 opened (item 2 part 2 batch 1) — CI still pending at
+  the 22-min deadline; commented "awaiting CI; merge next cycle", left for
+  next cycle's inbox.
+- Split: added a part-2 sub-checklist to the plan doc tracking batch 1 done,
+  ~19 files (~1,340 occurrences) remaining — largest: `sql/engine.zig` (819),
+  `sql/catalog.zig` (152), `cli.zig` (105), `server/connection.zig` (72),
+  `sql/executor.zig` (65).
+- Next: cycle 3's inbox merges #140 if green, then continues part-2 batches
+  (pick a few more files by size) or picks up `zig build tidy` (no
+  blocked_by) — the rest of plan 001 is `blocked_by: zuda v3.0.0, sailor
+  v3.0.0`.
+- Blockers: none new. Standing blocker unchanged.
 - Open questions: unchanged (buffer-pool LRU zuda-migration contradiction;
   concurrent-connections WAL-corruption finding not reconfirmed) — see
   History below.
 
-## History (cycle 0 and earlier, folded)
+## History (cycle 1 and earlier, folded)
+- **Cycle 1** (2026-09-06, FEATURE): inbox merged #138 (WAL checkpoint
+  retention callback, plan 001 item 1; root-cause was a test bug plus a real
+  truncate-before-durable-header-write ordering fix), ticked milestone #137
+  item 1. Implemented plan 001 item 2 part 1 (deleted empty `src/query/`,
+  added README/LICENSE/docs to `build.zig.zon` .paths) as PR #139. Found and
+  split off the scratch-DB-to-tmp-dir part (1,350+ literal `"test_*.db"`
+  paths across 23 files) into its own checklist item, done in batches
+  starting cycle 2.
 - Realm created by citadel restructure. Memory migrated from the repo's
   former `.claude/memory/` (project-context.md, architecture.md,
   decisions.md, debugging.md, patterns.md, MEMORY.md). First plan `001`
