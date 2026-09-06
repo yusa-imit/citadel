@@ -22,6 +22,21 @@ issue during RDB deserialization of these two types before assuming it's a benig
 Confirmed unrelated to unrelated concurrent changes (e.g. the cluster.zig MIGRATE diff this
 session) — reproduces in isolation.
 
+## Lead: git stash may already contain a fix for the RDB round-trip crash
+
+Cycle 1 (2026-09-06) found 3 pre-existing local `git stash` entries (not visible on any
+branch, `git stash list` only) that predate the citadel restructure and were never
+triaged into `wip/*` branches like `wip/migrate-real-dump-restore` was. `stash@{0}`
+(hash `4f38643`, message "WIP on main: f3ef58a chore(sailor)... Iteration 438") is
+titled as a DUMP/RESTORE type-byte mismatch fix for stream + hyperloglog, touching
+`build.zig` and `src/storage/memory.zig` — directly plausible as the root cause of the
+signal-4 crashes above, since both are RDB/DUMP serialization bugs in the same subsystem
+(streams). Not yet built or tested against current `main`. See `context.md` Cycle 1 for
+the other two stashes (`stash@{1}` time-series/vector RDB serialization, `stash@{2}`
+`BF.LOADCHUNK` refactor) and the full recovery note (a `git stash pop` accidentally
+triggered a conflict this cycle; resolved without losing any stash — do not `git stash
+drop` any of the three without first extracting on a branch and testing).
+
 ## Test hang policy
 
 If `zig build test` runs longer than 60 seconds locally, treat it as hung and kill it —

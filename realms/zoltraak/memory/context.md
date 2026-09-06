@@ -1,9 +1,45 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-05T00:00:00Z
+last_seen_at: 2026-09-06T00:00:00Z
 rejected_plans: []
 
-## Cycle 0 — 2026-09-05 — RESTRUCTURE
+## Cycle 1 — 2026-09-06 — FEATURE
+- Done: opened milestone tracking issue #121 for plan 001 (12 items, checklist mirrors
+  `docs/plans/001-zig-0.16-and-tiger-baseline.md`). Picked item 1 ("Clear the decks") and
+  split it into two independent PRs since it bundled an unrelated code change with pure
+  hygiene: #122 (untrack `src/.DS_Store`, drop stale `.gitignore` entries `check_existing`/
+  `main`/`verify_*`/`/test_*`, add `CHANGELOG.md`) — CI green, **merged**. #123 (real
+  `MIGRATE` via TCP DUMP/RESTORE, rebased `wip/migrate-real-dump-restore` cleanly onto
+  main) — CI still running at the cycle deadline, commented "awaiting CI; merge next
+  cycle" per protocol.
+- Discovery (important, not yet acted on): 3 pre-existing local `git stash` entries
+  predate this session, untriaged, still safely in `git stash list` (not applied, not
+  lost) — a `git stash`/`pop` I ran to test `zig fmt` baseline against main accidentally
+  tried to apply stash@{0} and hit merge conflicts (`build.zig`, `src/storage/memory.zig`);
+  resolved by `git checkout HEAD --` on the conflicted files and deleting the
+  stash-introduced untracked file — the stash entry itself was preserved throughout
+  (`git stash pop` never drops on conflict). Contents, most promising first:
+  - `stash@{0}` (4f38643, "WIP on main: f3ef58a chore(sailor)... Iteration 438"): a DUMP/
+    RESTORE type-byte mismatch fix for **stream + hyperloglog**, touching `build.zig` +
+    `src/storage/memory.zig` — plausibly the actual root cause of the two documented
+    signal-4 crashes (`test_iter432` streams, `test_iter437` time series RDB round-trip).
+    Worth trying first on a fresh branch with the two crash tests as the acceptance check.
+  - `stash@{1}` (a73d2a4, "WIP on main: 78ba691 fix(sort)..."): RDB persistence for
+    Time Series + Vector Set real serialization (`persistence.zig` +88, `timeseries.zig`
+    +195, `vector.zig` +109) — also RDB-round-trip-shaped, may overlap or conflict with
+    stash@{0}; check ordering/overlap before applying both.
+  - `stash@{2}` (41a2e07, "WIP on main: 823d615 feat(sentinel)..."): `BF.LOADCHUNK` bloom
+    filter refactor in `src/commands/bloom.zig` (+`src/storage/memory.zig` +11) — smallest,
+    independent of the other two.
+  - None of the three have been build/test-verified against current `main` yet — treat as
+    unverified WIP, not "ready to merge" like `wip/migrate-real-dump-restore` was.
+- Next: merge #123 once CI is green (next cycle's inbox step 8). Then continue plan 001
+  item 2 (`tidy` build step). Separately, triage the 3 stashes above as their own
+  bounded task(s) — `stash@{0}` looks highest-value (directly targets a documented,
+  unresolved bug).
+- Blockers: none. Open questions: none.
+
+## History (cycles before 1)
 - Realm created by citadel restructure. Memory migrated from the repo's former
   `.claude/memory/` (only `session_135_findings.md` existed there) and from the repo's
   former `CLAUDE.md`. First plan `001` prescribed by `citadel/docs/ROADMAP.md` (Zig 0.16
