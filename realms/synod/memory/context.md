@@ -1,7 +1,22 @@
 # synod — context
 
-last_seen_at: 2026-09-06T00:00:00Z
+last_seen_at: 2026-09-06T01:00:00Z
 rejected_plans: []
+
+## Cycle 2 — 2026-09-06 — FEATURE
+- Inbox: no new owner actions since the watermark; milestone #3 open, item 1 done.
+- Implemented item 2 (`tidy` step, part 1 — sizes): `tools/tidy.zig` (line length ≤ 100 cols,
+  function length ≤ 70 lines / 72 red-zone via `tools/tidy_baseline.txt`, empty today), wired
+  as a `zig build tidy` step that `zig build test` now depends on. Also wrapped the 5
+  pre-existing overlong doc-comment lines (`build.zig`, `src/{main,raft,root,sim}.zig`) so
+  tidy passes clean. TDD: 25 tests red (stub `@panic`) → green. Opened PR #5.
+- Ran out of the 22-minute cycle budget before CI finished (test-writer + zig-developer
+  subagent turns took ~16 min combined); skipped a dedicated code-reviewer pass this cycle to
+  stay inside budget — PR #5 is unreviewed by a fresh pair of eyes, left for next cycle's inbox
+  to merge once CI is green (or to review first if that feels warranted).
+- Next: next cycle's inbox merges PR #5 if CI green, ticks item 2 in #3; then item 3, `tidy`
+  step part 2 (ban list).
+- Open questions: none.
 
 ## Cycle 1 — 2026-09-06 — FEATURE
 - Plan 001 (merged as #2) approved by merge; opened milestone tracking issue #3 with its
