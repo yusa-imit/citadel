@@ -1,13 +1,21 @@
 # strata — context
 
-last_seen_at: 2026-09-05T00:00:00Z
+last_seen_at: 2026-09-06T05:08:21Z
 rejected_plans: []
 
-## Cycle 0 — 2026-09-05 — RESTRUCTURE
-- Realm created by citadel restructure. Memory migrated from the repo's former
-  `.claude/memory/`. First plan `001` prescribed by `citadel/docs/ROADMAP.md`.
-- Next: open plan 001 PR (if not open) → await human merge.
+## Cycle 1 — 2026-09-06 — FEATURE
+- Done: plan 001 (PR #2, merged prior cycle) had unchecked items and no milestone issue →
+  opened tracking issue #3. Implemented plan 001 item 1 (hygiene leftovers: fixed
+  `src/root.zig` doc comment pointing at renamed `docs/milestones.md` → `docs/plans/`;
+  added `CHANGELOG.md`) via PR #4, all 7 CI checks green, squash-merged, item ticked on #3.
+- PRs: #4 merged (auto-merged label).
+- Next: plan 001 item 2 (`tidy` step, part 1 — shape: line length ≤100, `//!` headers).
+- Blockers: none.
 - Open questions: none.
+
+## History
+- Cycle 0 (2026-09-05, RESTRUCTURE): realm created by citadel restructure; memory migrated
+  from the repo's former `.claude/memory/`; plan 001 prescribed by ROADMAP.md.
 
 ## Standing backlog (carried from the repo's former project-context.md)
 
