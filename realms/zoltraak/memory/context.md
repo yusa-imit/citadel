@@ -1,37 +1,64 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-07T11:06:11Z
+last_seen_at: 2026-09-07T23:05:34Z
 rejected_plans: []
 
-## Cycle 4 — 2026-09-07 — FEATURE
-- Done: inbox merged #125 (`build.zig` on 0.16, plan 001 item 3) — CI was
-  already green from cycle 3. Implemented + merged #126: renamed 471
-  `std.ArrayList(T){}`/`ArrayListUnmanaged(T){}` literal-inits to `.empty`
-  (52 files) and `GeneralPurposeAllocator`→`DebugAllocator` (3 sites) —
-  both verified as true renames already present in the pinned 0.15.2
-  stdlib (`.empty` in array_list.zig:621, `DebugAllocator` alias in
-  heap.zig:21), not version-gated changes.
-- Scope decision: plan item 4 ("Mechanical renames A") also calls for
-  `main() !void`→`main(init: std.process.Init) !void` +
-  `argsAlloc`→`init.minimal.args`. Confirmed `std.process.Init` does not
-  exist anywhere in 0.15.2's stdlib — doing that now would break the
-  locally-pinned build. Deferred that sub-part to item 8 (toolchain pin
-  bump, `blocked_by: zuda v3.0.0, sailor v3.0.0`); left item 4's checkbox
-  unchecked and noted the split inline in the plan file. Future cycles:
-  don't tick item 4 until the `main()`/`argsAlloc` part lands too.
-- Verified: `zig build test` 1106/1106 green (same two pre-existing
-  signal-4 RDB crashes, no new regressions), `zig fmt --check` clean,
-  `zig build tidy` green.
-- PRs: #125, #126 merged (both auto-merged, CI green, no hold).
-- Next: plan 001 item 5 ("Mechanical renames B" — `mem.indexOf*`→`find*`)
-  has the *same* blocker as item 4's deferred part: 0.15.2 only has
-  `indexOf`, not `find*` — expect to scope it down to research/no-op until
-  the toolchain pin bumps, or find a different unblocked item. The 3
+## Cycle 5 — 2026-09-07 — FEATURE
+- Done: inbox found no owner actions (no new comments since watermark, no
+  open PRs to merge — #125/#126 already merged as of cycle 4). Milestone
+  #121 open, plan 001 unchecked items 4-9 confirmed practically blocked:
+  item 4's remaining sub-part needs `std.process.Init`, item 5 needs
+  `std.mem.find*`, items 6-8 need `std.Io` types — none exist in the
+  pinned 0.15.2 stdlib (verified directly against
+  `/opt/homebrew/Cellar/zig/0.15.2/lib/zig/std/mem.zig`). Item 9 has an
+  explicit `blocked_by` note. Item 10 ("Assertion baseline") has no 0.16
+  dependency, so implemented it, scoped to `src/protocol/parser.zig`
+  (smallest of the five listed hot modules; 0 asserts before). Added 35
+  asserts (buffer bounds, RESP frame invariants, allocator postconditions
+  via `owned.len == line.len` after `dupe`) plus a genuine Tiger Style
+  rule-7 fix found while auditing: array/map/set/push counts and bulk-
+  string/bulk-error/verbatim-string lengths were unbounded user-controlled
+  `i64`s — added `ParseError.LengthTooLarge` with `bulk_len_max` (512 MiB,
+  matches Redis `proto-max-bulk-len`) and `multibulk_count_max` (1,048,576,
+  matches Redis's fixed ceiling), checked before allocation.
+- Caught and fixed two of my own draft asserts before they shipped:
+  `assert(line.len <= 1)` in `parseBoolean` and `assert(line.len > 0)` in
+  `parseDouble` would have crashed the server on malformed *client* input
+  (e.g. `#toolong\r\n` or an empty double line before `\r\n`) — that is
+  user data, must return a typed error, never assert. Removed both.
+  Lesson: when adding asserts to a wire-format parser, check every
+  candidate against "can an attacker control this value?" before keeping
+  it — parser.zig's own existing error-return pattern already made this
+  distinction correctly everywhere else.
+- Verified: `zig test src/protocol/parser.zig` 39/39 (8 new), `zig build
+  test` 1106/1106 (same two pre-existing signal-4 RDB crashes, no new
+  regressions), `zig test -OReleaseSafe src/protocol/parser.zig` 39/39,
+  `zig build tidy` green (had to move a proof comment for 7 test-only
+  `catch unreachable` sites to stay under the 100-column limit — the tidy
+  checker requires `//` on the *same* line as `catch unreachable`, not a
+  preceding line), `zig fmt --check src/protocol/parser.zig` clean (repo-
+  wide `zig fmt --check` still has the same 15 pre-existing unformatted
+  files as main, confirmed via `git stash`, unrelated to this change).
+- PRs: #127 opened (`refactor/parser-assertion-baseline`), CI pending at
+  the cycle deadline — commented "awaiting CI; merge next cycle".
+- Next: next cycle's inbox merges #127, then continue item 10 on the next
+  hot module (`protocol/writer.zig` is next-smallest at 802 lines, 24
+  existing asserts already — likely the next-cheapest increment). The 3
   untriaged `git stash` entries from cycle 1 (see History) still need
   triage — `stash@{0}` plausibly fixes the two signal-4 RDB crashes.
 - Blockers: none this cycle. Open questions: none.
 
-## History (cycles before 4)
+## History (cycles before 5)
+- Cycle 4: inbox merged #125 (`build.zig` on 0.16, plan 001 item 3).
+  Implemented + merged #126: renamed 471 `std.ArrayList(T){}`/
+  `ArrayListUnmanaged(T){}` literal-inits to `.empty` (52 files) and
+  `GeneralPurposeAllocator`→`DebugAllocator` (3 sites) — both true renames
+  already present in the pinned 0.15.2 stdlib, not version-gated. Scope
+  decision: plan item 4 also calls for `main() !void`→
+  `main(init: std.process.Init) !void` + `argsAlloc`→`init.minimal.args`;
+  `std.process.Init` doesn't exist in 0.15.2, so that sub-part was
+  deferred to item 8 (toolchain pin bump) and item 4's checkbox left
+  unchecked. `zig build test` 1106/1106 green, `fmt`/`tidy` clean.
 - Cycle 3: inbox merged #124 (`tidy` build step) — plan 001 item 2
   complete; also back-filled items 1-2 checkboxes in the plan file itself
   (prior cycles only ticked the milestone issue). Implemented item 3
