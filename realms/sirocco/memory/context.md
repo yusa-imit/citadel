@@ -1,7 +1,25 @@
 # sirocco — context
 
-last_seen_at: 2026-09-07T00:00:00Z
+last_seen_at: 2026-09-07T12:30:00Z
 rejected_plans: []
+
+## Cycle 3 — 2026-09-07 — FEATURE
+- Done: bundled milestone-001 items 3-6 into one PR (#6, merged): migrated src/main.zig,
+  bench/main.zig, and tools/tidy_main.zig/tidy_test.zig (unplanned — added by PR #5 after this
+  plan was written) to Zig 0.16.0; bumped build.zig.zon minimum_zig_version and dropped the
+  hardcoded 0.15.2 pin from ci.yml. Bundling was necessary: zig build test compiles all three
+  entry points together, so a partial per-item migration under either toolchain pin leaves CI
+  red no matter which single item ships alone. Verified zig build test (31/31), fmt, run --
+  version/--help, zig build bench, and all six cross-compile targets on the 0.16.0 toolchain;
+  CI green. Also fixed issue #3's checklist: item 2 (tidy step, PR #5) had been implemented and
+  merged last cycle but never ticked — ticked it and items 3-6.
+- PRs: #6 merged (auto-merged label).
+- Next: PRD rewrite against std.Io.VTable (item 7).
+- Blockers: none. Open questions: none.
+- Gotcha: a milestone plan's per-file "0.16: X" checklist items look independently cycle-sized
+  but are not — zig build test compiles every entry point in one graph, so CI cannot go green
+  until every 0.16-only API user *and* the toolchain pin land together. Bundle such items into
+  one PR rather than attempting one-item-per-cycle when they share a build graph.
 
 ## Cycle 2 — 2026-09-07 — FEATURE
 - Done: implemented and merged item 2, PR #5: `zig build tidy` mechanical Tiger Style checker
