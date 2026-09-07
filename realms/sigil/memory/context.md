@@ -1,17 +1,27 @@
 # sigil — context
 
-last_seen_at: 2026-09-07T00:00:00Z
+last_seen_at: 2026-09-07T03:06:31Z
 rejected_plans: []
 
-## Cycle 3 — 2026-09-07 — FEATURE
+## Cycle 4 — 2026-09-07 — FEATURE
 
-- Done: implemented plan 001 item 2 (Branch decision) — recorded that no `wip/*` branch exists
-  for sigil and the stale local ref for the merged `chore/kingdom-restructure` (PR #1) was
-  already absent; ticked the checklist box in `docs/plans/001-*.md`.
-- PRs: #5 opened, CI green (7/7 jobs), squash-merged, branch deleted, labelled `auto-merged`.
-- Tracking issue #3 checklist updated: 2/11 done.
-- Next: item 3 (`tidy` step in `build.zig`) — the first real implementation work on this plan;
-  no `blocked_by`.
+- Preflight found a memory drift: `memory/counter` was stuck at 2 even though a "Cycle 3"
+  entry was already logged (commit cd502ac) and PR #5 (item 2) was merged. The prior cycle's
+  report must have failed to persist the counter write. Corrected here: this cycle is 4.
+- Inbox: no new owner actions (only my own prior status comments on issue #3).
+- Done: implemented plan 001 item 3 (`tidy` step in `build.zig`) — vendored the kingdom
+  reference `citadel/templates/tidy/tidy.zig` into `tools/tidy.zig`, added a sigil-only
+  `wire_usize` ban rule (bans `usize` on struct fields inside wire-format modules, scoped to
+  avoid flagging locals/params), wired its 23 unit tests into `zig build test`, and added a
+  standalone `zig build tidy` step for the real repo scan (not yet a hard `test` dependency —
+  it already finds 9 real findings, deferred to item 4). code-reviewer found 2 WARNINGs
+  (`wire_usize` too broad; a silent buffer-skip instead of an assertion) — both fixed and
+  reverified before merge.
+- PRs: #6 opened, CI green (7/7 jobs), squash-merged, branch deleted, labelled `auto-merged`.
+- Tracking issue #3 checklist updated: 3/11 done.
+- Next: item 4 (Make `tidy` green) — fix the 9 findings `zig build tidy` now reports (8 known
+  >100-column `//!`/build.zig lines + a newly discovered missing `//!` header in
+  `src/main.zig`), then flip `tidy` into a hard dependency of `test`.
 - Blockers: none.
 - Open questions: none.
 
@@ -30,6 +40,10 @@ taken beyond a status comment on the PR.
 Cycle 2 (2026-09-06, FEATURE): plan 001 (PR #2) had merged since last cycle — opened tracking
 issue #3 (11-item checklist). Implemented + merged item 1 (Hygiene leftovers) via PR #4, CI
 green (7/7).
+
+Cycle 3 (2026-09-06, FEATURE): implemented + merged item 2 (Branch decision — no `wip/*`
+exists for sigil) via PR #5, CI green (7/7). Tracking issue updated to 2/11. (Its `/report`
+did not persist `memory/counter`; corrected in cycle 4 above.)
 
 ## Standing backlog (carried over from repo's former `project-context.md`)
 
@@ -51,9 +65,10 @@ issue #3. In milestone order for the *next* plan (002, Phase 1 — unchanged sin
 
 ## Next priority
 
-Finish plan 001 (issue #3), one checklist item per cycle, before starting Phase 1A. Item 3
-(`tidy` step in `build.zig`) is next — the first real implementation work on this plan, no
-`blocked_by`: a `zig build tidy` step over `src/**.zig` + `build.zig` + `bench/**.zig` failing
-on the seven rules listed in `docs/plans/001-*.md` (line length, function length, `catch
-unreachable` without proof, `std.debug.print` outside main.zig, `std.time.*` in lib, `usize`
-in wire formats, missing `//!` headers).
+Finish plan 001 (issue #3), one checklist item per cycle, before starting Phase 1A. Item 4
+(Make `tidy` green) is next, no `blocked_by`: fix the 9 findings `zig build tidy` reports
+today — 8 lines over 100 columns (the `//!` headers of `core`, `reflect`, `json`, `path`,
+`proto`, `yaml`, `config`, worst 164 cols, plus one `build.zig` doc-comment line) and a
+missing `//!` header in `src/main.zig` — then change `tools/tidy.zig`'s `run_tidy` step from
+a standalone `zig build tidy` into a hard dependency of `test_step` in `build.zig`'s
+`addTidyStep` helper.
