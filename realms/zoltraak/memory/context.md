@@ -1,61 +1,70 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-07T00:00:00Z
+last_seen_at: 2026-09-07T11:06:11Z
 rejected_plans: []
 
-## Cycle 3 — 2026-09-07 — FEATURE
-- Done: inbox merged #124 (`tidy` build step, CI green) — plan 001 item 2 complete.
-  Also ticked items 1-2 in `docs/plans/001-...md` itself (prior cycles only ticked
-  the milestone issue, not the plan file — fixed). Implemented item 3 (`build.zig`
-  on 0.16): moved all 105 LuaJIT-linking call sites from `Step.Compile.
-  linkSystemLibrary`/`.linkLibC`/`.addIncludePath`/`.addLibraryPath` (removed in
-  0.16) to the identical `root_module`-based API (verified byte-identical between
-  0.15.2 and 0.16.0 std source — no toolchain pin bump needed). Extracted the
-  repeated 8-line block into a `link_luajit()` helper after code-reviewer caught
-  the naive substitution pushing ~111 lines past the 100-column `tidy` limit;
-  shrank `build.zig` by ~800 lines as a side effect.
-- Verified: zoltraak's own `build.zig` compiles cleanly under the pinned 0.16.0
-  toolchain (`zig build --help` no longer errors on this repo's file — remaining
-  0.16 errors are confined to vendored `zig-pkg/sailor`/`zig-pkg/zuda` build
-  scripts, the documented `blocked_by`). `zig build test` 1106/1106 real tests
-  green under 0.15.2 (two documented signal-4 crashes unchanged), `tidy` green,
-  `fmt` clean.
-- PRs: #124 merged (auto-merged). #125 opened (item 3), CI pending at cycle
-  deadline — commented "awaiting CI; merge next cycle".
-- Next: merge #125 once CI green (next cycle's inbox), then plan 001 item 4
-  (mechanical renames A). The 3 untriaged `git stash` entries from cycle 1 (see
-  History) still need triage — `stash@{0}` plausibly fixes the two signal-4 RDB
-  crashes.
-- Blockers: none. Open questions: none.
+## Cycle 4 — 2026-09-07 — FEATURE
+- Done: inbox merged #125 (`build.zig` on 0.16, plan 001 item 3) — CI was
+  already green from cycle 3. Implemented + merged #126: renamed 471
+  `std.ArrayList(T){}`/`ArrayListUnmanaged(T){}` literal-inits to `.empty`
+  (52 files) and `GeneralPurposeAllocator`→`DebugAllocator` (3 sites) —
+  both verified as true renames already present in the pinned 0.15.2
+  stdlib (`.empty` in array_list.zig:621, `DebugAllocator` alias in
+  heap.zig:21), not version-gated changes.
+- Scope decision: plan item 4 ("Mechanical renames A") also calls for
+  `main() !void`→`main(init: std.process.Init) !void` +
+  `argsAlloc`→`init.minimal.args`. Confirmed `std.process.Init` does not
+  exist anywhere in 0.15.2's stdlib — doing that now would break the
+  locally-pinned build. Deferred that sub-part to item 8 (toolchain pin
+  bump, `blocked_by: zuda v3.0.0, sailor v3.0.0`); left item 4's checkbox
+  unchecked and noted the split inline in the plan file. Future cycles:
+  don't tick item 4 until the `main()`/`argsAlloc` part lands too.
+- Verified: `zig build test` 1106/1106 green (same two pre-existing
+  signal-4 RDB crashes, no new regressions), `zig fmt --check` clean,
+  `zig build tidy` green.
+- PRs: #125, #126 merged (both auto-merged, CI green, no hold).
+- Next: plan 001 item 5 ("Mechanical renames B" — `mem.indexOf*`→`find*`)
+  has the *same* blocker as item 4's deferred part: 0.15.2 only has
+  `indexOf`, not `find*` — expect to scope it down to research/no-op until
+  the toolchain pin bumps, or find a different unblocked item. The 3
+  untriaged `git stash` entries from cycle 1 (see History) still need
+  triage — `stash@{0}` plausibly fixes the two signal-4 RDB crashes.
+- Blockers: none this cycle. Open questions: none.
 
-## History (cycles before 3)
-- Cycle 2: inbox merged #123 (real MIGRATE, CI green) — plan 001 item 1 fully
-  complete. Implemented item 2 (`tidy` build step: `tools/tidy.zig`, line/function
-  length, ban list, `//!` headers, shrink-only `tidy-baseline.zon`). PR #124
-  opened, CI pending at deadline.
-- Cycle 1: opened milestone issue #121 for plan 001. Split item 1 ("Clear the
-  decks") into #122 (hygiene, merged) and #123 (real MIGRATE via DUMP/RESTORE,
-  rebased from `wip/migrate-real-dump-restore`). Discovered 3 pre-existing
-  untriaged `git stash` entries (not lost, still in `git stash list`), most
-  promising first:
-  - `stash@{0}` (4f38643): DUMP/RESTORE type-byte fix for stream + hyperloglog,
-    touching `build.zig` + `src/storage/memory.zig` — plausibly the root cause of
-    the two documented signal-4 RDB round-trip crashes (`test_iter432`,
-    `test_iter437`). Try first on a fresh branch with the two crash tests as the
-    acceptance check.
-  - `stash@{1}` (a73d2a4): RDB persistence for Time Series + Vector Set
-    (`persistence.zig`/`timeseries.zig`/`vector.zig`) — may overlap stash@{0},
-    check ordering before applying both.
-  - `stash@{2}` (41a2e07): `BF.LOADCHUNK` refactor in `src/commands/bloom.zig` —
-    smallest, independent.
-  - None build/test-verified against current `main` yet; treat as unverified WIP.
-- Realm created by citadel restructure. Memory migrated from the repo's former
-  `.claude/memory/` and `CLAUDE.md`. First plan `001` prescribed by
-  `citadel/docs/ROADMAP.md` (Zig 0.16 migration, `blocked_by: zuda v3.0.0, sailor
-  v3.0.0`).
-- A complete, tested, uncommitted change (`src/commands/cluster.zig`, real MIGRATE
-  via DUMP/RESTORE) was found in the working tree and preserved on branch
-  `wip/migrate-real-dump-restore` (now merged as #123) rather than discarded.
+## History (cycles before 4)
+- Cycle 3: inbox merged #124 (`tidy` build step) — plan 001 item 2
+  complete; also back-filled items 1-2 checkboxes in the plan file itself
+  (prior cycles only ticked the milestone issue). Implemented item 3
+  (`build.zig` on 0.16): moved 105 LuaJIT-linking call sites from
+  `Step.Compile.linkSystemLibrary`/`.linkLibC`/etc. (removed in 0.16) to
+  the identical `root_module`-based API (byte-identical between 0.15.2/
+  0.16.0), extracted a `link_luajit()` helper, shrank `build.zig` by
+  ~800 lines. PR #125 opened, CI pending at deadline.
+- Cycle 2: inbox merged #123 (real MIGRATE, CI green) — plan 001 item 1
+  fully complete. Implemented item 2 (`tidy` build step: `tools/tidy.zig`,
+  line/function length, ban list, `//!` headers, shrink-only
+  `tidy-baseline.zon`). PR #124 opened, CI pending at deadline.
+- Cycle 1: opened milestone issue #121 for plan 001. Split item 1 ("Clear
+  the decks") into #122 (hygiene, merged) and #123 (real MIGRATE via
+  DUMP/RESTORE, rebased from `wip/migrate-real-dump-restore`). Discovered
+  3 pre-existing untriaged `git stash` entries (still in `git stash
+  list`), most promising first:
+  - `stash@{0}` (4f38643): DUMP/RESTORE type-byte fix for stream +
+    hyperloglog, touching `build.zig` + `src/storage/memory.zig` —
+    plausibly the root cause of the two signal-4 RDB round-trip crashes
+    (`test_iter432`, `test_iter437`). Try first on a fresh branch with the
+    two crash tests as the acceptance check.
+  - `stash@{1}` (a73d2a4): RDB persistence for Time Series + Vector Set —
+    may overlap stash@{0}, check ordering before applying both.
+  - `stash@{2}` (41a2e07): `BF.LOADCHUNK` refactor in
+    `src/commands/bloom.zig` — smallest, independent.
+  - None build/test-verified against current `main` yet; treat as
+    unverified WIP.
+- Realm created by citadel restructure; first plan `001` prescribed by
+  `citadel/docs/ROADMAP.md` (Zig 0.16 migration). A complete, tested,
+  uncommitted change (`src/commands/cluster.zig`, real MIGRATE via
+  DUMP/RESTORE) was found in the working tree and preserved on branch
+  `wip/migrate-real-dump-restore` (merged as #123) rather than discarded.
 
 ## Standing backlog (carried from the repo's former CLAUDE.md / project memory)
 

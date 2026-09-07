@@ -1,7 +1,32 @@
 # sirocco — context
 
-last_seen_at: 2026-09-07T12:30:00Z
+last_seen_at: 2026-09-08T00:17:46Z
 rejected_plans: []
+
+## Cycle 4 — 2026-09-08 — FEATURE
+- Done: implemented plan 001 item 7, PR #7 (merged, docs-only — no CI runs, ci.yml
+  paths-ignores `docs/**`/`*.md`): rewrote docs/PRD.md so sirocco is described as an
+  implementation of `std.Io.VTable` (one public type, `Runtime.io()`) instead of a parallel
+  Loop/net/tls/http/ws API; added docs/adr/0001-std-io-vtable.md with the full 109-slot
+  inventory grouped in implementation priority order, verified against the pinned 0.16.0
+  toolchain source (not guessed) via the architect agent — found std's own evented `Io`
+  impls (`Io.Kqueue`, `Io.Uring`) don't even compile on 0.16.0, which is sirocco's actual
+  reason to exist now; declared a 40-slot hybrid (`dir*`/`process*`/`random*`) forwarding to
+  an embedded `Io.Threaded`, zero-indirection via `@fieldParentPtr`. Annotated
+  docs/plans/000-inherited.md with a per-item table mapping old Phase 1-6 checklist items to
+  their status under the vtable model. Fixed `error.Cancelled` -> `error.Canceled`
+  throughout docs/ and citadel REALM.md. Updated citadel REALM.md realm-specific rules and
+  memory/architecture.md to match (resolved the open question they both carried). Ticked
+  item 7 in the plan and in tracking issue #3.
+- PRs: #7 merged (auto-merged label).
+- Next: item 8, "Assertion and Tiger Style baseline" (pre/post assertions on root.zig public
+  fns, `//!` headers on all 8 files, grep-clean of `Cancelled` — already clean after this
+  cycle's docs fix, so only the src/ assertion work remains).
+- Blockers: none. Open questions: none.
+- Gotcha: this repo's global `zig` is still 0.15.2 (kingdom dev-box policy); local
+  verification of a 0.16.0-pinned repo must invoke `/Users/fn/.zr/toolchains/zig/0.16.0/zig`
+  explicitly or `zig build test`/`fmt` fail on stale-toolchain errors that look like real
+  bugs but aren't.
 
 ## Cycle 3 — 2026-09-07 — FEATURE
 - Done: bundled milestone-001 items 3-6 into one PR (#6, merged): migrated src/main.zig,

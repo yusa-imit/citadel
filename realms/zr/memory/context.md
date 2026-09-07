@@ -1,7 +1,28 @@
 # zr — context
 
-last_seen_at: 2026-09-06T21:06:26Z
+last_seen_at: 2026-09-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 2 — 2026-09-08 — FEATURE
+- Preflight: tree dirty on `feat/assertion-baseline-hot-modules` (scheduler.zig/dag.zig,
+  low-quality padding assertions + unrelated fmt churn from an interrupted session) —
+  preserved to `wip/feat-assertion-baseline-hot-modules-20260908`, pushed, not reused.
+- Inbox: CI green, no bug/question/directive issues, plan 001 (#154) merged, PR #30 still
+  draft/untouched. Ticked milestone #155 item 2 (tidy step, #157 merged last cycle).
+- Implemented item 3 partial: added `src/stdx.zig` (assert/assert_always/maybe helpers) and
+  clean pre/post/invariant assertions to every public fn of `graph/dag.zig` (+
+  `checkInvariants()`) and `exec/scheduler.zig`. Found a real bug while doing it: an
+  `assert(results.items.len <= needed.count())` postcondition on `scheduler.run` was **false**
+  for `deps_serial` tasks (serial-chain deps aren't in `needed`, so results can exceed it) —
+  caught by a panic in an existing test, fixed by replacing the wrong assert with `stdx.maybe`.
+  PR #158 opened; awaiting CI. `config/parser.zig`/`cache/local.zig` remain for item 3.
+- `zig build tidy`'s ratchet-only-shrink baseline caught 2 real issues: `dag.zig` line-length
+  grew past its 3-violation baseline from my own additions (fixed by shortening lines, not
+  bumping baseline); `scheduler.zig`'s `run`/`loadAndMergeEnvFiles` function-length grew from
+  the repo's auto-fmt-on-save hook reformatting unrelated code in a touched file (baseline
+  bumped, since that's real growth I can't avoid, not hidden debt).
+- Next: merge #158 once green (or fix if red), then item 3 remainder (parser.zig, cache/local.zig).
+- Open questions: none.
 
 ## Cycle 1 — 2026-09-06 — FEATURE
 - Preflight found the tree dirty on `feat/tidy-build-step` (uncommitted `tidy` build-step work

@@ -48,6 +48,22 @@ technical discipline it enforced is still the right shape for this codebase spec
    state — file the mismatch upstream, do not paper over it locally, and do not keep
    retrying it every session.
 
+## Zig 0.16 migration: check "true rename" vs. "0.16-only shape" before touching a site
+
+Before applying any mechanical rename from `zig-0.16.md`'s mapping table, grep the *installed
+0.15.2 stdlib* (`/opt/homebrew/Cellar/zig/0.15.2/lib/zig/std/`) for the 0.16-side name first.
+Some renames are already present as aliases/methods in 0.15.2 (`std.ArrayList.empty`,
+`std.heap.DebugAllocator`) — those are safe to apply now, verified real renames, and make the
+code correct on both toolchains simultaneously. Others genuinely don't exist pre-0.16
+(`std.process.Init`, `std.mem.find*` — 0.15.2 only has `indexOf*`) — applying those now would
+break the toolchain still pinned in `build.zig.zon` (0.15.2 today; zoltraak can't bump this
+until `zuda`/`sailor` tag v3.0.0, see plan 001 item 8's `blocked_by`). When a plan item bundles
+both kinds (as item 4 did: `ArrayList`+`DebugAllocator` were safe, `main()`/`argsAlloc`/
+`process.Init` were not), split it: do the safe part, leave the item's checkbox unchecked, and
+note the deferred part inline in the plan file rather than blocking the whole item. Item 5
+(`mem.indexOf*`→`find*`) will hit the same wall — expect to scope it down or skip to a
+different unblocked item until the toolchain pin bumps.
+
 ## RESP protocol pattern
 
 Every command handler is protocol-version-aware at the response-formatting step only —

@@ -1,34 +1,39 @@
 # silica — context
 
-last_seen_at: 2026-09-06T22:06:48Z
+last_seen_at: 2026-09-07T22:06:29Z
 rejected_plans: []
 
-## Cycle 2 — 2026-09-06 — FEATURE
-- Done: inbox merged PR #139 (hygiene part 1 — dropped `src/query/`, packaged
-  README/LICENSE/docs into `build.zig.zon` .paths), ticked milestone #137's
-  part-1 checklist item. Implemented plan 001 item 2 part 2 batch 1: routed 9
-  scratch-DB path occurrences across 4 files (`storage/gist_index.zig`,
-  `replication/integration_test.zig`, `tui.zig`, `replication/receiver.zig`)
-  through `std.testing.tmpDir`, matching `config/file.zig`/`tx/jepsen_test.zig`.
-  Side effect: `zig fmt` hook fixed 3 of those files' pre-existing fmt-check
-  failures (whitespace only, confirmed via `git stash` diff).
-- PRs: #139 merged. #140 opened (item 2 part 2 batch 1) — CI still pending at
-  the 22-min deadline; commented "awaiting CI; merge next cycle", left for
-  next cycle's inbox.
-- Split: added a part-2 sub-checklist to the plan doc tracking batch 1 done,
-  ~19 files (~1,340 occurrences) remaining — largest: `sql/engine.zig` (819),
+## Cycle 4 — 2026-09-07 — FEATURE
+- Done: inbox merged PR #141 (item 2 part 2 batch 2), labeled auto-merged,
+  deleted branch. Implemented batch 3: routed 44 scratch-DB occurrences
+  across `storage/page.zig` (19), `storage/overflow.zig` (13),
+  `storage/fuzz.zig` (12) through `std.testing.tmpDir`, same established
+  pattern as batches 1-2.
+- PRs: #141 merged. #142 opened (item 2 part 2 batch 3) — CI still pending
+  at the 22-min deadline (build-and-test alone runs ~13m); commented
+  "awaiting CI; merge next cycle", left for next cycle's inbox.
+- Plan doc's part-2 sub-checklist updated: batch 1-3 checked, 12 files
+  (~1,441 occurrences) remain — largest: `sql/engine.zig` (819),
   `sql/catalog.zig` (152), `cli.zig` (105), `server/connection.zig` (72),
   `sql/executor.zig` (65).
-- Next: cycle 3's inbox merges #140 if green, then continues part-2 batches
-  (pick a few more files by size) or picks up `zig build tidy` (no
-  blocked_by) — the rest of plan 001 is `blocked_by: zuda v3.0.0, sailor
-  v3.0.0`.
+- Next: cycle 5's inbox merges #142 if green, then continues part-2 batches
+  or picks up `zig build tidy` (no blocked_by) — rest of plan 001 is
+  `blocked_by: zuda v3.0.0, sailor v3.0.0`.
 - Blockers: none new. Standing blocker unchanged.
 - Open questions: unchanged (buffer-pool LRU zuda-migration contradiction;
   concurrent-connections WAL-corruption finding not reconfirmed) — see
   History below.
 
-## History (cycle 1 and earlier, folded)
+## History (cycle 3 and earlier, folded)
+- **Cycle 3** (2026-09-07, FEATURE): inbox merged #140 (batch 1: gist_index,
+  integration_test, tui, receiver — 9 occurrences). Implemented batch 2 (30
+  occurrences: fsm.zig, vacuum.zig, server.zig). Confirmed jepsen_test.zig
+  needs no change. Opened #141, left pending for next cycle.
+- **Cycle 2** (2026-09-06, FEATURE): inbox merged #139 (hygiene part 1 —
+  dropped `src/query/`, packaged README/LICENSE/docs into `build.zig.zon`
+  .paths), ticked milestone #137's part-1 item. Implemented item 2 part 2
+  batch 1: 9 scratch-DB occurrences across 4 files through `tmpDir`. Split
+  off a part-2 sub-checklist tracking remaining files by size.
 - **Cycle 1** (2026-09-06, FEATURE): inbox merged #138 (WAL checkpoint
   retention callback, plan 001 item 1; root-cause was a test bug plus a real
   truncate-before-durable-header-write ordering fix), ticked milestone #137
@@ -44,17 +49,13 @@ rejected_plans: []
 - Preserved WIP: branch `wip/wal-checkpoint-retention-phase2` (uncommitted
   Phase 2/3 WAL-retention work, one failing test — see STATE.md). Fix or
   continue it before anything else in this realm; do not discard.
-- Next: open plan 001 PR (if not open) → await human merge. In parallel,
-  bugs/CI-red always come first per kingdom law — currently CI is green
-  and there are 0 open issues, so the WIP branch above is the standing
-  priority-1 item.
 - Open questions:
   - The repo's own memory contradicts itself on whether the buffer pool's
     LRU eviction was migrated to `zuda.containers.cache.LRUCache`
     (`decisions.md` says no, keep custom, session 27; `architecture.md`
-    session 46 note says yes, migrated, all tests green). Not resolved by
-    this migration — read `src/storage/buffer_pool.zig` to settle it
-    before touching buffer-pool code.
+    session 46 note says yes, migrated, all tests green). Not resolved yet —
+    read `src/storage/buffer_pool.zig` to settle it before touching
+    buffer-pool code.
   - Whether the session-40 "no concurrent connections" finding (separate
     WAL/buffer-pool instances per `Database.open()`, unsynchronized writes
     to the same WAL file) is still true given replication and MVCC work

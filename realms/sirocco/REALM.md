@@ -38,22 +38,35 @@ codebase; this will change once Phase 1 (event loop, backends) lands.
 
 ## Realm-specific rules
 
-- Module layering is strict and one-directional: `io -> net -> tls -> http/ws`; `task`
-  (thread pool, channel, scheduler) sits alongside as its own concern.
-- Completions are caller-owned and intrusive — the event loop must not heap-allocate per op.
-- Every blocking op (`connect`/`read`/`write`/`dns`) takes an explicit deadline/timeout param.
-- Buffers are caller-owned; the runtime never copies user buffers.
-- Cancellation is first-class: every op supports `cancel()`, completing with
-  `error.Cancelled`.
-- Backend isolation: only `io/backend/*` may touch OS APIs; upper layers see only
-  `Completion`/`Result`.
-- HTTP/WS parsers must not trust input: explicit size limits, explicit state machines,
-  fuzz-tested.
+Per `docs/adr/0001-std-io-vtable.md` (2026-09-08, plan 001 item 7): sirocco's public surface
+is `std.Io` — one `Runtime.io()` call — not a parallel `io -> net -> tls -> http/ws` API.
+Backends (kqueue/epoll/...) and net/file slot implementations are internal, one file per
+concern, assembled only in `src/runtime.zig`.
+
+- Completions are std's: `Io.Operation`/`Io.Operation.Storage` (caller-owned, intrusive) and
+  `Io.Batch`. sirocco implements the `operate`/`batchAwaitAsync`/`batchAwaitConcurrent`/
+  `batchCancel` slots, not its own completion queue type.
+- Every blocking op takes its deadline via `Io.Timeout` (`.none | .duration | .deadline`)
+  through `batchAwaitConcurrent`.
+- Buffers are caller-owned; `net*`/`file*` read/write are vectored (`[]const []u8`) — the
+  runtime never copies user buffers.
+- Cancellation is std's vocabulary: `Io.Cancelable`, `error.Canceled` (one `l`, not
+  `Cancelled`), `recancel`, `swapCancelProtection`, `checkCancel`. sirocco defines no
+  cancellation type of its own.
+- Backend isolation: only `src/backend/*` may touch OS APIs; every other file sees fibers,
+  `Io.Operation`, and completions.
+- The declared hybrid (`dir*`, `process*`/`child*`, `random`/`randomSecure`,
+  `progressParentFile` — 40 of 109 vtable slots) forwards to an embedded `Io.Threaded` until
+  each is implemented natively; `Options.unimplemented` makes the forwarding set visible and
+  testable, never a hidden stopgap.
+- Every vtable slot is differential-tested against `Io.Threaded` from one `Runtime`
+  (`rt.io()` vs `rt.baselineIo()`).
 - Servers shut down gracefully: stop accepting -> drain in-flight -> force close, in order.
 - File size cap: 800 lines, one concept per file (stricter than the kingdom's per-function
   line-count rule).
-- `docs/milestones.md` is sirocco's single source of truth for phase/milestone progress, not
-  this file or `memory/`.
+- `docs/plans/000-inherited.md` carries a per-item supersession table against the ADR;
+  `docs/plans/NNN-*.md` (plan 002+) is the source of truth for what's actually being built
+  next, not `000-inherited.md`'s original checklists.
 
 ## Layout
 
