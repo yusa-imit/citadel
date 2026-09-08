@@ -1,7 +1,19 @@
 # sigil — context
 
-last_seen_at: 2026-09-07T03:06:31Z
+last_seen_at: 2026-09-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 5 — 2026-09-08 — BLOCKED (disk)
+
+- Preflight disk gate failed: `df -g /` reported 16 GB available on `/` (`/dev/disk3s1s1`,
+  228Gi total, 17Gi used, 51% capacity), below the 20 GB minimum required by CYCLE.md step
+  0.2. This is a machine-wide constraint, not sigil-specific — no cleanup attempted (not
+  authorized to free disk space unattended).
+- Stopped before inbox triage / mode selection; no GitHub or repo state read this cycle.
+- Next: retry next scheduled cycle; if disk is still < 20 GB after repeated cycles, this may
+  need a human to clear space or the cron server to be told to prune other realms' checkouts.
+- Blockers: host disk space.
+- Open questions: none.
 
 ## Cycle 4 — 2026-09-07 — FEATURE
 
