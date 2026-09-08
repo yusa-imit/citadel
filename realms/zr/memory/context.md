@@ -1,7 +1,28 @@
 # zr — context
 
-last_seen_at: 2026-09-08T00:00:00Z
+last_seen_at: 2026-09-08T09:05:48Z
 rejected_plans: []
+
+## Cycle 3 — 2026-09-08 — FEATURE
+- Preflight: tree clean on `feat/assertion-baseline-dag-scheduler` (= PR #158's head, already
+  pushed) — no preservation needed; checked out main after confirming. CI green on main.
+- Inbox: merged PR #158 (assertion baseline for dag.zig/scheduler.zig), squash + auto-merged
+  label, branch deleted. No bug/question/directive issues. PR #30 still draft/OWNER, untouched.
+- Implemented milestone #155 item 3 continuation: assertion baseline for `src/cache/store.zig`
+  (the file plan 001 calls `cache/local.zig`, which doesn't exist — `store.zig` is the actual
+  local-cache module; `remote.zig` is the S3/GCS/Azure/HTTP one). Same stdx pattern as #158 on
+  all 10 public `CacheStore` fns, 2 new characterization tests (empty-cmd boundary, glob-miss
+  negative space), and a `finalizeKey()` extraction to keep `computeKeyWithSources` under the
+  70-line tidy ratchet after adding assertions (was 74 lines, would have needed a baseline bump).
+  Deliberately dropped a `hasHit(key)` postcondition on `recordHit` I initially added — assert
+  arguments are always evaluated even in ReleaseFast, so it would add a real stat() syscall on
+  every task-completion call; removed rather than accepted as hidden cost. `zig build test`
+  (1804/0 failed) and `zig build tidy` (0 failing) green locally. PR #159 opened, CI running,
+  left for next cycle's inbox (cycle deadline reached before checks completed).
+- Next: merge #159 once green (or fix if red), then item 3's last file (`config/parser.zig`,
+  8194 lines / one 5112-line `parseToml` — will need real scoping thought, not a straight port
+  of the same per-function pattern).
+- Open questions: none.
 
 ## Cycle 2 — 2026-09-08 — FEATURE
 - Preflight: tree dirty on `feat/assertion-baseline-hot-modules` (scheduler.zig/dag.zig,
