@@ -1,7 +1,18 @@
 # strata — context
 
-last_seen_at: 2026-09-07T17:06:02Z
+last_seen_at: 2026-09-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 3 attempt — 2026-09-08 — PREFLIGHT ABORT (disk)
+- Done: nothing — preflight disk gate failed before mode/inbox: `df -g /` reported 17 GB
+  available (< 20 GB required). Stopped before touching the repo or GitHub, per the cycle
+  preflight rule, to avoid a `zig build` running the host out of space mid-write.
+- PRs: none.
+- Next: retry plan 001 item 3 (`tidy` step, part 2 — function length ratchet + ban list)
+  once disk headroom recovers; counter was not advanced (no cycle work was completed).
+- Blockers: host disk space (17 GB avail, need ≥ 20 GB) — not a strata-repo issue, no
+  action possible from within this realm.
+- Open questions: none.
 
 ## Cycle 2 — 2026-09-07 — FEATURE
 - Done: inbox clean (no owner actions, CI green on main, milestone issue #3 open with
