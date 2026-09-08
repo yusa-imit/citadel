@@ -1,7 +1,40 @@
 # sirocco — context
 
-last_seen_at: 2026-09-08T01:05:09Z
+last_seen_at: 2026-09-08T16:09:09Z
 rejected_plans: []
+
+## Cycle 5 — 2026-09-09 — STABILIZATION
+- Done: CI check (last 5 runs on main, all green), no open bug issues → no forced
+  stabilization override needed, but n%5==0 selected STABILIZATION anyway. Ran the
+  tidy-auditor agent for an independent Tiger Style audit: zero violations in every category
+  (`catch unreachable`, `@panic`, `std.debug.print`, `while (true)`, functions > 70 lines,
+  files > 800 lines, `usize` in formats, missing `//!` headers, `assert(` count, `anyerror`/
+  `== error.` in pub fn) — repo is mechanically clean, nothing to fix in that class. Found and
+  fixed real docs drift instead: README.md still described the pre-ADR parallel
+  io/net/tls/http/ws/task public API (PR #7 rewrote docs/PRD.md and added
+  docs/adr/0001-std-io-vtable.md but never touched README.md). Fixed via PR #8 (merged,
+  docs-only, no CI checks apply — `*.md` is paths-ignored, same precedent as PR #7).
+- PRs: #8 merged (auto-merged label).
+- Next: milestone item 8 ("Assertion and Tiger Style baseline") is blocked until actual
+  `Runtime` functions exist in root.zig (currently zero `pub fn` there — nothing to assert
+  pre/post-conditions on). Item 10 ("README and CHANGELOG reconciled") is half-done (README
+  fixed; no CHANGELOG.md yet, premature before a first release). Milestone #3's remaining
+  unblocked work is really `wip/*` branch decision (none exists — trivially satisfiable) and
+  eventually Release 0.2.0 once the plan-002 slot-implementation work lands.
+- Blockers: none. Open questions: none.
+- Gotcha: `zig build tidy`'s own clean pass doesn't mean "nothing to review" — it only checks
+  mechanical patterns in existing code; with a stub-only codebase like sirocco's, the more
+  valuable stabilization signal is docs-vs-ADR drift, not the tidy counters.
+
+## History (cycles 0-4)
+Cycle 0 (2026-09-05, RESTRUCTURE): realm created by citadel restructure, plan 001 prescribed.
+Cycle 1 (2026-09-06, FEATURE): opened milestone issue #3; item 1 (ci.yml hygiene) via PR #4.
+Cycle 2 (2026-09-07, FEATURE): item 2 (`zig build tidy` step) via PR #5.
+Cycle 3 (2026-09-07, FEATURE): items 3-6 (0.16 migration of main.zig/bench/tidy tool, pin+CI)
+bundled into PR #6 — bundling was necessary since `zig build test` compiles all entry points
+in one graph. Cycle 3b (2026-09-08, disk-blocked no-op): `df -g /` was 16 GB, below the 20 GB
+gate; stopped before any work, counter not advanced. Cycle 4 (2026-09-08, FEATURE): item 7
+(PRD rewrite against `std.Io.VTable`, ADR 0001) via PR #7, docs-only.
 
 ## Cycle 4+ (disk-blocked, counter not advanced) — 2026-09-08
 - Preflight disk gate failed: `df -g /` reported 16 GB free, below the 20 GB minimum in

@@ -1,4 +1,34 @@
-# sirocco — State Survey (2026-09-05)
+# sirocco — State Survey (2026-09-05, refreshed 2026-09-09)
+
+## Refresh 2026-09-09 (cycle 5, STABILIZATION)
+
+- CI: last 5 runs on main all green (success). No red CI, no open bug issues.
+- Tidy audit (tidy-auditor agent, independent grep pass + `zig build tidy`): zero violations
+  in every category — `catch unreachable` (0 outside tools/tidy_test.zig's own fixtures),
+  `@panic`/`std.debug.print`/`while (true)` in src/ (0 each), functions > 70 lines (0; only
+  `pub fn` in src/ is `main.zig:10`, ~25 lines), files > 800 lines (0; largest is 36 lines),
+  `usize` in wire formats (0; no structs exist yet), missing `//!` headers (0/8 — all 8 src/
+  files confirmed to have one), `assert(` count (0 — no functions to assert around besides
+  `main`), `== error.`/`anyerror` in pub fn (0 each). Repo is mechanically clean.
+- Milestone #3 item "Assertion and Tiger Style baseline" is **not yet actionable as worded**:
+  `root.zig` currently declares no `pub fn` at all (only `pub const version` and re-exports),
+  so there is nothing to add pre/post-condition assertions to yet. Reframe this item once
+  actual `Runtime` functions land (per the ADR/PRD), not before.
+- Docs drift found and fixed: `README.md` still described the superseded parallel
+  `io`/`net`/`tls`/`http`/`ws`/`task` public-module design (kqueue/epoll/io_uring/IOCP
+  abstraction) that PR #7 already replaced in `docs/PRD.md` and
+  `docs/adr/0001-std-io-vtable.md` — the README rewrite in that PR only touched `docs/PRD.md`,
+  not `README.md`. Fixed via PR #8 (merged, docs-only, `*.md` CI-paths-ignored, no checks
+  applied — same as PR #7): reconciled module table into the single `Runtime.io() -> std.Io`
+  surface, updated Status, added a Design section. Milestone item 10 ("README and CHANGELOG
+  reconciled with reality") is now half-done — no `CHANGELOG.md` exists yet and creating one
+  before a first release would be premature; leave the checkbox open until release time.
+- Dependencies: N/A — `build.zig.zon` `.dependencies = .{}`, zero-dependency foundation repo.
+- Benchmarks: not run this cycle (repo has no functional I/O yet — `bench/main.zig` is a
+  scaffold; nothing meaningful to measure before Phase 1 lands).
+- Hygiene: root directory clean (`.gitignore`, `LICENSE`, `README.md`, `build.zig`,
+  `build.zig.zon`, `docs/`, `src/`, `bench/`, `tools/`, `tests/`, `examples/` — nothing
+  flagged against `citadel/protocol/DOCS.md`).
 
 ## What exists vs claimed
 
