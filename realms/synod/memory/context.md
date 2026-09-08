@@ -1,7 +1,22 @@
 # synod — context
 
-last_seen_at: 2026-09-08T00:00:00Z
+last_seen_at: 2026-09-09T00:00:00Z
 rejected_plans: []
+
+## Cycle 4 — 2026-09-09 — FEATURE
+- Inbox: no owner actions since watermark; milestone #3 open, items 1-3 done.
+- Reviewed the preserved `wip/fix-0.16-main-entry-20260908` branch (from the 2026-09-08 disk
+  abort): verified it builds/fmts/tests clean under Zig 0.16.0 (9/9 build steps, 55/55 tests,
+  `synod version` prints `synod 0.1.0`). Cherry-picked its one commit onto a fresh
+  `fix/0.16-main-entry-and-tidy` branch off main, rewrote the commit message to Conventional
+  Commits, opened PR #7. CI green on all 7 jobs; squash-merged, branch deleted. Ticked items 4
+  (`src/main.zig`) and 7 (`minimum_zig_version` + CI) in #3.
+- Left `fix/0.16-main-entry` (local-only, unverified) and `wip/fix-0.16-main-entry-20260908`
+  (local+remote) in place — both pre-date this cycle and rule 5 forbids deleting a branch not
+  created this cycle; their content is now superseded by merged #7 but they cost nothing to
+  leave. A future cycle may delete `wip/fix-0.16-main-entry-20260908` once it's clearly dead.
+- Next: item 5, 0.16 — `bench/main.zig` (timer → `Io.Clock`, `mem.indexOf` → `mem.find`).
+- Open questions: none.
 
 ## Cycle 4 attempt — 2026-09-08 — PREFLIGHT ABORT (disk)
 - Preflight disk gate failed: `df -g /` reported 16 GB free (< 20 GB required) — did not
