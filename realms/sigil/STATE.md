@@ -86,6 +86,28 @@ stub files has no hot loops, recursion, or allocation to critique. Re-audit once
 - No committed secrets, no giant files, no build artifacts committed, no divergent version
   numbers — repo hygiene is otherwise clean for an early-stage scaffold.
 
+## Stabilization update (2026-09-09, cycle 5)
+
+- `zig build tidy`: **0 findings** (was 9 — 8 line-length, 1 missing `//!` header), fixed via
+  PR #7. `test_step` now hard-depends on the repo-wide tidy scan, not just its own unit tests —
+  plan 001 item 4 done (4/11).
+- Remaining findings from this cycle's `tidy-auditor` sweep, not yet fixed (smallest-diff item
+  already taken this cycle; these carry forward):
+  - `tools/tidy.zig` (1274 lines) is exempt from its own file-length and `//!`-doc-header
+    checks — `scan_roots` only walks `src/bench/tests`, and `checkDocHeader` hard-scopes to
+    `src/`-prefixed paths. Not a violation of any rule as currently written, but a scope gap
+    worth closing before `tools/` grows further.
+  - `tools/tidy.zig`'s directory walk (`walkDir15`/`descendDir15`, and the 0.16-variant pair)
+    is mutually recursive with no explicit depth bound — low real risk (shallow repo trees)
+    but violates the "no recursion, explicit bounded stack" rule literally.
+  - `tidy_baseline.txt` is tracked at repo root, outside `citadel/protocol/DOCS.md`'s allowed
+    root-file list; candidate fix is moving it under `tools/` (touches `build.zig.zon` `.paths`
+    and any relative-path read in `tools/tidy.zig` — verify before moving).
+  - 2 `catch unreachable` in `tools/tidy.zig` (lines ~199, ~201) are provably safe (buffer
+    sized via a preceding `assert`) but lack the `// proof:` comment the rule wants.
+- `src/` is still stub-stage: 0 real functions outside `main.zig`, so assertion-density and
+  most Tiger Style function-level checks remain not-yet-applicable (see "Known gaps" above).
+
 ## Next work candidates (from `docs/milestones.md` / `project-context.md`)
 
 1. Phase 1A — `core/{value,tree,diagnostics}.zig`: `Value` union, arena-owned `ValueTree`,

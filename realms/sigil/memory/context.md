@@ -1,9 +1,29 @@
 # sigil — context
 
-last_seen_at: 2026-09-08T00:00:00Z
+last_seen_at: 2026-09-09T00:00:00Z
 rejected_plans: []
 
-## Cycle 5 — 2026-09-08 — BLOCKED (disk)
+## Cycle 5 — 2026-09-09 — STABILIZATION
+
+- Preflight: disk 60 GB free (gate cleared, unlike prior cycle's 16 GB block). Clean tree on
+  main, CI last 5 runs green, no bug issues. Counter was 4 → n=5, 5%5==0 forced STABILIZATION.
+- Inbox: no OWNER comments since watermark, no plan PR open, milestone issue #3 the only open
+  issue. No actions needed.
+- `tidy-auditor` swept `src/`, `tools/`, `bench/`, `build.zig`: 9 real `zig build tidy`
+  findings (8 line-length, 1 missing `//!` header) — exactly plan 001 item 4's known scope.
+  Fixed via PR #7 (rewrapped 8 headers, added `src/main.zig`'s header, flipped `test_step` to
+  hard-depend on the tidy scan). Verified the gate works: a planted violation fails
+  `zig build test`; reverting it goes green. CI 7/7, squash-merged, `auto-merged` labelled.
+  Tracking issue #3 updated to 4/11.
+- Remaining audit findings (not fixed this cycle, recorded in `STATE.md`): `tools/tidy.zig`
+  self-exempt from file-length/doc-header checks; mutual recursion in its dir-walk with no
+  depth bound; `tidy_baseline.txt` at repo root outside `DOCS.md`'s allowed list; 2
+  `catch unreachable` missing `// proof:` comments (provably safe via a preceding assert).
+- Next: item 5 (0.16 · main, args, allocators) is next in plan 001 — trivial per the probe
+  (single `GeneralPurposeAllocator` → `DebugAllocator` rename plus `process.Init` main shape).
+- Blockers: none. Open questions: none.
+
+## Blocked attempt (disk, not counted) — 2026-09-08
 
 - Preflight disk gate failed: `df -g /` reported 16 GB available on `/` (`/dev/disk3s1s1`,
   228Gi total, 17Gi used, 51% capacity), below the 20 GB minimum required by CYCLE.md step
