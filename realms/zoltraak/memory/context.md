@@ -1,49 +1,35 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-07T23:05:34Z
+last_seen_at: 2026-09-08T11:22:00Z
 rejected_plans: []
 
-## Cycle 5 — 2026-09-07 — FEATURE
-- Done: inbox found no owner actions (no new comments since watermark, no
-  open PRs to merge — #125/#126 already merged as of cycle 4). Milestone
-  #121 open, plan 001 unchecked items 4-9 confirmed practically blocked:
-  item 4's remaining sub-part needs `std.process.Init`, item 5 needs
-  `std.mem.find*`, items 6-8 need `std.Io` types — none exist in the
-  pinned 0.15.2 stdlib (verified directly against
-  `/opt/homebrew/Cellar/zig/0.15.2/lib/zig/std/mem.zig`). Item 9 has an
-  explicit `blocked_by` note. Item 10 ("Assertion baseline") has no 0.16
-  dependency, so implemented it, scoped to `src/protocol/parser.zig`
-  (smallest of the five listed hot modules; 0 asserts before). Added 35
-  asserts (buffer bounds, RESP frame invariants, allocator postconditions
-  via `owned.len == line.len` after `dupe`) plus a genuine Tiger Style
-  rule-7 fix found while auditing: array/map/set/push counts and bulk-
-  string/bulk-error/verbatim-string lengths were unbounded user-controlled
-  `i64`s — added `ParseError.LengthTooLarge` with `bulk_len_max` (512 MiB,
-  matches Redis `proto-max-bulk-len`) and `multibulk_count_max` (1,048,576,
-  matches Redis's fixed ceiling), checked before allocation.
-- Caught and fixed two of my own draft asserts before they shipped:
-  `assert(line.len <= 1)` in `parseBoolean` and `assert(line.len > 0)` in
-  `parseDouble` would have crashed the server on malformed *client* input
-  (e.g. `#toolong\r\n` or an empty double line before `\r\n`) — that is
-  user data, must return a typed error, never assert. Removed both.
-  Lesson: when adding asserts to a wire-format parser, check every
-  candidate against "can an attacker control this value?" before keeping
-  it — parser.zig's own existing error-return pattern already made this
-  distinction correctly everywhere else.
-- Verified: `zig test src/protocol/parser.zig` 39/39 (8 new), `zig build
-  test` 1106/1106 (same two pre-existing signal-4 RDB crashes, no new
-  regressions), `zig test -OReleaseSafe src/protocol/parser.zig` 39/39,
-  `zig build tidy` green (had to move a proof comment for 7 test-only
-  `catch unreachable` sites to stay under the 100-column limit — the tidy
-  checker requires `//` on the *same* line as `catch unreachable`, not a
-  preceding line), `zig fmt --check src/protocol/parser.zig` clean (repo-
-  wide `zig fmt --check` still has the same 15 pre-existing unformatted
-  files as main, confirmed via `git stash`, unrelated to this change).
-- PRs: #127 opened (`refactor/parser-assertion-baseline`), CI pending at
+## Cycle 5 — 2026-09-08 — STABILIZATION
+- Done: inbox merged #127 (parser.zig assertion baseline, plan 001 item
+  10 partial — 35 asserts + `ParseError.LengthTooLarge` bound; CI green).
+  Mode forced to STABILIZATION by `n % 5 == 0`. `tidy-auditor` produced a
+  fresh full audit (see `STATE.md` for the table): 49/~90 files >800
+  lines, 155 functions >70 lines, 40 `assert`s total (85% still
+  concentrated in `parser.zig` from #127), 88/88 files missing `//!`
+  headers, 17 `catch unreachable` sites without the same-line proof
+  comment `zig build tidy` requires. Picked the smallest mechanical class
+  (17 proof comments, 6 files: `storage/memory.zig`, `storage/modules.zig`,
+  `commands/{bitfield,cluster,client}.zig`, `scripting/lua_libraries.zig`)
+  — all bufPrint-into-sized-buffer or test-only guarded-deinit sites.
+  Adding the comment pushed several lines over the 100-column tidy
+  baseline; reflowed those calls to multi-line, and extracted
+  `Storage.formatHexByte` out of `memory.zig`'s `init` to keep it under
+  its 148-line function-length baseline after the reflow (net -6 lines).
+- Verified: `zig build test` 1032/1032 (same 2 documented signal-4 RDB
+  crashes, no new regressions), `zig build tidy` green (was previously
+  green only because these 17 sites were pre-baselined debt — now a real
+  reduction), `zig fmt --check` clean on all 6 touched files.
+- PRs: #128 opened (`fix/tidy-catch-unreachable-proofs`), CI pending at
   the cycle deadline — commented "awaiting CI; merge next cycle".
-- Next: next cycle's inbox merges #127, then continue item 10 on the next
-  hot module (`protocol/writer.zig` is next-smallest at 802 lines, 24
-  existing asserts already — likely the next-cheapest increment). The 3
+- Next: next cycle's inbox merges #128. Next-cheapest tidy class after
+  this one is the 88 files missing `//!` headers (mechanical to detect,
+  more editorial effort per file than proof comments). Plan 001 item 10
+  continuation (assertion baseline on `protocol/writer.zig`, next-
+  smallest hot module) still pending from cycle 5's FEATURE half. The 3
   untriaged `git stash` entries from cycle 1 (see History) still need
   triage — `stash@{0}` plausibly fixes the two signal-4 RDB crashes.
 - Blockers: none this cycle. Open questions: none.

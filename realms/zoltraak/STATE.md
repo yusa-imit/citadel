@@ -39,15 +39,22 @@ not tracked the claimed iteration count or the actual latest tag (see Risks).
 
 ## Tiger Style gap table
 
+Survey date: 2026-09-08 (cycle 5 stabilization, `tidy-auditor`). `zig build tidy` is a
+shrink-only baseline gate (fails only on regressions above `tidy-baseline.zon`), not a
+zero-violation check — counts below are the real absolute state.
+
 | Check | Count | Note |
 |---|---|---|
-| Files over 800 lines | 44 / ~90 | `memory.zig` 15,650 is the extreme outlier |
-| `std.debug.print` in `src/` | 105 | contradicts repo's own cleanup rule |
-| `catch unreachable` | 17 | unaudited for client-input-reachable violations |
-| Unbounded `while (true)` | 11 | some legit server loops, some the polling gap |
-| `assert` | 5 | very low for 141K LOC under Tiger Style's own bar |
+| Files over 800 lines | 49 / ~90 | `memory.zig` 15,650 is the extreme outlier |
+| `std.debug.print` in `src/` (excl. `main.zig`/`cli.zig` entry points) | 15 / 8 files | 105 total incl. `main.zig`(21)/`cli.zig`(53, REPL UI)/`server.zig`(26 mixed banner+error-path) |
+| `catch unreachable` without same-line proof comment | 0 (was 17) | fixed in PR #128 (this cycle), 6 files; 7 pre-existing proven sites in `protocol/parser.zig` untouched |
+| Unbounded `while (true)` | 11 (7 legit, 4 polling) | sleep-poll candidates for the blocking.zig gap: `commands/streams_advanced.zig:446,735`, `commands/replication.zig:290,388` |
+| `assert` (any spelling) | 40 | 34/40 (85%) in `protocol/parser.zig` alone (PR #127); ratio outside that file ≈0.004/fn vs Tiger Style's ≥2/fn bar |
 | `@panic` | 0 | — |
-| Functions over 70 lines | not measured | flagged: strings.zig, memory.zig, client.zig |
+| Functions over 70 lines | 155 | worst: `storage/memory.zig:evictOneKey` 346, `commands/geo.zig:cmdGeosearchstore` 344, `storage/config.zig:init` 336 |
+| `usize` in wire-format struct fields (RESP/RDB/AOF) | 0 real hits | all on-disk writes use explicit `writeInt(u16/u32/u64/i64,...)`; matches in `protocol/parser.zig` are internal cursors, not serialized |
+| Files missing `//!` module header | 88 / 88 (100%) | next-cheapest mechanical class after `catch unreachable` — flagged for a future cycle |
+| `TODO`/`FIXME` | 5 | `network/tls.zig:15,48`; `commands/utility.zig:322`; `commands/bits.zig:567`; `commands/bitfield.zig:626` |
 
 ## Zig 0.16 probe summary
 
