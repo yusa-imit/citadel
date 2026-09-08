@@ -1,7 +1,20 @@
 # sirocco — context
 
-last_seen_at: 2026-09-08T00:17:46Z
+last_seen_at: 2026-09-08T01:05:09Z
 rejected_plans: []
+
+## Cycle 4+ (disk-blocked, counter not advanced) — 2026-09-08
+- Preflight disk gate failed: `df -g /` reported 16 GB free, below the 20 GB minimum in
+  CYCLE.md step 0.2. Stopped immediately after the gate check — no inbox triage, no mode
+  selection, no repo/GitHub state read or touched, no work attempted.
+- Counter left at 4 (not incremented): this was not a completed cycle, so mode alternation
+  (STABILIZATION at n%5==0) should not be consumed by a no-op disk block.
+- Next: re-run the cycle once free disk space on `/` is back at or above 20 GB. Pick up from
+  Cycle 4's "Next": milestone-001 item 8, "Assertion and Tiger Style baseline" (pre/post
+  assertions on root.zig public fns, `//!` headers on all 8 files — Cancelled/Canceled grep
+  already clean).
+- Blockers: host disk space (16 GB free, need 20 GB) — outside this repo's control; no GitHub
+  action needed since this is a machine-level condition, not a code or CI issue.
 
 ## Cycle 4 — 2026-09-08 — FEATURE
 - Done: implemented plan 001 item 7, PR #7 (merged, docs-only — no CI runs, ci.yml
