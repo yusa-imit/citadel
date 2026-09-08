@@ -1,7 +1,27 @@
 # synod — context
 
-last_seen_at: 2026-09-07T12:00:00Z
+last_seen_at: 2026-09-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 4 attempt — 2026-09-08 — PREFLIGHT ABORT (disk)
+- Preflight disk gate failed: `df -g /` reported 16 GB free (< 20 GB required) — did not
+  proceed past preflight, no inbox/mode/GitHub-truth work done this attempt. Counter NOT
+  incremented (not a completed cycle); next cycle is still cycle 4.
+- Found the repo dirty and on `fix/0.16-main-entry` (not main) at session start, with
+  uncommitted work on item 4 (0.16 migration): `src/main.zig` converted to
+  `pub fn main(init: std.process.Init) !void` + `Io.File.stdout()`; `tools/tidy.zig` threaded
+  `Io` through `readOptionalFile`/`reportSizeViolations`/`reportBanViolations` and renamed
+  `trimLeft`/`trimRight` → `trimStart`/`trimEnd`; also touched `.github/workflows/ci.yml`,
+  `CHANGELOG.md`, `build.zig.zon`, `docs/plans/001-zig-0.16-and-tiger-baseline.md`. No matching
+  PR or remote branch existed — this looked like unpreserved WIP from an interrupted session,
+  so before stopping for the disk gate it was committed and pushed to
+  `wip/fix-0.16-main-entry-20260908` (not yet verified with `zig build test`), then `main` was
+  checked out clean. Local `fix/0.16-main-entry` branch left untouched (not deleted).
+- Next: free disk space on the host (16 GB free, gate needs ≥ 20 GB) is an operator/host
+  concern outside this repo — not something a realm cycle can fix. Once resolved, cycle 4
+  should start by reviewing `wip/fix-0.16-main-entry-20260908` (finish item 4: build+test it,
+  then fold into a real `fix/` or `feat/` PR) rather than starting item 4 from scratch.
+- Open questions: none (host disk pressure is not a repo-level blocker to escalate on GitHub).
 
 ## Cycle 3 — 2026-09-07 — FEATURE
 - Inbox: merged PR #5 (item 2, tidy sizes) — CI was green; ticked item 2 in #3.
