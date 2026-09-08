@@ -3,6 +3,17 @@
 _(migrated + merged from the repo's former .claude/memory/debugging.md and
 zig-015-compat.md, 2026-09-05; further compressed from the 2026-07-17 version)_
 
+## CI flakiness patterns
+
+- A wall-clock `avg_ns <= *_MAX_AVG_NS` threshold duplicated into a *correctness* test (e.g. a
+  "does aggregation compute the right average" test also gating render-latency) makes an
+  otherwise-deterministic test flaky under shared-runner scheduler noise, even though the same
+  commit passed on the PR that merged it. Fix: each perf threshold belongs to exactly one test
+  named for that threshold (kept a `> 0` sanity check in the correctness test instead). Found
+  2026-09-07/08, `tests/performance_integration_test.zig` (PR #23). When writing a new
+  "regression - X" test, check whether an existing sibling test already owns the wall-clock
+  bound before adding another one.
+
 ## Known Zig 0.15.x gotchas
 
 - `std.ArrayList(T){}` not `.init(allocator)` — unmanaged API. Methods need the allocator:

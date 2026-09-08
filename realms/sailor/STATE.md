@@ -37,22 +37,34 @@ v2.100.0, round 3 of this audit). No `CHANGELOG.md` — release notes live only 
 
 - Local (Zig 0.15.2, matches CI pin): `zig build` OK (cached, exit 0). `zig build test`: PASS,
   0 failures, ~47s wall / 144s CPU — including the dirty-tree `timeline.zig` change below.
-- CI: GREEN — last 3 runs on `main` all `completed success`. Linux x86_64 / macOS ARM64
-  (macos-15 pinned) / Windows x86_64 native tests + 6-target cross-compile. `paths-ignore` skips
-  `.claude/memory`, `docs/`, `*.md` (memory-only commits are unverified by CI — acceptable).
-- Open issues: none. Open PRs: none.
+- CI: GREEN as of 2026-09-08 (main @ `fabab3c`, PR #23 merged — removed a duplicate/flaky
+  `avg_ns` perf assertion from a correctness test, see `memory/debugging.md`). Linux x86_64 /
+  macOS ARM64 (macos-15 pinned) / Windows x86_64 native tests + 6-target cross-compile.
+  `paths-ignore` skips `.claude/memory`, `docs/`, `*.md`.
+- Open issues: #19 (milestone 001 tracking, 3/12 checked). Open PRs: none.
 
 ## Tiger Style gaps
 
-| Check | Count | Note |
-|---|---|---|
-| `assert` | 9 | Across 150k LOC — essentially no precondition checking |
-| `catch unreachable` | 28 | Violates the repo's own "no catch unreachable" rule |
-| `@panic` | 8 | 7 inside `clipboard.zig` GPA-leak tests, 1 real (`stack_trace.zig:30`) |
-| `std.debug.print` | 34 | In debug/bench/test helpers, not render paths — still shipped |
-| `while (true)` (unbounded) | 13 | Bresenham/line-drawing loops, terminal reads, focus cycling |
-| Files > 800 lines | 52 | vs. the 500-line target in the old `CLAUDE.md` |
-| Functions > 70 lines | ~105 (sample) | `repl.zig:handleKey` 275, `waterfall_chart.zig` 232 |
+As of 2026-09-08 (cycle 4 tidy-auditor re-check): `zig build tidy` **passes** (447 baseline
+entries) — `catch_unreachable`, `debug_print`, `usize_in_wire_format`, `missing_header`,
+`function_length`, `line_length`, `time_usage` are now tracked with a shrinking baseline in
+`build_support/tidy.zig` / `tidy_baseline.txt`. `@panic`, `while (true)`, and file length (>800
+lines) are still untracked by tidy.
+
+| Check | Count | Tracked by tidy? | Note |
+|---|---|---|---|
+| `catch unreachable` | 28 raw (11 baseline entries) | yes | rest have proof comments already |
+| `@panic` | 8 | no | 7 test-only leak guards in `clipboard.zig`, 1 real: `stack_trace.zig:30` |
+| `std.debug.print` | 34 raw (6 baseline entries) | yes | debug/bench/test helpers |
+| `while (true)` (unbounded) | 13 | no | Bresenham/line-drawing loops, terminal reads, focus cycling |
+| Files > 800 lines | 52 | no | worst: `layout.zig` 3002, `style.zig` 2223, `tooltip.zig` 2094 |
+| Functions > 70 lines | 122 baseline entries | yes | `build.zig:build` 1954, `docgen.zig:parseFunctionDeclaration` 360 |
+| `usize` in wire format | 4 | yes | see `tidy_baseline.txt` |
+| Missing `//!` header | 86 | yes | e.g. `accessibility.zig`, `aria.zig`, `bidi.zig` |
+
+Smallest-diff-first recommendation for the next stabilization cycle: **`@panic` cleanup** — only
+8 occurrences across 2 files, not yet tidy-tracked, smaller than the `while (true)` or
+800-line-file categories (which need per-site judgment).
 
 Also noted: 14 widget files allocate inside `render()` (138 `ArrayList`/alloc references across
 widgets); recursion with no explicit depth limit in docgen's directory walk, `layout_intelligence`
