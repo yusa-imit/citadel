@@ -1,7 +1,32 @@
 # strata — context
 
-last_seen_at: 2026-09-08T00:00:00Z
+last_seen_at: 2026-09-09T02:05:00Z
 rejected_plans: []
+
+## Cycle 4 — 2026-09-09 — FEATURE
+- Done: preflight found the repo dirty on non-`wip/*` branch `chore/zig-0.16-migration`
+  (staged, uncommitted 0.16 migration work) → preserved it to
+  `wip/chore-zig-0.16-migration-20260909` (pushed) before switching to main, per protocol.
+  Inbox clean (no owner actions, CI green, milestone issue #3 open). Implemented plan 001
+  items 4 (`main`, args, allocators) and 7 (pin and CI) as one PR — the two are coupled
+  because item 4's `std.process.Init` signature only exists under 0.16.0, and CI still
+  pinned 0.15.2, so shipping item 4 alone would go red. Also had to migrate
+  `tools/tidy.zig` and `bench/main.zig` (not explicit plan items, but both compile as
+  part of `zig build test`/`bench`) — `std.fs.Dir`→`std.Io.Dir`, `std.time.Timer`→
+  `std.Io.Clock.Timestamp`, `mem.indexOf`→`mem.find`. code-reviewer caught one CRITICAL
+  (a >100-col line tidy couldn't self-lint, since `tools/` isn't in `scan_roots`) and two
+  WARNINGs (swallowed `error.Canceled` in tidy's directory-walk `catch return`/`catch
+  continue`) — fixed before merge.
+- PRs: #7 merged (auto-merged label), all 7 CI checks green.
+- Next: plan 001 item 5 (library sweep — ban-list extension for 0.15-only spellings in
+  `tools/tidy.zig`; confirm `root.zig`/modules stay clean) or item 6 (0.16 tests:
+  `std.testing.io`, real `tmpDir` round-trip).
+- Blockers: none.
+- Open questions: none.
+- Note: local branch `chore/zig-0.16-migration` (pre-cycle, never pushed) and remote
+  `wip/chore-zig-0.16-migration-20260909` are now redundant with merged PR #7 but were
+  left in place per the "never delete a `wip/*` branch" / "only delete PR-head branches
+  you're merging now" rules — safe to prune manually if the owner wants.
 
 ## Cycle 3 attempt — 2026-09-08 — PREFLIGHT ABORT (disk)
 - Done: nothing — preflight disk gate failed before mode/inbox: `df -g /` reported 17 GB
