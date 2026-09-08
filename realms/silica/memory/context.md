@@ -1,7 +1,49 @@
 # silica — context
 
-last_seen_at: 2026-09-07T22:06:29Z
+last_seen_at: 2026-09-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 5 — 2026-09-08 — STABILIZATION
+- Inbox: merged PR #142 (batch 3 scratch-DB tmpDir, plan 001 item 2 part 2),
+  CI all green (build-and-test + 6 cross-compile targets), labeled
+  auto-merged, branch deleted. No OWNER comments/directives/questions since
+  last watermark. No plan PR open, no plan_closed_unmerged.
+- Counter forces STABILIZATION this cycle (n=5, n%5==0); CI green, no bug
+  issues open — not a forced-by-red-CI stabilization.
+- Tidy audit (tidy-auditor, full report in agent transcript): assert(=19
+  (not 12, STATE.md was stale), catch unreachable=212 (26 unjustified in
+  real lib code), @panic=7 (all in test blocks, 0 lib violations),
+  debug print=16, while(true)=104 (2 genuinely unguarded page-chain
+  traversals: storage/hash_index.zig:275, storage/gin_index.zig:1284 — no
+  cycle guard, flagged as next stabilization candidate), files>800=40
+  (engine.zig 43,242 lines, executor.zig 35,253 lines unchanged),
+  functions>70=150 (newly measured), usize-in-wire-format=0 (clean),
+  missing `//!` header=17/61 files (all of replication/ + cli.zig,
+  server/server.zig, tui.zig, sql/{parser,ast,tokenizer}.zig).
+- Fixed smallest class: added SAFETY comments to the 26 unjustified
+  `catch unreachable` sites (replication/slot.zig:98, storage/fuzz.zig:66,
+  storage/btree.zig x4, sql/executor.zig x20 via one function-level
+  comment on toCharTimestamp). Comment-only, zero behavior change.
+  Editing executor.zig/btree.zig triggered the format-on-save hook, which
+  incidentally fixed pre-existing (main-inherited) fmt drift in those two
+  files — verified those files were NOT fmt-compliant on main before this
+  touch (`zig fmt --check` against a pre-edit copy), so this wasn't
+  scope creep, just unavoidable side effect of the hook.
+- PR #143 opened, `zig build`/`zig build test` green locally, fmt-check
+  clean on all 4 touched files. CI (build-and-test ~13m historically)
+  still pending at the cycle deadline — commented "awaiting CI; merge
+  next cycle", left for cycle 6's inbox.
+- Next: cycle 6's inbox merges #143 if green. STATE.md Tiger Style table
+  needs updating with the fresh audit counts above (not yet written to
+  STATE.md this cycle — do in a future stabilization or docs pass).
+  Next stabilization candidates in priority order: (1) `//!` headers for
+  the 11 replication/*.zig files (comment-only, mechanical); (2) add
+  iteration caps to the 2 unguarded page-chain loops (needs real logic +
+  test, the only genuine "limit on everything" gap found).
+- Blockers: none new. Standing blocker unchanged (plan 001 rest is
+  blocked_by zuda v3.0.0, sailor v3.0.0).
+- Open questions: unchanged (buffer-pool LRU zuda-migration contradiction;
+  concurrent-connections WAL-corruption finding not reconfirmed).
 
 ## Cycle 4 — 2026-09-07 — FEATURE
 - Done: inbox merged PR #141 (item 2 part 2 batch 2), labeled auto-merged,
