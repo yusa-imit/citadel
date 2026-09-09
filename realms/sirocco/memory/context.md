@@ -1,31 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-09-09T04:05:34Z
+last_seen_at: 2026-09-10T00:00:00Z
 rejected_plans: []
 
-## Cycle 6 — 2026-09-09 — FEATURE
-- Done: inbox clean (no owner actions since last watermark, plan PR none, milestone #3 open
-  with items 8-11 unchecked). Implemented and merged plan 001 item 8 ("Assertion and Tiger
-  Style baseline") via PR #9. `src/root.zig` still declares no `pub fn`, so the assertion work
-  landed on the two real entry points instead: extracted `src/main.zig`'s `run()` and
-  `bench/main.zig`'s `matchesFilter()`/`rates()` into small testable free functions with paired
-  pre/postcondition asserts (postconditions prefer an independent arithmetic property — e.g.
-  floor-division's `ns_per_op * ops <= ns` — over restating the branch just computed, per a
-  code-reviewer WARNING that first-draft asserts were compound `assert(a or b)` restatements).
-  Moved shared `assert`/`maybe` into new `src/stdx.zig`, re-exported as `sirocco.stdx`, so
-  Phase 1 files share one home. Recorded the assertion pattern in `memory/patterns.md`.
-  `error.Cancelled` already clean in code; `docs/adr/0001-std-io-vtable.md`'s two mentions are
-  intentional historical prose, left as-is — annotated that nuance directly in the plan file.
-- PRs: #9 merged (auto-merged label, CI green: Build & Test + 6 cross-compile targets).
-- Next: item 9 (`wip/*` branch decision — trivially satisfiable, no branch exists, just needs
-  recording in `decisions.md`) or item 10 (README/CHANGELOG reconciliation — no CHANGELOG.md
-  exists yet).
+## Cycle 7 — 2026-09-10 — FEATURE
+- Done: inbox clean (no new OWNER actions since watermark beyond the AI's own prior-cycle
+  comments; no plan PR open; milestone #3 open with items 9-11 unchecked). Ticked plan 001
+  item 9 (`wip/*` branch decision) via PR #10 — verified `git branch -a` has no `wip/*` branch
+  for sirocco and `chore/kingdom-restructure` is already the plan's merged base, so nothing to
+  finish or close. Docs-only change, no CI checks apply (same as PRs #7/#8), merged and
+  labeled `auto-merged`. Decision recorded in `decisions.md` as ADR-002.
+- PRs: #10 merged (auto-merged label, no CI checks — docs-only paths-ignore).
+- Next: item 10 (README/CHANGELOG reconciliation — README still advertises TLS/HTTP2/WS/DNS
+  that don't exist; no `CHANGELOG.md` yet) or item 11 (release 0.2.0, depends on item 10's
+  CHANGELOG existing first).
 - Blockers: none. Open questions: none.
-- Gotcha: a code-reviewer pass on a small Tiger-Style-assertion PR is worth the subagent call
-  even for ~5-line diffs — it caught a real mistake (compound-implication asserts that just
-  restated the same branch, not an independent derivation) that's easy to write by reflex.
 
-## History (cycles 0-5)
+## History (cycles 0-6)
 Cycle 0 (2026-09-05, RESTRUCTURE): realm created, plan 001 prescribed. Cycle 1 (2026-09-06,
 FEATURE): opened milestone issue #3; item 1 via PR #4. Cycle 2 (2026-09-07, FEATURE): item 2
 (`zig build tidy` step) via PR #5. Cycle 3 (2026-09-07, FEATURE): items 3-6 (0.16 migration of
@@ -37,7 +28,11 @@ Cycle 4 (2026-09-08, FEATURE): item 7 (PRD rewrite against `std.Io.VTable`, ADR 
 reason to exist now; declared the 40-slot hybrid forwarding to `Io.Threaded`. Cycle 5
 (2026-09-09, STABILIZATION, n%5==0): CI green, tidy audit mechanically clean (repo is
 stub-only, so zero counters prove nothing yet); found and fixed real docs drift instead —
-README still described the pre-ADR parallel io/net/tls/http/ws/task API — via PR #8.
+README still described the pre-ADR parallel io/net/tls/http/ws/task API — via PR #8. Cycle 6
+(2026-09-09, FEATURE): item 8 (Assertion and Tiger Style baseline) via PR #9 — landed on the
+two real entry points (`main.zig`, `bench/main.zig`) since `root.zig` has no `pub fn` yet;
+shared `assert`/`maybe` moved to new `src/stdx.zig`. A code-reviewer pass caught compound
+implication asserts that just restated a branch instead of deriving an independent property.
 
 Standing backlog / next-work order after milestone 001 closes (from old
 `.claude/memory/project-context.md`, superseded by `docs/milestones.md` as source of truth):

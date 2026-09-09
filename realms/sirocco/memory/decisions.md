@@ -18,3 +18,15 @@ provided through an adapter.
 _(Note: this decision is now also stated kingdom-wide in `citadel/core/rules/00-kingdom.md`
 — foundation `build.zig.zon` has no `.dependencies`; kept here verbatim since it predates
 that file and gives sirocco's own rationale.)_
+
+## ADR-002: No `wip/*` branch to finish or close (plan 001 item 9)
+
+**Date**: 2026-09-10
+**Context**: Plan 001 item 9 asks for a decision on any preserved `wip/*` branch from the
+kingdom restructure.
+**Decision**: `git branch -a` shows no `wip/*` branch was ever preserved for sirocco —
+foundation repos (sigil, sirocco, strata, synod) had no interrupted work at restructure time.
+The only other non-main branch, `chore/kingdom-restructure`, already merged as PR #1 and is
+plan 001's base. Nothing to finish or close.
+**Consequences**: None — item 9 is closed as a no-op. Recorded here per the plan's own verify
+criterion (PR #10).
