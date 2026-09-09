@@ -56,6 +56,11 @@ force-push, no deletion) once the owner creates it — until then the hooks are 
 - Issue titled `question: <topic>`, labels `question` + `needs-human`. Body: context, options,
   the AI's recommendation, what happens if unanswered (the AI proceeds with the recommendation
   after two cycles unless the question is marked `blocking` in the title).
+- Escalation to citadel: the citadel cycle mirrors every realm issue labelled `needs-human` into
+  one citadel issue of its own (`needs-human: <realm> — <topic>`, labels `needs-human` +
+  `from:<realm>`), and closes it when the realm issue is resolved or loses the label. A citadel
+  issue exists only while a human decision is pending: there is no standing digest issue and no
+  periodic status comment. When nothing needs the human, citadel stays silent.
 
 ## Reports
 
