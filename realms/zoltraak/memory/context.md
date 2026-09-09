@@ -1,7 +1,34 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-08T23:05:56Z
+last_seen_at: 2026-09-09T11:16:26Z
 rejected_plans: []
+
+## Cycle 7 — 2026-09-09 — FEATURE
+- Done: inbox merged #129 (writer.zig assertion baseline, CI green,
+  auto-merged). Re-confirmed items 4-9 of plan 001 still blocked: zuda at
+  v2.3.0, sailor at v2.99.0, neither has hit v3.0.0 yet. Implemented plan
+  001 item 11 continuation: assertion baseline on `server.zig` (~20
+  asserts, up from 0) — `ServerStats` counter monotonicity, uptime
+  non-negativity, `ShutdownState` requested/request-payload consistency,
+  `GossipTask` running/thread-handle invariants, `Server.init`/`deinit`
+  database-count postconditions, `performShutdown` precondition,
+  `detectPsync` case-insensitive-match proof. `server.zig` had zero unit
+  tests before this (own comment said the accept loop needs integration
+  testing) — added 4 new unit tests for the testable pieces (ServerStats,
+  ShutdownState, detectPsync, Server.init/deinit). Adding asserts to
+  `start`/`handleConnection` pushed them 1-2 lines over their
+  `tidy-baseline.zon` ceiling (shrink-only); reverted those two and left
+  the accept loop covered by the shell integration suite instead.
+- Verified: `zig build test` 1106/1106 (only the 2 documented signal-4
+  RDB flakes), `zig build tidy` clean, `zig fmt --check src/server.zig`
+  clean.
+- PRs: #130 opened (`refactor/server-assertion-baseline`), CI pending at
+  the cycle deadline — commented "awaiting CI; merge next cycle".
+- Next: next cycle's inbox merges #130. Assertion baseline remaining:
+  `storage/memory.zig`, `commands/strings.zig` (both large — may need
+  more than one cycle each). Re-check zuda/sailor tags each cycle.
+- Blockers: none this cycle beyond the standing zuda/sailor v3.0.0 gate.
+  Open questions: none.
 
 ## Cycle 6 — 2026-09-08 — FEATURE
 - Done: inbox merged #128 (catch-unreachable proof comments, CI green,
@@ -31,38 +58,14 @@ rejected_plans: []
 - Blockers: none this cycle beyond the standing zuda/sailor v3.0.0 gate.
   Open questions: none.
 
-## Cycle 5 — 2026-09-08 — STABILIZATION
-- Done: inbox merged #127 (parser.zig assertion baseline, plan 001 item
-  10 partial — 35 asserts + `ParseError.LengthTooLarge` bound; CI green).
-  Mode forced to STABILIZATION by `n % 5 == 0`. `tidy-auditor` produced a
-  fresh full audit (see `STATE.md` for the table): 49/~90 files >800
-  lines, 155 functions >70 lines, 40 `assert`s total (85% still
-  concentrated in `parser.zig` from #127), 88/88 files missing `//!`
-  headers, 17 `catch unreachable` sites without the same-line proof
-  comment `zig build tidy` requires. Picked the smallest mechanical class
-  (17 proof comments, 6 files: `storage/memory.zig`, `storage/modules.zig`,
-  `commands/{bitfield,cluster,client}.zig`, `scripting/lua_libraries.zig`)
-  — all bufPrint-into-sized-buffer or test-only guarded-deinit sites.
-  Adding the comment pushed several lines over the 100-column tidy
-  baseline; reflowed those calls to multi-line, and extracted
-  `Storage.formatHexByte` out of `memory.zig`'s `init` to keep it under
-  its 148-line function-length baseline after the reflow (net -6 lines).
-- Verified: `zig build test` 1032/1032 (same 2 documented signal-4 RDB
-  crashes, no new regressions), `zig build tidy` green (was previously
-  green only because these 17 sites were pre-baselined debt — now a real
-  reduction), `zig fmt --check` clean on all 6 touched files.
-- PRs: #128 opened (`fix/tidy-catch-unreachable-proofs`), CI pending at
-  the cycle deadline — commented "awaiting CI; merge next cycle".
-- Next: next cycle's inbox merges #128. Next-cheapest tidy class after
-  this one is the 88 files missing `//!` headers (mechanical to detect,
-  more editorial effort per file than proof comments). Plan 001 item 10
-  continuation (assertion baseline on `protocol/writer.zig`, next-
-  smallest hot module) still pending from cycle 5's FEATURE half. The 3
-  untriaged `git stash` entries from cycle 1 (see History) still need
+## History (cycles before 6)
+- Cycle 5 (STABILIZATION, forced by `n % 5 == 0`): merged #127 (parser.zig
+  assertion baseline, plan 001 item 10 partial). Fresh tidy-auditor audit
+  (see `STATE.md`) found 17 `catch unreachable` sites without proof
+  comments — fixed across 6 files, extracted `Storage.formatHexByte` to
+  stay under a function-length baseline. PR #128 opened, CI pending at
+  deadline. 3 untriaged `git stash` entries from cycle 1 still need
   triage — `stash@{0}` plausibly fixes the two signal-4 RDB crashes.
-- Blockers: none this cycle. Open questions: none.
-
-## History (cycles before 5)
 - Cycle 4: inbox merged #125 (`build.zig` on 0.16, plan 001 item 3).
   Implemented + merged #126: renamed 471 `std.ArrayList(T){}`/
   `ArrayListUnmanaged(T){}` literal-inits to `.empty` (52 files) and
