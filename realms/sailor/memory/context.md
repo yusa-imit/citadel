@@ -1,7 +1,30 @@
 # sailor — context
 
-last_seen_at: 2026-09-08T20:05:36Z
+last_seen_at: 2026-09-09T08:06:47Z
 rejected_plans: []
+
+## Cycle 5 — 2026-09-09 — STABILIZATION
+
+- Done: preflight/inbox found PR #24 (`@panic` tidy tracking) already open and fully green
+  (10/10 checks, `mergeStateStatus: CLEAN`) from an interrupted prior session — not recorded in
+  cycle 4's memory, so this cycle's inbox merged it (squash, branch deleted, labelled
+  `auto-merged`) and confirmed the post-merge CI run on `main` @ `2989cb4` reached `success`
+  before treating main as green. Ran `tidy-auditor` for a fresh count (see STATE.md): baseline
+  regeneration diffed byte-for-byte clean against the checked-in file (no drift). Auditor's
+  smallest-diff recommendation was a new `crypto_random` tidy check mirroring `time_usage` (one
+  real site, `llm_client.zig`'s `RateLimiter` jitter) — implemented with a TDD test first,
+  confirmed the check failed against the unmodified baseline (proving it catches the site),
+  regenerated the baseline (+1 entry, 448 total), `zig build test` green, `zig fmt --check`
+  clean. Opened as PR #25; CI was still running at cycle deadline (~15 min in) — left open for
+  next cycle's inbox to merge, same pattern as cycle 2's PR #21.
+- PRs: #24 (merged), #25 (open, CI pending).
+- Next: inbox should merge #25 once green, then STATE.md's next smallest-diff pick is
+  proof-commenting the 3 remaining unproven `catch_unreachable` clusters (`eventbus.zig`,
+  `countdown_timer.zig`, `event_metrics.zig`/`render_metrics.zig`) — same mechanical pattern as
+  the `@panic` PR. FEATURE-mode work remains item 4 on #19 (`build.zig` `linkLibC` fix +
+  mechanical Zig 0.16 renames).
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 4 — 2026-09-08 — STABILIZATION
 

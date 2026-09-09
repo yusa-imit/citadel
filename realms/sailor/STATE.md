@@ -36,35 +36,43 @@ v2.100.0, round 3 of this audit). No `CHANGELOG.md` — release notes live only 
 ## Build / test / CI
 
 - Local (Zig 0.15.2, matches CI pin): `zig build` OK (cached, exit 0). `zig build test`: PASS,
-  0 failures, ~47s wall / 144s CPU — including the dirty-tree `timeline.zig` change below.
-- CI: GREEN as of 2026-09-08 (main @ `fabab3c`, PR #23 merged — removed a duplicate/flaky
-  `avg_ns` perf assertion from a correctness test, see `memory/debugging.md`). Linux x86_64 /
-  macOS ARM64 (macos-15 pinned) / Windows x86_64 native tests + 6-target cross-compile.
-  `paths-ignore` skips `.claude/memory`, `docs/`, `*.md`.
-- Open issues: #19 (milestone 001 tracking, 3/12 checked). Open PRs: none.
+  0 failures, ~47s wall / 144s CPU.
+- CI: GREEN as of 2026-09-09 (main @ `2989cb4`, PR #24 merged — added the unproven-`@panic`
+  tidy check and proof-commented all 8 existing sites). Linux x86_64 / macOS ARM64 (macos-15
+  pinned) / Windows x86_64 native tests + 6-target cross-compile. `paths-ignore` skips
+  `.claude/memory`, `docs/`, `*.md`.
+- Open issues: #19 (milestone 001 tracking, 3/12 checked). Open PRs: #25 (`crypto_random` tidy
+  tracking fix, CI running at cycle end — next cycle's inbox merges when green).
 
 ## Tiger Style gaps
 
-As of 2026-09-08 (cycle 4 tidy-auditor re-check): `zig build tidy` **passes** (447 baseline
-entries) — `catch_unreachable`, `debug_print`, `usize_in_wire_format`, `missing_header`,
-`function_length`, `line_length`, `time_usage` are now tracked with a shrinking baseline in
-`build_support/tidy.zig` / `tidy_baseline.txt`. `@panic`, `while (true)`, and file length (>800
-lines) are still untracked by tidy.
+As of 2026-09-09 (cycle 5 tidy-auditor re-check): `zig build tidy` **passes** (448 baseline
+entries, byte-for-byte diffed clean against a fresh regeneration) — `catch_unreachable`,
+`panic`, `debug_print`, `usize_in_wire_format`, `missing_header`, `function_length`,
+`line_length`, `time_usage`, and (new this cycle) `crypto_random` are now tracked with a
+shrinking baseline in `build_support/tidy.zig` / `tidy_baseline.txt`. `while (true)` and file
+length (>800 lines) are still untracked by tidy — both need per-site/per-file judgment, not a
+mechanical sweep.
 
 | Check | Count | Tracked by tidy? | Note |
 |---|---|---|---|
 | `catch unreachable` | 28 raw (11 baseline entries) | yes | rest have proof comments already |
-| `@panic` | 8 | no | 7 test-only leak guards in `clipboard.zig`, 1 real: `stack_trace.zig:30` |
-| `std.debug.print` | 34 raw (6 baseline entries) | yes | debug/bench/test helpers |
-| `while (true)` (unbounded) | 13 | no | Bresenham/line-drawing loops, terminal reads, focus cycling |
-| Files > 800 lines | 52 | no | worst: `layout.zig` 3002, `style.zig` 2223, `tooltip.zig` 2094 |
-| Functions > 70 lines | 122 baseline entries | yes | `build.zig:build` 1954, `docgen.zig:parseFunctionDeclaration` 360 |
-| `usize` in wire format | 4 | yes | see `tidy_baseline.txt` |
+| `@panic` | 0 unproven (8 total, all now proof-commented) | yes | fixed cycle 5 preflight via PR #24 |
+| `std.debug.print` | 34 raw (6 baseline entries) | yes | all inside test blocks / debug helper modules |
+| `std.crypto.random` | 1 (1 baseline entry) | yes | fixed cycle 5 via PR #25 (`llm_client.zig` jitter; tracked-not-fixed, like `time_usage`, pending Io/PRNG migration) |
+| `while (true)` (unbounded) | 13 | no | 6 geometry-bounded (Bresenham), 2 wall-clock-timeout-bounded, 2 array-traversal-bounded, ~2-3 plausibly-legitimate top-level loops (`repl.zig:198`, `validation.zig:441`) |
+| Files > 800 lines | 52 | no | worst: `layout.zig` 3002, `style.zig` 2223, `tooltip.zig` 2094, `sixel.zig` 1864, `multicursor.zig` 1850 |
+| Functions > 70 lines | 122 baseline entries | yes | `build.zig:build` 1954, `docgen.zig:parseFunctionDeclaration` 360, `arg.zig:Parser` 312 |
+| `usize` in wire format | 4 file entries | yes | see `tidy_baseline.txt`; `termcap.zig:33-35` is the clearest genuine wire-format risk |
 | Missing `//!` header | 86 | yes | e.g. `accessibility.zig`, `aria.zig`, `bidi.zig` |
+| `assert(` density | 9 total across ~4700+ `fn` in `src/` | no | Tiger Style's "≥2 per function" is essentially unmet kingdom-wide here; needs per-function judgment, not mechanical |
 
-Smallest-diff-first recommendation for the next stabilization cycle: **`@panic` cleanup** — only
-8 occurrences across 2 files, not yet tidy-tracked, smaller than the `while (true)` or
-800-line-file categories (which need per-site judgment).
+Smallest-diff-first recommendation for the next stabilization cycle: proof-comment the 3
+remaining unproven `catch_unreachable` clusters (`eventbus.zig`, `countdown_timer.zig`,
+`event_metrics.zig`/`render_metrics.zig`) — same mechanical pattern as the `@panic` PR, shrinks
+the baseline without behavior change. After that, `//!` headers on the 86 missing files (purely
+additive, zero risk, can split by directory). `while (true)` and the 52 over-800-line files stay
+deferred — both need per-site/per-file judgment calls.
 
 Also noted: 14 widget files allocate inside `render()` (138 `ArrayList`/alloc references across
 widgets); recursion with no explicit depth limit in docgen's directory walk, `layout_intelligence`
