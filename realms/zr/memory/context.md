@@ -1,7 +1,34 @@
 # zr — context
 
-last_seen_at: 2026-09-08T21:06:08Z
+last_seen_at: 2026-09-09T00:00:00Z
 rejected_plans: []
+
+## Cycle 4 — 2026-09-09 — FEATURE
+- Preflight: tree dirty on `feat/assertion-baseline-parser-toml` (= main, uncommitted-only,
+  interrupted mid-session assertion-baseline work on `config/parser.zig`) — preserved to
+  `wip/feat-assertion-baseline-parser-toml-20260909`, pushed, then returned to main. CI green.
+- Inbox: no bug/question/directive issues, no comments since watermark, no plan PR open.
+  Milestone #155 open; PR #30 still draft/OWNER, untouched.
+- Cherry-picked the preserved wip commit onto a fresh `feat/assertion-baseline-parser-toml-v2`
+  and finished it: continued milestone #155/plan 001 item 3 onto `config/parser.zig` (the last
+  file for that item) — stdx assert/maybe on `parseTaskParamsArray`, `tryAddGroupConfig`,
+  `parseScopeValue`, `dupeConstraintScope`, `copyConditionalDep`, `copyTaskHook`,
+  `flushPendingStage`, `parseTasksArrayWithParams`; extracted `parseInlineParamsMap` (out of
+  `parseTasksArrayWithParams`) and `splitTopLevelBraceTables` (out of `parseTaskParamsArray`,
+  needed to keep it under the 70-line tidy ratchet after adding assertions — same
+  extract-to-satisfy-tidy pattern as cycle 3's `finalizeKey()`); both new helpers carry their
+  own assertions. 4 new characterization tests (`stripQuotes`/`bracketDelta`/
+  `countTripleQuotes`/`parseInlineTableField`). `zig build test` 1810/0 failed, `zig build
+  tidy` 0 failing. PR #160 opened; Build & Unit Test and Integration Test passed, cross-compile
+  matrix still running at the cycle deadline — commented, left for next cycle's inbox to merge.
+  Milestone item 3 stays unchecked: `parser.zig` still has ~18 private helpers plus the
+  5,100-line `parseToml` itself without assertions, and the plan's 12 `catch unreachable` proof
+  comments (all still in `util/tui_profiler.zig`, `output/man.zig`, `cli/list.zig`,
+  `cli/plugin.zig` — untouched by any cycle so far) are separate, real remaining work.
+- Next: merge #160 once green (or fix if red), then either finish the rest of `parser.zig`'s
+  assertion coverage or start on the 12 `catch unreachable` proof comments — both still count
+  as item 3, not yet checked off.
+- Open questions: none.
 
 ## Cycle 3 — 2026-09-08 — FEATURE
 - Preflight: tree clean on `feat/assertion-baseline-dag-scheduler` (= PR #158's head, already
