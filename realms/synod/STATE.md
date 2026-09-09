@@ -50,6 +50,39 @@ copy (no tracked files touched). See `REALM.md` for the durable realm summary th
 All-zero here is a scaffold measurement, not evidence of discipline under load — re-run this
 table once Phase 1 (types/log) lands and treat the first real numbers as the baseline.
 
+**Superseded 2026-09-09 (cycle 5, stabilization)** — the table above predates real code in
+`tools/` and `build.zig`; those now exist (added cycles 2-4) and a full tidy-auditor pass this
+cycle found:
+
+| Check | Count | Location |
+|---|---|---|
+| compound `assert(a and b)` | 0 | — |
+| `assert(!a or b)` implication idiom | 1 (fixed) | was `tools/tidy.zig:443`; rewritten to `if (a) assert(b);` via #8 |
+| `assert(a or b)` positive-space enum (legitimate, not a violation) | 1 | `tools/tidy.zig:199` — `prefix_len == 3 or prefix_len == 7`, left as-is |
+| `catch unreachable` w/o proof | 0 | — |
+| `@panic(` in src/tools | 0 | — |
+| `std.debug.print(` in library code | 0 | only a fixture string literal inside a `tools/tidy.zig` test |
+| `while (true)` | 0 | — |
+| functions > 70 lines | 1 | `build.zig:12` `pub fn build` — 83 lines |
+| files > 800 lines | 1 | `tools/tidy.zig` — 1124 lines (the size-floor gate is itself the sole violator) |
+| `usize` in wire structs | 0 | types don't exist yet (all `src/` stubs) |
+| missing `//!` header | 0 | — |
+| `anyerror` in `pub fn` / error-upcasting | 0 | — |
+
+Not yet fixed (recorded for a future cycle, out of this cycle's single-fix budget):
+- `build.zig`'s `pub fn build` (83 lines, limit 70) — extract the tidy-step wiring and/or
+  bench-step wiring into small helper functions.
+- `tools/tidy.zig` (1124 lines, limit 800) — split into `tools/tidy.zig` (CLI/driver) +
+  `tools/tidy/checks.zig` (the `check*` functions) + `tools/tidy/checks_test.zig` (~450 lines
+  of inline tests). Root cause: `zig build tidy` only walks `src/`, self-exempting `tools/` and
+  `build.zig`, so neither overage is caught by the tool that enforces this exact rule. Fixing
+  the size overage and extending tidy's walk to cover itself are two different tasks — do the
+  split first (this file), then decide whether to widen tidy's scope in a later cycle.
+- Local dev-env note (not a repo bug): the tidy-auditor subagent hit a false toolchain error
+  (`zig` on `$PATH` resolves to 0.15.2, but `tools/tidy.zig` uses 0.16-only `std.process.Init`)
+  — use `/Users/fn/.zr/toolchains/zig/0.16.0/zig` explicitly for this repo; confirmed
+  `zig build test` / `zig build` / `zig fmt --check` all green under 0.16.0.
+
 ## Zig 0.16 probe summary
 
 - `zig build` on 0.16.0: **build.zig itself compiles clean** against the 0.16 `std.Build` API —
@@ -105,6 +138,10 @@ table once Phase 1 (types/log) lands and treat the first real numbers as the bas
    (`src/store.zig`) with save/restore round-trip tests.
 4. Phase 2 — `raft/node.zig`: core election state machine (Follower/Candidate/Leader, PreVote),
    once types/log/interfaces land.
-5. Zig 0.16 migration (plan 001): trivial, <1h — fix `src/main.zig` (allocator, args, stdout
-   writer) and `bench/main.zig` (timer); can happen any time, does not block Phase 1/2.
+5. Zig 0.16 migration (plan 001), milestone #3 item "0.16 — `bench/main.zig`": `src/main.zig`
+   is done (merged #7); `bench/main.zig` still fails under the 0.16.0 toolchain — confirmed
+   2026-09-09 via `zig build bench` (not `zig build test`, which lazily skips it):
+   `std.heap.GeneralPurposeAllocator` → `DebugAllocator`, `std.process.argsAlloc` →
+   `init.minimal.args`, `std.time.Timer` → `Io.Clock`-based timing, `mem.indexOf` → `mem.find`.
+   Trivial, <1h, does not block Phase 1/2.
 6. Add `CHANGELOG.md` before the first release.

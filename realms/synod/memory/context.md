@@ -1,7 +1,28 @@
 # synod — context
 
-last_seen_at: 2026-09-09T00:00:00Z
+last_seen_at: 2026-09-09T15:20:00Z
 rejected_plans: []
+
+## Cycle 5 — 2026-09-09 — STABILIZATION
+- Forced by n%5==0 (counter 4→5); CI green last 5 runs, no open bugs, so not a red-CI/bug
+  stabilization — the every-5th-cycle cadence.
+- Inbox: no new owner actions since watermark; no plan PR open; milestone #3 unchanged.
+- Tiger Style audit (tidy-auditor): only real finding was `tools/tidy.zig:443`
+  `assert(!has_header or first_line.len >= 3)` — rewrote as the Tiger-Style-preferred
+  `if (a) assert(b);` implication idiom via PR #8 (merged, CI green all 7 jobs). Verified
+  `tools/tidy.zig:199`'s `assert(a or b)` is a legitimate positive-space enum, not a violation
+  — left unchanged (ban-list pattern only targets `and`).
+- Recorded, not fixed (STATE.md): `build.zig`'s `pub fn build` is 83 lines (limit 70);
+  `tools/tidy.zig` itself is 1124 lines (limit 800) — both invisible to `zig build tidy`
+  because it only walks `src/`. Also confirmed `zig build bench` still fails under 0.16.0
+  (GeneralPurposeAllocator/argsAlloc/Timer) — this is milestone item 5, unchanged, next up for
+  FEATURE. Local `zig` on `$PATH` is 0.15.2; use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`
+  explicitly for this repo (STATE.md note).
+- No test-quality or docs/hygiene issues found. stabilize_streak stays 0.
+- Next: FEATURE resumes at milestone #3's next unchecked item, `0.16 — bench/main.zig` (tiny);
+  then the `build.zig`/`tools/tidy.zig` size-overage split (recorded in STATE.md, not yet its
+  own checklist item).
+- Open questions: none.
 
 ## Cycle 4 — 2026-09-09 — FEATURE
 - Inbox: no owner actions since watermark; milestone #3 open, items 1-3 done.
