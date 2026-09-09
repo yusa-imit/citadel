@@ -1,7 +1,25 @@
 # strata — context
 
-last_seen_at: 2026-09-09T02:05:00Z
+last_seen_at: 2026-09-09T17:20:00Z
 rejected_plans: []
+
+## Cycle 5 — 2026-09-09 — STABILIZATION
+- Done: CI green (last 5 runs). tidy-auditor ran a Tiger Style audit; `src/` is still all
+  stubs post-0.16-migration, `zig build test` (0.16.0 toolchain) reports 0 tidy findings.
+  Its one flagged line-length violation (`src/lsm.zig:1`) was a false positive — naive byte
+  counting vs. the tool's correct Unicode-code-point counting (99 ≤ 100); verified by
+  rerunning the real tool. Found real docs drift instead: README Zig badge still `0.15.x`
+  post-migration, module table implied modules were built, install snippet pointed at an
+  unpublished `v0.1.0` tag. Fixed via PR #8; plan 001 "README/CHANGELOG reconciled" item
+  ticked; tracking issue #3 commented.
+- PRs: #8 merged (auto-merged label), all 7 CI checks green.
+- Next: plan 001 item 5 (library sweep — ban-list extension for 0.15-only spellings) or
+  item 6 (0.16 tests: `std.testing.io`, real `tmpDir` round-trip) for the next FEATURE
+  cycle. For a future STABILIZATION cycle: `tools/tidy.zig` doesn't lint itself
+  (`scan_roots` excludes `tools/`) and has no 800-line file-length rule yet (it is itself
+  1452 lines) — both recorded in STATE.md.
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 4 — 2026-09-09 — FEATURE
 - Done: preflight found the repo dirty on non-`wip/*` branch `chore/zig-0.16-migration`
