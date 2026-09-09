@@ -1,7 +1,26 @@
 # zuda — context
 
-last_seen_at: 2026-09-09T00:00:00Z
+last_seen_at: 2026-09-09T07:15:00Z
 rejected_plans: []
+
+## Cycle 4 — 2026-09-09 — FEATURE
+- Done: preflight found `fix/build-zig-016-linklibc` (cycle 3's dirty-tree carryover) already
+  pushed as green, mergeable PR #34 — merged it (squash, branch deleted) before continuing.
+  Inbox reconciled milestone #31: items 2 (#33) and 3 (#34) were merged in prior/this cycle but
+  never ticked — ticked both. Implemented item 4 "mechanical renames" scoped to the subset
+  that's dual-compatible with the repo's current 0.15.2 CI pin and 0.16:
+  `heap.GeneralPurposeAllocator` → `heap.DebugAllocator` (7 files) and
+  `ArrayListUnmanaged(T) = .{}` → `.empty` (2, `rabin_karp.zig`). Verified via toolchain probe
+  (0.15.2 vs 0.16.0 std source) that `mem.indexOf*` → `find*` and
+  `std.AutoArrayHashMap` → `AutoArrayHashMapUnmanaged` are NOT dual-compatible — 0.15.2 has no
+  `find*` at all, and 0.16 removes managed `AutoArrayHashMap` outright (a call-site rewrite, not
+  a rename) — split those into a new plan item paired with the toolchain-flip item (item 10)
+  where the 0.16 target API can be verified directly instead of guessed at from behind the pin.
+- PRs: #35 open (mechanical renames), CI still running (Build & Test pending) at the cycle
+  deadline — left "awaiting CI; merge next cycle" comment, next cycle's inbox merges it.
+- Next: merge #35 once green, then plan 001 item 5 ("Fix the public `io: Io` API shape + ADR" —
+  the v3.0.0 signature break, call `architect` first).
+- Blockers: none. Open questions: none.
 
 ## Cycle 3 — 2026-09-08 — DISK
 - Done: preflight disk gate failed (16GB free < 20GB required) — cycle aborted before

@@ -59,6 +59,33 @@ _(migrated from the repo's former `.claude/memory/decisions.md`, 2026-09-05)_
   migrating those two call sites to the canonical catalog (then deleting the last 4 legacy
   files) is separate follow-up work, not done this cycle.
 
+## Decision: split "mechanical renames" (plan 001 item 4) by dual-toolchain compatibility
+- **Date**: 2026-09-09
+- **Context**: item 4 named four rename classes as one unit: `GeneralPurposeAllocator` →
+  `DebugAllocator`, `std.AutoArrayHashMap` → `array_hash_map.AutoArrayHashMap`,
+  `ArrayList(T) = .{}` → `.empty`, `mem.indexOf*` → `find*`. The repo's CI is still pinned to
+  Zig 0.15.2 (the toolchain flip is a later item), so anything landed on `main` must compile
+  under 0.15.2 today, not just 0.16.
+- **Decision**: probed both toolchains' std source directly
+  (`/opt/homebrew/Cellar/zig/0.15.2` vs `/Users/fn/.zr/toolchains/zig/0.16.0`) before touching
+  code. `GeneralPurposeAllocator`→`DebugAllocator` and `ArrayList{} `→`.empty` are safe now:
+  0.15.2 already aliases/ships both. `mem.indexOf*`→`find*` is not: 0.15.2's `std/mem.zig` has
+  no `find*` function at all (0.16 adds it, doesn't just rename it in place). `AutoArrayHashMap`
+  is not a rename at all in 0.16 — the managed variant is removed outright (0.16's
+  `array_hash_map.zig` has no `pub fn AutoArrayHashMap`, only `AutoArrayHashMapUnmanaged`), so
+  every call site needs a managed→unmanaged rewrite (explicit allocator per call), not a
+  find/replace. Landed the safe half on PR #35, split the rest into a new plan item paired with
+  the toolchain-flip item, where the 0.16 target API can be verified directly by compiling
+  against it instead of inferred from two static greps.
+- **Rationale**: rule 6 (every commit passes `zig build test`) — landing either deferred rename
+  now would either fail to compile under the current CI pin (`find*`) or silently change
+  allocation-ownership semantics at 43+ call sites without the safety net of actually building
+  against 0.16 to catch mistakes (`AutoArrayHashMap`). Better to do it once, correctly, when the
+  target toolchain is the one actually running.
+- **Consequence / follow-up**: next `mem.indexOf*`/`AutoArrayHashMap` work should happen in the
+  same cycle (or immediately adjacent to) flipping `ci.yml`'s `mlugg/setup-zig@v2` version and
+  `build.zig.zon`'s `.minimum_zig_version`, not before.
+
 ## Decision: ship `zig build tidy` standalone, don't gate `test` on it yet
 - **Date**: 2026-09-06
 - **Context**: plan 001 item 2 said "add a tidy step ... wired into `zig build test`" and its
