@@ -1,7 +1,38 @@
 # sigil — context
 
-last_seen_at: 2026-09-09T01:00:00Z
+last_seen_at: 2026-09-09T15:05:30Z
 rejected_plans: []
+
+## Cycle 7 — 2026-09-09 — FEATURE
+
+- Preflight: disk 66 GB free, clean tree on main, CI green (HEAD sha matched), no open bug
+  issues, counter 6→7, 7%5≠0 and no stabilize_streak → FEATURE. Inbox: no owner actions since
+  watermark (only comment since then was cycle 6's own report comment on issue #3).
+- Picked plan 001 item 6 (0.16 · library sweep and lock-in), next unchecked item,
+  `blocked_by: none`.
+- Added 9 new `tools/tidy.zig` ban rules for Zig-0.15-only APIs scoped to `isUnderSrc`:
+  `fs.cwd()`, `std.net`, `std.Thread.{Mutex,Condition,Semaphore,RwLock}`, a bare `ArrayList`
+  `.{}` literal (gated to lines also containing `ArrayList`), `mem.indexOf*`, and
+  `mem.lastIndexOf` as its own rule (doesn't share `mem.indexOf`'s substring). Added a new
+  `checkErrorCanceledProng` check requiring `error.Canceled` in any `switch (err)` block
+  (brace-matched via the existing `measureFunctionLines`, with a same-line fallback for a
+  self-contained one-liner).
+- `code-reviewer` (background agent) caught 2 CRITICAL + 3 WARNING before merge: the Canceled
+  check had no escape hatch for non-I/O error switches (fixed by reusing `hasProof`'s
+  `// proof:` convention — same pattern as `catch_unreachable`); 11 lines over 100 cols in
+  `tools/tidy.zig` itself (not self-scanned by `tidy`, so nothing caught it — fixed by hand);
+  `mem.lastIndexOf` silently passed the `mem.indexOf` needle (fixed as its own rule); single-line
+  `switch (err)` blocks were invisible to the brace matcher (fixed via `isSelfContainedBlock`
+  fallback). All fixed pre-merge; see [[patterns]] for the `hasProof`-reuse pattern.
+- 9 new test blocks (23 → 32 total in `tools/tidy.zig`). `zig build test`, `zig fmt --check`,
+  `zig test src/root.zig`, `zig build tidy` all green with 0 real findings — item 6's own probe
+  ("zero hits" for these API classes in the 12 non-`main.zig` files) held; nothing needed
+  migrating, only banning going forward.
+- PR #9 opened, CI 7/7 green, squash-merged, `auto-merged` labelled, local + remote branch
+  cleaned up. Tracking issue #3 updated to 6/11.
+- Next: item 7 (`io: Io` convention on the public API — the kingdom spike other realms will
+  copy) is next in plan 001, `blocked_by: none`.
+- Blockers: none. Open questions: none.
 
 ## Cycle 6 — 2026-09-09 — FEATURE
 

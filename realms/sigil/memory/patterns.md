@@ -41,6 +41,17 @@ into the same PR — CI cannot go green otherwise, and kingdom rules never allow
 `zig build test` alone can be a false-green signal here: it doesn't build/link the actual
 `main()` entry point unless something references it, so it can pass while `zig build` fails.
 
+## tidy: reuse the `// proof:` escape hatch for any new heuristic ban/check
+
+A line- or block-based lint check (substring ban, brace-matched block scan) is a heuristic, not
+a compiler — it will eventually misfire on a legitimate case the author didn't anticipate (e.g.
+`checkErrorCanceledProng` flagging a `switch (err)` over a parser's own non-I/O error set, which
+never carries `error.Canceled`). Every such check needs an escape hatch or it becomes permanent
+friction. Don't invent a new comment convention per check — reuse `hasProof` (a `// proof:`
+comment on the flagged line or the line above), the same mechanism `catch_unreachable` already
+uses. One convention, one thing for a future author to remember. Caught in code review, cycle 7,
+plan 001 item 6 (`tools/tidy.zig`).
+
 ## Error set per module
 
 Define `pub const Error = error{ ... }` at module top; public functions return `Error!T`
