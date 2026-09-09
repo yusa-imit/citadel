@@ -1,7 +1,35 @@
 # sigil — context
 
-last_seen_at: 2026-09-09T00:00:00Z
+last_seen_at: 2026-09-09T01:00:00Z
 rejected_plans: []
+
+## Cycle 6 — 2026-09-09 — FEATURE
+
+- Preflight: clean tree on main, CI green (HEAD sha matched), no open bug issues, counter 5→6,
+  6%5≠0 and no stabilize_streak → FEATURE. Inbox: no owner actions since watermark.
+- Picked plan 001 item 5 (0.16 · main, args, allocators), next unchecked item, `blocked_by: none`.
+- **Finding**: probed both toolchains' `std/process.zig` directly — `std.process.Init` (0.16)
+  and `argsAlloc` (0.15.2) are mutually exclusive APIs, and `zig build` (not just `test`) already
+  passed clean under 0.16.0 for every file except `main.zig`. Item 5 as scoped (full
+  `main(init: std.process.Init)` rewrite) therefore cannot merge with green CI unless item 8's
+  manifest/CI version bump lands in the same PR — bundled that sub-piece in (`minimum_zig_version`
+  → `0.16.0`, dropped hardcoded `version: 0.15.2` from both CI jobs). See [[patterns]].
+- Rewrote `src/main.zig`: args via `init.minimal.args.toSlice(init.arena.allocator())` (no manual
+  `DebugAllocator` needed — `init.arena` replaces the removed GPA/argsAlloc pairing entirely),
+  stdout via `std.Io.File.stdout().writer(init.io, &buf)`. Verified with a real build/run (not a
+  grep) under `~/.zr/toolchains/zig/0.16.0/zig`: `zig build`, `zig build run -- version|--help`,
+  `zig build test`, `zig fmt --check`. code-reviewer: 0 CRITICAL, 2 WARNING (stale CI comment
+  reworded; CI-resolution mechanism left for CI itself to confirm), 3 SUGGESTION (deferred —
+  already scoped to later plan items).
+- PR #8 opened, CI 7/7 green (Linux build-and-test + 6 cross-compile targets, all resolved
+  0.16.0 from the manifest correctly), squash-merged, `auto-merged` labelled. Tracking issue #3
+  updated to 5/11, with a note that item 8's remaining scope (macOS-native-job re-verification,
+  `testing.io` audit) is unchanged.
+- Next: item 6 (0.16 · library sweep and lock-in) — probe already found zero hits for the banned
+  0.15 API classes in the other 12 `src/*.zig` files; this item is mostly banning those classes
+  in `tidy` plus requiring an `error.Canceled` prong, verified via `zig test src/root.zig` +
+  `zig build tidy` on 0.16.0.
+- Blockers: none. Open questions: none.
 
 ## Cycle 5 — 2026-09-09 — STABILIZATION
 
@@ -35,28 +63,6 @@ rejected_plans: []
 - Blockers: host disk space.
 - Open questions: none.
 
-## Cycle 4 — 2026-09-07 — FEATURE
-
-- Preflight found a memory drift: `memory/counter` was stuck at 2 even though a "Cycle 3"
-  entry was already logged (commit cd502ac) and PR #5 (item 2) was merged. The prior cycle's
-  report must have failed to persist the counter write. Corrected here: this cycle is 4.
-- Inbox: no new owner actions (only my own prior status comments on issue #3).
-- Done: implemented plan 001 item 3 (`tidy` step in `build.zig`) — vendored the kingdom
-  reference `citadel/templates/tidy/tidy.zig` into `tools/tidy.zig`, added a sigil-only
-  `wire_usize` ban rule (bans `usize` on struct fields inside wire-format modules, scoped to
-  avoid flagging locals/params), wired its 23 unit tests into `zig build test`, and added a
-  standalone `zig build tidy` step for the real repo scan (not yet a hard `test` dependency —
-  it already finds 9 real findings, deferred to item 4). code-reviewer found 2 WARNINGs
-  (`wire_usize` too broad; a silent buffer-skip instead of an assertion) — both fixed and
-  reverified before merge.
-- PRs: #6 opened, CI green (7/7 jobs), squash-merged, branch deleted, labelled `auto-merged`.
-- Tracking issue #3 checklist updated: 3/11 done.
-- Next: item 4 (Make `tidy` green) — fix the 9 findings `zig build tidy` now reports (8 known
-  >100-column `//!`/build.zig lines + a newly discovered missing `//!` header in
-  `src/main.zig`), then flip `tidy` into a hard dependency of `test`.
-- Blockers: none.
-- Open questions: none.
-
 ## History
 
 Cycle 0 (2026-09-05, RESTRUCTURE): realm created by the citadel restructure; memory
@@ -75,7 +81,12 @@ green (7/7).
 
 Cycle 3 (2026-09-06, FEATURE): implemented + merged item 2 (Branch decision — no `wip/*`
 exists for sigil) via PR #5, CI green (7/7). Tracking issue updated to 2/11. (Its `/report`
-did not persist `memory/counter`; corrected in cycle 4 above.)
+did not persist `memory/counter`; corrected in cycle 4.)
+
+Cycle 4 (2026-09-07, FEATURE): item 3 (`tidy` step in `build.zig`) via PR #6 — vendored
+`citadel/templates/tidy/tidy.zig`, added a sigil-only `wire_usize` ban rule, wired its 23 unit
+tests into `zig build test`; standalone `zig build tidy` found 9 real findings, deferred to
+item 4. CI green (7/7), squash-merged. Tracking issue 3/11.
 
 ## Standing backlog (carried over from repo's former `project-context.md`)
 
@@ -97,10 +108,12 @@ issue #3. In milestone order for the *next* plan (002, Phase 1 — unchanged sin
 
 ## Next priority
 
-Finish plan 001 (issue #3), one checklist item per cycle, before starting Phase 1A. Item 4
-(Make `tidy` green) is next, no `blocked_by`: fix the 9 findings `zig build tidy` reports
-today — 8 lines over 100 columns (the `//!` headers of `core`, `reflect`, `json`, `path`,
-`proto`, `yaml`, `config`, worst 164 cols, plus one `build.zig` doc-comment line) and a
-missing `//!` header in `src/main.zig` — then change `tools/tidy.zig`'s `run_tidy` step from
-a standalone `zig build tidy` into a hard dependency of `test_step` in `build.zig`'s
-`addTidyStep` helper.
+Finish plan 001 (issue #3, 5/11), one checklist item per cycle, before starting Phase 1A.
+Item 6 (0.16 · library sweep and lock-in) is next, no `blocked_by`: the probe already found
+zero hits for the banned 0.15 API classes (`fs`, `net`, `time`, `Thread` sync, `ArrayList{}`,
+`indexOf`) in the 12 non-`main.zig` `src/*.zig` files — this item bans those classes in `tidy`
+in 0.16 spelling and requires an `error.Canceled` prong in exhaustive I/O-error switches.
+Verify: `zig test src/root.zig` + `zig build tidy` on the 0.16.0 toolchain, both green. Note:
+`build.zig.zon`'s `minimum_zig_version` is now `"0.16.0"` and CI resolves it from the manifest
+(landed early, cycle 6) — local dev commands in this file assume the 0.16.0 toolchain going
+forward; the global `zig` alias on this machine is still 0.15.2 per `zig-0.16.md`.

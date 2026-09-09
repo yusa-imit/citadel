@@ -6,7 +6,9 @@
 | Path | `/Users/fn/codespace/sigil` |
 | GitHub | `yusa-imit/sigil` |
 | Version | 0.1.0 (`build.zig.zon`) · latest tag — (no tags cut yet) |
-| Zig | 0.15.2 (migrating to 0.16.0 under plan 001) |
+| Zig | 0.16.0 (`minimum_zig_version`, CI resolves from manifest since PR #8, cycle 6); |
+| | plan 001 migration ongoing (items 6-11 remain: library sweep, `io: Io` spike, tests, |
+| | assertion baseline, README, CHANGELOG) |
 | Depends on | none — Zig std only (ADR-001); `build.zig.zon` `.dependencies = .{}` |
 | Consumers | zr, silica, zoltraak, synod — all planned/dotted in `KINGDOM.md`, no solid |
 | | dependency edge exists yet (nothing in sigil is implemented to depend on) |
