@@ -32,6 +32,33 @@ Note: under Zig 0.16, `std.testing.tmpDir`'s options type changes from
 `fs.Dir.OpenDirOptions` to `Io.Dir.OpenOptions` — update this pattern when sirocco migrates
 (see `citadel/core/rules/zig-0.16.md`).
 
+## Assertion baseline (`src/stdx.zig`, plan 001 item 8)
+
+`assert`/`maybe` live in `src/stdx.zig`, re-exported as `sirocco.stdx.{assert,maybe}` from
+`root.zig` — every entry point and module imports them from there rather than aliasing
+`std.debug.assert` locally per file (avoids N copies of the same one-liner as Phase 1 adds
+files). Pattern applied to both CLI entry points (`src/main.zig`, `bench/main.zig`):
+
+- Extract the entry point's body into a small free function over primitives (`run(args, out)`
+  in `main.zig`; `matchesFilter`/`rates` in `bench/main.zig`) so it is unit-testable without
+  constructing a real `std.process.Init`; `main()` itself keeps only a precondition on its
+  input and a postcondition on the shared output buffer.
+- Prefer an *independent* postcondition over restating the value just computed: e.g. floor
+  division's `ns_per_op * ops <= ns` (an arithmetic property) beats re-deriving the same
+  `if (ops == 0) 0 else ...` expression a second time — the latter isn't a second code path,
+  it's the same branch read twice (tiger-style.md §1.2).
+- Never write `assert(a or b)` (a banned compound/implication form, tiger-style.md §1.4);
+  split as `if (a_negated) assert(b);` instead — it also names which half is being checked.
+- `maybe(x == 0)` documents a legitimately-sometimes-true input (e.g. no CLI filter given, a
+  zero-op benchmark) so a later reader doesn't "fix" the silence by adding a wrong `assert`.
+- A fixed-size output buffer gets an explicit bound assertion at every write site
+  (`assert(out.end <= buf.len)`), not just once at the end — catches an overflow at the write
+  that caused it, not several writes later.
+
+Phase 1 (`io/`, `net/`, backends) should follow the same shape once real `pub fn`s land:
+extract hot-path bodies into free functions, assert pre/post at both the free function and its
+thin `pub fn` wrapper, prefer independent derivations over restated branches.
+
 ## Error set per module
 
 Define `pub const Error = error{ ... }` at module top; public functions return `Error!T` or

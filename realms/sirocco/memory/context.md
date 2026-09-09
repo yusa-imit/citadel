@@ -1,142 +1,57 @@
 # sirocco — context
 
-last_seen_at: 2026-09-08T16:09:09Z
+last_seen_at: 2026-09-09T04:05:34Z
 rejected_plans: []
 
-## Cycle 5 — 2026-09-09 — STABILIZATION
-- Done: CI check (last 5 runs on main, all green), no open bug issues → no forced
-  stabilization override needed, but n%5==0 selected STABILIZATION anyway. Ran the
-  tidy-auditor agent for an independent Tiger Style audit: zero violations in every category
-  (`catch unreachable`, `@panic`, `std.debug.print`, `while (true)`, functions > 70 lines,
-  files > 800 lines, `usize` in formats, missing `//!` headers, `assert(` count, `anyerror`/
-  `== error.` in pub fn) — repo is mechanically clean, nothing to fix in that class. Found and
-  fixed real docs drift instead: README.md still described the pre-ADR parallel
-  io/net/tls/http/ws/task public API (PR #7 rewrote docs/PRD.md and added
-  docs/adr/0001-std-io-vtable.md but never touched README.md). Fixed via PR #8 (merged,
-  docs-only, no CI checks apply — `*.md` is paths-ignored, same precedent as PR #7).
-- PRs: #8 merged (auto-merged label).
-- Next: milestone item 8 ("Assertion and Tiger Style baseline") is blocked until actual
-  `Runtime` functions exist in root.zig (currently zero `pub fn` there — nothing to assert
-  pre/post-conditions on). Item 10 ("README and CHANGELOG reconciled") is half-done (README
-  fixed; no CHANGELOG.md yet, premature before a first release). Milestone #3's remaining
-  unblocked work is really `wip/*` branch decision (none exists — trivially satisfiable) and
-  eventually Release 0.2.0 once the plan-002 slot-implementation work lands.
+## Cycle 6 — 2026-09-09 — FEATURE
+- Done: inbox clean (no owner actions since last watermark, plan PR none, milestone #3 open
+  with items 8-11 unchecked). Implemented and merged plan 001 item 8 ("Assertion and Tiger
+  Style baseline") via PR #9. `src/root.zig` still declares no `pub fn`, so the assertion work
+  landed on the two real entry points instead: extracted `src/main.zig`'s `run()` and
+  `bench/main.zig`'s `matchesFilter()`/`rates()` into small testable free functions with paired
+  pre/postcondition asserts (postconditions prefer an independent arithmetic property — e.g.
+  floor-division's `ns_per_op * ops <= ns` — over restating the branch just computed, per a
+  code-reviewer WARNING that first-draft asserts were compound `assert(a or b)` restatements).
+  Moved shared `assert`/`maybe` into new `src/stdx.zig`, re-exported as `sirocco.stdx`, so
+  Phase 1 files share one home. Recorded the assertion pattern in `memory/patterns.md`.
+  `error.Cancelled` already clean in code; `docs/adr/0001-std-io-vtable.md`'s two mentions are
+  intentional historical prose, left as-is — annotated that nuance directly in the plan file.
+- PRs: #9 merged (auto-merged label, CI green: Build & Test + 6 cross-compile targets).
+- Next: item 9 (`wip/*` branch decision — trivially satisfiable, no branch exists, just needs
+  recording in `decisions.md`) or item 10 (README/CHANGELOG reconciliation — no CHANGELOG.md
+  exists yet).
 - Blockers: none. Open questions: none.
-- Gotcha: `zig build tidy`'s own clean pass doesn't mean "nothing to review" — it only checks
-  mechanical patterns in existing code; with a stub-only codebase like sirocco's, the more
-  valuable stabilization signal is docs-vs-ADR drift, not the tidy counters.
+- Gotcha: a code-reviewer pass on a small Tiger-Style-assertion PR is worth the subagent call
+  even for ~5-line diffs — it caught a real mistake (compound-implication asserts that just
+  restated the same branch, not an independent derivation) that's easy to write by reflex.
 
-## History (cycles 0-4)
-Cycle 0 (2026-09-05, RESTRUCTURE): realm created by citadel restructure, plan 001 prescribed.
-Cycle 1 (2026-09-06, FEATURE): opened milestone issue #3; item 1 (ci.yml hygiene) via PR #4.
-Cycle 2 (2026-09-07, FEATURE): item 2 (`zig build tidy` step) via PR #5.
-Cycle 3 (2026-09-07, FEATURE): items 3-6 (0.16 migration of main.zig/bench/tidy tool, pin+CI)
-bundled into PR #6 — bundling was necessary since `zig build test` compiles all entry points
-in one graph. Cycle 3b (2026-09-08, disk-blocked no-op): `df -g /` was 16 GB, below the 20 GB
-gate; stopped before any work, counter not advanced. Cycle 4 (2026-09-08, FEATURE): item 7
-(PRD rewrite against `std.Io.VTable`, ADR 0001) via PR #7, docs-only.
+## History (cycles 0-5)
+Cycle 0 (2026-09-05, RESTRUCTURE): realm created, plan 001 prescribed. Cycle 1 (2026-09-06,
+FEATURE): opened milestone issue #3; item 1 via PR #4. Cycle 2 (2026-09-07, FEATURE): item 2
+(`zig build tidy` step) via PR #5. Cycle 3 (2026-09-07, FEATURE): items 3-6 (0.16 migration of
+main.zig/bench/tidy tool, pin+CI) bundled into PR #6 — bundling was necessary since `zig build
+test` compiles all entry points in one graph. Cycle 3b (2026-09-08, disk-blocked no-op):
+`df -g /` was 16 GB, below the 20 GB gate; stopped before any work, counter not advanced.
+Cycle 4 (2026-09-08, FEATURE): item 7 (PRD rewrite against `std.Io.VTable`, ADR 0001) via PR
+#7, docs-only — found std's own evented `Io` impls don't compile on 0.16.0, sirocco's actual
+reason to exist now; declared the 40-slot hybrid forwarding to `Io.Threaded`. Cycle 5
+(2026-09-09, STABILIZATION, n%5==0): CI green, tidy audit mechanically clean (repo is
+stub-only, so zero counters prove nothing yet); found and fixed real docs drift instead —
+README still described the pre-ADR parallel io/net/tls/http/ws/task API — via PR #8.
 
-## Cycle 4+ (disk-blocked, counter not advanced) — 2026-09-08
-- Preflight disk gate failed: `df -g /` reported 16 GB free, below the 20 GB minimum in
-  CYCLE.md step 0.2. Stopped immediately after the gate check — no inbox triage, no mode
-  selection, no repo/GitHub state read or touched, no work attempted.
-- Counter left at 4 (not incremented): this was not a completed cycle, so mode alternation
-  (STABILIZATION at n%5==0) should not be consumed by a no-op disk block.
-- Next: re-run the cycle once free disk space on `/` is back at or above 20 GB. Pick up from
-  Cycle 4's "Next": milestone-001 item 8, "Assertion and Tiger Style baseline" (pre/post
-  assertions on root.zig public fns, `//!` headers on all 8 files — Cancelled/Canceled grep
-  already clean).
-- Blockers: host disk space (16 GB free, need 20 GB) — outside this repo's control; no GitHub
-  action needed since this is a machine-level condition, not a code or CI issue.
+Standing backlog / next-work order after milestone 001 closes (from old
+`.claude/memory/project-context.md`, superseded by `docs/milestones.md` as source of truth):
+1A completion/queue types → 1B kqueue backend → 1C epoll backend → 1D timing wheel → 1E loop
+dispatch → 1F integration tests. Do not build Phase 1 against the pre-ADR kqueue-abstraction
+design; the rewritten PRD (`docs/adr/0001-std-io-vtable.md`) is what Phase 1 implements.
 
-## Cycle 4 — 2026-09-08 — FEATURE
-- Done: implemented plan 001 item 7, PR #7 (merged, docs-only — no CI runs, ci.yml
-  paths-ignores `docs/**`/`*.md`): rewrote docs/PRD.md so sirocco is described as an
-  implementation of `std.Io.VTable` (one public type, `Runtime.io()`) instead of a parallel
-  Loop/net/tls/http/ws API; added docs/adr/0001-std-io-vtable.md with the full 109-slot
-  inventory grouped in implementation priority order, verified against the pinned 0.16.0
-  toolchain source (not guessed) via the architect agent — found std's own evented `Io`
-  impls (`Io.Kqueue`, `Io.Uring`) don't even compile on 0.16.0, which is sirocco's actual
-  reason to exist now; declared a 40-slot hybrid (`dir*`/`process*`/`random*`) forwarding to
-  an embedded `Io.Threaded`, zero-indirection via `@fieldParentPtr`. Annotated
-  docs/plans/000-inherited.md with a per-item table mapping old Phase 1-6 checklist items to
-  their status under the vtable model. Fixed `error.Cancelled` -> `error.Canceled`
-  throughout docs/ and citadel REALM.md. Updated citadel REALM.md realm-specific rules and
-  memory/architecture.md to match (resolved the open question they both carried). Ticked
-  item 7 in the plan and in tracking issue #3.
-- PRs: #7 merged (auto-merged label).
-- Next: item 8, "Assertion and Tiger Style baseline" (pre/post assertions on root.zig public
-  fns, `//!` headers on all 8 files, grep-clean of `Cancelled` — already clean after this
-  cycle's docs fix, so only the src/ assertion work remains).
-- Blockers: none. Open questions: none.
-- Gotcha: this repo's global `zig` is still 0.15.2 (kingdom dev-box policy); local
-  verification of a 0.16.0-pinned repo must invoke `/Users/fn/.zr/toolchains/zig/0.16.0/zig`
-  explicitly or `zig build test`/`fmt` fail on stale-toolchain errors that look like real
-  bugs but aren't.
-
-## Cycle 3 — 2026-09-07 — FEATURE
-- Done: bundled milestone-001 items 3-6 into one PR (#6, merged): migrated src/main.zig,
-  bench/main.zig, and tools/tidy_main.zig/tidy_test.zig (unplanned — added by PR #5 after this
-  plan was written) to Zig 0.16.0; bumped build.zig.zon minimum_zig_version and dropped the
-  hardcoded 0.15.2 pin from ci.yml. Bundling was necessary: zig build test compiles all three
-  entry points together, so a partial per-item migration under either toolchain pin leaves CI
-  red no matter which single item ships alone. Verified zig build test (31/31), fmt, run --
-  version/--help, zig build bench, and all six cross-compile targets on the 0.16.0 toolchain;
-  CI green. Also fixed issue #3's checklist: item 2 (tidy step, PR #5) had been implemented and
-  merged last cycle but never ticked — ticked it and items 3-6.
-- PRs: #6 merged (auto-merged label).
-- Next: PRD rewrite against std.Io.VTable (item 7).
-- Blockers: none. Open questions: none.
-- Gotcha: a milestone plan's per-file "0.16: X" checklist items look independently cycle-sized
-  but are not — zig build test compiles every entry point in one graph, so CI cannot go green
-  until every 0.16-only API user *and* the toolchain pin land together. Bundle such items into
-  one PR rather than attempting one-item-per-cycle when they share a build graph.
-
-## Cycle 2 — 2026-09-07 — FEATURE
-- Done: implemented and merged item 2, PR #5: `zig build tidy` mechanical Tiger Style checker
-  (`tools/tidy.zig`/`tidy_main.zig`, 22 unit tests + integration test over real `src/` files),
-  wired as a dependency of `zig build test`. Baseline file `tools/tidy_baseline.txt` starts
-  empty (shrink-only ratchet, 71-72 red zone). Fixed gaps it caught: `src/main.zig` had no
-  `//!` header; `io/tls/http/task.zig` headers ran past 100 columns. CI green (Build & Test +
-  6 cross-compile targets).
-- Next: item 3, `src/main.zig` 0.16 migration (`process.Init`, `init.gpa`, `argsAlloc` →
-  `init.minimal.args.toSlice`, stdout via `Io` handle).
-- Blockers: none. Open questions: none.
-
-## Cycle 0 — 2026-09-05 — RESTRUCTURE
-- Realm created by citadel restructure. Memory migrated from the repo's former
-  `.claude/memory/`. First plan `001` prescribed by `citadel/docs/ROADMAP.md`.
-- Next: open plan 001 PR (if not open) → await human merge.
-- Open questions: none.
-
-## Cycle 1 — 2026-09-06 — FEATURE
-- Done: opened milestone tracking issue #3 (11-item checklist from plan 001). Implemented and
-  merged item 1, PR #4: dropped the dead AI-scaffold `paths-ignore` entry in ci.yml, mirrored
-  `paths-ignore` onto `pull_request`, widened the format gate to `src bench build.zig`, added
-  `bench` to `build.zig.zon` `.paths`. CI green (Build & Test + 6 cross-compile targets).
-- Next: item 2, the `tidy` build step (line/function length, ban list, `//!` headers).
-- Blockers: none. Open questions: none.
-- Gotcha: the bash guard hook text-matches commands, not just real paths — a commit message or
-  PR body that spells out a banned literal (e.g. `.claude/memory/**`) gets blocked as if it were
-  a write attempt. Route such text through a file (`-F`/`--body-file`) instead of an inline
-  heredoc so the literal never appears in the flat command string.
-
-## Standing backlog (from old `.claude/memory/project-context.md`)
-
-Phase: Bootstrap complete. Phase 1 ("Loop Core") not started — `docs/milestones.md` is the
-single source of truth for progress, not this file. Version 0.1.0, unreleased. Work order:
-
-1. **1A** — `Completion`/`Op`/`Result` types + intrusive (non-allocating) queue. Tests:
-   queue push/pop/remove, `Op`-tag coverage.
-2. **1B** — kqueue backend. Tests: loopback TCP accept/connect/read/write/close.
-3. **1C** — epoll backend (unblocks CI's Linux-only I/O lane).
-4. **1D** — hierarchical timing wheel. Tests: register/cancel/expiry ordering, load
-   (~100k timers).
-5. **1E** — loop dispatch (run modes, cross-thread wakeup, `cancel()`).
-6. **1F** — integration tests (loopback echo, timer races, cancel races) once 1A–1E land.
-
-Ahead of 1A: plan `001` should land the Zig 0.16 migration (trivial, <1h — see
-`STATE.md`) and, per `citadel/docs/ROADMAP.md` Phase 2, a PRD rewrite targeting
-`std.Io.VTable` directly, since sirocco's whole purpose now overlaps the 0.16 `std.Io`
-model. Do not build Phase 1 against the old kqueue/epoll-abstraction design without first
-reconciling it against `std.Io.VTable`.
+## Recurring gotchas
+- Bash guard hook text-matches commands, not paths: a commit/PR/issue body that spells out a
+  banned literal (`.claude/memory/**`) gets blocked as a write attempt even in prose. Route
+  such text through a file (`-F`/`--body-file`) instead of an inline heredoc.
+- This repo's global `zig` is still 0.15.2 (kingdom dev-box policy); always invoke
+  `/Users/fn/.zr/toolchains/zig/0.16.0/zig` explicitly for this 0.16.0-pinned repo, or
+  `zig build test`/`fmt` fail on stale-toolchain errors that look like real bugs but aren't.
+- A milestone plan's per-file "0.16: X" checklist items can look independently cycle-sized but
+  aren't when they share a build graph (`zig build test` compiles every entry point together)
+  — bundle such items into one PR rather than one-item-per-cycle.
