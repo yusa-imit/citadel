@@ -1,7 +1,31 @@
 # zuda — context
 
-last_seen_at: 2026-09-10T00:00:00Z
+last_seen_at: 2026-09-10T07:05:33Z
 rejected_plans: []
+
+## Cycle 6 — 2026-09-10 — FEATURE
+- Done: inbox merged PR #36 (LICENSE, auto-merged, branch deleted); no other owner actions since
+  watermark. Milestone #31 next unchecked item was "Fix the public io: Io API shape + ADR" —
+  called `architect` (opus) first per plan risk note. It measured real exposure (21
+  `std.time.*`, only 15 are PRNG seeding not timekeeping; 4 lib + 29 test `fs.cwd()` all in
+  `ndarray.zig`; 2 `Thread.Mutex`; `parallel/*` has zero real `std.Thread` today) and wrote
+  `docs/adr/0001-io-injection-and-seed-determinism.md`: clock-derived seeds become a required
+  `seed: u64` option (not `io`); `io` is never stored in a container (Managed's allocator
+  carve-out does NOT extend to `io` — ownership vs execution-context distinction, see ADR D2);
+  `Io.Mutex.lockUncancelable` keeps `error.Canceled` out of container error sets. Net: `io`
+  lands on ~18 public fns, not ~40. Spike target `bloom_filter.zig` turned out to need **no**
+  public-API change (its one `std.time.*` site was a test-only wall-clock assertion) — fixed
+  that test to assert pure arithmetic instead, removed the `std.time.Timer` dependency. Amended
+  plan 001: ticked item 5, added a new item for the positive-space proof
+  (`concurrent_skip_list.zig` + 4 other time-using containers) since bloom_filter alone doesn't
+  exercise the design (see ADR + `decisions.md`'s 2026-09-10 entry for the full reasoning).
+- PRs: #36 merged. #37 open (ADR + bloom_filter test fix), Build & Test + 2/6 cross-compile
+  green, 4 cross-compile targets still pending at the cycle deadline — left "awaiting CI; merge
+  next cycle" comment, next cycle's inbox merges it.
+- Next: merge #37 once green, then the new plan 001 item — apply the `io`/`seed` shape to
+  `concurrent_skip_list.zig` (positive-space proof), then `robin_hood_hash_map.zig`,
+  `cuckoo_hash_map.zig`, `skip_list.zig`, `work_stealing_deque.zig`.
+- Blockers: none. Open questions: none.
 
 ## Cycle 5 — 2026-09-10 — STABILIZATION
 - Done: inbox merged PR #35 (mechanical renames, plan 001 item 4) and ticked it on tracking

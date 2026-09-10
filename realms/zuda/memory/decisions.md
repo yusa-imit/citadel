@@ -113,3 +113,30 @@ _(migrated from the repo's former `.claude/memory/decisions.md`, 2026-09-05)_
   as 4 residual unbaselined findings (harmless while tidy isn't gating anything) rather than
   reworking the vendored reference tool; worth an upstream citadel fix (per-line-number keys, or
   first-occurrence-only actual tracking) before tidy is made to gate `test`.
+
+## Decision: `io: Io` only where I/O happens; clock-derived PRNG seeds become `seed: u64`
+- **Date**: 2026-09-10
+- **ADR**: `docs/adr/0001-io-injection-and-seed-determinism.md` (full break enumeration lives
+  there; this is the pointer the plan's verify line asks for)
+- **Context**: plan 001 item "fix the public-API shape once". Measured exposure on `main`: 21
+  `std.time.*`, 4 library + 29 test `fs.cwd()` (all in `ndarray.zig`), 2 `Thread.Mutex`, 2
+  `posix.getrandom`. **15 of the 21 `std.time.*` sites are PRNG seeding, not timekeeping**, and
+  `src/algorithms/parallel/*` contains no `std.Thread` at all — its `num_threads` parameter is
+  ignored (`parallel_sort.zig:29`).
+- **Decision**: (D1) seeds are undeclared inputs, not I/O → required `seed: u64` in an options
+  struct, no `io`; (D2) `io` is never stored in a container — `init`/`initManaged`/`deinit` stay
+  `io`-free, only methods that touch time/fs/sync take it, first after the receiver; the Managed
+  allocator carve-out in REALM.md does **not** extend to `io` (ownership vs execution context);
+  the single exception is `internal/bench.zig`'s `Runner`; (D3) `Io.Mutex.lockUncancelable(io)`
+  for zuda's two short critical sections so `error.Canceled` never enters container error sets;
+  (D4) `ndarray` fs takes `dir: Io.Dir` explicitly, never `Io.Dir.cwd()` inside the library;
+  (D5) NDAR binary format v2 = v1 + trailing CRC-32, v1 still readable; (D6) `parallel/*` gets a
+  real `Io.Group` implementation and `num_threads` → `.{ .concurrency_max = n }`.
+- **Result**: `io` lands on ~18 public functions instead of ~40; ~60 containers keep an unchanged
+  public API. Consumers recompile, not edit, except `SkipList` init (zoltraak),
+  `WorkStealingDeque.push` (zr) and `NDArray` save/load.
+- **Spike finding**: `bloom_filter.zig` is a *negative-space* proof only — its single
+  `std.time.*` site is inside a test (line 416, a wall-clock throughput assertion) and all ten
+  public functions stay byte-for-byte identical. The test's timing loop moves to `bench/`, the
+  pure ops/sec arithmetic stays. The positive-space spike must be
+  `containers/lists/concurrent_skip_list.zig` — the one file exercising D1, D2 and D3 at once.
