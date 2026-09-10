@@ -3,20 +3,25 @@
 last_seen_at: 2026-09-10T00:00:00Z
 rejected_plans: []
 
-## Cycle 7 — 2026-09-10 — FEATURE
-- Done: inbox clean (no new OWNER actions since watermark beyond the AI's own prior-cycle
-  comments; no plan PR open; milestone #3 open with items 9-11 unchecked). Ticked plan 001
-  item 9 (`wip/*` branch decision) via PR #10 — verified `git branch -a` has no `wip/*` branch
-  for sirocco and `chore/kingdom-restructure` is already the plan's merged base, so nothing to
-  finish or close. Docs-only change, no CI checks apply (same as PRs #7/#8), merged and
-  labeled `auto-merged`. Decision recorded in `decisions.md` as ADR-002.
-- PRs: #10 merged (auto-merged label, no CI checks — docs-only paths-ignore).
-- Next: item 10 (README/CHANGELOG reconciliation — README still advertises TLS/HTTP2/WS/DNS
-  that don't exist; no `CHANGELOG.md` yet) or item 11 (release 0.2.0, depends on item 10's
-  CHANGELOG existing first).
+## Cycle 8 — 2026-09-10 — FEATURE
+- Done: inbox found issue #3's checklist had drifted — item 9 was merged via PR #10 last cycle
+  but never ticked on the issue body; fixed at inbox time. No new OWNER actions since
+  watermark, no plan PR, no bug/question/directive issues. Implemented item 10 (README/
+  CHANGELOG reconciliation): the module table was already reconciled with the std.Io.VTable
+  design back in PR #8 (cycle 5); the only remaining drift was the Install section naming tag
+  `v0.1.0`, which was never cut (`git tag -l` empty) — fixed with a local build.zig.zon
+  path-dependency snippet, deferring `zig fetch` to the first real release. Added
+  `CHANGELOG.md` (Keep a Changelog, `Unreleased` section covering plan 001's work).
+- PRs: #11 merged (auto-merged label, no CI checks — docs-only paths-ignore, same pattern as
+  PRs #7/#8/#10).
+- Next: item 11 — Release 0.2.0 (bump `.version`, close the CHANGELOG `Unreleased` section into
+  `## 0.2.0`, tag `v0.2.0`, cut the GitHub release, repoint the README install snippet). This
+  is the last open item on milestone #3.
 - Blockers: none. Open questions: none.
 
-## History (cycles 0-6)
+## History (cycles 0-7)
+Cycle 7 (2026-09-10, FEATURE): item 9 (`wip/*` branch decision) via PR #10 — verified no
+`wip/*` branch exists for sirocco; decision recorded as ADR-002.
 Cycle 0 (2026-09-05, RESTRUCTURE): realm created, plan 001 prescribed. Cycle 1 (2026-09-06,
 FEATURE): opened milestone issue #3; item 1 via PR #4. Cycle 2 (2026-09-07, FEATURE): item 2
 (`zig build tidy` step) via PR #5. Cycle 3 (2026-09-07, FEATURE): items 3-6 (0.16 migration of
