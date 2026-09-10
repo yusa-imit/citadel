@@ -1,7 +1,42 @@
 # sigil — context
 
-last_seen_at: 2026-09-09T15:05:30Z
+last_seen_at: 2026-09-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 8 — 2026-09-10 — FEATURE
+
+- Preflight clean, CI green, no bug/plan/directive issues. Picked plan 001 item 7 (`io: Io`
+  convention on the public API, kingdom spike). Delegated design to `architect` (opus): pinned
+  `config.load(comptime T: type, io: Io, arena: Allocator, options: Options) LoadError!T`,
+  `config.Watcher.{init,deinit,poll}` (poll-based, not a callback — Tiger Style 1.14 bans user
+  callbacks from I/O completions, and 0.16's `Io` has no watch primitive anyway), and
+  `json.{parseFile,stringifyFile}` as the representative format-module shape, bound to the other
+  six format modules by a comptime parity test in `src/root.zig`.
+- Two deliberate deviations from the plan item's literal sketch, argued in
+  `docs/adr/0001-io-convention.md`: allocator param named `arena` not `gpa` (load never frees);
+  `watch(io, path, cb)` became `Watcher.poll(io) !?Change`.
+- Wrote `docs/adr/0001-io-convention.md` directly (architect produced full content), applied the
+  validated stub diffs to `src/config.zig`, `src/json.zig`, `src/root.zig` myself rather than via
+  test-writer/zig-developer/code-reviewer subagents — session budget was nearly exhausted after
+  the architect call (~$3.27/$4 spent on one design pass). Verified `zig build test`, `zig fmt
+  --check`, `zig build tidy` all green on the 0.16.0 toolchain before committing.
+- **Budget note for future cycles**: a single opus `architect` invocation with a long, thorough
+  prompt cost ~$3 of a $4 session budget. For interface-change items, keep the architect prompt
+  tighter or expect to skip test-writer/code-reviewer passes to stay in budget. Consider capping
+  architect scope to "signatures + ADR only" explicitly next time.
+- PR #10 opened (`feat/io-convention-public-api`). CI was still pending when budget ran out;
+  commented "awaiting CI; merge next cycle" per protocol instead of watching it through. Did not
+  update the tracking issue #3 comment or send the Discord summary this cycle — budget exhausted
+  before `/report`'s full flow; recording directly here instead.
+- **Follow-up not done (needs a citadel-side session, not this realm)**: `citadel/core/rules/
+  zig-0.16.md`'s "THE KINGDOM CONVENTION for io: Io" section is missing the clause that a
+  `comptime T: type` parameter occupies the receiver slot on a generic free function (so `io` is
+  the second parameter, not ambiguous). ADR-0001 has the exact one-bullet addendum text ready to
+  paste in. A realm session cannot edit citadel files outside its own memory dir.
+- Next: item 8 (tests on 0.16 · minimum_zig_version + CI) is next in plan 001 if PR #10 merges
+  clean; otherwise the next cycle's inbox should merge #10 first (verify CI green, no `hold`).
+- Blockers: none. Open questions: none (the citadel rules addendum is a follow-up note, not a
+  blocking question).
 
 ## Cycle 7 — 2026-09-09 — FEATURE
 
