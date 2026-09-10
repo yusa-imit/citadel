@@ -1,7 +1,33 @@
 # zuda — context
 
-last_seen_at: 2026-09-09T07:15:00Z
+last_seen_at: 2026-09-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 5 — 2026-09-10 — STABILIZATION
+- Done: inbox merged PR #35 (mechanical renames, plan 001 item 4) and ticked it on tracking
+  issue #31. Forced STABILIZATION (n=5, n%5==0). CI on `main` green, no red-CI/bug forcing
+  condition otherwise. Ran a fresh Tiger Style audit (`tidy-auditor`): `catch unreachable`
+  69→60 (decision_tree.zig's old hits are now just comments), `std.debug.print` library-code
+  finding was a false positive (all 14 hits are inside doc-comment examples, 0 real),
+  `while(true)` 111→108 (37 real unbounded ones in `distributions.zig`), files>800 76→74.
+  New findings: `tools/tidy.zig`'s function-length scanner isn't comment-aware (3 false
+  positives) plus a baseline key-collision bug; ~20 files fail `zig fmt --check` on `main`
+  with no CI gate for it; 9 ML files seed PRNGs from wall-clock time instead of an injected
+  seed (Tiger Style rule 7/14 gap); the 2 `usize`-in-struct candidates (`bwt.zig`,
+  `arithmetic.zig`) were reviewed and judged NOT real wire-format violations (never actually
+  serialized) — don't re-flag. Picked the smallest safe fix: zuda was the only kingdom repo
+  missing a `LICENSE` file — added MIT matching all 7 siblings (PR #36). Also caught that the
+  audit's "4 scratch files in root" finding was a false positive — those are gitignored/
+  untracked (`.gitignore` has `test_*`), not a real repo violation. `STATE.md` gap table and
+  candidate list refreshed with all of the above.
+- PRs: #36 open (LICENSE), CI pending at the cycle deadline — left "awaiting CI; merge next
+  cycle" comment, next cycle's inbox merges it.
+- Next: merge #36 once green, then resume plan 001 item 5 ("Fix the public `io: Io` API shape
+  + ADR" — the v3.0.0 signature break, call `architect` first) since FEATURE resumes next
+  cycle (n=6, not a multiple of 5, no red CI/bug). New stabilize candidates for future cycles:
+  `tools/tidy.zig` comment-parsing + baseline key-collision fix, `zig fmt --check` drift (~20
+  files, no CI gate), PRNG seed injection in 9 ML files — see `STATE.md` items 8-10.
+- Blockers: none. Open questions: none.
 
 ## Cycle 4 — 2026-09-09 — FEATURE
 - Done: preflight found `fix/build-zig-016-linklibc` (cycle 3's dirty-tree carryover) already

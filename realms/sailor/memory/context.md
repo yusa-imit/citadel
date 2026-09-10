@@ -1,7 +1,33 @@
 # sailor — context
 
-last_seen_at: 2026-09-09T08:06:47Z
+last_seen_at: 2026-09-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 6 — 2026-09-10 — FEATURE
+
+- Done: inbox merged PR #25 (`crypto_random` tidy tracking) — CI on `main` @ `07c8a97` confirmed
+  `success` before treating main as green. Picked item 4 on #19 (`build.zig` fix + mechanical
+  renames). Read both 0.15.2 and 0.16.0 stdlib sources directly and found the item's own six
+  renames split cleanly: `GeneralPurposeAllocator`→`DebugAllocator` and `linkLibC()`→
+  `.link_libc = true` are pure aliases in 0.15.2 (safe to land now, no toolchain switch needed);
+  `Io.Mutex`, env access, `posix.isatty`, and `mem.indexOf*`→`find*` (478 sites) have no
+  0.15.2-compatible spelling and need the actual toolchain switch. Landed the safe half:
+  `linkLibC` fix (1 site) + GPA rename repo-wide (44 sites across `src/`, `tests/`, `examples/`,
+  `benchmarks/`, `scripts/`) as PR #26. Verified via `git stash` that the 8 pre-existing `zig fmt`
+  failures and 10 pre-existing example-build failures (e.g. `examples/hello.zig:39` calling
+  `layout.split` with a stale arg count) are unchanged by the diff. `zig build test` green,
+  `code-reviewer` clean. CI still running at cycle deadline (~8 min budget left after the
+  implementation work) — left PR #26 open for next cycle's inbox, same pattern as #21/#25.
+  Checklist item 4 left unticked: the item's own `Verify` line requires the build to compile
+  *on 0.16.0*, which this slice doesn't reach alone.
+- PRs: #25 (merged), #26 (open, CI pending).
+- Next: inbox should merge #26 once green (does not tick item 4 — that needs a follow-up cycle
+  to do the toolchain-dependent renames: `Io.Mutex` (6), env access (14), `posix.isatty` (4),
+  `mem.indexOf*`→`find*` (478, use the mapping table in `zig-0.16.md`, not a blind regex) —
+  likely paired with actually bumping `minimum_zig_version` to `0.16.0` in the same PR, since
+  none of those four compile under 0.15.2 in isolation).
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 5 — 2026-09-09 — STABILIZATION
 
