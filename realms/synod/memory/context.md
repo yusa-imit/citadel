@@ -1,129 +1,58 @@
 # synod — context
 
-last_seen_at: 2026-09-09T15:20:00Z
+last_seen_at: 2026-09-10T00:00:00Z
 rejected_plans: []
 
-## Cycle 5 — 2026-09-09 — STABILIZATION
-- Forced by n%5==0 (counter 4→5); CI green last 5 runs, no open bugs, so not a red-CI/bug
-  stabilization — the every-5th-cycle cadence.
-- Inbox: no new owner actions since watermark; no plan PR open; milestone #3 unchanged.
-- Tiger Style audit (tidy-auditor): only real finding was `tools/tidy.zig:443`
-  `assert(!has_header or first_line.len >= 3)` — rewrote as the Tiger-Style-preferred
-  `if (a) assert(b);` implication idiom via PR #8 (merged, CI green all 7 jobs). Verified
-  `tools/tidy.zig:199`'s `assert(a or b)` is a legitimate positive-space enum, not a violation
-  — left unchanged (ban-list pattern only targets `and`).
-- Recorded, not fixed (STATE.md): `build.zig`'s `pub fn build` is 83 lines (limit 70);
-  `tools/tidy.zig` itself is 1124 lines (limit 800) — both invisible to `zig build tidy`
-  because it only walks `src/`. Also confirmed `zig build bench` still fails under 0.16.0
-  (GeneralPurposeAllocator/argsAlloc/Timer) — this is milestone item 5, unchanged, next up for
-  FEATURE. Local `zig` on `$PATH` is 0.15.2; use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`
-  explicitly for this repo (STATE.md note).
-- No test-quality or docs/hygiene issues found. stabilize_streak stays 0.
-- Next: FEATURE resumes at milestone #3's next unchecked item, `0.16 — bench/main.zig` (tiny);
-  then the `build.zig`/`tools/tidy.zig` size-overage split (recorded in STATE.md, not yet its
-  own checklist item).
+## Cycle 6 — 2026-09-10 — FEATURE
+- Inbox: no new owner actions since watermark; no plan PR open; milestone #3 unchanged apart
+  from ticking item 5 this cycle.
+- Implemented item 5 (0.16 — `bench/main.zig`) via PR #9 (merged, CI green all 7 jobs):
+  `pub fn main(init: std.process.Init) !void`, `init.gpa`, `Io.Clock.Timestamp.now(io, .awake)`/
+  `.untilNow(io)` replacing `std.time.Timer`, `std.mem.find` replacing the removed
+  `std.mem.indexOf` via a new `matchesFilter` helper (4 unit tests, wired into `zig build test`
+  via a `bench_tests` step mirroring `tidy_tests`).
+- Found and closed a real CI gap while doing this: the bench executable was never built by CI at
+  all — not part of `zig build`'s default install step, and (per the 0.16 probe caveat in
+  STATE.md) `zig build test`'s test binary never actually analyzes a `pub fn main` body, so unit
+  tests alone would not have caught the `Io.Clock` migration errors. Added a "Bench (compile +
+  smoke run)" CI step (`zig build bench -- __ci_no_match__`) that builds and runs the real
+  executable. Also extended `zig fmt --check` to cover `bench/` (previously only `src build.zig`).
+- code-reviewer pass before merge caught 3 warnings, all fixed: `@intCast` on the clock delta
+  could UB in ReleaseFast if the monotonic-clock contract were ever violated (added an
+  `assert` + `@max(…, 0)` clamp); `matchesFilter`/`main` were under the 2-assertions-per-function
+  target (added a postcondition assert on the found index in `matchesFilter`, and
+  `ops > 0 or ns_per_op == 0` in `main`); `zig fmt --check` gap noted above.
+- Process note: forgot the `Co-Authored-By` trailer on the PR #9 commit before pushing; realized
+  after push, but amending would require a force-push, which the kingdom guard hook blocks
+  unconditionally — left as-is rather than rewrite history. Remember to include the trailer in
+  the *first* commit message next time, not add it after the fact.
+- Next: item 6, the 0.16 library-core sweep (expected near-no-op per the probe — `src/` has 0
+  fs/net/time hits already), then `io: Io`-at-the-boundary and the assertion baseline.
 - Open questions: none.
 
-## Cycle 4 — 2026-09-09 — FEATURE
-- Inbox: no owner actions since watermark; milestone #3 open, items 1-3 done.
-- Reviewed the preserved `wip/fix-0.16-main-entry-20260908` branch (from the 2026-09-08 disk
-  abort): verified it builds/fmts/tests clean under Zig 0.16.0 (9/9 build steps, 55/55 tests,
-  `synod version` prints `synod 0.1.0`). Cherry-picked its one commit onto a fresh
-  `fix/0.16-main-entry-and-tidy` branch off main, rewrote the commit message to Conventional
-  Commits, opened PR #7. CI green on all 7 jobs; squash-merged, branch deleted. Ticked items 4
-  (`src/main.zig`) and 7 (`minimum_zig_version` + CI) in #3.
-- Left `fix/0.16-main-entry` (local-only, unverified) and `wip/fix-0.16-main-entry-20260908`
-  (local+remote) in place — both pre-date this cycle and rule 5 forbids deleting a branch not
-  created this cycle; their content is now superseded by merged #7 but they cost nothing to
-  leave. A future cycle may delete `wip/fix-0.16-main-entry-20260908` once it's clearly dead.
-- Next: item 5, 0.16 — `bench/main.zig` (timer → `Io.Clock`, `mem.indexOf` → `mem.find`).
-- Open questions: none.
+## History (cycles 0-5)
+- Cycle 0 (2026-09-05, RESTRUCTURE): realm created by citadel restructure; memory migrated from
+  the repo's old `.claude/memory/`; plan 001 (Zig 0.16 migration + Tiger Style baseline)
+  prescribed by ROADMAP.
+- Cycle 1 (2026-09-06, FEATURE): plan 001 merged as #2; opened milestone tracking issue #3
+  (11-item checklist). Implemented item 1 (hygiene leftovers) via PR #4.
+- Cycle 2 (2026-09-06, FEATURE): item 2 (`tidy` step part 1, sizes) via PR #5.
+- Cycle 3 (2026-09-07, FEATURE): item 3 (`tidy` step part 2, ban list) via PR #6; a
+  code-reviewer pass caught `tools/tidy.zig`'s own tests weren't wired into `zig build test`
+  and a real off-by-one bug it then surfaced — both fixed.
+- Cycle 4 attempt (2026-09-08, PREFLIGHT ABORT): disk gate failed (16 GB < 20 GB required);
+  in-progress item-4 work committed to `wip/fix-0.16-main-entry-20260908` before stopping.
+- Cycle 4 (2026-09-08, FEATURE): reviewed and cherry-picked the preserved wip branch; merged #7
+  (0.16 migration of `src/main.zig` and `tools/tidy.zig`, `minimum_zig_version` bump). Ticked
+  items 4 and 7.
+- Cycle 5 (2026-09-09, STABILIZATION, every-5th-cycle cadence): tidy-auditor found one real fix
+  (compound assert → `if (a) assert(b);` idiom), merged as #8. Confirmed `zig build bench` still
+  broken under 0.16 (became cycle 6's item). stabilize_streak stayed 0.
+- Standing backlog (from the old `.claude/memory/project-context.md`): after item 6 (library-core
+  sweep), Phase 1 real work starts at `src/types.zig` (NodeId/Term/Index/Entry/HardState/
+  Snapshot/Message/ConfChange), then `src/log.zig` (append/truncate/termAt/conflict search),
+  then `src/interfaces.zig` + `src/store.zig` (vtables + in-memory LogStore), then Phase 2's
+  `raft/node.zig` election state machine.
 
-## Cycle 4 attempt — 2026-09-08 — PREFLIGHT ABORT (disk)
-- Preflight disk gate failed: `df -g /` reported 16 GB free (< 20 GB required) — did not
-  proceed past preflight, no inbox/mode/GitHub-truth work done this attempt. Counter NOT
-  incremented (not a completed cycle); next cycle is still cycle 4.
-- Found the repo dirty and on `fix/0.16-main-entry` (not main) at session start, with
-  uncommitted work on item 4 (0.16 migration): `src/main.zig` converted to
-  `pub fn main(init: std.process.Init) !void` + `Io.File.stdout()`; `tools/tidy.zig` threaded
-  `Io` through `readOptionalFile`/`reportSizeViolations`/`reportBanViolations` and renamed
-  `trimLeft`/`trimRight` → `trimStart`/`trimEnd`; also touched `.github/workflows/ci.yml`,
-  `CHANGELOG.md`, `build.zig.zon`, `docs/plans/001-zig-0.16-and-tiger-baseline.md`. No matching
-  PR or remote branch existed — this looked like unpreserved WIP from an interrupted session,
-  so before stopping for the disk gate it was committed and pushed to
-  `wip/fix-0.16-main-entry-20260908` (not yet verified with `zig build test`), then `main` was
-  checked out clean. Local `fix/0.16-main-entry` branch left untouched (not deleted).
-- Next: free disk space on the host (16 GB free, gate needs ≥ 20 GB) is an operator/host
-  concern outside this repo — not something a realm cycle can fix. Once resolved, cycle 4
-  should start by reviewing `wip/fix-0.16-main-entry-20260908` (finish item 4: build+test it,
-  then fold into a real `fix/` or `feat/` PR) rather than starting item 4 from scratch.
-- Open questions: none (host disk pressure is not a repo-level blocker to escalate on GitHub).
-
-## Cycle 3 — 2026-09-07 — FEATURE
-- Inbox: merged PR #5 (item 2, tidy sizes) — CI was green; ticked item 2 in #3.
-- Implemented item 3 (`tidy` step, part 2 — ban list): `tools/tidy.zig` gained
-  `checkCatchUnreachable` (no `catch unreachable` without `// proof:` same/previous line),
-  `checkBannedPattern` (`std.debug.print`, `std.time.*` in `src/`), `checkWireUsize` (no
-  `usize` field inside `Message`/`Entry`/`HardState`/`Snapshot`), `hasModuleHeader` (every
-  `.zig` file needs `//!`); added missing headers to `build.zig`/`src/main.zig`. TDD: 25 tests.
-  Opened PR #6, merged after CI green on all 7 jobs.
-- A code-reviewer pass (before merge) caught two real bugs a first "all green" pass missed:
-  `zig build test` never actually ran `tools/tidy.zig`'s own `test` blocks — only `main()`'s
-  repo scan was wired into the build graph, so the file's 42 tests were silently dead weight.
-  Fixed by adding `b.addTest(.{.root_module = tidy_exe.root_module})` + `dependOn` from
-  `test_step` (see `patterns.md`). That then surfaced a genuine off-by-one in
-  `checkWireUsize`'s reported line number, plus 4 lines over 100 cols the tool wasn't checking
-  against itself (tidy only walks `src/`, self-exempting `tools/`). Lesson: don't trust
-  "zig build test is green" for a new executable target without confirming its own tests are
-  actually wired into a `b.addTest`, not just `addRunArtifact` of the binary's `main()`.
-- Next: item 4, 0.16 migration starting at `src/main.zig` (trivial — see `STATE.md`).
-- Open questions: none.
-
-## Cycle 2 — 2026-09-06 — FEATURE
-- Inbox: no new owner actions since the watermark; milestone #3 open, item 1 done.
-- Implemented item 2 (`tidy` step, part 1 — sizes): `tools/tidy.zig` (line length ≤ 100 cols,
-  function length ≤ 70 lines / 72 red-zone via `tools/tidy_baseline.txt`, empty today), wired
-  as a `zig build tidy` step that `zig build test` now depends on. Also wrapped the 5
-  pre-existing overlong doc-comment lines (`build.zig`, `src/{main,raft,root,sim}.zig`) so
-  tidy passes clean. TDD: 25 tests red (stub `@panic`) → green. Opened PR #5.
-- Ran out of the 22-minute cycle budget before CI finished (test-writer + zig-developer
-  subagent turns took ~16 min combined); skipped a dedicated code-reviewer pass this cycle to
-  stay inside budget — PR #5 is unreviewed by a fresh pair of eyes, left for next cycle's inbox
-  to merge once CI is green (or to review first if that feels warranted).
-- Next: next cycle's inbox merges PR #5 if CI green, ticks item 2 in #3; then item 3, `tidy`
-  step part 2 (ban list).
-- Open questions: none.
-
-## Cycle 1 — 2026-09-06 — FEATURE
-- Plan 001 (merged as #2) approved by merge; opened milestone tracking issue #3 with its
-  11-item checklist. Implemented item 1 (hygiene leftovers from the restructure PR) via PR #4:
-  dropped the stale `.claude/memory/**` CI path-ignore, fixed `root.zig`/`bench/main.zig` doc
-  references to `docs/plans/000-inherited.md`, added `docs/adr/0001-zero-dependency-core.md`
-  and `CHANGELOG.md`. CI green on all 7 jobs; squash-merged, branch deleted.
-- Next: item 2, `tidy` step part 1 (sizes) — `tools/tidy.zig` + `zig build tidy` gating
-  `zig build test`, per plan 001.
-- Open questions: none.
-
-## Cycle 0 — 2026-09-05 — RESTRUCTURE
-- Realm created by citadel restructure. Memory migrated from the repo's former
-  `.claude/memory/` (`CLAUDE.md` + `.claude/` are removed from the repo by the hygiene PR;
-  everything durable is now here and in `REALM.md`/`STATE.md`). First plan `001` prescribed
-  by `citadel/docs/ROADMAP.md` (Zig 0.16 migration — trivial for synod, see `STATE.md`).
-- Next: open plan 001 PR (if not open) → await human merge.
-- Open questions: none.
-
-## Standing backlog (carried from the old `.claude/memory/project-context.md`)
-
-- Phase: Bootstrap complete. Phase 1 (Core Types & Log) not yet started. Version 0.1.0,
-  unreleased. `zig build test` green on the skeleton (12 trivial stub tests); CI green.
-- Next priority, in order:
-  1. **1A** — `src/types.zig`: `NodeId`/`Term`/`Index`/`Entry`/`HardState`/`Snapshot`/
-     `Message` union/`ConfChange`. Tests: Message union tag exhaustiveness, HardState
-     comparison.
-  2. **1B** — in-memory Raft log (`src/log.zig`): append/truncate/`termAt`, conflict-point
-     search, `validate()`.
-  3. **1C+1D** — vtable interfaces (`src/interfaces.zig`: Transport/LogStore/StateMachine/
-     Clock/Rng) and an in-memory `LogStore` (`src/store.zig`). Tests: save/restore
-     round-trip.
-- After 1A-1D: Phase 2, `raft/node.zig` — election state machine (Follower/Candidate/Leader,
-  PreVote).
+Full per-cycle detail for cycles 0-5 (PR numbers, code-reviewer findings, the disk-gate abort)
+lived here before this fold; see git history of this file if needed.
