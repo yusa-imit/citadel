@@ -1,7 +1,27 @@
 # strata — context
 
-last_seen_at: 2026-09-10T00:00:00Z
+last_seen_at: 2026-09-10T12:00:00Z
 rejected_plans: []
+
+## Cycle 6 — 2026-09-10 — FEATURE
+- Done: preflight found leftover empty local branch `test/tidy-0.16-banlist-sweep` (0 commits
+  ahead, clean) — left in place (nothing to preserve). Inbox clean (no owner actions, CI
+  green, milestone #3 open). Implemented plan 001 item 5 (0.16 library sweep, then freeze
+  it): extended `tools/tidy.zig`'s ban list with 5 more 0.15-only spellings (bare `ArrayList`
+  `.{}` init, `mem.indexOf`/`lastIndexOf`, `std.net.*`, all 7 `std.Thread.*` sync
+  primitives, `fs.cwd()`) via test-writer → zig-developer → code-reviewer. Review caught 4
+  over-100-col lines, a false-positive in the `ArrayList` compound check (comment mentioning
+  "ArrayList" + unrelated `.{}` on the same line), a missing `mem.lastIndexOf` variant, and
+  an inaccurate `fs.cwd()` replacement message — all fixed before commit. 71/71 tidy tests
+  green, tidy still reports 0 findings over `src`/`bench`/`tests` (confirms zero real 0.15
+  spellings in the stub codebase, as expected).
+- PRs: #9 opened, plan item ticked, CHANGELOG updated. CI still `pending` at the 22-min
+  cycle deadline — commented "awaiting CI; merge next cycle"; next cycle's inbox merges it.
+- Next: next cycle's inbox must merge #9 once CI is green. Then plan 001 item 6 (0.16
+  tests: `std.testing.io`, real `tmpDir` round-trip) or item 7 (`io: Io` convention in PRD +
+  ADR 0001).
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 5 — 2026-09-09 — STABILIZATION
 - Done: CI green (last 5 runs). tidy-auditor ran a Tiger Style audit; `src/` is still all
