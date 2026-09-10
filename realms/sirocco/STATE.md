@@ -1,4 +1,14 @@
-# sirocco — State Survey (2026-09-05, refreshed 2026-09-09)
+# sirocco — State Survey (2026-09-05, refreshed 2026-09-11)
+
+## Refresh 2026-09-11 (cycle 8, FEATURE) — Release v0.2.0
+
+Milestone `001` (Zig 0.16 migration and Tiger Style baseline) complete and released.
+`build.zig.zon`/`root.zig` version `0.1.0 -> 0.2.0`, tag `v0.2.0` pushed, GitHub release
+published (https://github.com/yusa-imit/sirocco/releases/tag/v0.2.0) via PR #12. Milestone
+issue #3 closed. No consumer repo's `build.zig.zon` names sirocco yet (checked against
+`citadel/zr-repos.toml` — sailor/zr/silica/zoltraak list it only as a planned dep), so no
+migration issues were opened. Next cycle has no open plan or milestone — expect `/plan` to
+scope plan `002` (Phase 2: `std.Io.VTable` implementation per ROADMAP).
 
 ## Refresh 2026-09-09 (cycle 5, STABILIZATION)
 

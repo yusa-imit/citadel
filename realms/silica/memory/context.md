@@ -1,7 +1,29 @@
 # silica — context
 
-last_seen_at: 2026-09-09T22:05:48Z
+last_seen_at: 2026-09-10T10:06:15Z
 rejected_plans: []
+
+## Cycle 9 — 2026-09-10 — FEATURE
+- Inbox: merged PR #146 (batch 6 scratch-DB tmpDir), CI all green (build-and-test + 6
+  cross-compile), mergeable, squash-merged. No new OWNER directives/questions since watermark
+  (only routine cycle-report comments). No plan PR open, no plan_closed_unmerged. Milestone
+  issue #137 still the only open issue.
+- Implemented plan 001 item 2 part 2, batch 7: routed 110 scratch-DB literal path occurrences
+  through `std.testing.tmpDir` — `storage/btree.zig` (45, uniform pattern) and
+  `sql/executor.zig` (65, four path-count variants: single/two/three-path and
+  data+index-path, each subsequent path reusing the test's `tmp.dir`-derived `dir_path`).
+  Same pattern as batches 1-6. `zig build test` green (4724/4747 passed, 23 skipped, 0
+  failed), `zig fmt` clean, no new scratch files from converted tests.
+- PR #147 opened, plan sub-checklist and CHANGELOG updated. CI still pending at cycle deadline
+  (historical ~13-18m runtime) — commented "awaiting CI; merge next cycle", left for cycle 10's
+  inbox.
+- Next: cycle 10's inbox merges #147 if green. Then batch 8 — 4 files (~1,148 occurrences)
+  remain: `sql/catalog.zig` (152), `cli.zig` (105), `server/connection.zig` (72), and
+  `sql/engine.zig` (819, likely needs its own multi-cycle sub-plan given size).
+- Blockers: none new. Standing blocker unchanged (plan 001 rest blocked_by zuda v3.0.0,
+  sailor v3.0.0).
+- Open questions: unchanged (buffer-pool LRU zuda-migration contradiction; concurrent-
+  connections WAL-corruption finding not reconfirmed).
 
 ## Cycle 8 — 2026-09-09 — FEATURE
 - Inbox: merged PR #145 (batch 5 scratch-DB tmpDir), CI all green (build-and-test + 6

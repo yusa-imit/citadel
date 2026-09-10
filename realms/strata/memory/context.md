@@ -1,7 +1,28 @@
 # strata — context
 
-last_seen_at: 2026-09-10T12:00:00Z
+last_seen_at: 2026-09-11T02:15:00Z
 rejected_plans: []
+
+## Cycle 7 — 2026-09-11 — FEATURE
+- Done: preflight clean tree on `test/0.16-library-sweep-banlist` (open PR #9 head, nothing
+  to preserve) → switched to main. Inbox: no bug/question/directive issues, CI green (last
+  matrix run predates the docs-only #8 merge commit due to paths-ignore — not red per rule).
+  Merged PR #9 (held from cycle 6, CI had gone green: 7/7 checks) — plan 001 item 5 ticked.
+  Implemented plan 001 item 6 (0.16 tests): test-writer → code-reviewer (no zig-developer
+  needed, no new production code) added one real `std.testing.tmpDir` round-trip test in
+  `src/testing.zig` — write/read through `std.testing.io` + `Io.Dir.{writeFile,
+  readFileAlloc}`, plus a negative-space `error.FileNotFound` check added per the reviewer's
+  SUGGESTION. First I/O-touching test in the repo (prior 12 were `refAllDecls` stubs).
+  Used the pinned 0.16.0 toolchain directly (`/Users/fn/.zr/toolchains/zig/0.16.0/zig`) since
+  the system `zig` is still 0.15.2 and strata has already migrated.
+- PRs: #9 merged (auto-merged), #10 opened+merged same cycle (auto-merged), both 7/7 CI
+  green. Milestone #3 now 8/12 checked.
+- Next: milestone #3 remaining items — `io: Io` convention in the public API + ADR-0001
+  (needs `architect`, PRD.md §4.2/4.4-4.9 rewrite), assertion baseline (tidy density check
+  + `src/main.zig` worked example), `wip/*` decision (confirm `git branch -r` clean, delete
+  merged `chore/kingdom-restructure`), then release v0.2.0.
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 6 — 2026-09-10 — FEATURE
 - Done: preflight found leftover empty local branch `test/tidy-0.16-banlist-sweep` (0 commits

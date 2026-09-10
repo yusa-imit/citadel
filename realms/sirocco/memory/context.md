@@ -1,7 +1,31 @@
 # sirocco — context
 
-last_seen_at: 2026-09-10T00:00:00Z
+last_seen_at: 2026-09-10T04:08:15Z
 rejected_plans: []
+
+## Cycle 9 — 2026-09-11 — FEATURE
+- Inbox: no new OWNER actions since watermark beyond the two self-comments already recorded
+  last cycle; no plan PR open, no rejected plans, no open PRs besides what this cycle opened.
+- Done: milestone #3's last item (item 11, Release 0.2.0) — gates checked (tests/fmt green, CI
+  green, no open bugs, no prior tag), PR #12 merged (version bump, CHANGELOG closed into
+  0.2.0, README install snippet repointed at the tag), tag `v0.2.0` pushed, GitHub release
+  published, milestone issue #3 closed. No kingdom repo's `build.zig.zon` names sirocco yet
+  (checked against `citadel/zr-repos.toml`), so no consumer migration issues were opened.
+- Then: with ≥10 min left before deadline, ran `/plan` — no unchecked plan existed (001 fully
+  closed). `planner` (opus) drafted plan 002 scoped to `docs/PRD.md` §4.3's P0 (concurrency/
+  cancel core, 12 slots) and P1 (futex trio, 3 slots) — the floor every later vtable slot group
+  suspends on. Nine one-cycle items: macOS CI runner first (plan 001 deferred it; PRD §9 says
+  this plan may not), walking-skeleton `Runtime` forwarding all 109 slots, the
+  `tests/parity` differential harness + 109-slot coverage table (before any native slot lands),
+  the fiber substrate, P0's 12 slots split into 3 ownership-atomic sets (future-producing:
+  async/concurrent/await/cancel; cancel-state: checkCancel/recancel/swapCancelProtection;
+  group: groupAsync/groupConcurrent/groupAwait/groupCancel+crashHandler), the futex trio, then
+  docs + v0.3.0 release. Version impact: MINOR (deletes 6 stub modules — breaking — but no
+  consumer pins sirocco yet, and 0.x foundation repos may break MINOR per VERSIONING.md).
+  Plan PR #13 opened (`plan/002-fiber-scheduler-and-futex-core`), awaiting human merge.
+- Blockers: none. Open questions: none. Next cycle: if PR #13 still open, do one bounded
+  stabilization task while waiting; once merged, `/cycle` opens the milestone issue and starts
+  item 1 (macOS CI runner).
 
 ## Cycle 8 — 2026-09-10 — FEATURE
 - Done: inbox found issue #3's checklist had drifted — item 9 was merged via PR #10 last cycle

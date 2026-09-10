@@ -17,16 +17,33 @@ pub const Thing = struct {
 };
 ```
 
-## Test with temporary directory
+## Test with temporary directory (0.16 shape)
+
+`tmp.dir` is an `Io.Dir`; every operation on it now takes `io` as an explicit argument, and
+`io` in a test must always be `std.testing.io` (module-level, never a hand-built `Io.Threaded`)
+— confirmed 2026-09-11 (cycle 7), the repo's first real I/O-touching test:
 
 ```zig
 test "x" {
     var tmp = std.testing.tmpDir(.{});
     defer tmp.cleanup();
-    const path = try tmp.dir.realpathAlloc(std.testing.allocator, ".");
-    defer std.testing.allocator.free(path);
+    const io = std.testing.io;
+
+    try tmp.dir.writeFile(io, .{ .sub_path = "f.txt", .data = "hi" });
+    const result = try tmp.dir.readFileAlloc(io, "f.txt", std.testing.allocator, .limited(64));
+    defer std.testing.allocator.free(result);
 }
 ```
+
+## Local zig toolchain pin
+
+The system `zig` (`/opt/homebrew/bin/zig`, via `which zig`) is still 0.15.2 kingdom-wide by
+policy (`citadel/core/rules/zig-0.16.md`: "Global `zig` on dev boxes stays 0.15.2 until a realm
+has actually migrated and gone green"). strata migrated in cycle 4 (PR #7), so every cycle since
+must prepend the pinned 0.16.0 toolchain before any `zig` command: `export
+PATH=/Users/fn/.zr/toolchains/zig/0.16.0:$PATH` — the bare `zig build`/`zig build test` on PATH
+will silently run under 0.15.2 and give misleading local results (CI already resolves 0.16.0
+correctly via `mlugg/setup-zig@v2` from `build.zig.zon`, so this only affects local dev).
 
 ## Error set per module
 

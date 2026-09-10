@@ -5,7 +5,7 @@
 | Layer | foundation |
 | Path | `/Users/fn/codespace/sirocco` |
 | GitHub | `yusa-imit/sirocco` |
-| Version | 0.1.0 (`build.zig.zon`) · latest tag none (no tags yet) |
+| Version | 0.2.0 (`build.zig.zon`) · latest tag `v0.2.0` (2026-09-11) |
 | Zig | 0.15.2 — migrating to 0.16.0 under plan `001` |
 | Depends on | none — Zig std only (`build.zig.zon` `.dependencies = .{}`) |
 | Consumers | sailor, zr, silica, zoltraak (planned, dotted in `KINGDOM.md`) · synod (adapter) |
