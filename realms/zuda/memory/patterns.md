@@ -104,6 +104,30 @@ realistic large-population inputs, causing an out-of-bounds write. Prefer a stre
 two-pass computation (pass 1: find max; pass 2: recompute + accumulate) that needs no buffer,
 matching this repo's no-allocator-in-init convention for discrete distributions.
 
+## Tiger Style audit false-positive traps (session 2026-09-10, cycle 5)
+When triaging a fresh `tidy-auditor`/grep-based audit, three classes of finding turned out not
+to be real violations -- don't re-flag them without re-verifying:
+- **Root-level `test_*.zig` scratch files** (`test_all_nm.zig`, `test_marchenko.zig`,
+  `test_nm.zig`, `test_shash.zig`): these are gitignored (`.gitignore` has `test_*`) and
+  untracked -- `git ls-files` confirms they're not part of the repo. A plain `ls`/`find` over
+  the working tree will surface them as a "root hygiene violation" against
+  `citadel/protocol/DOCS.md`, but there's nothing to fix via a PR since git doesn't see them.
+- **`std.debug.print` "library violations"**: grep for `std.debug.print(` outside `main.zig`
+  hits `///`/`//!` doc-comment usage examples too. Check whether the match is inside a comment
+  block before counting it as a real Tiger Style rule violation.
+- **`usize` in a struct that merely gets returned from `encode`/passed to `decode`** (e.g.
+  `bwt.zig`'s `BWTResult.index`, `arithmetic.zig`'s `CompressionResult.original_length`) is
+  NOT automatically a "wire format" violation under Tiger Style rule 10 -- that rule targets
+  types that actually get serialized to bytes/disk/network. Check for an actual
+  byte-serialization path before resizing the field; an in-process round-trip struct using
+  `usize` for an in-memory index is correct, not a bug.
+Also found and NOT yet fixed: `tools/tidy.zig`'s function-length scanner isn't comment-aware
+(mis-parses `fn` signatures inside `///` examples as real code -- 3 false positives in
+`btree.zig`/`skip_list.zig`/`concurrent_skip_list.zig`) and has a baseline key-collision bug
+(`tools/tidy.zig:288-301`: same-named functions in one file collapse to one
+`tidy_baseline.txt` HashMap entry). Both are contained, mechanical fixes -- see `STATE.md`
+candidate list item 8.
+
 ## Domain-specific patterns (condensed -- read the source file for full code/tests)
 - **BFGS quasi-Newton** (`src/optimize/*bfgs*`): inverse-Hessian update
   `H = V^T H V + rho*s*s^T`, skip update when `y^T s <= 1e-10` (curvature condition). O(n^2)
