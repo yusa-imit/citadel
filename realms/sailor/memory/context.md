@@ -1,7 +1,37 @@
 # sailor — context
 
-last_seen_at: 2026-09-10T00:00:00Z
+last_seen_at: 2026-09-10T00:30:00Z
 rejected_plans: []
+
+## Cycle 7 — 2026-09-10 — FEATURE
+
+- Done: inbox merged PR #26 (forward-compat Zig 0.16 renames: `linkLibC` + `GeneralPurposeAllocator`
+  →`DebugAllocator`), confirmed CI green on `main` @ `38252aa` post-merge. Picked item 4 on #19
+  next but its remaining scope (`Io.Mutex` 6, env access 14, `posix.isatty` 4, `mem.indexOf*`
+  →`find*` ~478 — confirmed by reading 0.16.0's `mem.zig` directly: `indexOf`/`lastIndexOf` etc.
+  have **no** alias or deprecated wrapper, fully removed) has zero 0.15.2-compatible spelling and
+  can't be verified without switching the pinned toolchain to 0.16.0 — which would still leave
+  `zig build`/`zig test` broken repo-wide on the separate, unstarted `std.Io` rewrite (155 sites,
+  its own checklist items). Landing ~500 unverifiable renames blind was judged unsafe; did not
+  attempt it. Fell back to CYCLE.md's "every remaining item practically blocked → one bounded
+  stabilize task" clause: proof-commented the 3 test-only `catch unreachable` sites in
+  `eventbus.zig` (single-element `std.testing.allocator` appends in a priority-ordering test
+  callback — provably safe) as PR #27; all 10 CI checks green pre-merge, squash-merged,
+  `tidy_baseline.txt` shrunk 448→447. Deliberately did **not** proof-comment
+  `event_metrics.zig`/`render_metrics.zig`'s 4 sites (caller-supplied general `Allocator`, genuine
+  OOM possibility — a proof comment there would be a false claim; needs an actual typed-error
+  return, a separate fix) nor `countdown_timer.zig`'s 3 (provably safe but 2 lines already exceed
+  100 cols, need reformatting to keep the proof comment on the same line as `catch unreachable`).
+  Updated `STATE.md`'s Tiger Style table with these findings.
+- PRs: #26 (merged), #27 (merged).
+- Next: item 4 on #19 needs a dedicated larger session (not a normal 22-min cycle) that pairs the
+  toolchain switch with enough of the `std.Io` rewrite to reach a compiling `zig build` — until
+  then it will keep being practically blocked. In the meantime, smaller STATE.md-tracked
+  stabilization slices remain available: `countdown_timer.zig` reformat + proof-comment (3 sites),
+  `//!` headers on the 86 missing files (purely additive).
+- Blockers: item 4's full scope is practically blocked on a multi-cycle toolchain migration, not
+  a formal `blocked_by` tag — STATE.md's Zig 0.16 probe summary has the error-class breakdown.
+- Open questions: none.
 
 ## Cycle 6 — 2026-09-10 — FEATURE
 

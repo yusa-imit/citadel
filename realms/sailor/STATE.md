@@ -56,7 +56,7 @@ mechanical sweep.
 
 | Check | Count | Tracked by tidy? | Note |
 |---|---|---|---|
-| `catch unreachable` | 28 raw (11 baseline entries) | yes | rest have proof comments already |
+| `catch unreachable` | 25 raw (10 baseline entries) | yes | rest have proof comments already; `eventbus.zig`'s 3 test-only sites proof-commented cycle 7 (PR #27) |
 | `@panic` | 0 unproven (8 total, all now proof-commented) | yes | fixed cycle 5 preflight via PR #24 |
 | `std.debug.print` | 34 raw (6 baseline entries) | yes | all inside test blocks / debug helper modules |
 | `std.crypto.random` | 1 (1 baseline entry) | yes | fixed cycle 5 via PR #25 (`llm_client.zig` jitter; tracked-not-fixed, like `time_usage`, pending Io/PRNG migration) |
@@ -67,10 +67,13 @@ mechanical sweep.
 | Missing `//!` header | 86 | yes | e.g. `accessibility.zig`, `aria.zig`, `bidi.zig` |
 | `assert(` density | 9 total across ~4700+ `fn` in `src/` | no | Tiger Style's "≥2 per function" is essentially unmet kingdom-wide here; needs per-function judgment, not mechanical |
 
-Smallest-diff-first recommendation for the next stabilization cycle: proof-comment the 3
-remaining unproven `catch_unreachable` clusters (`eventbus.zig`, `countdown_timer.zig`,
-`event_metrics.zig`/`render_metrics.zig`) — same mechanical pattern as the `@panic` PR, shrinks
-the baseline without behavior change. After that, `//!` headers on the 86 missing files (purely
+Smallest-diff-first recommendation for the next stabilization cycle: `countdown_timer.zig`'s 3
+sites are provably safe (buffer size matches worst-case formatted width exactly) but need two
+lines reformatted first (already over 100 columns, must fit the proof comment on the same line as
+`catch unreachable`). `event_metrics.zig`/`render_metrics.zig`'s 4 sites are genuinely NOT
+provable (caller-supplied general allocator, real OOM possible) — a real fix needs the call to
+return a typed error, not a proof comment; do not paper over with a false claim. After that, `//!`
+headers on the 86 missing files (purely
 additive, zero risk, can split by directory). `while (true)` and the 52 over-800-line files stay
 deferred — both need per-site/per-file judgment calls.
 
