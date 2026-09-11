@@ -1,7 +1,37 @@
 # sailor — context
 
-last_seen_at: 2026-09-11T00:00:00Z
+last_seen_at: 2026-09-11T12:00:00Z
 rejected_plans: []
+
+## Cycle 9 — 2026-09-11 — FEATURE
+
+- Done: inbox found no new comments on issue #19 or any merged PR since the watermark, no open
+  PRs/bugs/questions/directives — nothing to triage. Picked item 4 on #19 next but independently
+  reverified against the pinned 0.15.2 stdlib (`mem.zig`, `Thread.zig`/no `Io.zig`,
+  `posix.isatty`, `process.getEnvVarOwned`) that none of its remaining renames (`Io.Mutex`, env
+  access, `posix.isatty`, `mem.indexOf*`→`find*`) have a 0.15.2-compatible spelling — same
+  conclusion as cycles 6-8, now confirmed by direct stdlib inspection rather than memory alone.
+  Fell back to CYCLE.md's all-blocked stabilize clause: STATE.md's smallest-diff pick
+  (`countdown_timer.zig`'s 3 `catch unreachable` sites) — reformatted the two lines that already
+  exceeded 100 columns (multi-line `bufPrint` calls) so each got a same-line proof comment
+  (buffer-size-matches-worst-case-width proofs, verified the arithmetic by hand for all three
+  formats). Regenerated `tidy_baseline.txt` via a fresh `zig build-exe` of `tidy_main.zig` (had
+  to rebuild explicitly — a stale cached `.zig-cache` tidy binary from before PR #25 briefly gave
+  a wrong diff, caught by cross-checking against a second freshly-built binary before trusting
+  it). `catch_unreachable` entry removed (3→0), `line_length` entry 4→3. `zig build test` green,
+  `zig fmt --check` unchanged at 82 pre-existing failures (was 83 — this file dropped off the
+  list). Opened as PR #29; 3 native test runners (Linux/macOS/Windows) green at cycle deadline,
+  6-target cross-compile + benchmarks still pending — left open for next cycle's inbox, same
+  pattern as #21/#25/#26.
+- PRs: #29 (open, 3/10 checks green, rest pending).
+- Next: inbox should merge #29 once fully green. Item 4 on #19 remains genuinely blocked on a
+  dedicated multi-cycle session pairing the toolchain switch with the `std.Io` rewrite — this is
+  now verified three separate ways (cycles 6, 7, and this cycle's direct stdlib read); stop
+  re-checking it every cycle and instead look for the next smallest-diff STATE.md stabilization
+  target when #29 is the only open item. `//!` headers on the 86 missing files is next in line.
+- Blockers: item 4/6/7's full scope needs a dedicated multi-cycle session, not a formal
+  `blocked_by` tag.
+- Open questions: none.
 
 ## Cycle 8 — 2026-09-11 — FEATURE
 
@@ -143,25 +173,14 @@ rejected_plans: []
 - Blockers: none.
 - Open questions: none.
 
-## Cycle 2 — 2026-09-06 — FEATURE
+## History (cycles 0-2, condensed 2026-09-11)
 
-- Done: implemented plan 001 item 2 (`tidy` build step). Pure checker (line length, function
-  length w/ shrinking baseline, missing `//!` header, unproven `catch unreachable`,
-  `std.debug.print`/`std.time.*` usage, `usize` in known wire-format files) in
-  `build_support/tidy.zig` with 30 TDD unit tests; CLI/walker in `build_support/tidy_main.zig`;
-  wired into `zig build test` via new `tidy` step. Generated `tidy_baseline.txt` (447 entries)
-  from real `src/`+`build.zig` so `zig build tidy` is green today; only new debt or growth fails.
-  Fixed one off-by-one bug in a test-writer-authored test (`findFunctions` "two functions" case
-  expected 4 lines for a 5-line function) before committing.
-- PRs: #21 (open, CI still running at cycle deadline — comment left asking next cycle's inbox
-  to merge when green).
-- Next: inbox should merge #21 once CI is green, tick item 2 on issue #19, then pick item 3
-  (`wip/timeline-description-rendering` decision) or item 4 (`build.zig` fix + mechanical
-  renames) as the next unblocked item.
-- Blockers: none.
-- Open questions: none.
-
-## History (cycles 0-1, condensed 2026-09-11)
+Cycle 2 (FEATURE, 2026-09-06): implemented plan 001 item 2, the `tidy` build step —
+`build_support/tidy.zig` (line/function length, missing `//!` header, unproven
+`catch unreachable`, `std.debug.print`/`std.time.*`, `usize` in wire formats; 30 TDD tests) plus
+`build_support/tidy_main.zig` CLI, wired into `zig build test`; generated `tidy_baseline.txt`
+(447 entries) as the starting ratchet. PR #21 opened (merged next cycle after a Windows-only
+CRLF fix — see [[debugging]]).
 
 Cycle 0 (RESTRUCTURE, 2026-09-05): realm created; memory migrated from the repo's former
 `.claude/memory/`; plan `001` prescribed (Zig 0.16 migration, MAJOR → v3.0.0, 368 probe errors +
