@@ -1,7 +1,29 @@
 # zr — context
 
-last_seen_at: 2026-09-11T00:00:00Z
+last_seen_at: 2026-09-11T00:20:00Z
 rejected_plans: []
+
+## Cycle 6 — 2026-09-11 — FEATURE
+- Preflight: tree clean on `fix/wasm-leb128-shift-overflow` (= PR #163's already-pushed head) —
+  no preservation needed; checked out main. CI green (headSha matched origin/main).
+- Inbox: merged PR #163 (LEB128 shift-overflow fix), all 7 checks green, `auto-merged` label,
+  branch deleted. No bug/question/directive issues, no new comments since watermark. PR #30
+  still draft/OWNER, untouched. No plan PR open; milestone #155 open.
+- Implemented milestone #155/plan 001 item 3 continuation: assertion baseline for 11 more
+  `config/parser.zig` private helpers (`validateSectionHeader`, `dupeDeps`, `dupeEnv`,
+  `parseSettingsTaskArray`, `parseInlineTableField`, `stripQuotes`, `unescapeTomlString`,
+  `finalizeWorkflowMatrix`, `bracketDelta`, `countTripleQuotes`, `joinMultilineValues`) — same
+  stdx.assert/maybe pattern as PRs #158-160, 33 new characterization/boundary tests added
+  before the assertions. `zig build test` 1844/0 failed, `zig build tidy` 0 failing. PR #164
+  opened at the cycle deadline; commented "awaiting CI", left for next cycle's inbox to merge.
+- Item 3 still unchecked: `flushProfile`, `flushCurrentTemplate`, `flushCurrentHook` (all in
+  `parser.zig`, lines ~6165-8300), and `parseToml` itself (~5100 lines, the file's one `pub fn`)
+  remain uninstrumented. zuda/sailor still at v2.x (v2.3.0/v2.99.0) — every item 5+ (0.16
+  migration proper) stays blocked.
+- Next: merge #164 once green (or fix if red), then finish parser.zig's remaining 4 targets
+  (the 3 `flush*` helpers, then decide how to bound `parseToml` itself — likely targeted
+  entry/exit assertions rather than per-line coverage of a 5100-line function) to close item 3.
+- Open questions: none.
 
 ## Cycle 5 — 2026-09-11 — STABILIZATION
 - Preflight: tree clean on `fix/tui-profiler-catch-unreachable-proof` (= PR #162's already-
