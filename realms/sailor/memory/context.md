@@ -1,7 +1,32 @@
 # sailor — context
 
-last_seen_at: 2026-09-11T12:00:00Z
+last_seen_at: 2026-09-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 10 — 2026-09-12 — STABILIZATION
+
+- Done: preflight found repo clean on `fix/countdown-timer-catch-unreachable-proof` (PR #29's
+  branch, fully green 10/10 checks, `mergeStateStatus: CLEAN`) — nothing to preserve, switched
+  to main. Inbox merged PR #29 (squash, `auto-merged`), confirmed post-merge CI on `main` @
+  `14433e7` reaches `success`. `tidy-auditor` fresh pass: zero baseline drift (446 entries,
+  byte-for-byte clean), all tracked categories unchanged from STATE.md except `catch unreachable`
+  (dropped as expected from #27/#29 landing). Recommended `pipeline.zig`'s 2 `catch_unreachable`
+  sites (`stageWidth`/`renderStageBox`, `u8` progress into an exact-fit 3-byte buffer) as the
+  smallest-diff mechanical target — same provably-safe pattern as `countdown_timer.zig`. Verified
+  the buffer-size proof by hand, reformatted both sites (already at 100 cols) to fit the proof
+  comment, regenerated `tidy_baseline.txt` (entry removed), `zig build test` green. The repo's
+  zig-fmt hook incidentally brought `pipeline.zig`'s pre-existing brace-formatting drift into
+  compliance while editing (repo-wide `zig fmt --check` pre-existing failures 82→81). Opened as
+  PR #30; CI still running at cycle deadline — left open for next cycle's inbox, same pattern as
+  #21/#25/#26/#29. Updated STATE.md's Tiger Style table.
+- PRs: #29 (merged), #30 (open, CI pending).
+- Next: inbox should merge #30 once green. `event_metrics.zig`/`render_metrics.zig`'s 4
+  `catch_unreachable` sites are NOT provable (real OOM possible, caller-supplied allocator) —
+  need a typed-error redesign, not a proof comment; do not attempt as a mechanical fix. `//!`
+  headers on the 86 missing files is next purely-mechanical target after that.
+- Blockers: item 4/6/7 on #19 still needs a dedicated multi-cycle session (toolchain switch +
+  `std.Io` rewrite) — verified blocked three ways already (cycles 6, 7, 9); do not re-check.
+- Open questions: none.
 
 ## Cycle 9 — 2026-09-11 — FEATURE
 
@@ -113,67 +138,20 @@ rejected_plans: []
 - Blockers: none.
 - Open questions: none.
 
-## Cycle 5 — 2026-09-09 — STABILIZATION
+## History (cycles 0-5, condensed 2026-09-12)
 
-- Done: preflight/inbox found PR #24 (`@panic` tidy tracking) already open and fully green
-  (10/10 checks, `mergeStateStatus: CLEAN`) from an interrupted prior session — not recorded in
-  cycle 4's memory, so this cycle's inbox merged it (squash, branch deleted, labelled
-  `auto-merged`) and confirmed the post-merge CI run on `main` @ `2989cb4` reached `success`
-  before treating main as green. Ran `tidy-auditor` for a fresh count (see STATE.md): baseline
-  regeneration diffed byte-for-byte clean against the checked-in file (no drift). Auditor's
-  smallest-diff recommendation was a new `crypto_random` tidy check mirroring `time_usage` (one
-  real site, `llm_client.zig`'s `RateLimiter` jitter) — implemented with a TDD test first,
-  confirmed the check failed against the unmodified baseline (proving it catches the site),
-  regenerated the baseline (+1 entry, 448 total), `zig build test` green, `zig fmt --check`
-  clean. Opened as PR #25; CI was still running at cycle deadline (~15 min in) — left open for
-  next cycle's inbox to merge, same pattern as cycle 2's PR #21.
-- PRs: #24 (merged), #25 (open, CI pending).
-- Next: inbox should merge #25 once green, then STATE.md's next smallest-diff pick is
-  proof-commenting the 3 remaining unproven `catch_unreachable` clusters (`eventbus.zig`,
-  `countdown_timer.zig`, `event_metrics.zig`/`render_metrics.zig`) — same mechanical pattern as
-  the `@panic` PR. FEATURE-mode work remains item 4 on #19 (`build.zig` `linkLibC` fix +
-  mechanical Zig 0.16 renames).
-- Blockers: none.
-- Open questions: none.
+Cycle 5 (STABILIZATION, 2026-09-09): merged PR #24 (`@panic` tidy tracking, all 8 sites
+proof-commented). `tidy-auditor` found zero baseline drift; added a new `crypto_random` tidy
+check (mirroring `time_usage`) as PR #25, left open for next cycle.
 
-## Cycle 4 — 2026-09-08 — STABILIZATION
+Cycle 4 (STABILIZATION, 2026-09-08): CI red on `main` (flaky `avg_ns` perf assertion) forced
+STABILIZATION; merged cycle 3's already-prepared fix PR #23, confirmed green. `tidy-auditor`
+found `zig build tidy` passing cleanly (447 entries); flagged `@panic` (8, 2 files) as next
+target.
 
-- Done: preflight found CI red on `main` (`headSha` f2a1ba0, the flaky `avg_ns` perf assertion
-  in `type_aggregation accuracy` test) with no `escalated_sha` recorded — forced STABILIZATION.
-  Cycle 3 had already prepared the fix as open PR #23 (all 10 checks green, `mergeStateStatus:
-  CLEAN`); merged it (squash, branch deleted), watched the new CI run on `main` @ `fabab3c`
-  through to `success`. Inbox: no new owner actions, no plan PR, milestone issue #19 unchanged
-  (3/12 checked). Re-ran `tidy-auditor` for a fresh Tiger Style count (see STATE.md): `zig build
-  tidy` now passes cleanly (447 baseline entries); `@panic` (8, 2 files) is the smallest
-  untracked category and the recommended next stabilization target. Did not open a new fix PR
-  this cycle — only ~14 min remained after the CI-green wait, not enough to safely land a TDD
-  fix plus another CI round-trip within the deadline.
-- PRs: #23 (merged).
-- Next: item 4 on #19 (`build.zig` `linkLibC` fix + mechanical Zig 0.16 renames) is next
-  FEATURE-mode work; alternatively a STABILIZATION cycle could take the `@panic` cleanup
-  (`src/stack_trace.zig:30` + 7 test-only guards in `src/clipboard.zig`) as a quick single-class
-  fix.
-- Blockers: none.
-- Open questions: none.
-
-## Cycle 3 — 2026-09-07 — FEATURE
-
-- Done: inbox found PR #21 (item 2, tidy step) red on Windows CI only — root-caused to a CRLF
-  bug in `countLongLines` (git checks out `\r\n` on Windows, inflating byte-counted line lengths
-  past the LF-computed baseline). Wrote a regression test, fixed with `trimRight(..., "\r")`,
-  CI went green on all 10 checks, merged. Then picked item 3: rebased
-  `wip/timeline-description-rendering` onto main as PR #22 (dropped a stray pre-restructure
-  `.claude/logs/` file that conflicted with the delete already on main; also ran `zig fmt` on
-  `timeline.zig`'s pre-existing comment-alignment drift while touching the file), CI green,
-  merged. Both ticked on issue #19. See [[debugging]] for the CRLF finding (durable pattern for
-  any future line-oriented text check).
-- PRs: #21 (merged), #22 (merged).
-- Next: item 4 — `build.zig` fix (`linkLibC` rename) + mechanical Zig 0.16 renames
-  (GPA→DebugAllocator, `ArrayList{}`→`.empty`, `mem.indexOf*`→`find*`).
-- Blockers: none.
-- Open questions: none.
-
-## History (cycles 0-2, condensed 2026-09-11)
+Cycle 3 (FEATURE, 2026-09-07): fixed a Windows-only CRLF bug in the tidy step's
+`countLongLines` (PR #21) — see [[debugging]] for the durable pattern. Rebased
+`wip/timeline-description-rendering` onto main as PR #22, merged.
 
 Cycle 2 (FEATURE, 2026-09-06): implemented plan 001 item 2, the `tidy` build step —
 `build_support/tidy.zig` (line/function length, missing `//!` header, unproven

@@ -41,22 +41,23 @@ v2.100.0, round 3 of this audit). No `CHANGELOG.md` — release notes live only 
   tidy check and proof-commented all 8 existing sites). Linux x86_64 / macOS ARM64 (macos-15
   pinned) / Windows x86_64 native tests + 6-target cross-compile. `paths-ignore` skips
   `.claude/memory`, `docs/`, `*.md`.
-- Open issues: #19 (milestone 001 tracking, 3/12 checked). Open PRs: #25 (`crypto_random` tidy
-  tracking fix, CI running at cycle end — next cycle's inbox merges when green).
+- Open issues: #19 (milestone 001 tracking, 3/12 checked). Open PRs: #30 (`pipeline.zig`
+  `catch_unreachable` proof-comment fix, CI running at cycle end — next cycle's inbox merges
+  when green).
 
 ## Tiger Style gaps
 
-As of 2026-09-09 (cycle 5 tidy-auditor re-check): `zig build tidy` **passes** (448 baseline
-entries, byte-for-byte diffed clean against a fresh regeneration) — `catch_unreachable`,
-`panic`, `debug_print`, `usize_in_wire_format`, `missing_header`, `function_length`,
-`line_length`, `time_usage`, and (new this cycle) `crypto_random` are now tracked with a
-shrinking baseline in `build_support/tidy.zig` / `tidy_baseline.txt`. `while (true)` and file
-length (>800 lines) are still untracked by tidy — both need per-site/per-file judgment, not a
-mechanical sweep.
+As of 2026-09-12 (cycle 10 tidy-auditor re-check, pre-PR #30): `zig build tidy` **passes** (446
+baseline entries on `main` after PR #29 merged, byte-for-byte diffed clean against a fresh
+regeneration — zero drift) — `catch_unreachable`, `panic`, `debug_print`,
+`usize_in_wire_format`, `missing_header`, `function_length`, `line_length`, `time_usage`, and
+`crypto_random` are tracked with a shrinking baseline in `build_support/tidy.zig` /
+`tidy_baseline.txt`. `while (true)` and file length (>800 lines) are still untracked by tidy —
+both need per-site/per-file judgment, not a mechanical sweep.
 
 | Check | Count | Tracked by tidy? | Note |
 |---|---|---|---|
-| `catch unreachable` | 25 raw (10 baseline entries) | yes | rest have proof comments already; `eventbus.zig`'s 3 test-only sites proof-commented cycle 7 (PR #27) |
+| `catch unreachable` | 28 raw (22 across 9 files pre-PR#30; drops by 2, `pipeline.zig`'s entry removed entirely, once #30 merges) | yes | `eventbus.zig` (PR #27), `countdown_timer.zig` (PR #29), `pipeline.zig` (PR #30, open) proof-commented; rest have proof comments already |
 | `@panic` | 0 unproven (8 total, all now proof-commented) | yes | fixed cycle 5 preflight via PR #24 |
 | `std.debug.print` | 34 raw (6 baseline entries) | yes | all inside test blocks / debug helper modules |
 | `std.crypto.random` | 1 (1 baseline entry) | yes | fixed cycle 5 via PR #25 (`llm_client.zig` jitter; tracked-not-fixed, like `time_usage`, pending Io/PRNG migration) |
@@ -67,15 +68,16 @@ mechanical sweep.
 | Missing `//!` header | 86 | yes | e.g. `accessibility.zig`, `aria.zig`, `bidi.zig` |
 | `assert(` density | 9 total across ~4700+ `fn` in `src/` | no | Tiger Style's "≥2 per function" is essentially unmet kingdom-wide here; needs per-function judgment, not mechanical |
 
-Smallest-diff-first recommendation for the next stabilization cycle: `countdown_timer.zig`'s 3
-sites are provably safe (buffer size matches worst-case formatted width exactly) but need two
-lines reformatted first (already over 100 columns, must fit the proof comment on the same line as
-`catch unreachable`). `event_metrics.zig`/`render_metrics.zig`'s 4 sites are genuinely NOT
-provable (caller-supplied general allocator, real OOM possible) — a real fix needs the call to
-return a typed error, not a proof comment; do not paper over with a false claim. After that, `//!`
-headers on the 86 missing files (purely
-additive, zero risk, can split by directory). `while (true)` and the 52 over-800-line files stay
-deferred — both need per-site/per-file judgment calls.
+Smallest-diff-first recommendation for the next stabilization cycle: `event_metrics.zig`/
+`render_metrics.zig`'s 4 `catch_unreachable` sites are genuinely NOT provable (caller-supplied
+general allocator, real OOM possible) — a real fix needs the call to return a typed error, not a
+proof comment; do not paper over with a false claim. `//!` headers on the 86 missing files
+(purely additive, zero risk, can split by directory) is next in line for a purely mechanical
+target. `while (true)` and the 52 over-800-line files stay deferred — both need per-site/
+per-file judgment calls. Repo-wide `zig fmt --check` pre-existing-failure count: 83 → 82 after
+PR #29 (`countdown_timer.zig` cleaned incidentally), → 81 on PR #30's branch (`pipeline.zig`
+cleaned incidentally by the repo's zig-fmt hook while editing the file) — a side effect of
+touching flagged files, not a dedicated fmt pass; still 81 files away from repo-wide clean.
 
 Also noted: 14 widget files allocate inside `render()` (138 `ArrayList`/alloc references across
 widgets); recursion with no explicit depth limit in docgen's directory walk, `layout_intelligence`
