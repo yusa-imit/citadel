@@ -3,6 +3,37 @@
 last_seen_at: 2026-09-11T00:00:00Z
 rejected_plans: []
 
+## Cycle 7 — 2026-09-11 — STABILIZATION
+- Done: inbox merged PR #39 (ConcurrentSkipList `io`/seed injection, plan 001 positive-space
+  proof, fully green across all 7 checks), branch deleted, labeled `auto-merged`. Synced
+  tracking issue #31's checklist with the plan file (item 5 "io API shape + ADR" was done in
+  cycle 6/PR #37 but never ticked on the issue; added the missing concurrent_skip_list.zig
+  sub-item, still unchecked — 4 more containers pending). Open `bug` issue #38
+  (ConcurrentSkipList leak, OWNER, no `needs-human`) forced STABILIZATION despite green CI.
+  Called `architect` (opus) to design a real fix — the node can't be freed immediately after
+  unlink since concurrent readers may hold raw pointers into it (lock-free structure). Chose
+  reader-count quiescence + bounded retire list over hazard pointers/full EBR (no thread
+  registry needed, fits in one file, tractable in one cycle). `test-writer` wrote 5 RED-phase
+  tests + force-imported the file into `root.zig`'s test block (issue #38 itself found this
+  file's 24 tests were invisible to `zig build test` — non-recursive `refAllDecls`).
+  `zig-developer` implemented `Reclaim` (atomic readers counter, mutex-guarded intrusive retired
+  list), made `remove()` idempotent (only the CAS-winning thread retires), a bounded
+  (`unlink_attempts_max=4`) re-confirm-unlinked pass before retiring, and bounded draining
+  (cheap check every retire, escalating to `drain_attempts_max=8` yield-retry only past
+  `Options.retired_max`, default 64). One deliberate design deviation: drain is attempted on
+  every retire (cheap atomic load), not gated purely on `retired_max`, so a single-threaded
+  `remove()` reclaims promptly — recorded in the PR body. `zig test` on the file: 24/24 pass,
+  leak-free, stable across 5 runs incl. the threaded smoke test; `zig build` and
+  `zig fmt --check` clean. Full `zig build test` deferred to CI per repo convention.
+- PRs: #40 open (fixes #38), CI pending at the cycle deadline — left "awaiting CI; merge next
+  cycle" comment, next cycle's inbox merges it. #39 merged.
+- Next: merge #40 once green; if the bug is confirmed closed by CI, stabilize_streak stays 0
+  and FEATURE resumes with plan 001's remaining io/seed rollout (`robin_hood_hash_map.zig`,
+  `cuckoo_hash_map.zig`, `skip_list.zig`, `work_stealing_deque.zig`) as the next milestone item.
+  If CI surfaces a real failure on #40, that's this cycle's stabilize task carrying over —
+  do not increment `stabilize_streak` until a genuine second failed attempt.
+- Blockers: none. Open questions: none.
+
 ## Cycle 6 — 2026-09-10 — FEATURE
 - Done: inbox merged PR #36 (LICENSE, auto-merged, branch deleted); no other owner actions since
   watermark. Milestone #31 next unchecked item was "Fix the public io: Io API shape + ADR" —
