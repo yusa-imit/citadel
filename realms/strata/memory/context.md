@@ -1,7 +1,31 @@
 # strata — context
 
-last_seen_at: 2026-09-11T05:20:35Z
+last_seen_at: 2026-09-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 9 — 2026-09-12 — FEATURE
+- Done: preflight clean tree on main, CI green (last run success, not matching origin/main
+  SHA only because of paths-ignore on docs-only #11 — not red per rule). Inbox: no owner
+  actions since watermark beyond our own prior cycle-report comments, no plan PR, milestone
+  #3 open. Implemented plan 001 item "Assertion baseline": new `assertion-density` check
+  in `tools/tidy.zig` — a `src/` file with >=1 function-with-a-body must average >= 2
+  `assert(`/`assert_always(` calls per function (comment text stripped before matching);
+  `zig build test`/`tidy` now print a per-file density report unconditionally. Applied the
+  worked-example pair to `src/main.zig`'s `main` (precondition + `defer` postcondition on
+  `args`). Implemented directly (TDD by hand, no subagents for red/green) given the tight
+  22-min cycle deadline; used code-reviewer (sonnet) before opening the PR, which caught
+  and got fixed two real bugs pre-merge: a draft `assert(cmd.len > 0)` on `args[1]` would
+  have panicked strata on legitimate empty-string CLI input (Tiger Style: never assert
+  user data) — replaced with the args-based pair instead; the density counter counted
+  `assert(` mentioned inside `//` comments, defeating the ratchet's purpose — fixed with a
+  `stripLineComment` helper (mirrors `braceDelta`'s string/char tracking) plus a regression
+  test. Also fixed 5 new >100-col test lines the reviewer caught (tidy doesn't lint its own
+  `tools/` dir, so these slipped `zig build tidy`).
+- PRs: #12 merged (auto-merged, 7/7 CI green, squash + branch deleted).
+- Next: milestone #3 remaining — `wip/*` decision (confirm `git branch -r` clean, delete
+  merged `chore/kingdom-restructure`), then release v0.2.0.
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 8 — 2026-09-11 — FEATURE
 - Done: preflight clean tree on main, CI green, no bug/question/directive issues, no open
@@ -139,17 +163,10 @@ rejected_plans: []
 - Blockers: none.
 - Open questions: none.
 
-## Cycle 1 — 2026-09-06 — FEATURE
-- Done: plan 001 (PR #2, merged prior cycle) had unchecked items and no milestone issue →
-  opened tracking issue #3. Implemented plan 001 item 1 (hygiene leftovers: fixed
-  `src/root.zig` doc comment pointing at renamed `docs/milestones.md` → `docs/plans/`;
-  added `CHANGELOG.md`) via PR #4, all 7 CI checks green, squash-merged, item ticked on #3.
-- PRs: #4 merged (auto-merged label).
-- Next: plan 001 item 2 (`tidy` step, part 1 — shape: line length ≤100, `//!` headers).
-- Blockers: none.
-- Open questions: none.
-
 ## History
+- Cycle 1 (2026-09-06, FEATURE): opened tracking issue #3 for plan 001 (PR #2, merged);
+  implemented item 1 (hygiene leftovers — `src/root.zig` doc comment, `CHANGELOG.md`) via
+  PR #4, item ticked.
 - Cycle 0 (2026-09-05, RESTRUCTURE): realm created by citadel restructure; memory migrated
   from the repo's former `.claude/memory/`; plan 001 prescribed by ROADMAP.md.
 
