@@ -1,7 +1,35 @@
 # zuda — context
 
-last_seen_at: 2026-09-11T00:00:00Z
+last_seen_at: 2026-09-11T19:06:31Z
 rejected_plans: []
+
+## Cycle 8 — 2026-09-11 — FEATURE
+- Done: inbox merged PR #40 (fix: ConcurrentSkipList reader-count-quiescence reclamation, all 7
+  CI checks green), auto-closed bug #38, checked out main. Implemented plan 001's next io/seed
+  rollout item: `RobinHoodHashMap.init`/`.initCapacity` now take a required `Options{ seed: u64
+  }` (ADR 0001 D1), removing the `std.time.timestamp()` seed derivation; `SliceBuilder.toHashMap`
+  threaded the same shape (new trailing `seed` param); 2 new determinism tests; 5 external call
+  sites updated (bench/hashing.zig, tests/memory_safety_audit.zig, utils/hash.zig doc+test).
+  Discovered `work_stealing_deque.zig` (also named in this plan item) has zero
+  `std.time`/`std.crypto.random` sites — nothing to do, dropped from scope. `cuckoo_hash_map.zig`
+  (reseeds `seed1`/`seed2` from the clock on every max-displacement `rehash()`, not just at
+  init — needs a stored `prng` field) and `skip_list.zig` (already has an `initWithSeed` escape
+  hatch to consolidate, plus a wide consumer footprint: `compat/zoltraak_sortedset.zig`,
+  `utils/builder.zig`'s `toSkipList`, 3 examples, 2 benches) remain unchecked, deferred to a
+  following cycle — recorded as a scope note in the plan file itself.
+  Verification note: `builder.zig`/`hash.zig` are unreachable from `zig build test`'s
+  non-recursive `refAllDecls` allowlist (issue #38's finding) — used a throwaway scratch driver
+  (`_ = @import("utils/builder.zig"); _ = @import("utils/hash.zig");`, deleted before commit) to
+  confirm their `RobinHoodHashMap`-touching tests actually compile and pass (135/135) since CI
+  wouldn't have caught a break there today.
+- PRs: #41 open (RobinHoodHashMap seed injection), CI still running (Build & Test pending) at
+  the cycle deadline — left "awaiting CI; merge next cycle" comment, next cycle's inbox merges
+  it. #40 merged.
+- Next: merge #41 once green, then continue plan 001's io/seed rollout with `cuckoo_hash_map.zig`
+  (store a `prng` field, seed once at init, draw from it in `rehash()` instead of re-seeding from
+  `std.time.nanoTimestamp()`) or `skip_list.zig` (consolidate `init`/`initWithSeed` into one
+  `Options`-taking `init`, update the wider consumer set) — either is a reasonable next pick.
+- Blockers: none. Open questions: none.
 
 ## Cycle 7 — 2026-09-11 — STABILIZATION
 - Done: inbox merged PR #39 (ConcurrentSkipList `io`/seed injection, plan 001 positive-space
@@ -113,67 +141,20 @@ rejected_plans: []
 - Blockers: host disk space (16GB free); no action available to this session (unattended, no
   human wait). Open questions: none.
 
-## Cycle 2 — 2026-09-06 — FEATURE
-- Done: merged PR #32 (cycle 1's clear-the-decks work, CI was green), ticked milestone #31
-  item 1. Implemented item 2: vendored the kingdom reference tidy lint
-  (`citadel/templates/tidy/tidy.zig`) into `tools/tidy.zig`, wired as a standalone
-  `zig build tidy` step. `tidy_baseline.txt` (620 entries) makes function-length clean (0
-  findings); deliberately did NOT wire tidy into `test_step` — `main` has 4,608 pre-existing
-  failing findings outside function-length (3,728 line-length, 575 ban-list, 301 missing `//!`
-  headers). Amended `docs/plans/001-*.md` item 2 in the same PR to record this and added a new
-  unchecked item for wiring tidy into `test` once later migration items shrink the count — see
-  `decisions.md` for the full reasoning.
-- PRs: #33 open, CI still pending (queued) at the cycle deadline — left a status comment,
-  next cycle's inbox merges it once green.
-- Next: merge #33, then plan 001 item 3 (`build.zig` 0.16 API pass, `linkLibC`).
-- Blockers: none. Open questions: none.
-
-## Cycle 1 — 2026-09-06 — FEATURE
-- Done: plan 001 (Zig 0.16 migration) merged by owner before this cycle started. Opened
-  milestone tracking issue #31. Implemented item 1 "Clear the decks" on PR #32: fixed
-  `RandomForest.fit()` hardcoding `.gini` for regression forests (finished the preserved
-  `wip/random-forest-regression-criterion` TDD cycle — branch fixed itself, wip branch still
-  present, not deleted), dropped 9 orphaned distribution duplicates (kept 4 with real
-  consumers, see `decisions.md`), removed dead `.claude/memory/**` `ci.yml` entry, synced
-  `zr.toml`/`main.zig` version strings to 2.3.0.
-- PRs: #32 open, Build & Test + wasm32-wasi green, 5 cross-compile targets still pending at
-  the cycle deadline — left a status comment, next cycle's inbox merges it.
-- Next: merge #32 once CI is green, then plan 001 item 2 (`tidy` build step).
-- Blockers: none. Open questions: none.
-
-## Cycle 0 — 2026-09-05 — RESTRUCTURE
-- Realm created by citadel restructure. Memory migrated from the repo's former
-  `.claude/memory/` (architecture.md, decisions.md, debugging.md, patterns.md,
-  project-context.md — the retired `MEMORY.md` stub and one-off `session-186.md` were
-  dropped; nothing durable in either was lost). First plan `001` prescribed by
-  `citadel/docs/ROADMAP.md` (Zig 0.16 migration).
-- Next: open plan 001 PR (if not open) -> await human merge.
-- Open questions: none.
-
-## Standing backlog (carried from the repo's former project-context.md)
-- `catch unreachable` OOM-swallow audit: 69 sites remain (48 `distributions.zig`, 12
-  `correlation.zig`, 3 `decision_tree.zig`, 6 misc across bayesian/deque/pairing_heap).
-- Two leftover `p < 1e-300` f32-underflow sites in `distributions.zig` (~lines 71325, 81533).
-- ~20 deferred `std.debug.assert` sites in `src/algorithms/` + private tree/hash helpers.
-- `logFactorial` is exact only for `n < 20`, Stirling beyond — keep Binomial-family tests
-  under n=20 or loosen tolerance; raising the cutoff is a real fix, cross-cutting, still open.
-- Release: 92 commits since v2.3.0 (11 new distributions, 199->209, plus fixes) never
-  triggered a release under the old per-repo protocol because catalog growth flips no
-  milestone checkbox — cut v2.4.0 and backfill CHANGELOG 2.0.1-2.3.0 next release cycle.
-- `RandomForest.fit()` hardcodes the Gini split criterion even for regression forests — see
-  Preserved work below; this is the single most concrete next action.
-
-## Next priority (feature vein, from the repo's own notes)
-- Devroye (1993) discrete-stable triptych members beyond Sibuya (209th) — discrete
-  Mittag-Leffler is the next candidate; Neyman Type B/C need HyperPoisson-style numeric
-  architecture. Location-shift, vector-param, and bivariate-latent-variable veins are
-  exhausted. Always grep `pub fn <Name>` in `distributions.zig` before implementing a new
-  one — duplicate names (JohnsonSU, ExGaussian) have shipped before under time pressure.
-
-## Preserved work
-- `wip/random-forest-regression-criterion` (this repo's branch): a RED-phase test proving
-  `RandomForest.fit()` calls `tree.fit(..., .gini)` unconditionally
-  (`src/algorithms/machine_learning/random_forest.zig:161`), so regression forests with
-  fractional targets collapse to the global mean. Finish this TDD cycle first — branch the
-  criterion on `forest_type` (`.mse`/variance for regression), commit test + fix together,
-  delete the stray 0-byte `random_forest` binary.
+## History (cycles 0-2, folded 2026-09-11 to keep this file under 200 lines)
+Realm created 2026-09-05 by the citadel restructure (memory migrated from the repo's old
+`.claude/memory/`); plan 001 (Zig 0.16 migration) merged by the owner, milestone issue #31
+opened. Cycle 1 (PR #32): finished the preserved `wip/random-forest-regression-criterion`
+TDD cycle (`RandomForest.fit()` now uses `.mse` for regression forests, not always `.gini`),
+dropped 9 orphaned distribution duplicates, synced version strings. Cycle 2 (PR #33): vendored
+the kingdom reference tidy lint into `tools/tidy.zig` as a standalone `zig build tidy` step
+(not yet a `test` dependency — `main` had 4,608 pre-existing non-function-length findings).
+Resolved backlog items no longer tracked: the RandomForest bug (fixed cycle 1), the
+`wip/random-forest-regression-criterion` branch (finished cycle 1). Still-open backlog folded
+here: `catch unreachable` OOM-swallow audit (69→60 sites, see cycle 5's STATE.md refresh);
+2 leftover `p < 1e-300` f32-underflow sites in `distributions.zig`; ~20 deferred
+`std.debug.assert` sites in `src/algorithms/`; `logFactorial` exact only for `n < 20`; a v2.4.0
+release backfilling CHANGELOG 2.0.1-2.3.0 is still owed once plan 001 lands. Next distribution
+vein (if catalog work resumes): Devroye (1993) discrete-stable triptych beyond Sibuya (209th),
+discrete Mittag-Leffler next — always grep `pub fn <Name>` in `distributions.zig` first
+(JohnsonSU, ExGaussian shipped as duplicates before).
