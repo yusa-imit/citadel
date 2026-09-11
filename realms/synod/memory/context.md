@@ -1,7 +1,23 @@
 # synod — context
 
-last_seen_at: 2026-09-11T12:00:00Z
+last_seen_at: 2026-09-11T18:05:36Z
 rejected_plans: []
+
+## Cycle 9 — 2026-09-12 — FEATURE
+- Inbox: no new owner actions since watermark; no plan PR open; no bug/red-CI; milestone #3
+  unchanged apart from ticking item 9 this cycle.
+- Implemented item 9 (Assertion baseline) via PR #12 (merged, CI green all 7 jobs): docs-only —
+  `docs/adr/0003-assertion-baseline.md` records the Tiger Style two-assertions-per-function
+  contract. `src/main.zig`/`bench/main.zig` already met it from prior cycles' review passes
+  (`grep -c assert` = 3, 6), so no code changed; `types`/`interfaces`/`log`/`store` get the same
+  contract applied once real logic lands, with `log.validate()` required at the end of every
+  log-mutating test. Declined a new mechanical tidy check — nothing to measure on stub modules.
+  code-reviewer caught 2 warnings pre-merge (wrong line-count claim "34" vs actual 38 lines;
+  `interfaces.zig` missing from the module list vs `REALM.md`'s actual build order
+  `types → interfaces + log → store`), both fixed before opening the PR. Ticked item 9 in the
+  plan doc and issue #3.
+- Next: item 10 (README/PRD/CHANGELOG reconciliation), then item 11 (release v0.2.0).
+- Open questions: none.
 
 ## Cycle 8 — 2026-09-11 — FEATURE
 - Inbox: no new owner actions since watermark; no plan PR open; found and fixed a tracking-drift
