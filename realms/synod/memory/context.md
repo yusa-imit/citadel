@@ -1,7 +1,23 @@
 # synod — context
 
-last_seen_at: 2026-09-11T00:00:00Z
+last_seen_at: 2026-09-11T12:00:00Z
 rejected_plans: []
+
+## Cycle 8 — 2026-09-11 — FEATURE
+- Inbox: no new owner actions since watermark; no plan PR open; found and fixed a tracking-drift
+  bug — item 6 was ticked in the plan doc via #10 last cycle but the GitHub issue #3 checklist
+  itself was never updated to match; reconciled with a housekeeping comment before continuing.
+- Implemented item 8 (`io: Io` at the boundary only) via PR #11 (merged, CI green all 7 jobs):
+  `docs/adr/0002-io-at-the-boundary.md` records the rule (`io: Io` first param after receiver on
+  `driver`/`adapters`/CLI/bench; `raft`/`membership`/`detector`/`clock`/`log` never reference
+  `std.Io`, keep injected `Clock`/`Rng` vtables); `tools/tidy.zig` gained `core_purity_files` +
+  `isCorePurityFile()` wired into `checkFile()` so `zig build tidy` mechanically fails on any
+  `std.Io` hit in those five files. TDD throughout; code-reviewer caught 2 warnings (stale
+  RED-phase doc comment, missing CHANGELOG/plan-checklist entries), both fixed before merge.
+  Ticked item 8 in the plan doc and issue #3.
+- Next: item 9, the assertion baseline (`src/main.zig` arg handling, `bench/main.zig` ops math,
+  ADR-003), then item 10 (README/PRD/CHANGELOG reconciliation) and item 11 (release v0.2.0).
+- Open questions: none.
 
 ## Cycle 7 — 2026-09-11 — FEATURE
 - Inbox: no new owner actions since watermark; no plan PR open; milestone #3 unchanged apart
