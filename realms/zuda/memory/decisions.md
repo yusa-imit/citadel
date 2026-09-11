@@ -140,3 +140,36 @@ _(migrated from the repo's former `.claude/memory/decisions.md`, 2026-09-05)_
   public functions stay byte-for-byte identical. The test's timing loop moves to `bench/`, the
   pure ops/sec arithmetic stays. The positive-space spike must be
   `containers/lists/concurrent_skip_list.zig` — the one file exercising D1, D2 and D3 at once.
+
+## Decision: split the `concurrent_skip_list.zig` positive-space proof — D1 now, D3 deferred
+- **Date**: 2026-09-11
+- **Context**: applying ADR 0001 to `concurrent_skip_list.zig` (plan 001's next item). D1 (seed
+  option) is plain data, dual-compatible with any Zig version. D3 (`prng_mutex: std.Thread.Mutex`
+  → `Io.Mutex`, `lockUncancelable`) is not: checked `/opt/homebrew/Cellar/zig/0.15.2/lib/zig/std/
+  Io.zig` and `Io/` directly — 0.15.2's `std.Io` has only `Reader`/`Writer`/`fixed_buffer_stream`,
+  no vtable, no `Mutex`, no `Group`. The repo's CI is still pinned to 0.15.2 (toolchain-flip item
+  still unchecked), so `Io.Mutex` cannot be introduced yet without breaking `zig build` today —
+  same shape of constraint as the mechanical-renames split (see the 2026-09-09 decision above).
+- **Decision**: landed D1 only — `init(allocator, ctx)` → `init(allocator, ctx, .{ .seed: u64 })`,
+  no default, 3 new determinism tests. `prng_mutex` stays `std.Thread.Mutex` and `insert`/`remove`
+  signatures stay unchanged. D3 (and the other 4 files' D1 passes:
+  `robin_hood_hash_map.zig`, `cuckoo_hash_map.zig`, `skip_list.zig`, `work_stealing_deque.zig`)
+  deferred — D3 explicitly folded into the later "`std.Thread` sync → `Io.Mutex`/`Io.Group`" plan
+  item, which already targets the pinned `0.16.0/zig` binary for its own verification, not global
+  0.15.2. See `docs/plans/001-*.md`'s scope note on this item for the checklist-level detail.
+- **Bigger finding, filed separately, not fixed here**
+  ([yusa-imit/zuda#38](https://github.com/yusa-imit/zuda/issues/38)): `ConcurrentSkipList.remove()`
+  leaks the physically-unlinked node (no reclamation scheme — a real bug, needs hazard
+  pointers/epoch reclamation, its own design cycle). It's invisible to `zig build test` today
+  because `root.zig`'s `test {}` block calls **non-recursive** `std.testing.refAllDecls(@This())`
+  — confirmed via a minimal repro that a file reached only through a nested pub-const chain
+  (`containers.lists.ConcurrentSkipList`, the normal `root.zig` re-export pattern) contributes
+  **zero** tests to the binary; only files explicitly force-imported with `_ = @import(...)` in
+  that same test block (today: stats/signal/numeric/optimize submodules) actually run. A full
+  `zig build test` on `main` has zero references to `ConcurrentSkipList` in its output. This
+  likely extends to much of `src/containers/` and `src/algorithms/` — the probable explanation
+  for STATE.md's "~14.7k tests run vs ~22.3k `test "` blocks (grep)" gap. Not attempted here: the
+  file's own comment records that a previous `refAllDeclsRecursive`-shaped attempt caused CI to
+  hang on compile time, so a real fix needs a scalable strategy (e.g. per-directory explicit
+  `_ = @import(...)` files, mirroring what stats/signal/numeric/optimize already do), not a
+  blanket recursive walk. Next stabilize cycle candidate — see `STATE.md`.

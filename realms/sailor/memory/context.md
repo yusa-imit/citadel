@@ -1,7 +1,31 @@
 # sailor — context
 
-last_seen_at: 2026-09-10T00:30:00Z
+last_seen_at: 2026-09-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 8 — 2026-09-11 — FEATURE
+
+- Done: inbox found no open PRs and no bug/question/directive issues with new OWNER activity
+  since the watermark — nothing to merge or triage. Milestone #19's item 4 remainder still had
+  no 0.15.2-compatible spelling (per cycle 7), so instead checked item 5 (`ArrayList` literal
+  sweep) the same way cycle 6 found item 4's "safe half": read 0.15.2 and 0.16.0's
+  `array_list.zig` directly and confirmed `.empty` is already a static value in 0.15.2 — only
+  the struct's default field values are dropped in 0.16.0, turning bare `.{}` into a
+  missing-field error there. Mechanically replaced all 132 `ArrayList`/`ArrayListUnmanaged`
+  `= .{}` sites across 34 files (`src/`, `tests/`, `examples/`) with `= .empty` as PR #28.
+  Verified via `git diff --stat` (132/132, no incidental changes) and `git stash` (the 83
+  pre-existing `zig fmt --check` failures unchanged). `zig build test` green, tidy clean. All 10
+  CI checks green, squash-merged, branch deleted, `auto-merged`. Confirmed post-merge CI on
+  `main` @ `df0c427` reached `success`. Ticked item 5 on #19; see [[patterns]] for the reusable
+  "check for a 0.15.2-compatible spelling before assuming toolchain-blocked" pattern.
+- PRs: #28 (merged).
+- Next: item 4's remainder (`Io.Mutex`, env access, `posix.isatty`, `mem.indexOf*`→`find*`, ~500
+  sites) is still practically blocked on pairing the toolchain switch with the `std.Io` rewrite
+  (items 6-7) — multi-cycle work. No other item on #19 has been checked yet for a similar
+  0.15.2-compatible-spelling escape hatch; worth a quick check each cycle before assuming block.
+- Blockers: item 4/6/7's full scope needs a dedicated multi-cycle session, not a formal
+  `blocked_by` tag.
+- Open questions: none.
 
 ## Cycle 7 — 2026-09-10 — FEATURE
 
@@ -137,49 +161,17 @@ rejected_plans: []
 - Blockers: none.
 - Open questions: none.
 
-## Cycle 1 — 2026-09-05 — FEATURE
+## History (cycles 0-1, condensed 2026-09-11)
 
-- Done: plan `001` (Zig 0.16 migration + Tiger Style baseline) was already merged (#18) when
-  this cycle started; opened tracking issue #19 with its 12-item checklist. Implemented item 1
-  (hygiene leftovers): dropped the dead memory-dir entry from `ci.yml` `paths-ignore`, fixed 3
-  dangling doc links (a removed root config doc, a `memory-profiling.md` that never existed, a
-  mistyped `benchmark_runner.zig`). PR #20, CI green on all 3 native runners + 6 cross-compile +
-  benchmarks, squash-merged, labelled `auto-merged`, checklist item 1 ticked on #19.
-- PRs: #20 (merged).
-- Next: item 2 — `tidy` step in `build.zig` (line/function-length limits, ban list, `//!`
-  header check), wired into `zig build test`.
-- Blockers: none. `wip/timeline-description-rendering` still undecided — plan item 3, not yet
-  reached.
-- Open questions: none.
+Cycle 0 (RESTRUCTURE, 2026-09-05): realm created; memory migrated from the repo's former
+`.claude/memory/`; plan `001` prescribed (Zig 0.16 migration, MAJOR → v3.0.0, 368 probe errors +
+`linkLibC`). `wip/timeline-description-rendering` preserved mid-cycle TDD work (finished as PR
+#22 in cycle 3). Standing backlog carried forward, still partly open: the v2.100.0
+"Widget Doc-Comment Audit Round 3" milestone has `terminal.zig` (`AnsiParseState` wiring),
+`pager.zig` (soft-wrap), `metrics_dashboard.zig`/`richtext.zig` (scope decisions), and
+`paragraph.zig` (word/char wrap + RTL/bidi, architect pass, do last) still unaddressed —
+separate from plan `001`/milestone #19, not yet resumed. Repo hygiene backlog (stale
+`README.md`/`docs/PRD.md`, 52 files >800 lines) also still open, tracked in STATE.md.
 
-## Cycle 0 — 2026-09-05 — RESTRUCTURE
-
-- Realm created by citadel restructure. Memory migrated from the repo's former
-  `.claude/memory/` (architecture.md, decisions.md, debugging.md, patterns.md,
-  zig-015-compat.md, project-context.md's durable facts). Stale one-off snapshots
-  (session-48.md, session-94.md) and a stray scratchpad.zig.md were dropped, not migrated.
-  First plan `001` prescribed by `citadel/docs/ROADMAP.md` (Zig 0.16 migration, MAJOR → v3.0.0,
-  368 probe errors + `linkLibC`).
-- A `wip/timeline-description-rendering` branch preserves session 444's mid-cycle TDD work
-  (`timeline.zig` renders `TimelineEvent.description`; `zig build test` was green on the dirty
-  tree including 8 new tests) — decide finish-or-discard in the first post-restructure cycle.
-- Standing backlog (carried from the old `project-context.md`, most recent sessions first):
-  - v2.100.0 "Widget Doc-Comment Audit Round 3" milestone, in progress. Fixed so far:
-    hex_editor.zig (`modified_style`), filebrowser.zig (preview pane), configeditor.zig
-    (scalar editing + test-reachability fix), toggle_switch.zig (label rendering),
-    pipeline.zig (progress %), timeline.zig (description — see wip branch above, uncommitted).
-  - Remaining in that milestone: terminal.zig (wire existing `AnsiParseState` into `addLine()`),
-    pager.zig (real soft-wrap using the existing `wrap` setting), metrics_dashboard.zig
-    (`show_graphs` sparklines — needs a scope decision: implement or drop the doc claim),
-    richtext.zig (emoji search — same scope-decision shape), paragraph.zig (true word/char
-    wrap + RTL/bidi — largest item, flagged for an `architect` pass, do last). Then
-    re-regenerate the unswept-widget list and bundle release v2.100.0.
-  - 6 unreleased commits sat on `main` as of session 444, above the project's own
-    "4-5 commits, worth reconsidering" bundling threshold — every actual release in this
-    project's history has gated on milestone completion, not commit count alone; a future
-    cycle should make an explicit call on bundling partway vs. finishing all remaining gaps.
-  - Repo hygiene (STATE.md has the full list): `git rm --cached` the tracked test binaries,
-    move/drop `AUDIT_DOC_COMMENTS.md`, fix `.gitignore` (bare `test`, `verify_*`, `*.log`),
-    refresh stale `README.md`/`docs/PRD.md` version claims, split files over 800 lines.
-- Next: open plan `001` PR (if not open) → await human merge.
-- Open questions: none.
+Cycle 1 (FEATURE, 2026-09-05): plan `001` merged as #18; opened tracking issue #19 (12-item
+checklist). Implemented item 1 (hygiene leftovers) as PR #20, merged.

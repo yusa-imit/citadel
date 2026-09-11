@@ -23,7 +23,7 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 | sigil | 1 | trivial | — | none (0.1 → 0.2) |
 | strata | 1 | trivial | — | none |
 | synod | 1 | trivial | — | none |
-| sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none |
+| sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10) |
 | zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 |
 | sailor | 368 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 |
 | zr | 79 + deps | large | zuda v3, sailor v3 | MINOR |

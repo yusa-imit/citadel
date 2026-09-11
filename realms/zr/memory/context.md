@@ -1,7 +1,39 @@
 # zr — context
 
-last_seen_at: 2026-09-09T00:00:00Z
+last_seen_at: 2026-09-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 5 — 2026-09-11 — STABILIZATION
+- Preflight: tree clean on `fix/tui-profiler-catch-unreachable-proof` (= PR #162's already-
+  pushed head) — no preservation needed; checked out main. CI green.
+- Inbox: merged PR #162 (last `catch unreachable` proof comment, `tui_profiler.zig`), all 7
+  checks green, `auto-merged` label, branch deleted. No bug/question/directive issues, no new
+  comments since watermark. PR #30 still draft/OWNER, untouched. zuda/sailor still at v2.x —
+  0.16 migration (plan 001 item 3 continuation) stays blocked.
+- Cycle 5 of 5 forces STABILIZATION regardless of CI/bug state. Ran `tidy-auditor`: 12
+  `catch unreachable` sites now all proven (PR #162 landed the last one); found a **real
+  safety bug**, not just a style gap — `plugin/wasm_runtime.zig`'s `readVarU32`/`readVarI32`/
+  `readVarI64` LEB128 decoders used `while (true)` with a shift counter too narrow (`u5`/`u6`)
+  for its own `+= 7` increment on the final byte of a maximal-width encoding. For the signed
+  decoders this panics on ANY legitimate 5-byte SLEB128 `i32` or 10-byte SLEB128 `i64` value
+  (not just malformed input) — reproduced with a test before fixing (bytes for `i32` min
+  panicked at the increment). Fixed via TDD: 6 regression tests (max-width boundary + one-
+  byte-too-many negative space for u32/i32/i64), widened `shift` to `u8`, bounded
+  `while (true)` → `for (0..bytes_max)`, added shift-bound + buffer-position assertions.
+  Code-reviewer caught one WARNING (assertions weren't paired pre/post) — added a
+  `self.pos <= self.data.len` postcondition before each return. `zig build test` 1816/0
+  failed, `zig build tidy` 0 failing. PR #163 opened at the cycle deadline (3 min left after
+  the audit/fix/review round-trip) — commented "awaiting CI", left for next cycle's inbox.
+- Next: merge #163 once green (or fix if red). Remaining audit findings for future cycles,
+  smallest-diff-first: `config/lock.zig:249`/`exec/cache_store.zig:257`/
+  `versioning/changelog.zig:121` (unbounded days→year `while(true)`, same mechanical fix
+  three times), `graph/topo_sort.zig:173`/`config/loader.zig:50` (bound by node count/path
+  depth), then 223 missing `//!` headers (batch by directory), then extend `assert(` coverage
+  to the 23 zero-assertion modules (`cli/` largest at 424 fns), then `std.debug.print` in
+  `config/parser.zig`/`exec/scheduler.zig` (logger-injection vs. ban-list decision), then
+  decomposing `parseToml`/`main.zig:run`. Full audit detail not preserved verbatim — re-run
+  `tidy-auditor` next stabilization cycle rather than trusting this list to stay current.
+- Open questions: none.
 
 ## Cycle 4 — 2026-09-09 — FEATURE
 - Preflight: tree dirty on `feat/assertion-baseline-parser-toml` (= main, uncommitted-only,

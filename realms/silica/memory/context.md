@@ -1,7 +1,33 @@
 # silica — context
 
-last_seen_at: 2026-09-10T10:06:15Z
+last_seen_at: 2026-09-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 10 — 2026-09-11 — STABILIZATION (forced, n%5==0)
+- Inbox: merged PR #147 (batch 7 scratch-DB tmpDir), CI green (build-and-test + 6
+  cross-compile). No new OWNER directives/questions since watermark. No plan PR open, no
+  plan_closed_unmerged. Milestone issue #137 still the only open issue.
+- Tidy-auditor refresh found the 2026-09-05 baseline stale (executor.zig/btree.zig grew from
+  scratch-DB batches). Flagged 22 `catch unreachable` sites in `sql/executor.zig` as
+  unjustified; investigation found 20 were a false positive — already covered by PR #143's
+  blanket SAFETY comment above `toCharTimestamp` (line 3568), just further than the audit's
+  2-line proximity check. Only 2, in the separate `toCharNumber` function, were genuinely
+  unjustified (bufPrint of i64 into 32-byte buffers). Fixed those 2 with inline SAFETY
+  comments, PR #148. `zig build test` green, `zig fmt` clean.
+- PR #148 CI still pending at cycle deadline (historical 13-18m) — commented "awaiting CI;
+  merge next cycle", left for cycle 11's inbox.
+- Refreshed STATE.md's Tiger Style gap table: assert=19, catch unreachable=213, @panic in
+  lib=0 (2026-09-05 count miscounted test-block panics in replication/{slot,sync}.zig),
+  debug print in lib=14, while(true)=104 (~90 bounded inner loops, not reclassified per-site),
+  files>800=40, functions>70=161 (newly measured; worst `executor.zig:evalFunctionCall`
+  ~3758 lines), missing `//!` header=17/61 unchanged, bare usize in wire/disk structs=0.
+- Next: cycle 11's inbox merges #148 if green, then FEATURE resumes on plan 001 item 2 part 2
+  batch 8 — 4 files (~1,148 occurrences) remain: `sql/catalog.zig` (152), `cli.zig` (105),
+  `server/connection.zig` (72), `sql/engine.zig` (819, likely needs its own sub-plan).
+- Blockers: none new. Standing blocker unchanged (plan 001 rest blocked_by zuda v3.0.0,
+  sailor v3.0.0).
+- Open questions: unchanged (buffer-pool LRU zuda-migration contradiction; concurrent-
+  connections WAL-corruption finding not reconfirmed).
 
 ## Cycle 9 — 2026-09-10 — FEATURE
 - Inbox: merged PR #146 (batch 6 scratch-DB tmpDir), CI all green (build-and-test + 6
@@ -76,37 +102,11 @@ rejected_plans: []
 - Open questions: unchanged (buffer-pool LRU zuda-migration contradiction;
   concurrent-connections WAL-corruption finding not reconfirmed).
 
-## Cycle 6 — 2026-09-09 — FEATURE
-- Inbox: merged PR #143 (stabilization-cycle SAFETY comments on 26 unjustified
-  `catch unreachable` sites), CI all green (build-and-test + 6 cross-compile),
-  labeled auto-merged, branch deleted. No OWNER directives/questions/comments
-  since watermark beyond routine cycle summaries. No plan PR open, no
-  plan_closed_unmerged.
-- Counter: n=6, 6%5≠0, stabilize_streak empty — FEATURE, not forced.
-- Implemented plan 001 item 2 part 2, batch 4: routed 54 scratch-DB literal
-  path occurrences through `std.testing.tmpDir` — `storage/hash_index.zig`
-  (26, uniform `Pager.init(allocator, path, .{})` pattern) and
-  `sql/conformance_test.zig` (28, via the `createTestDb` helper). Same
-  pattern as batches 1-3; mechanical, comment-only test scaffolding change,
-  `zig build test` green (4724/4747 passed) both after each file and after
-  the full batch, no stray scratch files under `git status --ignored`.
-  `tx/wal_fuzz.zig` (21) deferred — its pattern derives a second `wal_path =
-  path ++ "-wal"` per test, needs the tmp-dir treatment applied to both
-  paths, not this batch's drop-in pattern.
-- PR #144 opened, plan doc sub-checklist and CHANGELOG updated. CI still
-  pending at the cycle deadline (historical ~13-18m runtime) — commented
-  "awaiting CI; merge next cycle", left for cycle 7's inbox.
-- Next: cycle 7's inbox merges #144 if green. Then either batch 5
-  (`tx/wal_fuzz.zig`'s wal_path variant, 21 occurrences) or another
-  unblocked item — 10 files (~1,359 occurrences) remain in the part-2
-  sub-checklist after batch 4; largest is `sql/engine.zig` (819, likely
-  needs its own multi-cycle sub-plan given size).
-- Blockers: none new. Standing blocker unchanged (plan 001 rest is
-  blocked_by zuda v3.0.0, sailor v3.0.0).
-- Open questions: unchanged (buffer-pool LRU zuda-migration contradiction;
-  concurrent-connections WAL-corruption finding not reconfirmed).
-
-## History (cycle 5 and earlier, folded)
+## History (cycle 6 and earlier, folded)
+- **Cycle 6** (2026-09-09, FEATURE): inbox merged #143 (26 SAFETY comments on unjustified
+  `catch unreachable`, stabilization cycle 5). Implemented batch 4 (54 occurrences:
+  `hash_index.zig`, `conformance_test.zig`). `wal_fuzz.zig` (21) deferred to batch 5 — needs
+  tmp-dir treatment on a second derived `wal_path`. Opened #144, left pending for cycle 7.
 - **Cycle 5** (2026-09-08, STABILIZATION, forced n%5==0): inbox merged #142 (batch 3). Tidy
   audit (tidy-auditor): assert(=19, catch unreachable=212 (26 unjustified), @panic=7 (test-only),
   debug print=16, while(true)=104 (2 unguarded page-chain loops:

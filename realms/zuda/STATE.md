@@ -143,3 +143,23 @@ removed. A stray 0-byte `random_forest` binary should be deleted.
 10. Inject seed/`Random` instead of calling `std.time.*`/`std.crypto.random` directly in 9 ML
     files (`kmeans.zig`, `ddpg.zig`, `dqn.zig`, `gmm.zig`, `tsne.zig`, `c51.zig`,
     `reinforce.zig` — 21 + 8 call sites) — Tiger Style rule 7/14, enables deterministic tests.
+11. **Major, found 2026-09-11**: `root.zig`'s `test {}` block calls non-recursive
+    `std.testing.refAllDecls(@This())`. A file reached only through a nested pub-const chain
+    (the normal re-export shape, e.g. `containers.lists.ConcurrentSkipList`) contributes **zero**
+    tests to `zig build test` — confirmed by a minimal repro (0 tests via `refAllDecls`, all
+    tests run via `refAllDeclsRecursive`). Only files explicitly force-imported with
+    `_ = @import("stats/....zig");` etc. in that same block (today: stats/signal/numeric/optimize
+    submodules) actually get tested by CI. This likely explains the "~14.7k tests run vs ~22.3k
+    `test "` blocks (grep)" gap noted above, and means most of `src/containers/`'s and
+    `src/algorithms/`'s own test suites (~60 containers, 24 algorithm families) may not be
+    exercised by CI at all today despite `zig build test` reporting green. Concretely surfaced a
+    real bug this was hiding: `ConcurrentSkipList.remove()` leaks the physically-unlinked node
+    (confirmed via isolated `zig test <file>`, reproduces on `main` unchanged — filed as
+    [yusa-imit/zuda#38](https://github.com/yusa-imit/zuda/issues/38), not fixed there, needs a
+    real reclamation scheme). Root cause of the gap is known and file-comment-documented: a prior
+    `refAllDeclsRecursive`-shaped attempt caused CI to hang on compile time, hence the current
+    manual allowlist. Fix needs a scalable strategy (e.g. one `_ = @import(...)` per
+    containers/algorithms subdirectory, mirroring the existing stats/signal/numeric/optimize
+    pattern, added incrementally so compile time is measured at each step) — its own plan/
+    stabilize item, not a one-line change. High priority: this is a test-coverage confidence gap
+    across a large fraction of the library, not just the one file that surfaced it.
