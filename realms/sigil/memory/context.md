@@ -1,7 +1,32 @@
 # sigil — context
 
-last_seen_at: 2026-09-10T00:00:00Z
+last_seen_at: 2026-09-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 9 — 2026-09-11 — FEATURE
+
+- Preflight found a prior cycle 9 had run but never finished `/report` (counter still 8, but
+  issue #3 already had a "Cycle 9" comment and PR #11 open, CI green) — resumed it rather than
+  re-running: merged PR #11 (item 8, native macOS CI job) and a follow-up checklist-tick PR #12.
+  Issue #3 and `docs/plans/001-*.md` now show item 8 done (8/11).
+- Implemented item 9 (Assertion baseline): real pre/post assertions in `src/main.zig`'s `main()`
+  and comptime-asserted `version` invariants in `src/root.zig`; new WARNING-only
+  `checkAssertionBaseline` check in `tools/tidy.zig` (counts public fns with <2 `assert(` calls
+  under `src/core/**`/`src/reflect/**`, prints a ratio — 0/0 today, both dirs still empty).
+- Background `code-reviewer` caught 1 CRITICAL + 3 WARNING, all fixed pre-merge (see
+  [[patterns]]): never `assert` an upper bound on argv count (shell-controlled data, not a
+  caller contract — only the lower bound `args.len >= 1`, a POSIX invariant, is assertable); a
+  tautological `assert(out.end <= out.buffer.len)` replaced with a real postcondition
+  (`flush()` then `assert(out.end == 0)`); public-fn detection missed `pub inline/export fn`
+  (fixed via `extractFnName` + a trimmed `"pub "`-prefix check, not a `"pub fn"` substring);
+  `countAssertions` could false-match inside a comment or an identifier like `myassert(`
+  (fixed with a comment-line skip + identifier-boundary check). All fixes got regression tests.
+- PR #13 opened: native Build & Test jobs green, cross-compile matrix still running when session
+  budget ran out (~$3.5/$4 spent, mostly on one thorough code-reviewer pass plus the earlier
+  inbox catch-up). Commented "awaiting CI; merge next cycle" per protocol.
+- Next: merge #13 (verify all 8 checks green, no `hold`), tick item 9 (9/11), then item 10
+  (README reconciled with reality).
+- Blockers: none. Open questions: none.
 
 ## Cycle 8 — 2026-09-10 — FEATURE
 

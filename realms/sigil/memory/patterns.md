@@ -57,3 +57,13 @@ plan 001 item 6 (`tools/tidy.zig`).
 Define `pub const Error = error{ ... }` at module top; public functions return `Error!T`
 or a narrow union of it. Every one of the 10 current stub modules already follows this —
 keep it when replacing `error{NotImplemented}` with real error variants.
+
+## Assert invariants, never external input (cycle 9)
+
+`assert(args.len >= 1)` is fine (argv[0] is a POSIX/process guarantee); `assert(args.len <=
+some_max)` is not (argv count is shell-controlled data, and Tiger Style bans asserting on
+data the caller/user controls — return a typed error instead, or don't check it at all if
+truly harmless). Same test applies to any tidy-style lint: prefer a postcondition that says
+something about *this function's* logic (e.g. `flush()` then `assert(writer.end == 0)`) over
+one that just restates a stdlib type's own invariant (`assert(end <= buffer.len)` on
+`std.Io.Writer` is always true by construction and catches nothing).
