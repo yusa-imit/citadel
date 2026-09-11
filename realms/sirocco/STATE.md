@@ -1,4 +1,17 @@
-# sirocco — State Survey (2026-09-05, refreshed 2026-09-11)
+# sirocco — State Survey (2026-09-05, refreshed 2026-09-12)
+
+## Refresh 2026-09-12 (cycle 11, FEATURE — bounded stabilization while plan PR #13 awaits merge)
+
+- CI: last run on `origin/main` (`888ee0b`) success. No open issues, no red CI, plan PR #13
+  (plan 002: fiber-scheduler-and-futex-core) still open awaiting human merge — no new OWNER
+  review feedback since cycle 10's report comment (checked `since` the watermark).
+- `zig build test`, `zig fmt --check src build.zig`, `zig build tidy` all green under the pinned
+  0.16.0 toolchain. Grep pass: `catch unreachable` (0), `@panic`/`std.debug.print`/`while
+  (true)` in src/ (0 each), files > 800 lines (0; largest is `main.zig` at 73 lines), missing
+  `//!` headers (0/4 checked). Root hygiene unchanged, working tree clean. Same clean result as
+  cycles 5 and 10 — no fixes needed, nothing to file.
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner).
 
 ## Refresh 2026-09-11 (cycle 10, STABILIZATION)
 
