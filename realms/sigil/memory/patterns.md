@@ -52,6 +52,11 @@ comment on the flagged line or the line above), the same mechanism `catch_unreac
 uses. One convention, one thing for a future author to remember. Caught in code review, cycle 7,
 plan 001 item 6 (`tools/tidy.zig`).
 
+`hasProof` only looks at the *same or immediately previous* line — a single `// proof:` above
+the first of several sequential flagged lines (e.g. two `catch unreachable` calls in one loop
+body) does not cover the later ones. Each occurrence needs its own comment. Found in
+`isWireFormatPath`, fixed cycle 10 (PR #14).
+
 ## Error set per module
 
 Define `pub const Error = error{ ... }` at module top; public functions return `Error!T`

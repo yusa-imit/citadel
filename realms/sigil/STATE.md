@@ -108,6 +108,34 @@ stub files has no hot loops, recursion, or allocation to critique. Re-audit once
 - `src/` is still stub-stage: 0 real functions outside `main.zig`, so assertion-density and
   most Tiger Style function-level checks remain not-yet-applicable (see "Known gaps" above).
 
+## Stabilization update (2026-09-12, cycle 10)
+
+- `tidy-auditor` re-swept `tools/tidy.zig` (now 1770 lines, up from 1274 at cycle 5) plus a
+  fresh full pass (`@panic`, `std.debug.print`, `while (true)`, function/file length, `usize`
+  in wire formats, missing `//!`, `std.time.*`/`std.crypto.random` in `src/`) — all fresh checks
+  read 0, consistent with `src/` still being stub-stage.
+- Fixed the cheapest of the 4 carried-forward findings: `isWireFormatPath`'s second
+  `catch unreachable` (the `dir_prefix` bufPrint) had no `// proof:` comment of its own — the
+  shared comment above the first call didn't cover it, since `hasProof` only checks the
+  same/previous line. `catch_unreachable`'s `banApplies` is unconditionally true (not gated by
+  `isUnderSrc` like most rules), so this file is bound by its own rule even though the repo-wide
+  scan doesn't walk `tools/` yet. Fixed via PR #14 (squash-merged, CI 8/8 green) with a pinning
+  test mirroring the real function body against `checkBanList`, verified red before / green after.
+- Remaining 3 carried-forward findings, still not fixed (next stabilization cycle candidates,
+  ordered smallest-diff-first per the auditor):
+  1. `tidy_baseline.txt` at repo root, outside `citadel/protocol/DOCS.md`'s allowed root-file
+     list — move under `tools/` or `docs/internals/`, update the one read-path reference.
+  2. `tools/tidy.zig` exempt from its own file-length (now 1770 lines, >2x the 800-line limit)
+     and `//!`-header checks: `scan_roots` (`tools/tidy.zig:938`, was ~938) only walks
+     `src/bench/tests`; `checkDocHeader` (`tools/tidy.zig:271`) hard-scopes to `src/`-prefixed
+     paths. Adding `"tools"` to `scan_roots` will immediately surface tidy.zig's own
+     801+-line overage — needs a baseline entry or a follow-up split in the same PR, so this is
+     a bigger diff than it looks.
+  3. Unbounded mutual recursion in `walkDir15`/`descendDir15` (`tools/tidy.zig:948`/`965`) and
+     the 0.16-variant pair `walkDir16`/`descendDir16` (`tools/tidy.zig:1068`/`1086`) — needs a
+     `depth: usize` parameter threaded through all four functions plus a bounded-recursion test.
+     Largest diff of the four; low real risk given the repo's shallow tree.
+
 ## Next work candidates (from `docs/milestones.md` / `project-context.md`)
 
 1. Phase 1A — `core/{value,tree,diagnostics}.zig`: `Value` union, arena-owned `ValueTree`,
