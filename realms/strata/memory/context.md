@@ -1,7 +1,31 @@
 # strata — context
 
-last_seen_at: 2026-09-11T02:15:00Z
+last_seen_at: 2026-09-11T05:20:35Z
 rejected_plans: []
+
+## Cycle 8 — 2026-09-11 — FEATURE
+- Done: preflight clean tree on main, CI green, no bug/question/directive issues, no open
+  PRs. Inbox: no owner actions, watermark advanced, no plan PR/closed-unmerged plans.
+  Milestone #3 open with unchecked items → implemented plan 001 item `io: Io` convention
+  in the public API (ADR-0001). architect (opus) decided the io-placement rule: strata
+  never constructs an `Io` (binary injects at `main`); exactly one type, `kv.Db`, caches
+  it (set once at `open`, never reassigned); every other module
+  (file/page/cache/wal/btree/lsm/snapshot) takes `io: Io` per call, first parameter after
+  the receiver. Wrote `docs/adr/0001-io-injection.md`, rewrote `docs/PRD.md` §4.2/§4.4-§4.9
+  signatures onto `Io.Dir`/`Io.File`; `snapshot.Writer`/`Reader` now take
+  `*Io.Writer`/`*Io.Reader` instead of `anytype`. code-reviewer (sonnet) found and I fixed:
+  >100-col markdown lines in the new ADR table + a PRD bullet, an ADR "Applies to" line
+  omitting the touched §4.3, an ADR-0001-vs-memory-ADR-001 numbering ambiguity, and a real
+  design gap — `wal.Reader.next()` returning `null` was ambiguous between clean EOF and a
+  torn/corrupted frame, which would have broken idempotent-recovery verification in Phase
+  3; fixed by reserving `null` strictly for EOF and routing corruption through `NextError`.
+  Documentation-only, no Zig source touched (all 10 modules still stubs).
+- PRs: #11 merged (auto-merged, 7/7 CI green, squash + branch deleted).
+- Next: milestone #3 remaining — assertion baseline (tidy density check + `src/main.zig`
+  worked example), `wip/*` decision (confirm `git branch -r` clean, delete merged
+  `chore/kingdom-restructure`), then release v0.2.0.
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 7 — 2026-09-11 — FEATURE
 - Done: preflight clean tree on `test/0.16-library-sweep-banlist` (open PR #9 head, nothing
