@@ -175,15 +175,25 @@ whitespace rejection.
 
 ## Widget test coverage shape (reference sizing, not a rule)
 
-Comprehensive widget suites in this codebase tend to land around: init/memory (a handful),
-builder/config API, listing/sorting or evaluation logic, navigation/movement, selection/state,
-rendering (empty/with-content/wrapped/offset), edge cases (zero area, invalid input, rapid
-updates), and — where relevant — search/filter and performance. `FileBrowser` (55+ tests),
-`TerminalWidget` (43 tests, plus its own `AnsiParseState` state-machine tests), and the env
-module (34 tests) are representative examples if a template is needed; read the actual test
-file rather than assuming these counts are current.
+Comprehensive widget suites cover: init/memory, builder/config API, listing/sorting or
+evaluation logic, navigation/movement, selection/state, rendering (empty/content/wrapped/
+offset), edge cases (zero area, invalid input, rapid updates), and search/filter/performance
+where relevant. `FileBrowser`, `TerminalWidget` (+ its `AnsiParseState` state machine), and the
+env module are representative templates; read the actual test file for current counts.
+
+## Zig 0.16 forward-compat rename pattern (safe to land on 0.15.2 today)
+
+Before assuming a 0.16 rename needs the toolchain switch, check whether the 0.15.2-pinned
+stdlib *already* ships the new spelling as an alias alongside the old one — land those now,
+verified by `zig build test` + `git stash` diff of pre-existing `zig fmt` failures. Confirmed:
+`GeneralPurposeAllocator`→`DebugAllocator`, `Compile.linkLibC()`→`.root_module.link_libc = true`
+(PR #26); `ArrayList(Unmanaged) = .{}`→`= .empty` (PR #28 — `.empty` already exists in 0.15.2's
+`array_list.zig`; only the default field values on `items`/`capacity` are dropped in 0.16.0).
+Renames with **no** 0.15.2-compatible spelling (confirmed absent) — `Io.Mutex`, env access,
+`posix.isatty`, `mem.indexOf*`→`find*` (~478 sites) — stay blocked on the toolchain switch;
+extend this list when a new class is checked, don't re-derive it. See [[decisions]].
 
 ## Verified cross-compile targets
 
-`x86_64-linux-gnu`, `aarch64-linux-gnu`, `x86_64-macos`, `aarch64-macos`,
-`x86_64-windows-gnu`, `x86_64-windows-msvc` — all pass as of the 2026-09-05 survey.
+`x86_64`/`aarch64` × `linux-gnu`/`macos`, `x86_64-windows-{gnu,msvc}` — all pass as of the
+2026-09-05 survey.

@@ -55,17 +55,29 @@ later push, not a failure).
 
 ## Tiger Style gap table
 
+Refreshed by tidy-auditor, stabilization cycle 10 (2026-09-11, commit `9f5f0c1`, `src/` 61 files).
+
 | Metric | Count | Note |
 |---|---|---|
-| `assert(` | 12 | very low for 184k LOC |
-| `catch unreachable` | 212 | convention requires a justified SAFETY |
-| | | comment on each; coverage not verified this survey |
-| `@panic(` | 7 | worth auditing given panic-removal CHANGELOG entries |
-| debug `print` calls | 16 | |
-| `while (true)` | 104 | convention: only in a top-level event loop |
-| files > 800 lines | 41 | 2 extreme outliers, see Size above |
-| functions > 70 lines | not measured | near-certain given the 2 outliers; |
-| | | flagged as a follow-up static-analysis pass |
+| `assert(` (any spelling) | 19 | concentrated in `storage/page.zig` (4), `tx/wal.zig` (9), |
+| | | `sql/{parser,catalog,index_entry,executor}.zig` (6); still low for 184k LOC |
+| `catch unreachable` | 213 | of the 22 flagged as unjustified by proximity heuristic, |
+| | | 20 were a false positive (covered by a blanket comment above |
+| | | `toCharTimestamp`, PR #143) — only 2 genuinely unjustified, in |
+| | | `toCharNumber`, fixed by PR #148 (cycle 10) |
+| `@panic(` in library code | 0 | all 7 raw hits are inside `test` blocks in |
+| | | `replication/{slot,sync}.zig`, not library code — 2026-09-05 count miscounted |
+| debug `print` in library code | 14 | `server/server.zig` (8), `storage/fuzz.zig` (4), `sql/engine.zig` (2) |
+| `while (true)` | 104 | no drift; ~90 are bounded inner loops with internal `break`, |
+| | | not top-level event loops — not yet reclassified per-site |
+| files > 800 lines | 40 | `engine.zig` 43,242 and `executor.zig` 35,712 both grew since |
+| | | last survey (scratch-DB tmpDir batches touched both heavily) |
+| functions > 70 lines | 161 | worst: `sql/executor.zig:evalFunctionCall` ~3,758 lines; |
+| | | `computeAggregate` 1,169; `engine.zig:execSQLUnlocked` 1,135 |
+| missing `//!` header | 17/61 | unchanged file list from 2026-09-05 survey |
+| bare `usize` in wire/on-disk structs | 0 | all `usize` hits are local offset/loop vars in (de)serialize |
+| | | methods, not struct fields — `PageHeader`/`DatabaseHeader`/wire |
+| | | message structs already use sized ints correctly |
 
 No secrets, no tracked giant binaries. Root tracked-file set is clean (10
 files, all expected: README/LICENSE/CHANGELOG/CONTRIBUTING/SECURITY,

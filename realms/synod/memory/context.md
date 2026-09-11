@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-09-10T00:00:00Z
+last_seen_at: 2026-09-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 7 — 2026-09-11 — FEATURE
+- Inbox: no new owner actions since watermark; no plan PR open; milestone #3 unchanged apart
+  from ticking item 6 this cycle.
+- Implemented item 6 (0.16 — library-core sweep) via PR #10 (merged, CI green all 7 jobs): a
+  confirmation task, not a code change — grepped `src/` for every `zig-0.16.md` steps (2)-(5)
+  pattern (bare `= .{}`, `indexOf*`/`lastIndexOf*`, `fs.cwd`/`std.fs.`, `std.net`, `Thread.*`,
+  `std.once`/`@Type(`, `else => unreachable`, `std.time`) and found zero hits, matching the
+  original migration probe's finding that `src/` is still 12 stub modules with no I/O. Evidence
+  recorded in the plan doc and CHANGELOG. `zig test src/root.zig` 12/12 green, `zig build test`
+  and `zig fmt --check` both clean.
+- Process note: CI took ~3 min longer than usual to register a run against the new PR branch
+  (no `workflow_runs` entry at all for ~2-3 min after push+PR-create, before the run appeared as
+  `in_progress`) — not a repo problem, just budget more CI-registration slack than prior cycles
+  when watching checks.
+- Next: item 8, `io: Io` at the boundary only (item 7 is already ticked — `minimum_zig_version`
+  and CI landed in cycle 4's PR #7). After that: item 9, assertion baseline.
+- Open questions: none.
 
 ## Cycle 6 — 2026-09-10 — FEATURE
 - Inbox: no new owner actions since watermark; no plan PR open; milestone #3 unchanged apart

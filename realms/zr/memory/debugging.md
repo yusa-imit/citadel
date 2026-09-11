@@ -142,6 +142,17 @@ Check here before re-debugging something that already has a known fix.
   (`access() catch |err| { if not-found {...}; ...; return 0; }; return 1;`) reads backwards.
   Fix: extract to a labeled-block bool (`const exists: bool = blk: { ...; break :blk true/false;
   };`) then branch explicitly on it — never bury the success path inside error handling.
+- **Narrow shift-counter type overflows on its own increment, before the bound check runs**:
+  `plugin/wasm_runtime.zig`'s LEB128 decoders used `shift: u5`/`u6` (exactly wide enough for
+  the `<<` operator, e.g. u32 needs shift < 32) but then did `shift += 7` unconditionally each
+  iteration; on the last byte of a maximal-width encoding (5-byte SLEB128 i32, 10-byte i64)
+  the increment itself (28+7=35, or 63+7=70) overflows the narrow type and panics — for the
+  signed decoders this fires on ANY legitimate max-width value, not just malformed input,
+  because the increment runs before the termination check. **Lesson**: when a loop counter's
+  type is sized to what an operator needs (`u5` for a 32-bit shift), not to what arithmetic on
+  the counter itself needs, the counter's own `+=` can overflow one step before any bound
+  check sees it. Widen the counter (`u8` held 0..70 fine) and `@intCast` down only at the point
+  of use, once a bounded loop (`for (0..bytes_max)`) already guarantees the value fits.
 - **Weak/tautological test assertions**: e.g. `expect(exit_code != 0)` "verifying" a retry
   feature — passes even with no retry at all; `expect(a or b or c == 0)` always true. **Lesson**:
   every assertion must be able to fail if the implementation is wrong; smoke tests that only
