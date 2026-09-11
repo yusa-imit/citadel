@@ -64,6 +64,21 @@ note the deferred part inline in the plan file rather than blocking the whole it
 (`mem.indexOf*`→`find*`) will hit the same wall — expect to scope it down or skip to a
 different unblocked item until the toolchain pin bumps.
 
+## `zig fmt` vs. the tidy 100-column baseline on multi-line string-array literals
+
+`zig fmt` only has two stable forms for a `[_][]const u8{...}` literal that spans multiple
+source lines: one item per line, or a column-aligned grid (padded to the widest item in each
+column position). It will not preserve a manually "packed, ragged" layout — the next `zig fmt`
+run silently re-grids it. This codebase has several large command-name lookup arrays (in
+`commands/strings.zig` and elsewhere) that hit both failure modes: grid form can push lines past
+tidy's 100-column baseline when item lengths vary a lot (e.g. `"GEORADIUSBYMEMBER"` next to
+`"GET"`), while one-item-per-line inflates the *function's* line count past its tidy
+function-length baseline instead. Fix by choosing the widest column count that still keeps
+every line ≤100 columns (compute empirically: format candidate N-column layouts through
+`zig fmt` in a scratch file and measure), not by reflowing to one-per-line by default — that
+trades one tidy violation for the other. If neither fits, look for real duplication to remove
+(e.g. two `if` branches with identical bodies) before reaching for a baseline bump.
+
 ## RESP protocol pattern
 
 Every command handler is protocol-version-aware at the response-formatting step only —

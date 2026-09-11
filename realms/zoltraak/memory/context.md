@@ -1,7 +1,43 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-10T11:05:36Z
+last_seen_at: 2026-09-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 8 — 2026-09-11 — FEATURE
+- Found dirty at preflight: branch `refactor/strings-assertion-baseline-v2`
+  (not `wip/*`, no open PR) with an uncommitted, unverified diff — a prior
+  session's interrupted continuation of plan 001 item 11 onto
+  `commands/strings.zig`. Preserved to `wip/strings-assertion-baseline-v2-
+  20260911` per the no-discard rule, then verified and continued it rather
+  than starting over: `zig build test` passed (1106/1106, only the 2
+  documented signal-4 flakes) but `zig build tidy` failed — the prior
+  session's `zig fmt` run had reformatted 4 command-lookup arrays
+  (`read_commands`, `write_commands`, `single_key_commands`,
+  `skip_redirect_cmds`) into a column-aligned grid, pushing the file from
+  230 to 284 lines over the 100-column baseline (a real fmt-vs-tidy
+  tension: multi-item-per-line arrays are only zig-fmt-stable as either
+  one-item-per-line or a padded grid, and grid width scales with the
+  longest item in the array). Repacked each array at the widest column
+  count that still clears 100 columns (5-7, computed empirically) rather
+  than one-per-line, which would have blown `getCommandAccessMode`/
+  `getCommandKeyPositions`'s function-length baseline instead; merged two
+  identical-body key-position branches (RENAME/RENAMENX,
+  COPY/LMOVE/BLMOVE/BRPOPLPUSH/RPOPLPUSH/SMOVE) to claw back the last 2
+  lines under `getCommandKeyPositions`'s 140-line baseline.
+- Plan 001 item 11 (assertion baseline) now covers `commands/strings.zig`
+  too (0 → 46 asserts: NX/XX and KEEPTTL/EX mutual exclusion, key-existence
+  postconditions on SET/INCR/DECR family, i64 negation-overflow proof,
+  NaN/Inf guards on INCRBYFLOAT, paired-arg-count invariants on MSET/HSET-
+  style commands) — joining memory.zig (deferred), parser.zig, writer.zig,
+  server.zig.
+- Verified: `zig build test` 1106/1106 (only the 2 documented flakes),
+  `zig build tidy` clean, `zig fmt --check src/commands/strings.zig` clean.
+- PRs: #131 opened (`refactor/strings-assertion-baseline-v2`), CI pending
+  at the cycle deadline — commented "awaiting CI; merge next cycle".
+- Next: next cycle's inbox merges #131. Assertion baseline remaining:
+  `storage/memory.zig` (deferred, large). Re-check zuda/sailor tags.
+- Blockers: none beyond the standing zuda/sailor v3.0.0 gate (still
+  v2.3.0/v2.99.0). Open questions: none.
 
 ## Cycle 7 — 2026-09-09 — FEATURE
 - Done: inbox merged #129 (writer.zig assertion baseline, CI green,
@@ -30,35 +66,17 @@ rejected_plans: []
 - Blockers: none this cycle beyond the standing zuda/sailor v3.0.0 gate.
   Open questions: none.
 
-## Cycle 6 — 2026-09-08 — FEATURE
-- Done: inbox merged #128 (catch-unreachable proof comments, CI green,
-  auto-merged). Confirmed items 4-9 of plan 001 are genuinely blocked by
-  probing both toolchain trees directly: `std.process.Init`, `mem.find*`,
-  and the vtable `std.Io` don't exist under the pinned 0.15.2 toolchain
-  (`/opt/homebrew/Cellar/zig/0.15.2`), only under 0.16.0 — so they wait on
-  item 10's toolchain bump, itself `blocked_by zuda>=3.0.0, sailor>=3.0.0`
-  (currently v2.3.0/v2.99.0, not satisfied; both repos' own `build.zig` are
-  already 0.16-fixed on main but not tagged v3 yet).
-- Implemented plan 001 item 11 continuation: assertion baseline on
-  `protocol/writer.zig` (~50 asserts, up from 0) — RESP frame CRLF/length
-  invariants, buffer-growth invariants on recursive `writeValue` calls,
-  3-byte format-code precondition on `writeVerbatimString`. code-reviewer
-  subagent caught a real bug in the first draft: `bulk_len_max`/
-  `multibulk_count_max` are parser-side *input* limits, not writer-side
-  output invariants — asserting them on write functions would crash the
-  server on legitimate large collections (e.g. `HGETALL` on a >1M-field
-  hash). Removed before merge; also fixed two off-by-one length comments.
-- Verified: `zig build test` 1106/1106 (only the 2 documented signal-4
-  RDB flakes), `zig build tidy` clean, `zig fmt --check` clean.
-- PRs: #129 opened (`refactor/writer-assertion-baseline`), CI pending at
-  the cycle deadline — commented "awaiting CI; merge next cycle".
-- Next: next cycle's inbox merges #129. Assertion baseline remaining:
-  `storage/memory.zig`, `server.zig`, `commands/strings.zig`. Re-check
-  zuda/sailor tags each cycle — once both hit v3.0.0, items 4-9 unblock.
-- Blockers: none this cycle beyond the standing zuda/sailor v3.0.0 gate.
-  Open questions: none.
-
-## History (cycles before 6)
+## History (cycles before 7)
+- Cycle 6: merged #128 (catch-unreachable proofs). Confirmed items 4-9 of
+  plan 001 are genuinely blocked by probing both toolchain trees directly
+  (`std.process.Init`, `mem.find*`, vtable `std.Io` don't exist under the
+  pinned 0.15.2 toolchain) — wait on item 10's toolchain bump, itself
+  `blocked_by zuda>=3.0.0, sailor>=3.0.0`. Implemented item 11 continuation:
+  assertion baseline on `protocol/writer.zig` (~50 asserts). code-reviewer
+  caught a real bug pre-merge: `bulk_len_max`/`multibulk_count_max` are
+  parser-side input limits, not writer-side output invariants — asserting
+  them on write functions would crash on legitimate large collections
+  (e.g. `HGETALL` on a >1M-field hash). PR #129.
 - Cycle 5 (STABILIZATION, forced by `n % 5 == 0`): merged #127 (parser.zig
   assertion baseline, plan 001 item 10 partial). Fresh tidy-auditor audit
   (see `STATE.md`) found 17 `catch unreachable` sites without proof
