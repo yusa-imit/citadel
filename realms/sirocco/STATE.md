@@ -1,5 +1,38 @@
 # sirocco — State Survey (2026-09-05, refreshed 2026-09-11)
 
+## Refresh 2026-09-11 (cycle 10, STABILIZATION)
+
+- CI: last 5 runs on main all green (success), current `origin/main` head `888ee0b` matches.
+  No open issues, no red CI. Plan PR #13 (plan 002: fiber-scheduler-and-futex-core) still open,
+  awaiting human merge — no new OWNER comments since the last watermark.
+- `zig build test` and `zig fmt --check src bench build.zig` both green locally via the pinned
+  `/Users/fn/.zr/toolchains/zig/0.16.0/zig`. `zig build tidy` also green under that toolchain
+  (an independent audit pass using the stale global 0.15.2 `zig` saw it fail — a toolchain
+  mismatch, not a real regression; confirmed by re-running with the correct pinned binary).
+- Tidy audit (tidy-auditor agent, grep pass): zero violations in every category — `catch
+  unreachable` (0), `@panic`/`std.debug.print`/`while (true)` in src/ (0 each), functions > 70
+  lines (0; largest is `main.zig`'s `run()` at 21 lines), files > 800 lines (0; largest is
+  `main.zig` at 73 lines), `usize` in wire formats (0; none exist yet), missing `//!` headers
+  (0/9), `debug.assert(`/`usingnamespace` (0), `== error.`/bare `anyerror` in pub fn (0).
+  `assert`/`maybe` count: 5 asserts + 1 maybe across `main.zig`'s 2 functions (3.0/fn, meets the
+  ≥2 target); 6 stub modules have 0 functions so 0 asserts is not a violation. Same clean result
+  as cycle 5 (2026-09-09) — repo remains mechanically clean; the caveat about zeros reflecting
+  absence of code rather than discipline still holds for the 6 stub modules.
+- Test quality audit (test-writer agent): no `expect(true)`/assertion-free tests over real
+  logic, no leak gaps. `main.zig`'s CLI tests and `bench/main.zig`'s `matchesFilter`/`rates`
+  tests have real boundary/negative coverage. `tools/tidy_test.zig` (395 lines) is the
+  strongest suite in the repo — paired positive/negative/boundary cases per rule, correctly red
+  by design pending `checkSource` implementation. Six stub-module "compiles" tests are expected
+  placeholders, not defects. Verdict: adequate for the amount of implemented logic; revisit once
+  Phase 1 (event loop) lands and needs model-based/fuzz tests.
+- Docs: README/CHANGELOG/build.zig.zon all consistent with the released v0.2.0 (no drift found).
+- Dependencies: N/A — `build.zig.zon` `.dependencies = .{}`, zero-dependency foundation repo.
+- Benchmarks: not run — `bench/main.zig` still has only a `noop` benchmark, nothing functional
+  to measure before Phase 1 (event loop) lands, same as cycle 5's assessment.
+- Hygiene: root clean, no tracked `zig-cache`/`zig-out` artifacts, `.gitignore` covers both;
+  working tree clean.
+- No fixes needed this cycle — nothing to file, nothing outstanding.
+
 ## Refresh 2026-09-11 (cycle 8, FEATURE) — Release v0.2.0
 
 Milestone `001` (Zig 0.16 migration and Tiger Style baseline) complete and released.
