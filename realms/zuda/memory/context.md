@@ -1,7 +1,29 @@
 # zuda — context
 
-last_seen_at: 2026-09-11T19:06:31Z
+last_seen_at: 2026-09-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 9 — 2026-09-12 — FEATURE
+- Done: inbox found no new owner actions beyond the known "awaiting CI; merge next cycle" note
+  on #41 (already accounted for). Merged PR #41 (RobinHoodHashMap seed injection, CI fully
+  green across all 7 checks), branch deleted. Continued plan 001's io/seed rollout with
+  `cuckoo_hash_map.zig` (ADR 0001 D1): added a stored `prng: std.Random.DefaultPrng` field
+  seeded once at `init`/`initCapacity` from a required `Options{ seed: u64 }` (no default);
+  `rehash()` now draws `seed1`/`seed2` from that stored prng instead of re-seeding from
+  `std.time.nanoTimestamp()` on every max-displacement rehash. 3 new determinism tests (same
+  seed → identical seed1/seed2 at init and post-rehash; different seeds diverge). 2 external
+  call sites updated (`bench/hashing.zig`, `tests/memory_safety_audit.zig`, 3 call sites
+  there). `code-reviewer` found the change correct (Xoshiro256 is a plain value type, no
+  self-referential pointer, safe to copy in `clone()`) with one doc-comment suggestion, applied.
+- PRs: #42 open (CuckooHashMap seed injection), Build & Test + wasm32-wasi green, 5
+  cross-compile targets pending at the cycle deadline — left "awaiting CI; merge next cycle"
+  comment, next cycle's inbox merges it. #41 merged.
+- Next: merge #42 once green, then finish plan 001's io/seed rollout item with `skip_list.zig`
+  (the last file in scope — has both a time-seeded `init` and an existing `initWithSeed` escape
+  hatch to consolidate into one `Options`-taking `init`, plus a wider consumer footprint:
+  `src/compat/zoltraak_sortedset.zig`, `src/utils/builder.zig`'s `toSkipList`,
+  `src/utils/debug.zig`, 3 examples, 2 benches). Once done, this plan item can be ticked.
+- Blockers: none. Open questions: none.
 
 ## Cycle 8 — 2026-09-11 — FEATURE
 - Done: inbox merged PR #40 (fix: ConcurrentSkipList reader-count-quiescence reclamation, all 7
