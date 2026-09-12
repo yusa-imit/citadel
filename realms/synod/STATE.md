@@ -83,6 +83,42 @@ Not yet fixed (recorded for a future cycle, out of this cycle's single-fix budge
   — use `/Users/fn/.zr/toolchains/zig/0.16.0/zig` explicitly for this repo; confirmed
   `zig build test` / `zig build` / `zig fmt --check` all green under 0.16.0.
 
+**Superseded 2026-09-12 (cycle 10, stabilization)** — re-audit after cycles 6-9 added the
+`bench/main.zig` 0.16 migration, the ADR-002 `io: Io`-boundary tidy rule, and ADR-003 (docs
+only). `zig build tidy` still walks `src/` only — confirmed still true; both size violations
+below remain live and invisible to CI. This cycle fixed the assert-implication idiom class only
+(smallest safe diff; the size violations need a real split, deferred again):
+
+| Check | Count | Location |
+|---|---|---|
+| compound `assert(a and b)` | 0 | — |
+| `assert(a or b)` implication idiom | 2 (fixed via #13) | were `bench/main.zig:48` and `tools/tidy.zig:605` (ADR-002 core-purity check); both rewritten to `if (!a) assert(b);` |
+| `catch unreachable` w/o proof | 0 | 12 raw hits, all in doc comments / test-fixture strings |
+| `@panic(` | 0 | — |
+| `std.debug.print(` in library code | 0 | 1 raw hit, inside a test-fixture string at `tools/tidy.zig:1047` |
+| `while (true)` | 0 | — |
+| functions > 70 lines | 1 | `build.zig:12` `pub fn build` — grew to **87 lines** (was 83) |
+| files > 800 lines | 1 | `tools/tidy.zig` — grew to **1266 lines** (was 1124), via PR #11's core-purity check + tests |
+| `usize` in wire structs | 0 | `src/types.zig` still a stub — no `Message`/`Entry`/`HardState`/`Snapshot` yet |
+| missing `//!` header | 0 | all 15 `.zig` files have one |
+| `anyerror` in `pub fn` / error-upcasting | 0 | (1 `anyerror` on a struct *field*, `bench/main.zig:10` — not a `pub fn` signature, not a violation) |
+
+Still not fixed (still out of a single-fix-per-cycle budget; same root cause as cycle 5):
+- `build.zig`'s `pub fn build` at 87 lines and `tools/tidy.zig` at 1266 lines both remain
+  unenforced because `tools/tidy.zig`'s `main()` (line 651) only opens `src/`; `tools/tidy.zig`
+  is never walked by the tool that checks it, and `build.zig`'s only self-check
+  (`checkBuildZigHeader`, line 626) verifies its `//!` header, not its function length. Doing the
+  size splits without first widening tidy's scope leaves the fix unenforced again next time it
+  regresses — but widening scope *before* splitting would turn `zig build tidy` red immediately.
+  Recommended order for whichever cycle picks this up: (1) split `tools/tidy.zig`'s ~550 lines
+  of inline tests (714-1267) into `tools/tidy_test.zig`, (2) extract `build.zig`'s step-wiring
+  into helpers, (3) only then widen `tools/tidy.zig`'s walk to cover `tools/` and add a function-
+  length check for `build.zig`, in the same PR as steps 1-2 so CI never goes red in between.
+- Latent, non-blocking: `findFunctionEnd` (`tools/tidy.zig:213`) is not char-literal-aware — a
+  `'{'`/`'}'` char literal in source would be miscounted as a real brace. Not currently triggered
+  by any file in this repo; worth a doc note or regression test whenever the size checks above
+  are touched.
+
 ## Zig 0.16 probe summary
 
 - `zig build` on 0.16.0: **build.zig itself compiles clean** against the 0.16 `std.Build` API —

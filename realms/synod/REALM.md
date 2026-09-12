@@ -59,8 +59,8 @@ long-running local suites, synod should never need a "run this overnight" local 
   depend on zuda at all (libraries sit above foundation), so write anything it needs in-tree.
 - **Release quirks**: version bumps are monotonic — next minor unless the change is fix-only
   (then patch); MAJOR only on explicit user instruction. Release requires `zig build test` at
-  0 failures, all 6 cross-compile targets green, and 0 open `bug` issues. No CHANGELOG.md
-  exists yet — add one before the first tagged release.
+  0 failures, all 6 cross-compile targets green, and 0 open `bug` issues. `CHANGELOG.md` exists
+  (since PR #4) and gets an entry with every merged PR.
 - **Core-is-pure-state-machine API pattern** (the load-bearing design rule; enforce by grep in
   review, not just convention):
   - `raft/`, `membership/`, `detector/` never import `std.net`, `std.fs`, or `std.time`
@@ -104,4 +104,8 @@ long-running local suites, synod should never need a "run this overnight" local 
 - README/PRD read as if a full Raft+SWIM+detector+HLC+simulator library exists; 0% of that
   logic is written and `docs/milestones.md`'s 24-item checklist is 100% unchecked. Do not treat
   this repo as usable or as a real dependency yet.
-- No CHANGELOG.md.
+- README's Zig version badge still reads `zig-0.15.x`; repo has been on 0.16.0 since PR #7.
+  Milestone item 10 (README/PRD/CHANGELOG reconciliation) covers this — do not fix it as a
+  stray stabilization task, it's already scoped as the next planned FEATURE item.
+- `CHANGELOG.md` has existed since PR #4 (cycle 1) — the old "no CHANGELOG.md yet" note here and
+  in `STATE.md` was stale as of cycle 10; corrected.

@@ -1,7 +1,32 @@
 # synod — context
 
-last_seen_at: 2026-09-11T18:05:36Z
+last_seen_at: 2026-09-12T06:06:59Z
 rejected_plans: []
+
+## Cycle 10 — 2026-09-12 — STABILIZATION
+- **Bookkeeping bug found and fixed**: cycle 9's `/report` updated this file but never wrote
+  `memory/counter` (stayed at 8 despite cycle 9 fully completing — PR #12 merged, item 9 ticked).
+  True completed-cycle count was 9, making this session cycle 10 (not 9 as the stale counter
+  implied), which lands on the every-5th-cycle STABILIZATION cadence. Corrected `counter` to 10
+  so the cadence self-heals; if a future cycle's mode looks off, check for another skipped write.
+- Inbox: no new owner actions since watermark — the only new items were the AI's own cycle-9
+  report comments on issue #3, not new OWNER instructions. No plan PR, no bug issues, no red CI
+  (the last push-CI run's older SHA is expected: PR #12 was docs-only and matched CI's
+  `paths-ignore`, so no push-triggered run was expected for that merge).
+- tidy-auditor full pass (see `STATE.md` "Superseded 2026-09-12" table): fixed one class,
+  smallest-diff-first — two `assert(a or b)` implication-style asserts rewritten to
+  `if (!a) assert(b);` in `bench/main.zig:48` and `tools/tidy.zig:605`, via PR #13 (merged, CI
+  green). Deferred: `build.zig`'s `pub fn build` now 87 lines (limit 70) and `tools/tidy.zig` now
+  1266 lines (limit 800), both still unenforced because `tidy.zig`'s `main()` only walks `src/`;
+  full recommended fix order recorded in `STATE.md` (split tidy's inline tests out first, extract
+  build.zig helpers, only then widen tidy's scope — all in one PR so CI never goes red mid-fix).
+- Docs hygiene: `REALM.md`/`STATE.md` both claimed "no CHANGELOG.md yet" — stale, it has existed
+  since PR #4 (cycle 1); corrected in both files. Left README's `zig-0.15.x` badge alone even
+  though it's stale (repo's been on 0.16.0 since PR #7) — it's already scoped as milestone item
+  10, not a stray stabilization fix.
+- Next: FEATURE cycle 11 → item 10 (README/PRD/CHANGELOG reconciliation), then item 11 (release
+  v0.2.0).
+- Open questions: none.
 
 ## Cycle 9 — 2026-09-12 — FEATURE
 - Inbox: no new owner actions since watermark; no plan PR open; no bug/red-CI; milestone #3
@@ -53,34 +78,7 @@ rejected_plans: []
   and CI landed in cycle 4's PR #7). After that: item 9, assertion baseline.
 - Open questions: none.
 
-## Cycle 6 — 2026-09-10 — FEATURE
-- Inbox: no new owner actions since watermark; no plan PR open; milestone #3 unchanged apart
-  from ticking item 5 this cycle.
-- Implemented item 5 (0.16 — `bench/main.zig`) via PR #9 (merged, CI green all 7 jobs):
-  `pub fn main(init: std.process.Init) !void`, `init.gpa`, `Io.Clock.Timestamp.now(io, .awake)`/
-  `.untilNow(io)` replacing `std.time.Timer`, `std.mem.find` replacing the removed
-  `std.mem.indexOf` via a new `matchesFilter` helper (4 unit tests, wired into `zig build test`
-  via a `bench_tests` step mirroring `tidy_tests`).
-- Found and closed a real CI gap while doing this: the bench executable was never built by CI at
-  all — not part of `zig build`'s default install step, and (per the 0.16 probe caveat in
-  STATE.md) `zig build test`'s test binary never actually analyzes a `pub fn main` body, so unit
-  tests alone would not have caught the `Io.Clock` migration errors. Added a "Bench (compile +
-  smoke run)" CI step (`zig build bench -- __ci_no_match__`) that builds and runs the real
-  executable. Also extended `zig fmt --check` to cover `bench/` (previously only `src build.zig`).
-- code-reviewer pass before merge caught 3 warnings, all fixed: `@intCast` on the clock delta
-  could UB in ReleaseFast if the monotonic-clock contract were ever violated (added an
-  `assert` + `@max(…, 0)` clamp); `matchesFilter`/`main` were under the 2-assertions-per-function
-  target (added a postcondition assert on the found index in `matchesFilter`, and
-  `ops > 0 or ns_per_op == 0` in `main`); `zig fmt --check` gap noted above.
-- Process note: forgot the `Co-Authored-By` trailer on the PR #9 commit before pushing; realized
-  after push, but amending would require a force-push, which the kingdom guard hook blocks
-  unconditionally — left as-is rather than rewrite history. Remember to include the trailer in
-  the *first* commit message next time, not add it after the fact.
-- Next: item 6, the 0.16 library-core sweep (expected near-no-op per the probe — `src/` has 0
-  fs/net/time hits already), then `io: Io`-at-the-boundary and the assertion baseline.
-- Open questions: none.
-
-## History (cycles 0-5)
+## History (cycles 0-6)
 - Cycle 0 (2026-09-05, RESTRUCTURE): realm created by citadel restructure; memory migrated from
   the repo's old `.claude/memory/`; plan 001 (Zig 0.16 migration + Tiger Style baseline)
   prescribed by ROADMAP.
@@ -98,6 +96,11 @@ rejected_plans: []
 - Cycle 5 (2026-09-09, STABILIZATION, every-5th-cycle cadence): tidy-auditor found one real fix
   (compound assert → `if (a) assert(b);` idiom), merged as #8. Confirmed `zig build bench` still
   broken under 0.16 (became cycle 6's item). stabilize_streak stayed 0.
+- Cycle 6 (2026-09-10, FEATURE): item 5 (0.16 — `bench/main.zig`) via PR #9: `Io.Clock`-based
+  timing, `init.gpa`, `matchesFilter` replacing `std.mem.indexOf`; also closed a real CI gap
+  (bench executable was never built by CI). Forgot the `Co-Authored-By` trailer on PR #9's
+  commit — a force-push to fix it is blocked by the guard hook, so it was left as-is; include
+  the trailer in the *first* commit next time.
 - Standing backlog (from the old `.claude/memory/project-context.md`): after item 6 (library-core
   sweep), Phase 1 real work starts at `src/types.zig` (NodeId/Term/Index/Entry/HardState/
   Snapshot/Message/ConfChange), then `src/log.zig` (append/truncate/termAt/conflict search),
