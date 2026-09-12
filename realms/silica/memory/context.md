@@ -1,7 +1,31 @@
 # silica — context
 
-last_seen_at: 2026-09-11T00:00:00Z
+last_seen_at: 2026-09-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 11 — 2026-09-12 — FEATURE
+- Inbox: merged PR #149 (batch 8 scratch-DB tmpDir), CI all green (build-and-test + 6
+  cross-compile). No new OWNER directives/questions since watermark. No plan PR open, no
+  plan_closed_unmerged. Milestone issue #137 still the only open issue.
+- Implemented plan 001 item 2 part 2 batch 9: `sql/catalog.zig`'s 152 test scratch-DB paths, all
+  funneled through the shared `TestCatalog` helper — converted `setup(allocator, path)` into
+  `setup(allocator, name)` owning a `std.testing.TmpDir` and building the path internally, so
+  all 152 call sites converted at once (mechanical sed on the uniform `const path = "...";` /
+  `TestCatalog.setup(allocator, path)` two-line pattern). `zig build test` green (4724/4747
+  passed, 23 skipped, 0 failed), `zig fmt --check` clean on catalog.zig, no new
+  `test_catalog_*.db` files at repo root.
+- PR #150 opened, plan doc sub-checklist ticked (batch 9 done, remaining scope narrowed to 2
+  files / ~924 occurrences: `sql/engine.zig` 819, `cli.zig` 105). CI still pending at cycle
+  deadline (historical 13-18m) — commented "awaiting CI; merge next cycle", left for cycle 12's
+  inbox.
+- Next: cycle 12's inbox merges #150 if green, then batch 10 on the remaining 2 files —
+  `cli.zig` (105, has 7 multi-path variants alongside the uniform 98, needs per-variant care
+  like batch 6/7) or start `sql/engine.zig` (819, likely needs its own multi-cycle sub-plan
+  given size, per prior-cycle notes).
+- Blockers: none new. Standing blocker unchanged (plan 001 rest blocked_by zuda v3.0.0,
+  sailor v3.0.0).
+- Open questions: unchanged (buffer-pool LRU zuda-migration contradiction; concurrent-
+  connections WAL-corruption finding not reconfirmed).
 
 ## Cycle 10 — 2026-09-11 — STABILIZATION (forced, n%5==0)
 - Inbox: merged PR #147 (batch 7 scratch-DB tmpDir), CI green (build-and-test + 6
@@ -76,33 +100,11 @@ rejected_plans: []
   cycle despite touching `buffer_pool.zig`, only mechanical test-path edits, no LRU logic read;
   concurrent-connections WAL-corruption finding not reconfirmed).
 
-## Cycle 7 — 2026-09-09 — FEATURE
-- Inbox: merged PR #144 (batch 4 scratch-DB tmpDir), CI all green
-  (build-and-test + 6 cross-compile), labeled auto-merged, branch deleted.
-  No OWNER comments/directives/questions since watermark. No plan PR open,
-  no plan_closed_unmerged. Milestone issue #137 still the only open issue.
-- Implemented plan 001 item 2 part 2, batch 5: routed 54 scratch-DB literal
-  path occurrences through `std.testing.tmpDir` — `storage/gin_index.zig`
-  (33, uniform pattern) and `tx/wal_fuzz.zig` (21, the deferred
-  paired-path variant: `wal_path = path ++ "-wal"` comptime concat became
-  a runtime `std.fmt.bufPrint` concat since `path` is now a tmp-dir
-  runtime string). Dropped 6 wal_fuzz.zig tests' now-dead `wal_path`
-  locals (only prior use was the removed per-test defer deleteFile) rather
-  than leave them unused. `zig build test` green, `zig fmt --check` clean
-  on both files (22 other files have pre-existing fmt drift, unrelated).
-- PR #145 opened, plan doc sub-checklist ticked (batch 5 done, remaining
-  scope narrowed to 8 files / ~1,305 occurrences). CI pending at cycle
-  deadline — commented "awaiting CI; merge next cycle", left for cycle 8's
-  inbox.
-- Next: cycle 8's inbox merges #145 if green, then picks the next batch
-  from the remaining 8 files (largest `sql/engine.zig` 819 — likely needs
-  its own multi-cycle sub-plan) or `zig build tidy` (no blocked_by).
-- Blockers: none new. Standing blocker unchanged (plan 001 rest is
-  blocked_by zuda v3.0.0, sailor v3.0.0).
-- Open questions: unchanged (buffer-pool LRU zuda-migration contradiction;
-  concurrent-connections WAL-corruption finding not reconfirmed).
-
-## History (cycle 6 and earlier, folded)
+## History (cycle 7 and earlier, folded)
+- **Cycle 7** (2026-09-09, FEATURE): inbox merged #144 (batch 4). Implemented batch 5 (54
+  occurrences: `gin_index.zig` 33 uniform, `wal_fuzz.zig` 21 deferred paired-path variant —
+  `wal_path = path ++ "-wal"` comptime concat became runtime `bufPrint`; dropped 6 now-dead
+  `wal_path` locals). Opened #145, left pending for cycle 8.
 - **Cycle 6** (2026-09-09, FEATURE): inbox merged #143 (26 SAFETY comments on unjustified
   `catch unreachable`, stabilization cycle 5). Implemented batch 4 (54 occurrences:
   `hash_index.zig`, `conformance_test.zig`). `wal_fuzz.zig` (21) deferred to batch 5 — needs
