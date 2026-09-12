@@ -1,31 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-09-12T00:00:00Z
+last_seen_at: 2026-09-12T01:00:00Z
 rejected_plans: []
 
-## Cycle 10 — 2026-09-12 — STABILIZATION
+## Cycle 11 — 2026-09-12 — FEATURE
 
-- Preflight found cycle 9 had run but never finished `/report` (counter still 9, PR #13 open
-  with 8/8 CI green) — resumed it: merged PR #13 (item 9, assertion baseline), ticked plan 001
-  to 9/11. This meant the true cycle number is n=10; `10 % 5 == 0` forced STABILIZATION over the
-  FEATURE item 10 pick made before that check.
-- Inbox: no new OWNER actions since watermark (only the AI's own prior report comments).
-- `tidy-auditor` re-swept the repo: all fresh checks (`@panic`, `std.debug.print`,
-  `while (true)`, fn/file length, wire-format `usize`, missing `//!`) read 0 — `src/` is still
-  stub-stage. Re-verified the 4 findings carried forward from cycle 5 are all still present.
-- Fixed the smallest-diff one via PR #14: `isWireFormatPath`'s 2nd `catch unreachable`
-  (`dir_prefix` bufPrint) had no `// proof:` comment of its own — `hasProof` only checks the
-  same/previous line, so the shared comment above the first call didn't cover it.
-  `catch_unreachable`'s `banApplies` is unconditionally true (not `isUnderSrc`-gated like most
-  rules), so `tools/tidy.zig` is bound by its own rule despite the repo scan not walking
-  `tools/` yet. Added a pinning test mirroring the real function body against `checkBanList`,
-  manually verified red (missing proof) → green (restored). CI 8/8, squash-merged,
-  `auto-merged`.
-- 3 findings still open, recorded in `STATE.md` smallest-diff-first: `tidy_baseline.txt` at
-  repo root (outside `DOCS.md`'s allowed list); `tools/tidy.zig` exempt from its own
-  file-length (now 1770 lines) and `//!`-header checks; unbounded mutual recursion in the two
-  directory-walk pairs (`walkDir15`/`descendDir16` families).
-- Next: FEATURE cycle resumes plan 001 item 10 (README reconciled with reality), 9/11 done.
+- Preflight: clean tree, on main, CI green (265ce20), no red CI or open bug — FEATURE mode
+  (11 % 5 != 0, no stabilize_streak). Inbox: no new OWNER actions since watermark.
+- Implemented plan 001 item 10 (README reconciled with reality) directly — a docs-only change,
+  no code contract to TDD. Added a `Status` column to the module table (all `Planned`; `json`
+  and `config` flagged `Planned (signature stub)` since item 7 gave them final `io: Io` shapes);
+  Zig badge → 0.16.x; `Install` no longer points `zig fetch` at the never-cut `v0.1.0` tag;
+  dropped `sailor` from the consumer list in both the Korean intro and "Part of the Zig Kingdom"
+  (neither `REALM.md`'s registry nor `citadel/docs/KINGDOM.md`'s graph list it — zr, zoltraak,
+  silica, synod are the real four). PR #15, CI 8/8 green, squash-merged, `auto-merged`.
+- Also caught and fixed a tracking-issue bookkeeping gap: item 9 (assertion baseline, merged in
+  #13/#14 last cycle) was never checked off in issue #3's checklist — ticked it retroactively.
+  Plan 001 now 10/11; only item 11 (CHANGELOG + version bump) remains.
+- Next: item 11 (CHANGELOG.md + `build.zig.zon` 0.1.0 → 0.2.0, no tag per the release quirk),
+  then `/plan sigil` opens plan 002 (Phase 1A).
 - Blockers: none. Open questions: none.
 
 ## History
@@ -62,13 +55,20 @@ Cycle 9 (2026-09-11, FEATURE): resumed an incomplete prior run (merged #11 + #12
 8/11). Implemented item 9 (assertion baseline: `main.zig`/`root.zig` real assertions, new
 `checkAssertionBaseline` tidy check). Background `code-reviewer` caught 1 CRITICAL (never
 assert an upper bound on argv — shell data, not a caller contract) + 3 WARNING, all fixed with
-regression tests before PR #13 opened; CI still running at session end, merged next cycle
-(cycle 10, see above).
+regression tests before PR #13 opened; CI still running at session end, merged next cycle.
+
+Cycle 10 (2026-09-12, STABILIZATION, forced by counter%5==0): resumed cycle 9's unfinished
+`/report` (counter still 9), merged PR #13, ticked plan 001 to 9/11. `tidy-auditor` re-swept the
+repo — all fresh checks read 0 (`src/` still stub-stage) — and re-verified 4 carried-forward
+findings. Fixed the smallest via PR #14 (`isWireFormatPath`'s 2nd `catch unreachable` needed its
+own `// proof:` comment). 3 findings still open: `tidy_baseline.txt` at repo root (outside
+`DOCS.md`'s allowed list), `tools/tidy.zig` (1770 lines) exempt from its own file-length/`//!`
+checks, unbounded mutual recursion in `walkDir15`/`descendDir16` families.
 
 ## Standing backlog (Phase 1, plan 002 — unchanged since bootstrap)
 
-Plan 001 (issue #3) is 9/11; items 10 (README) and 11 (CHANGELOG + version) remain before
-Phase 1 work starts. Phase 1 scope, in milestone order:
+Plan 001 (issue #3) is 10/11; item 11 (CHANGELOG + version) remains before Phase 1 work starts.
+Phase 1 scope, in milestone order:
 
 - **1A** — `core/{value,tree,diagnostics}.zig`: `Value` union, arena-owned `ValueTree`,
   `Diagnostics{line,col,message}`. Tests: arena release, equality, Map insertion-order.
@@ -77,10 +77,13 @@ Phase 1 work starts. Phase 1 scope, in milestone order:
 - **1D** — `reflect/{parse,stringify,options}.zig`: comptime struct<->Value mapping.
 - **2A-2C** (after Phase 1) — `json/{scanner,dom,writer}.zig`.
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable.
+- Carried from cycle 10 stabilization (unfixed, next stabilization candidates): misplaced
+  `tidy_baseline.txt`, `tools/tidy.zig` self-exempt from file-length/`//!` checks, unbounded
+  recursion in its directory-walk pairs.
 
 ## Next priority
 
-Finish plan 001 (issue #3, 9/11): item 10 (README reconciled with reality) is next,
-`blocked_by: none`. Item 11 (CHANGELOG + version, 0.1 → 0.2 per `ROADMAP.md`) follows, then
-`/plan sigil` opens plan 002 (Phase 1A). Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for all
-local dev commands; the global `zig` alias on this machine stays 0.15.2 per `zig-0.16.md`.
+Finish plan 001 (issue #3, 10/11): item 11 (CHANGELOG.md + `build.zig.zon` 0.1.0 → 0.2.0, no
+tag per the release quirk) is next, `blocked_by: none`. Then `/plan sigil` opens plan 002
+(Phase 1A). Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for all local dev commands; the global
+`zig` alias on this machine stays 0.15.2 per `zig-0.16.md`.
