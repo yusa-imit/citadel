@@ -1,7 +1,35 @@
 # sigil — context
 
-last_seen_at: 2026-09-12T01:00:00Z
+last_seen_at: 2026-09-12T15:05:53Z
 rejected_plans: []
+
+## Cycle 12 — 2026-09-12 — FEATURE
+
+- Preflight: clean tree, on main, CI green (no run for HEAD 776978d — docs-only, paths-ignore
+  skip, not red). Inbox: no new OWNER actions since watermark (the two comments on #3 were our
+  own prior cycle-report comments). No open plan PR, no bug/question/directive issues.
+- Implemented plan 001's last item (11: CHANGELOG.md + version bump). Added a pinning test in
+  `src/root.zig` (`version.minor == 2`), bumped `build.zig.zon` and the `version` constant
+  0.1.0 → 0.2.0 in lockstep, wrote `CHANGELOG.md` (Keep a Changelog) summarizing the whole
+  milestone. PR #16, CI 8/8 green, squash-merged, `auto-merged`. Ticked issue #3 to 11/11,
+  closed it (version impact was `none` for consumers per the plan — no release this milestone).
+- **Environment note**: this session's sandbox has no `~/.zr/toolchains/zig/0.16.0/zig` (the
+  path `REALM.md` documents) and no `zr` binary — `~/.zr/toolchains/zig/` only has `node`.
+  Homebrew's `zig` is 0.15.2 and can no longer compile sigil's `root.zig` (post-migration code
+  uses `std.Io.Dir`, gone in 0.15.2) — confirmed by trying `zig build test`, which fails at the
+  root-test compile unit while `tools/tidy.zig`'s own 40 unit tests and `main.zig`'s 1 test still
+  pass (they don't transitively import the 0.16-only pieces of `config.zig`/`json.zig`). Local
+  `zig build test`/`tidy` is only partially usable here; CI (resolves 0.16.0 from the manifest
+  via `mlugg/setup-zig@v2`) is the real gate until a toolchain reappears. Worth flagging to the
+  human if this persists — it blocks true TDD red/green verification locally.
+- With plan 001 fully closed and ~12 min left before the cycle deadline, opened plan 002 (Phase
+  1A: `core/value.zig`, `core/tree.zig`, `core/diagnostics.zig`, folding in `core/number.zig`
+  from Phase 1B since it's small and tightly related) as PR #17 for human merge. This is the
+  first plan proposing real functional code since bootstrap.
+- Next: awaiting human merge of plan 002 (#17). Once merged, `/cycle` opens its tracking issue
+  and item 1 (`core/value.zig`) becomes the next `/implement` target.
+- Blockers: none. Open questions: none (the missing local 0.16.0 toolchain is a note, not a
+  blocking question — CI still gates correctly).
 
 ## Cycle 11 — 2026-09-12 — FEATURE
 
