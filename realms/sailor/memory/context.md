@@ -1,7 +1,34 @@
 # sailor — context
 
-last_seen_at: 2026-09-12T00:00:00Z
+last_seen_at: 2026-09-12T08:06:00Z
 rejected_plans: []
+
+## Cycle 11 — 2026-09-12 — FEATURE
+
+- Done: preflight found repo clean on PR #30's branch (`fix/pipeline-catch-unreachable-proof`,
+  not `wip/*`), switched to main directly. GitHub truth: CI green on main, no bug/question/
+  directive issues, no plan PR. Inbox merged PR #30 (10/10 checks green, `mergeStateStatus: CLEAN`)
+  — squash, branch deleted, `auto-merged`; post-merge CI on main confirmed running (not red).
+  No new OWNER comments on #19 or any merged PR since watermark. Milestone #19's item 4
+  (`build.zig` fix + mechanical renames) not re-verified — memory already confirmed 3x (cycles
+  6, 7, 9) it has no 0.15.2-compatible spelling for its remainder and every later checklist item
+  depends on the same toolchain switch, so treated all remaining items as practically blocked
+  and fell back to CYCLE.md's one-bounded-stabilize-task clause. Picked STATE.md's next
+  mechanical target: added `//!` headers to the 13 top-level `src/*.zig` files (excluding
+  `tui/`) tidy's `missing_header` check flagged. Regenerated `tidy_baseline.txt` via a fresh
+  `tidy generate` run, cross-checked byte-for-byte against a second independently-built binary
+  (446→433, only the 13 expected entries removed, zero other drift — same caution as cycle 9's
+  stale-cache incident). `zig fmt --check` and `zig build test` both green. Opened as PR #31;
+  left open for next cycle's inbox (CI still running at cycle deadline, same recurring pattern).
+  Updated STATE.md's Tiger Style table (`//!` header count 86→73, all remaining under `tui/`).
+- PRs: #30 (merged), #31 (open, CI pending).
+- Next: inbox should merge #31 once green. After that, `src/tui/` (35 files) is the next `//!`
+  header slice, then `src/tui/widgets/` (38 files) — same mechanical pattern, one directory per
+  PR to keep each bounded. Do not re-check item 4 on #19's remaining scope again; it needs a
+  dedicated multi-cycle session pairing the 0.16 toolchain switch with the `std.Io` rewrite.
+- Blockers: item 4/6/7 on #19 still needs that dedicated session — verified 4 ways now (cycles
+  6, 7, 9, 11); do not re-check.
+- Open questions: none.
 
 ## Cycle 10 — 2026-09-12 — STABILIZATION
 
@@ -112,33 +139,14 @@ rejected_plans: []
   a formal `blocked_by` tag — STATE.md's Zig 0.16 probe summary has the error-class breakdown.
 - Open questions: none.
 
-## Cycle 6 — 2026-09-10 — FEATURE
+## History (cycles 0-6, condensed 2026-09-12)
 
-- Done: inbox merged PR #25 (`crypto_random` tidy tracking) — CI on `main` @ `07c8a97` confirmed
-  `success` before treating main as green. Picked item 4 on #19 (`build.zig` fix + mechanical
-  renames). Read both 0.15.2 and 0.16.0 stdlib sources directly and found the item's own six
-  renames split cleanly: `GeneralPurposeAllocator`→`DebugAllocator` and `linkLibC()`→
-  `.link_libc = true` are pure aliases in 0.15.2 (safe to land now, no toolchain switch needed);
-  `Io.Mutex`, env access, `posix.isatty`, and `mem.indexOf*`→`find*` (478 sites) have no
-  0.15.2-compatible spelling and need the actual toolchain switch. Landed the safe half:
-  `linkLibC` fix (1 site) + GPA rename repo-wide (44 sites across `src/`, `tests/`, `examples/`,
-  `benchmarks/`, `scripts/`) as PR #26. Verified via `git stash` that the 8 pre-existing `zig fmt`
-  failures and 10 pre-existing example-build failures (e.g. `examples/hello.zig:39` calling
-  `layout.split` with a stale arg count) are unchanged by the diff. `zig build test` green,
-  `code-reviewer` clean. CI still running at cycle deadline (~8 min budget left after the
-  implementation work) — left PR #26 open for next cycle's inbox, same pattern as #21/#25.
-  Checklist item 4 left unticked: the item's own `Verify` line requires the build to compile
-  *on 0.16.0*, which this slice doesn't reach alone.
-- PRs: #25 (merged), #26 (open, CI pending).
-- Next: inbox should merge #26 once green (does not tick item 4 — that needs a follow-up cycle
-  to do the toolchain-dependent renames: `Io.Mutex` (6), env access (14), `posix.isatty` (4),
-  `mem.indexOf*`→`find*` (478, use the mapping table in `zig-0.16.md`, not a blind regex) —
-  likely paired with actually bumping `minimum_zig_version` to `0.16.0` in the same PR, since
-  none of those four compile under 0.15.2 in isolation).
-- Blockers: none.
-- Open questions: none.
-
-## History (cycles 0-5, condensed 2026-09-12)
+Cycle 6 (FEATURE, 2026-09-10): merged PR #25 (`crypto_random` tidy tracking). Read 0.15.2 and
+0.16.0 stdlib directly and found item 4's six renames split cleanly: `GeneralPurposeAllocator`→
+`DebugAllocator` and `linkLibC()`→`.link_libc = true` are safe under 0.15.2 now; `Io.Mutex`, env
+access, `posix.isatty`, `mem.indexOf*`→`find*` (478 sites) have no 0.15.2-compatible spelling and
+need the actual toolchain switch — this is the finding cycles 7/9/11 kept re-confirming. Landed
+the safe half as PR #26 (left open for cycle 7's inbox); item 4 left unticked.
 
 Cycle 5 (STABILIZATION, 2026-09-09): merged PR #24 (`@panic` tidy tracking, all 8 sites
 proof-commented). `tidy-auditor` found zero baseline drift; added a new `crypto_random` tidy

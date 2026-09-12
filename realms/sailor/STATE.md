@@ -1,6 +1,7 @@
 # sailor — STATE
 
-Survey date: 2026-09-05 (citadel restructure). Sources: repo survey + Zig 0.16 breakage probe.
+Survey date: 2026-09-05 (citadel restructure), Tiger Style table refreshed 2026-09-12 (cycle
+11). Sources: repo survey + Zig 0.16 breakage probe.
 
 ## What exists (claimed vs present)
 
@@ -47,9 +48,9 @@ v2.100.0, round 3 of this audit). No `CHANGELOG.md` — release notes live only 
 
 ## Tiger Style gaps
 
-As of 2026-09-12 (cycle 10 tidy-auditor re-check, pre-PR #30): `zig build tidy` **passes** (446
-baseline entries on `main` after PR #29 merged, byte-for-byte diffed clean against a fresh
-regeneration — zero drift) — `catch_unreachable`, `panic`, `debug_print`,
+As of 2026-09-12 (cycle 11, PR #31 open): `zig build tidy` baseline is 433 entries (446 on `main`
+after PR #29/#30, minus 13 `missing_header` entries fixed by PR #31, cross-checked against two
+independently-built `tidy` binaries — zero other drift) — `catch_unreachable`, `panic`, `debug_print`,
 `usize_in_wire_format`, `missing_header`, `function_length`, `line_length`, `time_usage`, and
 `crypto_random` are tracked with a shrinking baseline in `build_support/tidy.zig` /
 `tidy_baseline.txt`. `while (true)` and file length (>800 lines) are still untracked by tidy —
@@ -65,15 +66,16 @@ both need per-site/per-file judgment, not a mechanical sweep.
 | Files > 800 lines | 52 | no | worst: `layout.zig` 3002, `style.zig` 2223, `tooltip.zig` 2094, `sixel.zig` 1864, `multicursor.zig` 1850 |
 | Functions > 70 lines | 122 baseline entries | yes | `build.zig:build` 1954, `docgen.zig:parseFunctionDeclaration` 360, `arg.zig:Parser` 312 |
 | `usize` in wire format | 4 file entries | yes | see `tidy_baseline.txt`; `termcap.zig:33-35` is the clearest genuine wire-format risk |
-| Missing `//!` header | 86 | yes | e.g. `accessibility.zig`, `aria.zig`, `bidi.zig` |
+| Missing `//!` header | 73 (was 86; 13 top-level `src/*.zig` fixed by PR #31, open) | yes | remaining 73 all under `src/tui/` (35) and `src/tui/widgets/` (38) |
 | `assert(` density | 9 total across ~4700+ `fn` in `src/` | no | Tiger Style's "≥2 per function" is essentially unmet kingdom-wide here; needs per-function judgment, not mechanical |
 
 Smallest-diff-first recommendation for the next stabilization cycle: `event_metrics.zig`/
 `render_metrics.zig`'s 4 `catch_unreachable` sites are genuinely NOT provable (caller-supplied
 general allocator, real OOM possible) — a real fix needs the call to return a typed error, not a
-proof comment; do not paper over with a false claim. `//!` headers on the 86 missing files
-(purely additive, zero risk, can split by directory) is next in line for a purely mechanical
-target. `while (true)` and the 52 over-800-line files stay deferred — both need per-site/
+proof comment; do not paper over with a false claim. `//!` headers: top-level `src/*.zig` slice
+(13 files) done in PR #31 (open); next slice is `src/tui/` (35 files), then
+`src/tui/widgets/` (38 files) — same purely-mechanical pattern, split by directory to keep each
+PR bounded. `while (true)` and the 52 over-800-line files stay deferred — both need per-site/
 per-file judgment calls. Repo-wide `zig fmt --check` pre-existing-failure count: 83 → 82 after
 PR #29 (`countdown_timer.zig` cleaned incidentally), → 81 on PR #30's branch (`pipeline.zig`
 cleaned incidentally by the repo's zig-fmt hook while editing the file) — a side effect of
