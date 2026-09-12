@@ -1,5 +1,19 @@
 # sirocco — State Survey (2026-09-05, refreshed 2026-09-12)
 
+## Refresh 2026-09-12 (cycle 12, FEATURE — bounded stabilization while plan PR #13 awaits merge)
+
+- CI: last run on `origin/main` (now `637e8e5`) success, 5/5 recent runs green. No open issues,
+  plan PR #13 (plan 002) still open awaiting human merge — no new OWNER activity since cycle 11's
+  watermark. `zig build test`/`fmt --check`/`tidy` all green under the pinned 0.16.0 toolchain.
+  Mechanical Tiger Style grep pass: zero violations across every category, same as cycles 5/10/11.
+- Found and fixed real docs drift (unlike cycles 5/10/11's fully-clean results): `README.md`'s
+  opening paragraph asserted present-tense capabilities (a `Runtime` type; kqueue/epoll backends
+  already filling 109 vtable slots) that neither the shipped v0.2.0 code nor the README's own
+  `Status` section support. Fixed via PR #14 (docs-only, merged) — intro now uses design-target
+  language consistent with `Status`.
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner).
+
 ## Refresh 2026-09-12 (cycle 11, FEATURE — bounded stabilization while plan PR #13 awaits merge)
 
 - CI: last run on `origin/main` (`888ee0b`) success. No open issues, no red CI, plan PR #13

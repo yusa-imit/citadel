@@ -1,7 +1,25 @@
 # sirocco — context
 
-last_seen_at: 2026-09-12T00:00:00Z
+last_seen_at: 2026-09-12T12:10:00Z
 rejected_plans: []
+
+## Cycle 12 — 2026-09-12 — FEATURE
+- Inbox: no new OWNER actions since the watermark; plan PR #13 (plan 002) still open awaiting
+  human merge, zero new review/issue comments on it. No open issues, no red CI, no rejected
+  plans, no other open implementation PRs to triage.
+- Done: plan PR open, so ran one bounded stabilization task. CI green (5/5, `888ee0b`), `zig
+  build test`/`fmt --check`/`tidy` all clean under the pinned 0.16.0 toolchain, zero Tiger Style
+  mechanical violations — same clean result as cycles 5/10/11. tidy-auditor pass found one real
+  issue this time: `README.md`'s opening paragraph made present-tense capability claims (a
+  `Runtime` type, kqueue/epoll backends filling 109 vtable slots) that contradict both the
+  shipped v0.2.0 stub-only code (no `Runtime` in `src/`, `root.zig` still exports pre-ADR stub
+  modules) and the README's own `Status` section a few lines down. Reworded the intro to
+  design-target language matching `Status`, per `citadel/protocol/DOCS.md`.
+- PRs: #14 opened and merged (docs-only, `*.md` CI-paths-ignored so no checks ran, `auto-merged`
+  label).
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner).
+- Blockers: none. Open questions: none.
 
 ## Cycle 11 — 2026-09-12 — FEATURE
 - Inbox: no new OWNER actions since watermark; plan PR #13 (plan 002) still open awaiting human
