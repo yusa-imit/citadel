@@ -52,8 +52,9 @@ sigil merely applies it first) → zuda, sailor (release v3.0.0) → zr → sili
 
 `zr-repos.toml [deps]` names zuda as a shared dependency of zr, silica, zoltraak, but the three
 `build.zig.zon` pins have split three ways: zr pins `git+…?ref=main#4ff2325` (a forbidden
-`git+…?ref=` pin, `core/rules/00-kingdom.md`) resolving to zuda 2.0.4, zoltraak pins tag v2.0.4,
-silica pins tag v2.3.0. Converges naturally once zr and zoltraak complete their `001` migration
+`git+…?ref=` pin, `core/rules/00-kingdom.md`) resolving to an untagged commit ~150 commits past
+v2.0.4 (pre-v2.1.0), zoltraak pins tag v2.0.4, silica pins tag v2.3.0. Converges naturally once
+zr and zoltraak complete their `001` migration
 (both are `blocked_by zuda>=3.0.0` already) and move to tag-pinned zuda v3.0.0 — no separate
 action needed unless a realm cycle lands a non-tag pin again.
 
