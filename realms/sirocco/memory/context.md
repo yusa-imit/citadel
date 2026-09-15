@@ -1,7 +1,27 @@
 # sirocco — context
 
-last_seen_at: 2026-09-13T00:00:00Z
+last_seen_at: 2026-09-15T00:00:00Z
 rejected_plans: []
+
+## Cycle 14 — 2026-09-15 — FEATURE
+- Inbox: no new OWNER actions since the watermark; plan PR #13 (plan 002) still open awaiting
+  human merge, zero new review/issue/PR comments since cycle 13. No open issues, no red CI, no
+  rejected plans, no other open implementation PRs to triage.
+- Done: plan PR open, so ran one bounded stabilization task. Local `.zig-cache` was stale,
+  causing `zig build test`/`tidy` to fail with `FileNotFound` spawning the build runner —
+  cleared it (gitignored, local-only, not a repo regression) and all checks passed clean.
+  tidy-auditor mechanical sweep: zero Tiger Style violations, same clean baseline as cycles
+  5/10/11/12. Docs-drift pass found `tools/tidy.zig`'s and `tools/tidy_test.zig`'s `//!` headers
+  still describing `checkSource` as unimplemented/red-phase, though it shipped in v0.2.0 — fixed
+  via PR #16 (comment-only, CI green, merged). Also flagged but deliberately did not touch:
+  `src/root.zig` still exports the pre-ADR parallel `io`/`net`/`tls`/`http`/`ws`/`task` modules,
+  contradicting ADR 0001 — expected since plan 002 (which builds the actual `Runtime`) hasn't
+  merged yet; rewriting it now would be scope creep ahead of the plan, not a docs fix.
+- PRs: #16 opened and merged (comment-only fix, touches `.zig` so CI ran fully, `auto-merged`
+  label).
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner).
+- Blockers: none. Open questions: none.
 
 ## Cycle 13 — 2026-09-13 — FEATURE
 - Inbox: no new OWNER actions since the watermark; plan PR #13 (plan 002) still open awaiting
@@ -147,3 +167,6 @@ design; the rewritten PRD (`docs/adr/0001-std-io-vtable.md`) is what Phase 1 imp
   cycle 13 — only 0.15.2 was on PATH via homebrew). Reinstall to
   `/Users/fn/.zr/toolchains/zig/0.16.0/` from `ziglang.org/download/0.16.0/` before trusting any
   local green/red result; don't mistake the absent binary for a build regression.
+- A stale `.zig-cache` can make `zig build test`/`tidy` fail with `error: failed to spawn build
+  runner ... FileNotFound` (seen cycle 14) — this looks like a real build break but isn't;
+  `rm -rf .zig-cache` (gitignored, local-only) and retry before assuming a regression.
