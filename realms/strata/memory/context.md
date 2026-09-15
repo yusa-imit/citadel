@@ -1,7 +1,25 @@
 # strata — context
 
-last_seen_at: 2026-09-13T00:00:00Z
+last_seen_at: 2026-09-15T00:00:00Z
 rejected_plans: []
+
+## Cycle 11 — 2026-09-15 — FEATURE
+- Done: preflight clean tree on main, CI green (last completed run success; not origin/main's
+  SHA only due to paths-ignore skipping some commits — not red per rule). Inbox: no new OWNER
+  actions since watermark 2026-09-13, no bug/question/directive issues, no open PRs, plan PR
+  #2 already merged (not open/closed-unmerged). Milestone #3 had 2 unchecked items; picked the
+  first, `wip/*` decision: diffed `origin/wip/chore-zig-0.16-migration-20260909` vs main —
+  branch is strictly behind (net -1152 lines across 8 files), its one commit predates and is
+  fully superseded by PR #7 (real 0.16 migration), PR #11 (ADR-0001), PR #13 (file-length
+  rule). Nothing to salvage; per kingdom rule the branch is never deleted, so left in place.
+  Decision recorded in decisions.md. Ticked milestone checkbox + commented on issue #3. No
+  code change, no PR — an administrative decision, not an `/implement` task.
+- PRs: none this cycle.
+- Next: milestone #3's last item, Release v0.2.0 (read plan 001's `Version impact` line, run
+  `/release strata <bump>`, which closes the issue). After that, Phase 1A (codec: varint,
+  CRC32C, xxhash) is the next concrete implementation step.
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 10 — 2026-09-13 — STABILIZATION
 - Done: preflight found repo on clean `test/tidy-file-length-rule` (not main, but nothing
@@ -109,6 +127,7 @@ rejected_plans: []
 
 ## Next priority
 
-Milestone 001's remaining items (`wip/*` decision, release v0.2.0) close out the plan; Phase
-1A (codec) is the next concrete implementation step once v0.2.0 ships — it has no internal
-dependencies and later phases (page, wal) depend on it.
+Milestone 001's last remaining item, Release v0.2.0, closes out the plan (`wip/*` decision
+resolved cycle 11 — see decisions.md). Phase 1A (codec) is the next concrete implementation
+step once v0.2.0 ships — it has no internal dependencies and later phases (page, wal) depend
+on it.
