@@ -1,7 +1,38 @@
 # silica — context
 
-last_seen_at: 2026-09-12T10:10:00Z
+last_seen_at: 2026-09-15T00:00:00Z
 rejected_plans: []
+
+## Cycle 12 — 2026-09-15 — FEATURE
+- Inbox: PR #150 (batch 9) already merged before this cycle started, CI green on main
+  (`b965e83`, matches origin/main). No new OWNER directives/questions/comments since watermark.
+  No plan PR open, no plan_closed_unmerged. Milestone issue #137 still the only open issue.
+- Preflight found the repo dirty and off main: an uncommitted `src/cli.zig` diff (872+/270-) on
+  branch `chore/scratch-db-tmpdir-batch10` — an interrupted `/implement` session from a prior
+  cycle that never committed. Branch was already properly named and matched the exact next
+  planned batch, so rather than shunting to a `wip/*` branch and redoing the work, verified it
+  in place: functionally complete (all 105 occurrences — 98 uniform + 7 multi-path variants:
+  backup source/dest, save-memory/exists, save source/dest, open original/new — correctly
+  route through `dir_path` from a tmp dir), `zig build test` green (4724/4747 passed, 23
+  skipped, 0 failed), `zig fmt --check src/cli.zig` clean (confirmed the repo-wide fmt-check
+  failures on 18 other files are pre-existing on main, unrelated to this diff — see Open
+  questions). Ticked the plan checklist and CHANGELOG, committed, pushed, opened PR #151.
+- PR #151 CI still pending at cycle deadline (historical 13-18m) — commented "awaiting CI;
+  merge next cycle", left for cycle 13's inbox.
+- Next: cycle 13's inbox merges #151 if green. Only 1 file remains in plan 001 item 2 part 2:
+  `sql/engine.zig` (819 occurrences) — likely needs its own multi-cycle sub-plan given size.
+- Blockers: none new. Standing blocker unchanged (plan 001 rest blocked_by zuda v3.0.0,
+  sailor v3.0.0).
+- Open questions: **new** — `zig fmt --check src build.zig` fails on 18 files repo-wide
+  (`util/varint.zig`, `util/regex.zig`, `config/file.zig`, `tx/lock.zig`,
+  `replication/{cascade,sender}.zig`, `sql/{analyzer,parser,engine,ast,index_entry,cost,
+  tokenizer_fuzz,optimizer,tokenizer,planner,pattern_match,selectivity}.zig`) even at the
+  clean `main` HEAD (`b965e83`) — confirmed via `git stash`. Contradicts kingdom rule "every
+  commit passes `zig fmt --check`"; STATE.md's CI section doesn't mention it (CI may not run
+  `zig fmt --check` today, or this drifted since the last STATE.md refresh). Worth a
+  stabilization-cycle fix (mechanical `zig fmt` pass, one PR) — not fixed this cycle to keep
+  scope to the one planned item. Unchanged from prior cycles: buffer-pool LRU zuda-migration
+  contradiction; concurrent-connections WAL-corruption finding not reconfirmed.
 
 ## Cycle 11 — 2026-09-12 — FEATURE
 - Inbox: merged PR #149 (batch 8 scratch-DB tmpDir), CI all green (build-and-test + 6
@@ -75,32 +106,11 @@ rejected_plans: []
 - Open questions: unchanged (buffer-pool LRU zuda-migration contradiction; concurrent-
   connections WAL-corruption finding not reconfirmed).
 
-## Cycle 8 — 2026-09-09 — FEATURE
-- Inbox: merged PR #145 (batch 5 scratch-DB tmpDir), CI all green (build-and-test + 6
-  cross-compile), labeled auto-merged, branch deleted. No new OWNER directives/questions since
-  watermark (only routine cycle-report comments). No plan PR open, no plan_closed_unmerged.
-  Milestone issue #137 still the only open issue.
-- Implemented plan 001 item 2 part 2, batch 6: routed 71 scratch-DB literal path occurrences
-  through `std.testing.tmpDir` — `storage/buffer_pool.zig` (33, uniform pattern) and
-  `tx/wal.zig` (38, four distinct shapes: 2 mid-body `wal_path = path ++ "-wal"` comptime
-  concats converted to runtime `bufPrint` once `path` became a tmp-dir runtime string, 1
-  literal `wal_path` pair, 1 dropped defer using `path ++ "-wal"` directly, 1 two-database-file
-  `path_src`/`path_dst` test). Backfilled the batch 5 CHANGELOG entry PR #145 had omitted.
-  `zig build test` green (4724/4747 passed, 23 skipped, 0 failed), `zig fmt --check` clean, no
-  new root/`src` scratch files (`git status --ignored` confirmed).
-- PR #146 opened, plan doc sub-checklist ticked (batch 6 done, remaining scope narrowed to 6
-  files / ~1,258 occurrences). CI pending at cycle deadline (historical ~13-18m) — commented
-  "awaiting CI; merge next cycle", left for cycle 9's inbox.
-- Next: cycle 9's inbox merges #146 if green, then picks the next batch from the remaining 6
-  files (largest `sql/engine.zig` 819 — likely needs its own multi-cycle sub-plan) or
-  `zig build tidy` (no blocked_by).
-- Blockers: none new. Standing blocker unchanged (plan 001 rest is blocked_by zuda v3.0.0
-  [currently v2.3.0], sailor v3.0.0 [currently v2.99.0]).
-- Open questions: unchanged (buffer-pool LRU zuda-migration contradiction — not resolved this
-  cycle despite touching `buffer_pool.zig`, only mechanical test-path edits, no LRU logic read;
-  concurrent-connections WAL-corruption finding not reconfirmed).
-
-## History (cycle 7 and earlier, folded)
+## History (cycle 8 and earlier, folded)
+- **Cycle 8** (2026-09-09, FEATURE): inbox merged #145 (batch 5). Implemented batch 6 (71
+  occurrences: `storage/buffer_pool.zig` 33 uniform, `tx/wal.zig` 38 across four shapes
+  including comptime-concat `wal_path` sites converted to runtime `bufPrint`). Backfilled a
+  missed batch-5 CHANGELOG entry. Opened #146, left pending for cycle 9.
 - **Cycle 7** (2026-09-09, FEATURE): inbox merged #144 (batch 4). Implemented batch 5 (54
   occurrences: `gin_index.zig` 33 uniform, `wal_fuzz.zig` 21 deferred paired-path variant —
   `wal_path = path ++ "-wal"` comptime concat became runtime `bufPrint`; dropped 6 now-dead

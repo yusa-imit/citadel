@@ -1,7 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-09-15T03:05:36Z
+last_seen_at: 2026-09-15T15:05:34Z
 rejected_plans: []
+
+## Cycle 14 — 2026-09-15 — FEATURE
+
+- Preflight clean, CI green, no bugs. Plan PR #17 (plan 002) still open, no new OWNER activity
+  → one bounded stabilization task: bounded `tools/tidy.zig`'s directory-walk recursion
+  (walkDir15/16, descendDir15/16) with `dir_depth_max=64`, returning `error.NestingTooDeep`.
+- Tried replacing hand-rolled recursion with `std.Io.Dir.walkSelectively` (std's own explicit
+  stack) — reverted after it crashed Linux CI with a std 0.16.0 bug ("programmer bug caused
+  syscall error: BADF" in `Io.Threaded`'s `dirReadLinux`) when iterating a real 65-level-deep
+  temp dir; reproduced identically with plain `dir.iterate()`/`it.next(io)` too, so it's a
+  Linux-specific std bug in deep directory iteration, not this file's code. Worth a Zig upstream
+  issue if it recurs. Final fix: depth-bounded recursion (not fully "no recursion" per Tiger
+  Style 1.8, documented trade-off); regression test skipped on Linux only, runs on macOS CI.
+- PR #19: ubuntu-latest + macos-latest green at session end; cross-compile matrix still running,
+  left for next cycle's inbox to merge (not `hold`).
+- STATE.md: 1 of 2 carried-forward findings closed (recursion bound). Remaining: `tools/tidy.zig`
+  (1798 lines) exempt from its own file-length/`//!`-header checks — next stabilize candidate.
 
 ## Cycle 13 — 2026-09-15 — FEATURE
 
