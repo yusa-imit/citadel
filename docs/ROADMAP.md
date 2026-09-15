@@ -20,7 +20,7 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 
 | Realm | 0.16 errors (probe) | Effort | Blocked by | Version impact |
 |---|---|---|---|---|
-| sigil | 1 | trivial | — | none (0.1 → 0.2) |
+| sigil | 1 | trivial | — | none (0.1 → 0.2) — **done**, zon bumped to 0.2.0 (2026-09-12), unreleased (no tag) |
 | strata | 1 | trivial | — | none |
 | synod | 1 | trivial | — | none |
 | sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10) |
@@ -28,7 +28,7 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 | sailor | 368 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 |
 | zr | 79 + deps | large | zuda v3, sailor v3 | MINOR |
 | silica | 275 + deps | medium | zuda v3, sailor v3 | MINOR |
-| zoltraak | ~110 + luajit link + deps | large | zuda v3, sailor v3 | MINOR (zon 0.2.0 → 0.3.0; reconcile with claimed 0.2.13) |
+| zoltraak | ~110 + luajit link + deps | large | zuda v3, sailor v3 | MINOR (zon 0.2.0 → 0.3.0; reconcile with latest tag v0.2.14) |
 
 Plan 001 skeleton (planner adapts):
 1. Hygiene leftovers not covered by the restructure PR.
