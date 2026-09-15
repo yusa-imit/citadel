@@ -3,6 +3,13 @@
 Survey date: 2026-09-05. Source: repo survey + a Zig 0.16 compile probe run against a scratch
 copy (no tracked files touched). See `REALM.md` for the durable realm summary this feeds.
 
+## Releases
+
+- **v0.2.0** (2026-09-16, PR #15, tag pushed, GitHub release published): closes milestone 001
+  (Zig 0.16 migration and Tiger Style baseline, issue #3). MINOR bump per plan's version-impact
+  line — no library symbol moved, no prior tag existed, no consumer had pinned synod yet, so no
+  migration issues were opened. Next: plan 002, Phase 1 real logic starting at `src/types.zig`.
+
 ## What exists vs. what is claimed
 
 - Claimed (README/PRD/old CLAUDE.md): a full I/O-free Raft core (PreVote election, log
