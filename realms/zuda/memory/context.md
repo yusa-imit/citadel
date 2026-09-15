@@ -1,7 +1,28 @@
 # zuda — context
 
-last_seen_at: 2026-09-12T00:00:00Z
+last_seen_at: 2026-09-15T07:05:59Z
 rejected_plans: []
+
+## Cycle 10 — 2026-09-15 — STABILIZATION
+- Done: forced (n=10, n%5==0), no red CI/bug forcing condition otherwise. Inbox merged PR #42
+  (CuckooHashMap seed injection, plan 001 rollout), labeled `auto-merged`. Tiger Style audit
+  (tidy-auditor): most counts flat since 2026-09-10; `std.time.*` in src 21->19
+  (robin_hood_hash_map/cuckoo_hash_map/concurrent_skip_list now clean, skip_list.zig still
+  open); `zig fmt --check` regressed ~20->170 files + 2 files with genuine parse errors
+  (`max_sum_rectangle.zig`, `target_sum.zig`, `anytype` outside generic-fn position) —
+  re-audit needed. Fixed `tools/tidy.zig`'s comment-unaware function-length scanner
+  (`extractFnName` mis-parsed `fn` signatures inside `///` doc-comment examples as real code,
+  3 confirmed false positives) — RED-first test, all 21/21 tool tests pass, `zig build tidy`
+  confirmed the 3 false positives gone (5 real violations remain, separate issue). STATE.md
+  refreshed with full 2026-09-15 numbers and candidate list.
+- PRs: #43 open (tidy comment-aware fn scanner), Build & Test in progress at the cycle deadline
+  — left "awaiting CI; merge next cycle" comment. #42 merged.
+- Next: merge #43 once green, then FEATURE resumes with plan 001's last io/seed rollout item
+  (`skip_list.zig`). Stabilize candidates queued: `tools/tidy.zig` baseline key-collision
+  (`bagging.zig:fit` confirmed colliding, needs a baseline-format decision), 5 now-verified
+  real function-length violations to baseline/shorten, `zig fmt` regression + its 2 parse
+  errors, `tidy_baseline.txt` root-placement hygiene.
+- Blockers: none. Open questions: none.
 
 ## Cycle 9 — 2026-09-12 — FEATURE
 - Done: inbox found no new owner actions beyond the known "awaiting CI; merge next cycle" note
@@ -134,36 +155,7 @@ rejected_plans: []
   files, no CI gate), PRNG seed injection in 9 ML files — see `STATE.md` items 8-10.
 - Blockers: none. Open questions: none.
 
-## Cycle 4 — 2026-09-09 — FEATURE
-- Done: preflight found `fix/build-zig-016-linklibc` (cycle 3's dirty-tree carryover) already
-  pushed as green, mergeable PR #34 — merged it (squash, branch deleted) before continuing.
-  Inbox reconciled milestone #31: items 2 (#33) and 3 (#34) were merged in prior/this cycle but
-  never ticked — ticked both. Implemented item 4 "mechanical renames" scoped to the subset
-  that's dual-compatible with the repo's current 0.15.2 CI pin and 0.16:
-  `heap.GeneralPurposeAllocator` → `heap.DebugAllocator` (7 files) and
-  `ArrayListUnmanaged(T) = .{}` → `.empty` (2, `rabin_karp.zig`). Verified via toolchain probe
-  (0.15.2 vs 0.16.0 std source) that `mem.indexOf*` → `find*` and
-  `std.AutoArrayHashMap` → `AutoArrayHashMapUnmanaged` are NOT dual-compatible — 0.15.2 has no
-  `find*` at all, and 0.16 removes managed `AutoArrayHashMap` outright (a call-site rewrite, not
-  a rename) — split those into a new plan item paired with the toolchain-flip item (item 10)
-  where the 0.16 target API can be verified directly instead of guessed at from behind the pin.
-- PRs: #35 open (mechanical renames), CI still running (Build & Test pending) at the cycle
-  deadline — left "awaiting CI; merge next cycle" comment, next cycle's inbox merges it.
-- Next: merge #35 once green, then plan 001 item 5 ("Fix the public `io: Io` API shape + ADR" —
-  the v3.0.0 signature break, call `architect` first).
-- Blockers: none. Open questions: none.
-
-## Cycle 3 — 2026-09-08 — DISK
-- Done: preflight disk gate failed (16GB free < 20GB required) — cycle aborted before
-  inbox/mode selection, before touching the repo. No commits, no PRs, no branch changes.
-- PRs: none touched this cycle.
-- Next: unchanged from cycle 2 — merge #33 once green, then plan 001 item 3 (already merged
-  as of `40a620b`/`537b3aa` on `fix/build-zig-016-linklibc` per repo git log, not yet reflected
-  in this memory — next cycle should verify PR state and reconcile before picking new work).
-- Blockers: host disk space (16GB free); no action available to this session (unattended, no
-  human wait). Open questions: none.
-
-## History (cycles 0-2, folded 2026-09-11 to keep this file under 200 lines)
+## History (cycles 0-4, folded 2026-09-15 to keep this file under 200 lines)
 Realm created 2026-09-05 by the citadel restructure (memory migrated from the repo's old
 `.claude/memory/`); plan 001 (Zig 0.16 migration) merged by the owner, milestone issue #31
 opened. Cycle 1 (PR #32): finished the preserved `wip/random-forest-regression-criterion`
@@ -171,6 +163,12 @@ TDD cycle (`RandomForest.fit()` now uses `.mse` for regression forests, not alwa
 dropped 9 orphaned distribution duplicates, synced version strings. Cycle 2 (PR #33): vendored
 the kingdom reference tidy lint into `tools/tidy.zig` as a standalone `zig build tidy` step
 (not yet a `test` dependency — `main` had 4,608 pre-existing non-function-length findings).
+Cycle 3: disk gate failed (16GB free), aborted before touching the repo. Cycle 4 (PR #35):
+merged #34 (build.zig linkLibC fix), reconciled milestone #31 checklist (items 2-3 ticked
+late), implemented the dual-toolchain-compatible half of mechanical renames
+(`GeneralPurposeAllocator`→`DebugAllocator` 7 files, `ArrayListUnmanaged{}`→`.empty` 2 files);
+split `mem.indexOf*`→`find*` and `AutoArrayHashMap`→`AutoArrayHashMapUnmanaged` into a later
+item since neither is dual-compatible under the 0.15.2 CI pin.
 Resolved backlog items no longer tracked: the RandomForest bug (fixed cycle 1), the
 `wip/random-forest-regression-criterion` branch (finished cycle 1). Still-open backlog folded
 here: `catch unreachable` OOM-swallow audit (69→60 sites, see cycle 5's STATE.md refresh);

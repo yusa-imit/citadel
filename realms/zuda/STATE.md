@@ -1,4 +1,4 @@
-# zuda — STATE (survey 2026-09-05, Tiger Style numbers refreshed 2026-09-10)
+# zuda — STATE (survey 2026-09-05, Tiger Style numbers refreshed 2026-09-15)
 
 ## Claimed vs present
 
@@ -68,21 +68,25 @@ removed. A stray 0-byte `random_forest` binary should be deleted.
 
 ## Tiger Style gap table
 
-| Check | Count (2026-09-05) | Count (2026-09-10) | Note |
-|---|---|---|---|
-| `std.debug.assert` | 31 | 34 | ratio vs ~8,725 `fn` is ~0.4%, rule wants ≥200% |
-| `catch unreachable`, no proof comment | 69 | 60 | 44 `distributions.zig`, 12 `correlation.zig`; `decision_tree.zig`'s 3 raw hits are now just comments referencing a fixed bug, not real |
-| `@panic` | 0 | 0 | clean |
-| `std.debug.print` in library code | 17 (14 flagged as violations) | 0 real | re-audit: all 14 non-`main.zig` hits are inside `///`/`//!` doc-comment usage examples, not live code |
-| `while (true)` | 111 | 108 | 37 in `distributions.zig` (unbounded accept-reject sampling loops, real violations); needs manual per-site triage, none are top-level event loops |
-| Files > 800 lines | 76 | 74 | `distributions.zig` 128,392 still dominant; top 10 unchanged in shape |
-| Fns > 70 lines beyond `tidy_baseline.txt` (620 entries) | ~96 (manual sample) | `zig build tidy` reports 7 new, but 3 are confirmed false positives (`btree.zig:34`, `skip_list.zig:37`, `concurrent_skip_list.zig:45` — tool mis-parses `fn` inside `///` doc-comment examples as real code) and 1-2 more are a baseline key-collision artifact (`tools/tidy.zig:288-301` collapses same-named functions in one file to one HashMap key) | tool bug, not a real new regression — fix `tools/tidy.zig` before trusting this count |
-| Recursive helpers | ~109 | not re-audited | depth bounded by input size, no explicit depth caps |
-| `Bounded*` fixed-cap variants | ~0 of 206 files using `ArrayList` | not re-audited | asked for, none seen |
-| `usize` in serialized/round-trip structs | not previously tracked | 2 candidates | `bwt.zig` `BWTResult.index`, `arithmetic.zig` `CompressionResult.original_length` — reviewed 2026-09-10: both are in-process encode/decode payloads, never actually serialized to bytes/disk/network anywhere in the codebase today, so this is a weak/speculative finding, not confirmed as a real wire-format violation. Leave as-is unless a real serialization path appears. |
-| `std.time.*`/`std.crypto.random` direct calls (non-determinism) | not previously tracked | 21 / 8 | ML files seed PRNGs from wall-clock time instead of an injected seed: `kmeans.zig`, `ddpg.zig`, `dqn.zig`, `gmm.zig`, `tsne.zig`, `c51.zig`, `reinforce.zig` — real Tiger Style rule 7/14 gap, own item later |
-| `zig fmt --check` | not previously tracked | ~20 files fail | pre-existing on `main`, not gated by CI (`ci.yml` has no `zig fmt --check` step) — found 2026-09-10, not caused by this cycle's changes, not yet fixed |
-| Root hygiene | see below | LICENSE missing (fixed by PR #36 this cycle); 4 root `test_*.zig` scratch files are gitignored/untracked (`.gitignore` has `test_*`), not actually a repo violation despite looking like one | audit false-positived on untracked files; don't re-flag |
+| Check | Count (2026-09-05) | Count (2026-09-10) | Count (2026-09-15) | Note |
+|---|---|---|---|---|
+| `std.debug.assert` | 31 | 34 | 31 | ratio vs ~8,721 `fn` is ~0.36%, rule wants ≥200% |
+| `catch unreachable`, no proof comment | 69 | 60 | 60 | ~50 `distributions.zig`, 10 `correlation.zig`; unchanged since 2026-09-10 |
+| `@panic` | 0 | 0 | 0 | clean |
+| `std.debug.print` in library code | 17 (14 flagged) | 0 real | 0 real | confirmed again: all hits are inside `///`/`//!` doc-comment usage examples |
+| `while (true)` | 111 | 108 | 108 (46 files) | 37 in `distributions.zig` (unbounded accept-reject sampling), unchanged |
+| Files > 800 lines | 76 | 74 | 72 | `distributions.zig` 128,392 still dominant |
+| Fns > 70 lines beyond `tidy_baseline.txt` | ~96 (manual) | 7 reported, tool-buggy | 5 real (tool fixed this cycle, PR #43) | `preconditioner.zig:146` (135), `bagging.zig:395` (73), `dueling_dqn.zig:186` (75), `aho_corasick.zig:660` (75), `builder.zig:49` (71) — next stabilize candidate: baseline these or shorten |
+| `std.time.*` in `src/` | not tracked | 21 | 19 (11 files) | `robin_hood_hash_map.zig`, `cuckoo_hash_map.zig`, `concurrent_skip_list.zig` now clean (plan 001 rollout); `skip_list.zig:154` still in scope |
+| `std.crypto.random` in `src/` | not tracked | 8 | 8 (4 files) | ML files: `kmeans.zig`, `ddpg.zig`, `dqn.zig`, `gmm.zig`, `tsne.zig`, `c51.zig`, `reinforce.zig` |
+| `zig fmt --check src build.zig` | not tracked | ~20 files fail | 170 files need reformat + 2 parse errors | regressed hard since 2026-09-10 — re-audit needed before trusting this number; `max_sum_rectangle.zig:104` and `target_sum.zig:199` have genuine parse errors (`anytype` outside generic-fn position) blocking fmt entirely, investigate those first |
+| `tools/tidy.zig` bugs | — | comment-unaware fn scanner + baseline key collision (both found 2026-09-10) | comment-unaware scanner **fixed** (PR #43, this cycle); baseline key collision (`tools/tidy.zig:288-301`, confirmed live on `bagging.zig:fit` 73 vs 89) still open, own item next cycle | mechanical, contained — good next-cycle pick |
+| Root/docs hygiene | see below | LICENSE missing (fixed PR #36) | 1 new: `tidy_baseline.txt` tracked at repo root violates `citadel/protocol/DOCS.md`'s root layout (should live under `tools/`); 7 loose top-level `.md` + 2 extra `docs/` subdirs also flagged | not yet fixed, candidates for a future hygiene pass |
+
+Recursive helpers (~109, depth bounded by input size, no explicit caps) and `Bounded*` fixed-cap
+variant adoption (~0 of 206 `ArrayList` users) were not re-audited this cycle — see 2026-09-10
+snapshot above for last known values. `usize` in serialized structs: still just the 2
+non-issues noted 2026-09-10 (`bwt.zig`, `arithmetic.zig`), no real wire-format violation found.
 
 ## Zig 0.16 migration probe
 
@@ -131,15 +135,29 @@ removed. A stray 0-byte `random_forest` binary should be deleted.
 6. Start the Zig 0.16 migration (plan `001`) — build.zig fix, then the 44+ source errors.
 7. Consumer migrations still open: zr (zr#21-25), silica (silica#4-5), zoltraak
    (zoltraak#1-3).
-8. Fix `tools/tidy.zig`'s function-length scanner: it isn't comment-aware, so `fn` signatures
-   inside `///` doc-comment usage examples get mis-parsed as real functions
-   (`btree.zig:34`, `skip_list.zig:37`, `concurrent_skip_list.zig:45` — see 2026-09-10 gap
-   table). Also fix the baseline key collision at `tools/tidy.zig:288-301` (same-named
-   functions in one file collapse to a single `tidy_baseline.txt` entry). Contained,
-   mechanical, restores signal for every future stabilize cycle's function-length count.
-9. `zig fmt --check src build.zig` fails on ~20 pre-existing files on `main`; `ci.yml` has no
-   `zig fmt --check` step so this has never gated a merge. Its own bounded fix (format the
-   files) plus optionally wiring the CI check, found 2026-09-10.
+8. **Half done 2026-09-15 (PR #43):** `tools/tidy.zig`'s function-length scanner is now
+   comment-aware (`extractFnName` skips `//`/`///`/`//!` lines) — the `btree.zig:34`,
+   `skip_list.zig:37`, `concurrent_skip_list.zig:45` false positives are gone. Still open: the
+   baseline key collision at `tools/tidy.zig:288-301` (same-named functions in one file collapse
+   to a single `tidy_baseline.txt` entry — confirmed live on `bagging.zig:fit`, two entries `73`
+   and `89` collapse to one). Needs a baseline-format decision (e.g. key by
+   `path:function:start_line` instead of `path:function`, which means regenerating all 620
+   entries) — bigger than the comment-aware fix, own cycle. Also now-real (tool-verified)
+   function-length violations to baseline or shorten: `preconditioner.zig:146` (135 lines),
+   `bagging.zig:395` (73), `dueling_dqn.zig:186` (75), `aho_corasick.zig:660` (75),
+   `builder.zig:49` (71).
+9. `zig fmt --check src build.zig` regressed from ~20 files (2026-09-10) to 170 files needing
+   reformat + 2 genuine parse errors (2026-09-15): `src/algorithms/dynamic_programming/
+   max_sum_rectangle.zig:104` and `target_sum.zig:199` (`anytype` outside generic-fn position)
+   block `zig fmt` outright on those files — investigate those two first, they may be a real
+   compile-time bug independent of formatting. `ci.yml` still has no `zig fmt --check` step so
+   none of this has ever gated a merge. Re-audit the 170 count before trusting it (large jump
+   from 2026-09-10's ~20, may include noise).
+12. Found 2026-09-15: `tidy_baseline.txt` is tracked at the repo root, which violates
+    `citadel/protocol/DOCS.md`'s root layout (code + `docs/` only) — move it to `tools/
+    tidy_baseline.txt` and update the one default-path constant in `tools/tidy.zig`
+    (`Options.baseline_path`). Small, mechanical, pairs naturally with item 8's baseline-format
+    work since both touch the same constant.
 10. Inject seed/`Random` instead of calling `std.time.*`/`std.crypto.random` directly in 9 ML
     files (`kmeans.zig`, `ddpg.zig`, `dqn.zig`, `gmm.zig`, `tsne.zig`, `c51.zig`,
     `reinforce.zig` — 21 + 8 call sites) — Tiger Style rule 7/14, enables deterministic tests.
