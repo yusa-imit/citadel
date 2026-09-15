@@ -1,7 +1,26 @@
 # sigil — context
 
-last_seen_at: 2026-09-12T15:05:53Z
+last_seen_at: 2026-09-15T03:05:36Z
 rejected_plans: []
+
+## Cycle 13 — 2026-09-15 — FEATURE
+
+- Preflight: clean tree, on main, CI green (b4178ce). Inbox: plan PR #17 (plan 002, Phase 1A)
+  still open awaiting human merge; the only comment since the watermark was our own prior
+  cycle-report text — no new OWNER actions. No bug/question/directive issues, no other open PRs.
+- Plan PR open → did one bounded stabilization task instead of waiting idle. Fixed carried-
+  forward finding 1/3 from the cycle 5/10 `tidy-auditor` sweeps: moved `tidy_baseline.txt` from
+  repo root to `tools/` (was outside `DOCS.md`'s allowed root-file list). TDD: updated the
+  `parseArgs` pinning test's expected default first, confirmed red against the old code, then
+  changed `Options.baseline_path`'s default and `git mv`'d the file. PR #18, CI 8/8 green,
+  squash-merged, `auto-merged`. `STATE.md` updated — 2 findings remain (tidy.zig self-exempt
+  from its own file-length/doc-header checks; unbounded recursion in its dir-walk pairs).
+- Local `~/.zr/toolchains/zig/0.16.0/zig` was present and working this cycle (cycle 12's
+  "missing toolchain" note didn't reproduce) — full `zig build test` ran locally, not just CI.
+- Next: awaiting human merge of plan 002 (#17); once merged, `/cycle` opens its tracking issue
+  and item 1 (`core/value.zig`) becomes the next `/implement` target. Otherwise next stabilize
+  candidate is finding 2 (tidy.zig's own file-length exemption).
+- Blockers: none. Open questions: none.
 
 ## Cycle 12 — 2026-09-12 — FEATURE
 

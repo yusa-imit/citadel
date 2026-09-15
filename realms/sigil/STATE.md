@@ -121,20 +121,29 @@ stub files has no hot loops, recursion, or allocation to critique. Re-audit once
   `isUnderSrc` like most rules), so this file is bound by its own rule even though the repo-wide
   scan doesn't walk `tools/` yet. Fixed via PR #14 (squash-merged, CI 8/8 green) with a pinning
   test mirroring the real function body against `checkBanList`, verified red before / green after.
-- Remaining 3 carried-forward findings, still not fixed (next stabilization cycle candidates,
+- Remaining 2 carried-forward findings, still not fixed (next stabilization cycle candidates,
   ordered smallest-diff-first per the auditor):
-  1. `tidy_baseline.txt` at repo root, outside `citadel/protocol/DOCS.md`'s allowed root-file
-     list — move under `tools/` or `docs/internals/`, update the one read-path reference.
-  2. `tools/tidy.zig` exempt from its own file-length (now 1770 lines, >2x the 800-line limit)
+  1. `tools/tidy.zig` exempt from its own file-length (now 1770 lines, >2x the 800-line limit)
      and `//!`-header checks: `scan_roots` (`tools/tidy.zig:938`, was ~938) only walks
      `src/bench/tests`; `checkDocHeader` (`tools/tidy.zig:271`) hard-scopes to `src/`-prefixed
      paths. Adding `"tools"` to `scan_roots` will immediately surface tidy.zig's own
      801+-line overage — needs a baseline entry or a follow-up split in the same PR, so this is
      a bigger diff than it looks.
-  3. Unbounded mutual recursion in `walkDir15`/`descendDir15` (`tools/tidy.zig:948`/`965`) and
+  2. Unbounded mutual recursion in `walkDir15`/`descendDir15` (`tools/tidy.zig:948`/`965`) and
      the 0.16-variant pair `walkDir16`/`descendDir16` (`tools/tidy.zig:1068`/`1086`) — needs a
      `depth: usize` parameter threaded through all four functions plus a bounded-recursion test.
-     Largest diff of the four; low real risk given the repo's shallow tree.
+     Largest diff of the remaining two; low real risk given the repo's shallow tree.
+
+## Stabilization update (2026-09-15, cycle 13)
+
+- Fixed carried-forward finding 1 of 3: `tidy_baseline.txt` moved from repo root to `tools/`
+  (was outside `citadel/protocol/DOCS.md`'s allowed root-file list). `tools/tidy.zig`'s
+  `Options.baseline_path` default now `"./tools/tidy_baseline.txt"`; pinning test updated
+  (verified red before the code change, green after). PR #18, CI 8/8 green, squash-merged.
+  No behavior change — the baseline is opened relative to `opts.root` (always the repo root),
+  not process cwd, so this was purely a path-string move.
+- Local toolchain note: `~/.zr/toolchains/zig/0.16.0/zig` was present and working this cycle
+  (cycle 12's "missing toolchain" note did not reproduce) — `zig build test` ran fully locally.
 
 ## Next work candidates (from `docs/milestones.md` / `project-context.md`)
 
