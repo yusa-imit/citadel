@@ -45,27 +45,33 @@ README/PRD as a design document, not a status report, until milestones.md says o
 
 ## Tiger Style gap table
 
-Re-audited 2026-09-09 (cycle 5, stabilization) via `tidy-auditor` + a live `zig build test`
-run on the 0.16.0 toolchain (`tools/tidy.zig`, landed by plan 001 items 2–3, now enforces this
-mechanically on every `zig build test`).
+Re-audited 2026-09-13 (cycle 10, stabilization) via `tidy-auditor` against the live tree
+(source inspection — the survey machine's default `zig` is still 0.15.2, so `zig build
+test`/`tidy` don't compile locally; use the pinned 0.16.0 toolchain to actually run them).
 
 | Metric | Count | Note |
 |---|---|---|
-| `assert(` | 0 in `src/`; 59 in `tools/tidy.zig` (the lint tool itself) | `src/` stubs still have no logic to assert over |
+| `assert(` | 0 in `src/`; 87 in `tools/tidy.zig` (the lint tool itself) | `src/` stubs still have no logic to assert over; tidy.zig's own count rose with its size |
 | `catch unreachable` w/o proof | 0 | — |
 | `@panic(` in library code | 0 | — |
 | `std.debug.print` in library code | 0 | — |
 | unbounded `while (true)` | 0 | — |
-| files > 800 lines | 1 | `tools/tidy.zig` — 1452 lines (no file-length rule exists yet to catch this) |
+| files > 800 lines | 1 | `tools/tidy.zig` — 2100 lines (grew from 1452 at the 2026-09-09 audit) |
 | functions > 70 lines | 0 | — |
 | `usize` in wire-format structs | 0 | no format structs exist yet (codec/page/wal/snapshot still stubs) |
-| `zig build tidy` | 0 findings | run against live tree 2026-09-09 |
+| `.zig` missing leading `//!` | 0 | all `src/`, `tools/tidy.zig`, `bench/main.zig` have headers |
+| `zig build tidy` | 0 findings (live tree, by inspection) | `checkFileLength` (PR #13, 2026-09-12) added an 800-line hard limit with no baseline exemption, but can't yet flag `tools/tidy.zig` itself |
 
-`tools/tidy.zig` does not lint itself (`scan_roots = .{ "src", "bench", "tests" }` excludes
-`tools/`) — a self-hosting gap flagged for a future stabilization cycle, alongside adding the
-missing 800-line file-length rule. Confirmed via a local (reverted) experiment: extending
-`scan_roots` to include `tools/` currently crashes on a stale `assert(scan_roots.len == 3)` in
-`collectFiles` — that assert itself needs updating first if this is picked up.
+`tools/tidy.zig` still does not lint itself (`scan_roots = .{ "src", "bench", "tests" }`
+excludes `tools/`, guarded by `assert(scan_roots.len == 3)` in `collectFiles`) — flagged as a
+self-hosting gap since cycle 5 (2026-09-09). PR #13 (2026-09-12) closed half of it by adding the
+800-line file-length rule, but deliberately left `tools/` out of `scan_roots`: flipping that on
+today would make tidy immediately fail on itself (2100 > 800), because `checkFileLength` has no
+shrink-only exemption table the way `checkFunctionLength` does. Closing this fully needs a
+**design decision**, not a mechanical fix — either (a) add a baseline-exemption mechanism for
+file length (reopens the "no exemption" design choice PR #13 made deliberately), or (b) split
+`tools/tidy.zig` into multiple files each under 800 lines. Worth a dedicated plan item rather
+than an ad-hoc stabilization PR; recorded here instead of rushed in cycle 10.
 CLAUDE.md-era domain rules (checksum every disk byte, fsync as policy, idempotent recovery,
 magic+version formats, no `@panic`/`catch unreachable`, page-size matrix 512B–64KB) are now in
 `REALM.md`; **re-audit this table once real Phase 1 code lands.**

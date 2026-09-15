@@ -1,4 +1,29 @@
-# sirocco — State Survey (2026-09-05, refreshed 2026-09-12)
+# sirocco — State Survey (2026-09-05, refreshed 2026-09-13)
+
+## Refresh 2026-09-13 (cycle 13, FEATURE — bounded stabilization while plan PR #13 awaits merge)
+
+- Local 0.16.0 toolchain (`/Users/fn/.zr/toolchains/zig/0.16.0/zig`) was missing from this
+  machine at cycle start (only 0.15.2 via homebrew); re-downloaded from
+  `ziglang.org/download/0.16.0/zig-aarch64-macos-0.16.0.tar.xz` and reinstalled to the pinned
+  path before any check could run. Not a repo regression — a local dev-environment gap.
+- CI: last completed run on `origin/main` (`888ee0b`) success; current head `637e8e5` (PR #14)
+  used paths-ignore so it never ran checks directly, but conclusion is success regardless of SHA
+  match per the red-CI rule. No open issues, plan PR #13 (plan 002) still open awaiting human
+  merge — zero new OWNER activity since cycle 12's watermark (checked PR/issue comments and
+  reviews via the GitHub API `since` the watermark).
+- `zig build test`/`fmt --check src build.zig`/`build tidy` all green under the freshly restored
+  0.16.0 toolchain. tidy-auditor mechanical sweep: zero violations across every category (`catch
+  unreachable`, `@panic`, `std.debug.print`, `while (true)`, functions > 70 lines, files > 800
+  lines, `usize` in formats, missing `//!` headers, TODO/FIXME) — same clean baseline as cycles
+  5/10/11/12.
+- Found and fixed one real doc-cross-reference drift (like cycle 12's README fix, unlike cycles
+  5/10/11's fully-clean results): `src/root.zig:6` and `bench/main.zig:2`'s `//!` headers pointed
+  at `docs/milestones.md`, which does not exist — `docs/plans/NNN-*.md` replaced it as the
+  progress-tracking source of truth per `REALM.md`. Fixed via PR #15 (comment-only, no behavior
+  change, merged after CI green — this PR touches `.zig` files so it was not paths-ignored,
+  unlike the pure-`.md` docs PRs #7/#8/#10/#11/#14).
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner).
 
 ## Refresh 2026-09-12 (cycle 12, FEATURE — bounded stabilization while plan PR #13 awaits merge)
 
