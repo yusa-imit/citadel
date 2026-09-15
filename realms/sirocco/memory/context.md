@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-09-12T12:10:00Z
+last_seen_at: 2026-09-13T00:00:00Z
 rejected_plans: []
+
+## Cycle 13 — 2026-09-13 — FEATURE
+- Inbox: no new OWNER actions since the watermark; plan PR #13 (plan 002) still open awaiting
+  human merge, zero new review/issue/PR comments since cycle 12. No open issues, no red CI, no
+  rejected plans, no other open implementation PRs to triage.
+- Done: plan PR open, so ran one bounded stabilization task. Found the local pinned 0.16.0 Zig
+  toolchain (`/Users/fn/.zr/toolchains/zig/0.16.0/zig`) missing from this machine — reinstalled
+  it from `ziglang.org` before any check could run (dev-environment gap, not a repo regression).
+  `zig build test`/`fmt --check`/`tidy` all green after that. tidy-auditor mechanical sweep found
+  zero Tiger Style violations but one real doc-cross-reference drift: `src/root.zig`'s and
+  `bench/main.zig`'s `//!` headers pointed at `docs/milestones.md`, which was replaced by
+  `docs/plans/NNN-*.md` as the progress source of truth — fixed via PR #15.
+- PRs: #15 opened and merged (comment-only fix, touches `.zig` so CI ran fully — unlike the
+  paths-ignored pure-`.md` docs PRs #7/#8/#10/#11/#14 — all checks green, `auto-merged` label).
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner).
+- Blockers: none. Open questions: none.
 
 ## Cycle 12 — 2026-09-12 — FEATURE
 - Inbox: no new OWNER actions since the watermark; plan PR #13 (plan 002) still open awaiting
@@ -110,7 +127,8 @@ shared `assert`/`maybe` moved to new `src/stdx.zig`. A code-reviewer pass caught
 implication asserts that just restated a branch instead of deriving an independent property.
 
 Standing backlog / next-work order after milestone 001 closes (from old
-`.claude/memory/project-context.md`, superseded by `docs/milestones.md` as source of truth):
+`.claude/memory/project-context.md`; `docs/plans/NNN-*.md` is the source of truth, not the
+nonexistent `docs/milestones.md` this line originally named — corrected cycle 13):
 1A completion/queue types → 1B kqueue backend → 1C epoll backend → 1D timing wheel → 1E loop
 dispatch → 1F integration tests. Do not build Phase 1 against the pre-ADR kqueue-abstraction
 design; the rewritten PRD (`docs/adr/0001-std-io-vtable.md`) is what Phase 1 implements.
@@ -125,3 +143,7 @@ design; the rewritten PRD (`docs/adr/0001-std-io-vtable.md`) is what Phase 1 imp
 - A milestone plan's per-file "0.16: X" checklist items can look independently cycle-sized but
   aren't when they share a build graph (`zig build test` compiles every entry point together)
   — bundle such items into one PR rather than one-item-per-cycle.
+- The pinned 0.16.0 toolchain can go missing entirely from the machine between cycles (seen
+  cycle 13 — only 0.15.2 was on PATH via homebrew). Reinstall to
+  `/Users/fn/.zr/toolchains/zig/0.16.0/` from `ziglang.org/download/0.16.0/` before trusting any
+  local green/red result; don't mistake the absent binary for a build regression.
