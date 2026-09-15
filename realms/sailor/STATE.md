@@ -66,7 +66,7 @@ both need per-site/per-file judgment, not a mechanical sweep.
 | Files > 800 lines | 52 | no | worst: `layout.zig` 3002, `style.zig` 2223, `tooltip.zig` 2094, `sixel.zig` 1864, `multicursor.zig` 1850 |
 | Functions > 70 lines | 122 baseline entries | yes | `build.zig:build` 1954, `docgen.zig:parseFunctionDeclaration` 360, `arg.zig:Parser` 312 |
 | `usize` in wire format | 4 file entries | yes | see `tidy_baseline.txt`; `termcap.zig:33-35` is the clearest genuine wire-format risk |
-| Missing `//!` header | 73 (was 86; 13 top-level `src/*.zig` fixed by PR #31, open) | yes | remaining 73 all under `src/tui/` (35) and `src/tui/widgets/` (38) |
+| Missing `//!` header | 38 (was 73/86; 13 top-level `src/*.zig` fixed by PR #31 merged, 35 `src/tui/` core fixed by PR #32 open) | yes | remaining 38 all under `src/tui/widgets/` |
 | `assert(` density | 9 total across ~4700+ `fn` in `src/` | no | Tiger Style's "≥2 per function" is essentially unmet kingdom-wide here; needs per-function judgment, not mechanical |
 
 Smallest-diff-first recommendation for the next stabilization cycle: `event_metrics.zig`/

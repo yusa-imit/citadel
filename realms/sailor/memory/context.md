@@ -1,7 +1,30 @@
 # sailor — context
 
-last_seen_at: 2026-09-12T08:06:00Z
+last_seen_at: 2026-09-15T08:06:37Z
 rejected_plans: []
+
+## Cycle 12 — 2026-09-15 — FEATURE
+
+- Done: preflight found the repo clean on PR #31's already-pushed branch
+  (`docs/module-headers-top-level-src`), switched to main directly. GitHub truth: CI green on
+  main, no bug/question/directive issues, no plan PR. Inbox merged PR #31 (10/10 checks green,
+  `mergeStateStatus: CLEAN`) — squash, branch deleted, `auto-merged`. Milestone #19's items
+  4/6/7 (toolchain switch + `std.Io` rewrite) re-confirmed blocked for the 5th cycle running
+  (6, 7, 9, 11, 12) — not re-checking further; every other unchecked item (8-12) also depends
+  on that same pairing. Fell back to the established bounded-stabilize pattern: continued the
+  `//!` header sweep into the next STATE.md slice, `src/tui/` core (35 files, excluding
+  `widgets/`). Delegated the mechanical edit to a zig-developer subagent; verified its diff
+  (`git diff --stat`: exactly 35 `src/tui/*.zig` files + `tidy_baseline.txt`, 433→397 tracked
+  entries, `zig build test` green). Noted 9 files have pre-existing `zig fmt` drift (not
+  introduced here) — left untouched, flagged for the repo-wide fmt cleanup already in STATE.md.
+  Opened as PR #32; CI running at cycle deadline — left open for next cycle's inbox, same
+  recurring pattern as #21/#25/#26/#29/#30/#31.
+- PRs: #31 (merged), #32 (open, CI pending).
+- Next: inbox should merge #32 once green. `src/tui/widgets/` (38 files) is the final `//!`
+  header slice after that — same mechanical pattern.
+- Blockers: #19 items 4/6/7 need a dedicated multi-cycle session pairing the Zig 0.16 toolchain
+  switch with the `std.Io` rewrite — verified blocked 5 cycles running; do not re-check.
+- Open questions: none.
 
 ## Cycle 11 — 2026-09-12 — FEATURE
 
