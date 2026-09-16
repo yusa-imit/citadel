@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-09-16T04:05:38Z
+last_seen_at: 2026-09-17T00:00:00Z
 rejected_plans: []
+
+## Cycle 17 — 2026-09-17 — FEATURE
+- Inbox: no new OWNER actions since watermark (checked PR #13 review + issue comments and
+  repo-wide PR/issue comments since last_seen_at — none). No open issues, no red CI (`e58b354`
+  matches origin/main), no rejected plans, no other open implementation PRs. Plan PR #13 (plan
+  002) still open awaiting human merge.
+- Done: plan PR open, so ran one bounded stabilization task. Local `zig build test`/
+  `fmt --check`/`tidy` all green under pinned 0.16.0 toolchain. Independent tidy-auditor pass
+  found zero Tiger Style violations and no docs drift — same clean baseline as cycles
+  5/10/11/12/13/14/15/16, head unchanged (`e58b354`).
+- PRs: none opened (nothing to fix).
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner).
+- Blockers: none. Open questions: none. (Quiet cycle: state identical to cycle 16's block —
+  skipped GitHub comment; sent one Discord heartbeat, new day since cycle 15/16's.)
 
 ## Cycle 16 — 2026-09-16 — FEATURE
 - Inbox: no new OWNER actions since watermark (checked PR #13 review + issue comments and
@@ -74,53 +89,16 @@ rejected_plans: []
   item 1 (macOS CI runner).
 - Blockers: none. Open questions: none.
 
-## Cycle 12 — 2026-09-12 — FEATURE
-- Inbox: no new OWNER actions since the watermark; plan PR #13 (plan 002) still open awaiting
-  human merge, zero new review/issue comments on it. No open issues, no red CI, no rejected
-  plans, no other open implementation PRs to triage.
-- Done: plan PR open, so ran one bounded stabilization task. CI green (5/5, `888ee0b`), `zig
-  build test`/`fmt --check`/`tidy` all clean under the pinned 0.16.0 toolchain, zero Tiger Style
-  mechanical violations — same clean result as cycles 5/10/11. tidy-auditor pass found one real
-  issue this time: `README.md`'s opening paragraph made present-tense capability claims (a
-  `Runtime` type, kqueue/epoll backends filling 109 vtable slots) that contradict both the
-  shipped v0.2.0 stub-only code (no `Runtime` in `src/`, `root.zig` still exports pre-ADR stub
-  modules) and the README's own `Status` section a few lines down. Reworded the intro to
-  design-target language matching `Status`, per `citadel/protocol/DOCS.md`.
-- PRs: #14 opened and merged (docs-only, `*.md` CI-paths-ignored so no checks ran, `auto-merged`
-  label).
-- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
-  item 1 (macOS CI runner).
-- Blockers: none. Open questions: none.
+## History (cycles 0-9, 10-12)
+Cycle 12 (2026-09-12, FEATURE): plan PR open, bounded stabilization. CI/build/tidy all clean.
+tidy-auditor found real drift: README's intro made present-tense capability claims (`Runtime`
+type, kqueue/epoll backends) contradicting the stub-only v0.2.0 code and the README's own
+Status section — reworded to design-target language via PR #14 (docs-only, merged). Cycle 11
+(2026-09-12, FEATURE): plan PR open, bounded stabilization; CI/build/tidy clean, zero mechanical
+violations, nothing to fix. Cycle 10 (2026-09-11, STABILIZATION, n%5==0): full stabilize — CI
+5/5 green, build/fmt/tidy clean, tidy and test-quality audits both clean, docs/deps/hygiene
+clean, nothing to fix; stabilize_streak reset to 0.
 
-## Cycle 11 — 2026-09-12 — FEATURE
-- Inbox: no new OWNER actions since watermark; plan PR #13 (plan 002) still open awaiting human
-  merge — the only new comment on it since the watermark was our own cycle-10 report. No open
-  issues, no red CI, no rejected plans, no other open implementation PRs.
-- Done: plan PR open, so ran one bounded stabilization task instead of idling. CI green
-  (`888ee0b`), `zig build test`/`zig fmt --check`/`zig build tidy` all green under the pinned
-  0.16.0 toolchain. Grep audit (`catch unreachable`, `@panic`, `std.debug.print`, `while
-  (true)`, files > 800 lines, missing `//!` headers) found zero violations, same clean result as
-  cycles 5 and 10 — nothing to fix, nothing to file.
-- PRs: none opened (nothing to fix).
-- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
-  item 1 (macOS CI runner).
-- Blockers: none. Open questions: none.
-
-## Cycle 10 — 2026-09-11 — STABILIZATION
-- Inbox: no new OWNER actions since watermark; plan PR #13 (plan 002) still open awaiting human
-  merge, no new review/issue comments on it. No open issues, no red CI, no rejected plans.
-- Done (full stabilize, n%5==0): CI 5/5 green; `zig build test`/`zig fmt --check`/`zig build
-  tidy` all green under the pinned 0.16.0 toolchain (a tidy-auditor sub-pass using the stale
-  global 0.15.2 zig saw `tidy` fail — toolchain mismatch, not a regression, confirmed by
-  re-running with the correct binary). Tidy audit: zero violations, same clean result as cycle
-  5. Test-quality audit: no assertion-free tests over real logic, no leak gaps, adequate for
-  current scope. Docs/dependencies(N/A)/hygiene all clean. No fixes needed — nothing to file.
-- PRs: none opened (nothing to fix).
-- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
-  item 1 (macOS CI runner). stabilize_streak reset to 0 (success).
-- Blockers: none. Open questions: none.
-
-## History (cycles 0-9)
 Cycle 9 (2026-09-11, FEATURE): closed milestone #3 (item 11, release v0.2.0 — PR #12, tag,
 GitHub release; no consumer pins sirocco yet so no migration issues opened), then drafted plan
 002 (`planner`/opus): fiber scheduler + futex core, P0 (concurrency/cancel, 12 slots) + P1
