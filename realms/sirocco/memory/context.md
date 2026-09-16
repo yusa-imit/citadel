@@ -1,7 +1,23 @@
 # sirocco — context
 
-last_seen_at: 2026-09-16T00:00:00Z
+last_seen_at: 2026-09-16T04:05:38Z
 rejected_plans: []
+
+## Cycle 16 — 2026-09-16 — FEATURE
+- Inbox: no new OWNER actions since watermark (checked PR #13 review + issue comments and
+  repo-wide comments since last_seen_at — none). No open issues, no red CI (`e58b354` matches
+  origin/main), no rejected plans, no other open implementation PRs. Plan PR #13 (plan 002)
+  still open awaiting human merge.
+- Done: plan PR open, so ran one bounded stabilization task. Local `zig build test`/
+  `fmt --check`/`tidy` all green under pinned 0.16.0 toolchain. Independent tidy-auditor pass
+  found zero Tiger Style violations and no docs drift — same clean baseline as cycles
+  5/10/11/12/13/14/15, head unchanged (`e58b354`).
+- PRs: none opened (nothing to fix).
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner).
+- Blockers: none. Open questions: none. (Quiet cycle: state identical to cycle 15's block —
+  skipped GitHub comment and Discord heartbeat per CONTRACT rule 8 carve-out, one heartbeat/day
+  already sent for cycle 15.)
 
 ## Cycle 15 — 2026-09-16 — STABILIZATION
 - Inbox: no new OWNER actions since watermark (only comment since cycle 14's watermark was our
