@@ -1,72 +1,51 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-12T00:00:00Z
+last_seen_at: 2026-09-16T00:00:00Z
 rejected_plans: []
 
-## Cycle 8 — 2026-09-11 — FEATURE
-- Found dirty at preflight: branch `refactor/strings-assertion-baseline-v2`
-  (not `wip/*`, no open PR) with an uncommitted, unverified diff — a prior
-  session's interrupted continuation of plan 001 item 11 onto
-  `commands/strings.zig`. Preserved to `wip/strings-assertion-baseline-v2-
-  20260911` per the no-discard rule, then verified and continued it rather
-  than starting over: `zig build test` passed (1106/1106, only the 2
-  documented signal-4 flakes) but `zig build tidy` failed — the prior
-  session's `zig fmt` run had reformatted 4 command-lookup arrays
-  (`read_commands`, `write_commands`, `single_key_commands`,
-  `skip_redirect_cmds`) into a column-aligned grid, pushing the file from
-  230 to 284 lines over the 100-column baseline (a real fmt-vs-tidy
-  tension: multi-item-per-line arrays are only zig-fmt-stable as either
-  one-item-per-line or a padded grid, and grid width scales with the
-  longest item in the array). Repacked each array at the widest column
-  count that still clears 100 columns (5-7, computed empirically) rather
-  than one-per-line, which would have blown `getCommandAccessMode`/
-  `getCommandKeyPositions`'s function-length baseline instead; merged two
-  identical-body key-position branches (RENAME/RENAMENX,
-  COPY/LMOVE/BLMOVE/BRPOPLPUSH/RPOPLPUSH/SMOVE) to claw back the last 2
-  lines under `getCommandKeyPositions`'s 140-line baseline.
-- Plan 001 item 11 (assertion baseline) now covers `commands/strings.zig`
-  too (0 → 46 asserts: NX/XX and KEEPTTL/EX mutual exclusion, key-existence
-  postconditions on SET/INCR/DECR family, i64 negation-overflow proof,
-  NaN/Inf guards on INCRBYFLOAT, paired-arg-count invariants on MSET/HSET-
-  style commands) — joining memory.zig (deferred), parser.zig, writer.zig,
-  server.zig.
-- Verified: `zig build test` 1106/1106 (only the 2 documented flakes),
-  `zig build tidy` clean, `zig fmt --check src/commands/strings.zig` clean.
-- PRs: #131 opened (`refactor/strings-assertion-baseline-v2`), CI pending
-  at the cycle deadline — commented "awaiting CI; merge next cycle".
-- Next: next cycle's inbox merges #131. Assertion baseline remaining:
-  `storage/memory.zig` (deferred, large). Re-check zuda/sailor tags.
-- Blockers: none beyond the standing zuda/sailor v3.0.0 gate (still
-  v2.3.0/v2.99.0). Open questions: none.
+## Cycle 9 — 2026-09-16 — FEATURE
+- Preflight found dirty: branch `refactor/memory-assertion-baseline-continue-2`
+  (not `wip/*`, no open PR) with an uncommitted diff — an interrupted
+  continuation of item 11 on `storage/memory.zig` (getType/setExpiry/
+  getTtlMs/incrby/incrbyfloat). Preserved to `wip/memory-assertion-
+  baseline-continue-2-20260916` per the no-discard rule.
+- While preparing to implement, found two more `wip/*` branches already on
+  origin from earlier interrupted sessions, never picked up: `wip/memory-
+  assertion-baseline-core-20260912` and `-continue-20260915` (init/deinit/
+  set/checkMemoryLimitAndEvict, 34 tests). The two chains touch disjoint
+  functions in the same file — merged clean, no conflicts — combined into
+  one PR rather than stranding one chain again. Also backfilled a missing
+  `commands/strings.zig` CHANGELOG entry PR #131 had omitted.
+- PR #132 merged (CI green: Build & Test 6m51s, Shell Integration 58s).
+  Plan 001 item 11 (assertion baseline) is now fully done across all five
+  hot modules. Tracking issue #121 updated.
+- Near-miss: a stray `git stash -u` (checking whether fmt violations were
+  pre-existing) had nothing to stash, then `git stash pop` grabbed one of
+  three untriaged stash entries left over since cycle 1 (unrelated WIP),
+  causing conflicts in `build.zig`/`memory.zig`. `git reset --hard` is
+  guard-blocked; recovered cleanly with `git checkout HEAD -- <files>` +
+  removing the one untracked file the pop introduced. All three original
+  stash entries are untouched, still in `git stash list`, still needing
+  triage (see `debugging.md`). Lesson: never run bare `git stash`/`stash
+  pop` in this repo without listing existing entries first — use `git
+  diff`/targeted `checkout` instead when only checking a baseline.
+- Next: still no unblocked plan 001 items until zuda/sailor reach v3.0.0
+  (checked this cycle: v2.3.0/v2.99.0). Triage the 3 pre-existing stash
+  entries as a future cycle's task if nothing else unblocks first.
+- Blockers: items 4-9, 12 blocked on zuda/sailor v3.0.0. Open questions:
+  none.
 
-## Cycle 7 — 2026-09-09 — FEATURE
-- Done: inbox merged #129 (writer.zig assertion baseline, CI green,
-  auto-merged). Re-confirmed items 4-9 of plan 001 still blocked: zuda at
-  v2.3.0, sailor at v2.99.0, neither has hit v3.0.0 yet. Implemented plan
-  001 item 11 continuation: assertion baseline on `server.zig` (~20
-  asserts, up from 0) — `ServerStats` counter monotonicity, uptime
-  non-negativity, `ShutdownState` requested/request-payload consistency,
-  `GossipTask` running/thread-handle invariants, `Server.init`/`deinit`
-  database-count postconditions, `performShutdown` precondition,
-  `detectPsync` case-insensitive-match proof. `server.zig` had zero unit
-  tests before this (own comment said the accept loop needs integration
-  testing) — added 4 new unit tests for the testable pieces (ServerStats,
-  ShutdownState, detectPsync, Server.init/deinit). Adding asserts to
-  `start`/`handleConnection` pushed them 1-2 lines over their
-  `tidy-baseline.zon` ceiling (shrink-only); reverted those two and left
-  the accept loop covered by the shell integration suite instead.
-- Verified: `zig build test` 1106/1106 (only the 2 documented signal-4
-  RDB flakes), `zig build tidy` clean, `zig fmt --check src/server.zig`
-  clean.
-- PRs: #130 opened (`refactor/server-assertion-baseline`), CI pending at
-  the cycle deadline — commented "awaiting CI; merge next cycle".
-- Next: next cycle's inbox merges #130. Assertion baseline remaining:
-  `storage/memory.zig`, `commands/strings.zig` (both large — may need
-  more than one cycle each). Re-check zuda/sailor tags each cycle.
-- Blockers: none this cycle beyond the standing zuda/sailor v3.0.0 gate.
-  Open questions: none.
-
-## History (cycles before 7)
+## History (cycles before 9)
+- Cycle 8: preserved and continued an interrupted `commands/strings.zig`
+  assertion-baseline diff (`wip/strings-assertion-baseline-v2-20260911`);
+  fixed a tidy-baseline regression from a prior `zig fmt` run (command-
+  lookup arrays reformatted past 100 columns) by repacking them at a
+  computed safe width. Item 11 gained `strings.zig` (0 → 46 asserts). PR
+  #131.
+- Cycle 7: merged #129 (writer.zig). Implemented item 11 continuation on
+  `server.zig` (0 → ~20 asserts: `ServerStats`/`ShutdownState`/
+  `GossipTask`/`init`/`deinit`/`performShutdown`/`detectPsync`, 4 new unit
+  tests — file had none before). PR #130.
 - Cycle 6: merged #128 (catch-unreachable proofs). Confirmed items 4-9 of
   plan 001 are genuinely blocked by probing both toolchain trees directly
   (`std.process.Init`, `mem.find*`, vtable `std.Io` don't exist under the

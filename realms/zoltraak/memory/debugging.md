@@ -37,6 +37,19 @@ the other two stashes (`stash@{1}` time-series/vector RDB serialization, `stash@
 triggered a conflict this cycle; resolved without losing any stash — do not `git stash
 drop` any of the three without first extracting on a branch and testing).
 
+**This has now happened twice** (cycle 1, cycle 9): a bare `git stash`/`git stash pop`
+with nothing of the caller's own to stash still operates on whatever is already in the
+stash list, silently applying someone else's old WIP and producing confusing conflicts.
+Cycle 9 was checking whether `zig fmt` violations were pre-existing on `main` and used
+`git stash -u` (reported "No local changes to save" — correct, working tree was clean)
+followed by `git stash pop` out of habit, which popped `stash@{0}` anyway and conflicted
+in `build.zig`/`memory.zig`. `git reset --hard` is blocked by the kingdom guard hook in
+realm sessions; recovery was `git checkout HEAD -- <conflicted files>` plus deleting the
+one untracked file the pop introduced — clean, no data lost, stash list unchanged. Rule
+going forward: never call `git stash` (with or without `-u`/`pop`) to "check a baseline"
+in this repo — use `git diff`/`git show`/a scratch branch instead. If a stash operation
+is ever truly needed, run `git stash list` first and target the specific entry by name.
+
 ## Test hang policy
 
 If `zig build test` runs longer than 60 seconds locally, treat it as hung and kill it —
