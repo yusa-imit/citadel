@@ -3,6 +3,15 @@
 Surveyed 2026-09-05, as part of the citadel restructure. Source: repo inspection + a Zig
 0.16.0 compile probe. This file is the honest baseline the `001` plan works from.
 
+## Release history
+
+- **v0.2.0** (2026-09-16, PR #15, milestone 001 closed): Zig 0.16.0 migration + Tiger Style
+  `tidy` baseline (shape/limits/ban-list/assertion-density/file-length checks), `io: Io`
+  convention (ADR-0001, design-only — `docs/PRD.md`), first real I/O test via
+  `std.testing.io`. Ships no storage-kernel functionality — every module in the README table
+  is still `Planned`. No consumers exist yet (no sibling repo's `build.zig.zon` names strata
+  in `.dependencies`), so no migration issues were opened.
+
 ## What exists (claimed vs. present)
 
 README.md and the (now-removed) CLAUDE.md describe an ambitious 10-module storage kernel:
