@@ -1,7 +1,37 @@
 # zuda — context
 
-last_seen_at: 2026-09-15T07:05:59Z
+last_seen_at: 2026-09-15T19:13:50Z
 rejected_plans: []
+
+## Cycle 11 — 2026-09-16 — FEATURE
+- Done: inbox merged PR #43 (tidy comment-aware fn scanner, all 7 checks green), labeled
+  `auto-merged`. No new OWNER comments/questions/directives beyond routine cycle-report notes.
+  Completed plan 001's io/seed rollout item (ADR 0001 D1): applied seed injection to
+  `skip_list.zig`, the last file in scope (`concurrent_skip_list.zig`, `robin_hood_hash_map.zig`,
+  `cuckoo_hash_map.zig` done in cycles 7-9; `work_stealing_deque.zig` dropped, zero
+  `std.time`/`std.crypto.random` sites). Consolidated `init`/`initWithSeed` into one
+  `init(allocator, ctx, Options{ seed: u64 })`, no default; `initDefault()` now uses a fixed
+  seed constant instead of the clock; `fromSlice()` gained `Options`; `clone()` copies the
+  source's `prng` value directly (Xoshiro256 is a plain value type) to continue its sequence.
+  2 new determinism tests mirroring `concurrent_skip_list.zig`'s pattern. Updated external call
+  sites: `builder.zig`'s `toSkipList` (trailing `seed: u64`, matches `toHashMap`),
+  `zoltraak_sortedset.zig` (fixed seed constant — also fixed a pre-existing arity bug at this
+  call site, `InnerSkipList.init(allocator)` was missing its `ctx` arg entirely, invisible to CI
+  via the same non-recursive-`refAllDecls` gap issue #38 found), `bench/lists.zig`,
+  `bench/memory_profile.zig`, `examples/skip_list_demo.zig`, `tests/memory_safety_audit.zig`.
+  Verified via `zig test` on the touched file plus a scratch driver importing `builder.zig`
+  (137/137 pass, transitively covers `skip_list.zig`); `zig build` and `zig fmt --check` clean.
+  Ticked the plan item. Filed #44 (not fixed — separate, unrelated bug) for
+  `zoltraak_sortedset.zig`'s `range()`/`rangeByScore()` calling `ArrayList.append` with the wrong
+  arity, found incidentally while compile-checking that file, same test-invisibility root cause
+  as issue #38.
+- PRs: #45 open (SkipList seed injection), Build & Test pending at the cycle deadline — left
+  "awaiting CI; merge next cycle" comment, next cycle's inbox merges it. #43 merged.
+- Next: merge #45 once green. Plan 001's io/seed rollout item (line 101) is now fully complete —
+  advance to the next unchecked item: `std.time.*` → `Io.Clock` in the container layer (21
+  sites) or the `mem.indexOf*`/`AutoArrayHashMap` mechanical-rename item (line 78, also unchecked
+  and independent) — either is a reasonable next pick.
+- Blockers: none. Open questions: none.
 
 ## Cycle 10 — 2026-09-15 — STABILIZATION
 - Done: forced (n=10, n%5==0), no red CI/bug forcing condition otherwise. Inbox merged PR #42
@@ -129,31 +159,19 @@ rejected_plans: []
   `cuckoo_hash_map.zig`, `skip_list.zig`, `work_stealing_deque.zig`.
 - Blockers: none. Open questions: none.
 
-## Cycle 5 — 2026-09-10 — STABILIZATION
-- Done: inbox merged PR #35 (mechanical renames, plan 001 item 4) and ticked it on tracking
-  issue #31. Forced STABILIZATION (n=5, n%5==0). CI on `main` green, no red-CI/bug forcing
-  condition otherwise. Ran a fresh Tiger Style audit (`tidy-auditor`): `catch unreachable`
-  69→60 (decision_tree.zig's old hits are now just comments), `std.debug.print` library-code
-  finding was a false positive (all 14 hits are inside doc-comment examples, 0 real),
-  `while(true)` 111→108 (37 real unbounded ones in `distributions.zig`), files>800 76→74.
-  New findings: `tools/tidy.zig`'s function-length scanner isn't comment-aware (3 false
-  positives) plus a baseline key-collision bug; ~20 files fail `zig fmt --check` on `main`
-  with no CI gate for it; 9 ML files seed PRNGs from wall-clock time instead of an injected
-  seed (Tiger Style rule 7/14 gap); the 2 `usize`-in-struct candidates (`bwt.zig`,
-  `arithmetic.zig`) were reviewed and judged NOT real wire-format violations (never actually
-  serialized) — don't re-flag. Picked the smallest safe fix: zuda was the only kingdom repo
-  missing a `LICENSE` file — added MIT matching all 7 siblings (PR #36). Also caught that the
-  audit's "4 scratch files in root" finding was a false positive — those are gitignored/
-  untracked (`.gitignore` has `test_*`), not a real repo violation. `STATE.md` gap table and
-  candidate list refreshed with all of the above.
-- PRs: #36 open (LICENSE), CI pending at the cycle deadline — left "awaiting CI; merge next
-  cycle" comment, next cycle's inbox merges it.
-- Next: merge #36 once green, then resume plan 001 item 5 ("Fix the public `io: Io` API shape
-  + ADR" — the v3.0.0 signature break, call `architect` first) since FEATURE resumes next
-  cycle (n=6, not a multiple of 5, no red CI/bug). New stabilize candidates for future cycles:
-  `tools/tidy.zig` comment-parsing + baseline key-collision fix, `zig fmt --check` drift (~20
-  files, no CI gate), PRNG seed injection in 9 ML files — see `STATE.md` items 8-10.
-- Blockers: none. Open questions: none.
+## History (cycles 0-6, folded 2026-09-16 to keep this file under 200 lines)
+Cycle 5 (STABILIZATION, forced n=5): merged #35 (mechanical renames). Tiger Style audit found
+`tools/tidy.zig`'s function-length scanner isn't comment-aware (fixed cycle 10, PR #43) plus a
+still-open baseline key-collision bug; ~20 files failing `zig fmt --check` with no CI gate
+(re-audited cycle 10: regressed to ~170 + 2 genuine parse errors); 9 ML files seeding PRNGs from
+wall-clock time (Tiger Style gap, still open, separate from the ADR 0001 container rollout).
+Added the missing `LICENSE` file (PR #36, zuda was the only kingdom repo without one). Cycle 6
+(FEATURE): called `architect` for plan 001's "fix the public `io: Io` API shape" item; wrote
+`docs/adr/0001-io-injection-and-seed-determinism.md` (`docs/adr/0001-io-injection-and-seed-determinism.md`
+in the repo) — clock-derived seeds become a required `seed: u64` option, not `io`; `io` is never
+stored in a container; `Io.Mutex.lockUncancelable` keeps `error.Canceled` out of container error
+sets. `bloom_filter.zig` needed no public-API change (PR #37). This ADR is the basis for every
+seed-injection PR in cycles 7-11 below.
 
 ## History (cycles 0-4, folded 2026-09-15 to keep this file under 200 lines)
 Realm created 2026-09-05 by the citadel restructure (memory migrated from the repo's old
