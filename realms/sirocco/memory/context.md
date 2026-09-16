@@ -1,7 +1,25 @@
 # sirocco — context
 
-last_seen_at: 2026-09-15T00:00:00Z
+last_seen_at: 2026-09-16T00:00:00Z
 rejected_plans: []
+
+## Cycle 15 — 2026-09-16 — STABILIZATION
+- Inbox: no new OWNER actions since watermark (only comment since cycle 14's watermark was our
+  own cycle-14 report comment on PR #13). No open issues, no red CI, no rejected plans, no other
+  open implementation PRs. Plan PR #13 (plan 002) still open awaiting human merge.
+- Done (full stabilize, n%5==0): CI 5/5 green (`e58b354`); `zig build test`/`fmt --check`/`tidy`
+  all green under the pinned 0.16.0 toolchain (present this cycle). tidy-auditor and test-writer
+  independent audits both found zero real defects — same clean baseline as cycles 5/10/11.
+  Two pre-existing minor test-quality observations noted, both judged non-defects (weak-oracle
+  version test in `main.zig`; untested CLI wiring in `tools/tidy_main.zig`). Docs/deps(N/A)/
+  hygiene all clean. No fixes needed — nothing to file.
+- Bookkeeping fix: cycle 14's `/report` logged its context.md entry but never wrote
+  `memory/counter` (stayed at 13). This cycle resyncs counter to 15, matching the true count of
+  completed cycles and the n%5==0 STABILIZATION cadence.
+- PRs: none opened (nothing to fix).
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner). stabilize_streak stays 0 (success).
+- Blockers: none. Open questions: none.
 
 ## Cycle 14 — 2026-09-15 — FEATURE
 - Inbox: no new OWNER actions since the watermark; plan PR #13 (plan 002) still open awaiting
@@ -86,47 +104,15 @@ rejected_plans: []
   item 1 (macOS CI runner). stabilize_streak reset to 0 (success).
 - Blockers: none. Open questions: none.
 
-## Cycle 9 — 2026-09-11 — FEATURE
-- Inbox: no new OWNER actions since watermark beyond the two self-comments already recorded
-  last cycle; no plan PR open, no rejected plans, no open PRs besides what this cycle opened.
-- Done: milestone #3's last item (item 11, Release 0.2.0) — gates checked (tests/fmt green, CI
-  green, no open bugs, no prior tag), PR #12 merged (version bump, CHANGELOG closed into
-  0.2.0, README install snippet repointed at the tag), tag `v0.2.0` pushed, GitHub release
-  published, milestone issue #3 closed. No kingdom repo's `build.zig.zon` names sirocco yet
-  (checked against `citadel/zr-repos.toml`), so no consumer migration issues were opened.
-- Then: with ≥10 min left before deadline, ran `/plan` — no unchecked plan existed (001 fully
-  closed). `planner` (opus) drafted plan 002 scoped to `docs/PRD.md` §4.3's P0 (concurrency/
-  cancel core, 12 slots) and P1 (futex trio, 3 slots) — the floor every later vtable slot group
-  suspends on. Nine one-cycle items: macOS CI runner first (plan 001 deferred it; PRD §9 says
-  this plan may not), walking-skeleton `Runtime` forwarding all 109 slots, the
-  `tests/parity` differential harness + 109-slot coverage table (before any native slot lands),
-  the fiber substrate, P0's 12 slots split into 3 ownership-atomic sets (future-producing:
-  async/concurrent/await/cancel; cancel-state: checkCancel/recancel/swapCancelProtection;
-  group: groupAsync/groupConcurrent/groupAwait/groupCancel+crashHandler), the futex trio, then
-  docs + v0.3.0 release. Version impact: MINOR (deletes 6 stub modules — breaking — but no
-  consumer pins sirocco yet, and 0.x foundation repos may break MINOR per VERSIONING.md).
-  Plan PR #13 opened (`plan/002-fiber-scheduler-and-futex-core`), awaiting human merge.
-- Blockers: none. Open questions: none. Next cycle: if PR #13 still open, do one bounded
-  stabilization task while waiting; once merged, `/cycle` opens the milestone issue and starts
-  item 1 (macOS CI runner).
-
-## Cycle 8 — 2026-09-10 — FEATURE
-- Done: inbox found issue #3's checklist had drifted — item 9 was merged via PR #10 last cycle
-  but never ticked on the issue body; fixed at inbox time. No new OWNER actions since
-  watermark, no plan PR, no bug/question/directive issues. Implemented item 10 (README/
-  CHANGELOG reconciliation): the module table was already reconciled with the std.Io.VTable
-  design back in PR #8 (cycle 5); the only remaining drift was the Install section naming tag
-  `v0.1.0`, which was never cut (`git tag -l` empty) — fixed with a local build.zig.zon
-  path-dependency snippet, deferring `zig fetch` to the first real release. Added
-  `CHANGELOG.md` (Keep a Changelog, `Unreleased` section covering plan 001's work).
-- PRs: #11 merged (auto-merged label, no CI checks — docs-only paths-ignore, same pattern as
-  PRs #7/#8/#10).
-- Next: item 11 — Release 0.2.0 (bump `.version`, close the CHANGELOG `Unreleased` section into
-  `## 0.2.0`, tag `v0.2.0`, cut the GitHub release, repoint the README install snippet). This
-  is the last open item on milestone #3.
-- Blockers: none. Open questions: none.
-
-## History (cycles 0-7)
+## History (cycles 0-9)
+Cycle 9 (2026-09-11, FEATURE): closed milestone #3 (item 11, release v0.2.0 — PR #12, tag,
+GitHub release; no consumer pins sirocco yet so no migration issues opened), then drafted plan
+002 (`planner`/opus): fiber scheduler + futex core, P0 (concurrency/cancel, 12 slots) + P1
+(futex trio, 3 slots), nine one-cycle items starting with the macOS CI runner and a walking-
+skeleton `Runtime` forwarding all 109 vtable slots. Version impact MINOR. Plan PR #13 opened,
+awaiting human merge (still open as of cycle 15). Cycle 8 (2026-09-10, FEATURE): item 10
+(README/CHANGELOG reconciliation) via PR #11 — added `CHANGELOG.md`, fixed the Install
+section's uncut `v0.1.0` tag reference.
 Cycle 7 (2026-09-10, FEATURE): item 9 (`wip/*` branch decision) via PR #10 — verified no
 `wip/*` branch exists for sirocco; decision recorded as ADR-002.
 Cycle 0 (2026-09-05, RESTRUCTURE): realm created, plan 001 prescribed. Cycle 1 (2026-09-06,
@@ -170,3 +156,9 @@ design; the rewritten PRD (`docs/adr/0001-std-io-vtable.md`) is what Phase 1 imp
 - A stale `.zig-cache` can make `zig build test`/`tidy` fail with `error: failed to spawn build
   runner ... FileNotFound` (seen cycle 14) — this looks like a real build break but isn't;
   `rm -rf .zig-cache` (gitignored, local-only) and retry before assuming a regression.
+- The `/report` skill's counter write can silently fail to land in a commit (seen cycle 14 —
+  only context.md changed, `memory/counter` stayed at 13) while the context.md entry and GitHub
+  comment still went out normally. Cross-check `memory/counter` against the highest `## Cycle N`
+  header in context.md at cycle start; if they disagree, trust the context.md history (it has a
+  matching GitHub comment as evidence) and resync counter to `N+1`, don't just take the file at
+  face value.

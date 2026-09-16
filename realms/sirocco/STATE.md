@@ -1,4 +1,35 @@
-# sirocco — State Survey (2026-09-05, refreshed 2026-09-13)
+# sirocco — State Survey (2026-09-05, refreshed 2026-09-16)
+
+## Refresh 2026-09-16 (cycle 15, STABILIZATION, n%5==0)
+
+- CI: 5/5 recent runs on `origin/main` green, head `e58b354` matches. No open issues, no red CI,
+  plan PR #13 (plan 002) still open awaiting human merge — no new OWNER activity since cycle 14's
+  watermark beyond our own report comment.
+- `zig build test`/`zig fmt --check src bench build.zig`/`zig build tidy` all green under the
+  pinned 0.16.0 toolchain (present on the machine this cycle, unlike cycle 13's gap).
+- Tidy audit (tidy-auditor agent, independent pass): zero violations across every category —
+  `catch unreachable` (0), `@panic`/`std.debug.print`/`while (true)` in src/ (0 each), functions
+  > 70 lines (0), files > 800 lines (0; largest is `bench/main.zig` at 100 lines), `usize` in
+  formats (0), missing `//!` headers (0/10), banned spellings (0), `== error.`/bare `anyerror` in
+  `pub fn` (0), TODO/FIXME (0), assert/maybe density well above the ≥2/fn target where functions
+  exist. No doc-vs-code drift found — same clean baseline as cycles 5/10/11/12/13/14.
+- Test quality audit (test-writer agent): 34/34 tests pass, no leaks, no `expect(true)`, no
+  unprovoked error variants. `tools/tidy_test.zig` remains the strongest suite. Two pre-existing
+  minor observations, both judged non-defects (low risk, not worth a fix PR): `main.zig`'s
+  `"cli: version is exposed"` test has a weak oracle (checks wiring against a value hardcoded
+  identically in `root.zig`, no logic to test yet); `tools/tidy_main.zig`'s CLI wiring (arg
+  parsing, directory walk, exit code) has no test blocks of its own, though the `checkSource`
+  logic it wraps is well covered.
+- Docs/dependencies(N/A, zero-dep foundation)/hygiene: all clean, no drift — README Bootstrap
+  status and Design section match ADR 0001 and the stub-only code; `.zig-cache`/`zig-out` stay
+  gitignored and untracked; `build.zig.zon` version (0.2.0) matches the README install snippet.
+- Benchmarks: not run — `bench/main.zig` still has only a `noop`/scaffold benchmark, nothing
+  functional to measure before Phase 1 (event loop / plan 002) lands, same as prior cycles.
+- No fixes needed this cycle — nothing to file, nothing outstanding. `stabilize_streak` stays 0.
+- Memory-bookkeeping note: cycle 14's `/report` logged its context.md entry but never wrote
+  `memory/counter` (stayed at 13 instead of advancing to 14) — a bug in that cycle's report
+  execution, not a repo issue. This cycle treats itself as cycle 15 (matching the n%5==0
+  STABILIZATION cadence already visible at cycles 5/10) and writes counter=15 to resync.
 
 ## Refresh 2026-09-13 (cycle 13, FEATURE — bounded stabilization while plan PR #13 awaits merge)
 
