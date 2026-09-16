@@ -145,6 +145,33 @@ stub files has no hot loops, recursion, or allocation to critique. Re-audit once
 - Local toolchain note: `~/.zr/toolchains/zig/0.16.0/zig` was present and working this cycle
   (cycle 12's "missing toolchain" note did not reproduce) — `zig build test` ran fully locally.
 
+## Stabilization update (2026-09-16, cycle 15)
+
+- CI: last 5 completed runs on main all green; no red CI, no open bug issues — FEATURE mode
+  (periodic_stabilization is off for sigil; `n % 5` trigger doesn't apply).
+- Inbox: merged PR #19 (bounded `tools/tidy.zig` dir-walk recursion, `dir_depth_max=64`) — CI
+  went fully green (8/8, including the previously-pending cross-compile matrix and the
+  Linux-skip on the depth-bound regression test) since last cycle's report. Plan PR #17
+  (plan 002, Phase 1A) still open, no new OWNER activity.
+- Plan PR open → ran one bounded stabilization task. Re-verified the sole remaining
+  carried-forward finding (tidy.zig self-exempt from its own file-length/function-length/
+  ban-list checks) rather than attempting it: file is now **1860 lines** (up from 1798 at
+  cycle 14, +62 from the recursion-bound PR). Manual scan of what adding `"tools"` to
+  `scan_roots` would surface: 2 lines > 100 cols, ~61 `fn`/`pub fn` declarations (many almost
+  certainly > 70 lines, none baselined), and `checkBanList`'s path-unconditional rules
+  (`catch_unreachable`, `eq_error`/`neq_error`, `usingnamespace_kw`, `fixme_comment`, `dbg_call`)
+  would run against tidy.zig's own source for the first time — 15 raw substring hits to
+  triage for false positives (string literals describing the patterns, e.g. rule messages
+  that mention `@panic(` as text) before any real count is known. The 2 real `catch
+  unreachable` calls (in `isWireFormatPath`) already carry proof comments (PR #14) and are
+  not a factor. This confirms the finding is a genuinely large diff (baseline entries or a
+  file split, plus false-positive triage on the ban-list hits), not a ≤10 min task — no
+  smaller candidate finding exists elsewhere (test quality and docs drift are both
+  not-yet-applicable at stub stage per "Known gaps" above; hygiene, `.gitignore`, and
+  dependencies all re-checked clean this cycle).
+- No PR opened this cycle's stabilization slot — genuinely nothing smaller to fix. Candidate
+  for a future **non-`--one`** stabilization cycle (or its own plan item) given the size.
+
 ## Next work candidates (from `docs/milestones.md` / `project-context.md`)
 
 1. Phase 1A — `core/{value,tree,diagnostics}.zig`: `Value` union, arena-owned `ValueTree`,
