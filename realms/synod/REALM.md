@@ -10,6 +10,9 @@
 | Depends on | none — Zig std only (ADR-001); kingdom integrations are opt-in adapters |
 | Consumers | silica (replication/failover), zoltraak (cluster/sentinel) |
 | blocked_by | — |
+| periodic_stabilization | off — overrides `protocol/CYCLE.md` §0.2 (`n % 5 == 0`); a |
+| | scheduled sweep would audit stubs while plan 001 is still in flight. Red CI and an open |
+| | OWNER `bug` issue still force STABILIZATION. |
 | CI | Linux tests + 6 cross-compile targets (`.github/workflows/ci.yml`) |
 
 ## What it is

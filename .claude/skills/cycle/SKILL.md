@@ -22,7 +22,11 @@ REALM=$CITADEL/realms/$R
    `$REALM/REALM.md`, `$REALM/STATE.md`, `$REALM/memory/context.md`, `$CITADEL/docs/ROADMAP.md`.
    Disk gate: `df -g / | awk 'NR==2{print $4}'` must be ≥ 20 (GB) else report "disk" and stop.
 3. Mode: `n=$(($(cat $REALM/memory/counter)+1))` (do NOT write it yet; `/report` writes it).
-   STABILIZATION if `n % 5 == 0` or `$REALM/memory/stabilize_streak` ≥ 1, else FEATURE.
+   Periodic stabilization is on unless the realm opts out:
+   `grep -qi '^| periodic_stabilization | off' $REALM/REALM.md`.
+   STABILIZATION if (periodic is on and `n % 5 == 0`) or `$REALM/memory/stabilize_streak` ≥ 1,
+   else FEATURE. The opt-out drops only the `n % 5` trigger — it never suppresses the forced
+   STABILIZATION of step 5, nor the `/stabilize --one` filler tasks in section 2.
    Print `CYCLE $n MODE <mode>`.
 4. Repo state, in this order: `cd $REPO; git status --porcelain; git branch --show-current`.
    If dirty or not on main: preserve first — commit the modified files in place to the current
