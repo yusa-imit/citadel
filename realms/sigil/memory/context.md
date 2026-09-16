@@ -1,29 +1,25 @@
 # sigil — context
 
-last_seen_at: 2026-09-16T03:15:00Z
+last_seen_at: 2026-09-17T00:00:00Z
 rejected_plans: []
 
-## Cycle 15 — 2026-09-16 — FEATURE
+## Cycle 16 — 2026-09-17 — FEATURE
 
-- Preflight: clean tree but on `fix/tidy-bounded-dir-walk-recursion` (last cycle's PR #19
-  branch), checked out main, fast-forwarded. CI green on main (f3f9468), no open bug issues.
-  Mode: FEATURE (periodic_stabilization off for sigil; stabilize_streak 0).
-- Inbox: merged PR #19 — CI had gone fully green (8/8: ubuntu/macos Build & Test + 6
-  cross-compile targets) since last cycle's report, when only 2/8 had finished. Squash-merged,
-  branch deleted, labeled `auto-merged`. Plan PR #17 (plan 002, Phase 1A) still open, no new
-  OWNER comments since the watermark.
-- Plan PR open → ran one bounded stabilization task. Re-verified the sole remaining
-  carried-forward finding (`tools/tidy.zig` self-exempt from its own file-length/
-  function-length/ban-list checks): file is now 1860 lines (+62 since cycle 14). Manual audit
-  of what scanning it would surface — 2 lines >100 cols, ~61 `fn` declarations needing
-  baseline entries, 15 raw ban-list substring hits needing false-positive triage — confirmed
-  it's a genuinely large diff, not a ≤10 min task. No smaller candidate existed (test quality/
-  docs drift not-yet-applicable at stub stage; hygiene, `.gitignore`, deps all re-checked
-  clean). No PR opened this slot; `STATE.md` updated with the re-audit numbers.
-- Next: awaiting human merge of plan 002 (#17); once merged, `/cycle` opens its tracking issue
-  and item 1 (`core/value.zig`) becomes the next `/implement` target. Otherwise next
-  stabilization candidate is the tidy.zig self-exemption finding, sized for a full (non
-  `--one`) stabilization cycle or its own plan item, not a bounded filler task.
+- Preflight: clean tree on main, CI green (HEAD 42f5a4f, last 5 runs all success), no open bug
+  issues. Mode: FEATURE (periodic_stabilization off for sigil; stabilize_streak 0).
+- Inbox: no new OWNER activity anywhere (plan PR #17 comments, repo-wide PR/issue comments all
+  checked since the cycle 15 watermark) — nothing to action. `owner_actions_found: no`.
+- Plan PR #17 still open → ran one bounded stabilization task: fresh `tidy-auditor` sweep
+  (`zig build tidy` + manual grep across all Tiger Style categories) found **0 new findings** —
+  `src/` totals 719 lines, no function > 70 lines, hygiene/docs/deps all clean. The carried
+  `tools/tidy.zig` self-exemption finding (1860+ lines) was deliberately not re-investigated —
+  already confirmed too large for `--one` across two prior cycles. No PR opened.
+- Quiet cycle: identical shape to cycle 15 (plan PR open, no owner actions, no PR opened, CI
+  green) — GitHub tracking comment skipped per CONTRACT rule 8 carve-out; one Discord heartbeat
+  sent for today.
+- Next: same as cycle 15 — awaiting human merge of plan 002 (#17). If it stays open again, the
+  tidy.zig self-exemption finding needs a full (non `--one`) stabilization cycle or its own plan
+  item; a `--one` slot has had no smaller candidate for two cycles running.
 - Blockers: none. Open questions: none.
 
 ## History
@@ -75,6 +71,11 @@ Linux CI with a std 0.16.0 bug in deep directory iteration (`dirReadLinux` "BADF
 with plain `dir.iterate()` too; worth a Zig upstream issue if it recurs. Final fix: depth-bounded
 recursion (documented Tiger Style 1.8 trade-off); regression test skipped on Linux only. PR #19
 opened, 2/8 checks green at session end, left for cycle 15's inbox — merged there.
+
+Cycle 15 (2026-09-16, FEATURE): merged PR #19 (bounded recursion, now fully green 8/8). Plan
+PR #17 still open → one stabilization task: re-verified tidy.zig's self-exemption finding is
+still too large for `--one` (1860 lines, ~61 undocumented functions, 15 ban-list hits to
+triage). No PR opened.
 
 ## Standing backlog (Phase 1, plan 002 — unchanged since bootstrap)
 

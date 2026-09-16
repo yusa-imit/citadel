@@ -172,6 +172,21 @@ stub files has no hot loops, recursion, or allocation to critique. Re-audit once
 - No PR opened this cycle's stabilization slot — genuinely nothing smaller to fix. Candidate
   for a future **non-`--one`** stabilization cycle (or its own plan item) given the size.
 
+## Stabilization update (2026-09-17, cycle 16)
+
+- CI: last 5 completed runs on main all green (HEAD 42f5a4f). No open bug issues, no new OWNER
+  activity on plan PR #17 since the cycle 15 watermark — FEATURE mode, one bounded stabilization
+  task per §2 of the cycle protocol.
+- Fresh `tidy-auditor` sweep (via `zig build tidy` on the 0.16.0 toolchain, plus manual grep for
+  `catch unreachable`/`@panic`/`std.debug.print`/`while (true)`/`FIXME`/`dbg(`/function-length/
+  file-length/`usize`-in-wire-structs/`//!` headers/hygiene/docs drift): **0 findings, nothing
+  new**. `src/` totals 719 lines (largest file `config.zig` at 264), well under the 800-line
+  limit; no function exceeds 70 lines. Root hygiene, `.gitignore`, and `build.zig.zon`
+  dependencies all re-checked clean.
+- The sole carried-forward finding (`tools/tidy.zig`, now past 1860 lines, self-exempt from its
+  own file-length/function-length/ban-list checks) was deliberately not re-investigated this
+  cycle — already confirmed too large for `--one` across cycles 15 and 16. No PR opened.
+
 ## Next work candidates (from `docs/milestones.md` / `project-context.md`)
 
 1. Phase 1A — `core/{value,tree,diagnostics}.zig`: `Value` union, arena-owned `ValueTree`,
