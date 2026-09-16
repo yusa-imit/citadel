@@ -110,17 +110,24 @@ below remain live and invisible to CI. This cycle fixed the assert-implication i
 | missing `//!` header | 0 | all 15 `.zig` files have one |
 | `anyerror` in `pub fn` / error-upcasting | 0 | (1 `anyerror` on a struct *field*, `bench/main.zig:10` — not a `pub fn` signature, not a violation) |
 
-Still not fixed (still out of a single-fix-per-cycle budget; same root cause as cycle 5):
-- `build.zig`'s `pub fn build` at 87 lines and `tools/tidy.zig` at 1266 lines both remain
-  unenforced because `tools/tidy.zig`'s `main()` (line 651) only opens `src/`; `tools/tidy.zig`
-  is never walked by the tool that checks it, and `build.zig`'s only self-check
-  (`checkBuildZigHeader`, line 626) verifies its `//!` header, not its function length. Doing the
-  size splits without first widening tidy's scope leaves the fix unenforced again next time it
-  regresses — but widening scope *before* splitting would turn `zig build tidy` red immediately.
-  Recommended order for whichever cycle picks this up: (1) split `tools/tidy.zig`'s ~550 lines
-  of inline tests (714-1267) into `tools/tidy_test.zig`, (2) extract `build.zig`'s step-wiring
-  into helpers, (3) only then widen `tools/tidy.zig`'s walk to cover `tools/` and add a function-
-  length check for `build.zig`, in the same PR as steps 1-2 so CI never goes red in between.
+**Superseded 2026-09-16 (cycle 13, stabilization)** — step 2 of the recommended order done:
+`build.zig`'s `pub fn build` split into 7 single-purpose helpers (`addLibraryModule`,
+`addCliExecutable`, `addRunStep`, `addTestStep`, `addTidyStep`, `addBenchStep`, `addDocsStep`);
+`build()` itself is now 23 lines (was 87), each helper well under 70. `zig build`, `zig build
+test`, `zig build tidy`, and `zig fmt --check` all still green under 0.16.0 — no behavior change,
+same steps/artifacts. `tools/tidy.zig` (1266 lines) is untouched and still unenforced (step 1,
+splitting its inline tests into `tools/tidy_test.zig`, and step 3, widening the walk, remain for
+a future cycle — same reasoning as below: widening the walk before the tidy.zig split would turn
+`zig build tidy` red immediately).
+
+Still not fixed:
+- `tools/tidy.zig` at 1266 lines (limit 800) remains unenforced because `tools/tidy.zig`'s
+  `main()` (line 651) only walks `src/`; `tools/tidy.zig` is never walked by the tool that checks
+  it. Recommended remaining order: (1) split `tools/tidy.zig`'s ~550 lines of inline tests
+  (714-1267) into `tools/tidy_test.zig`, (2) only then widen `tools/tidy.zig`'s walk to cover
+  `tools/` and `build.zig` (and add a function-length check for `build.zig`, whose only current
+  self-check, `checkBuildZigHeader` at line 626, verifies just its `//!` header) — in the same PR
+  as step 1 so CI never goes red in between.
 - Latent, non-blocking: `findFunctionEnd` (`tools/tidy.zig:213`) is not char-literal-aware — a
   `'{'`/`'}'` char literal in source would be miscounted as a real brace. Not currently triggered
   by any file in this repo; worth a doc note or regression test whenever the size checks above

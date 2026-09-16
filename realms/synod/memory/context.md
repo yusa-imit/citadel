@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-09-16T00:00:00Z
+last_seen_at: 2026-09-16T06:05:37Z
 rejected_plans: []
+
+## Cycle 13 — 2026-09-16 — FEATURE
+- Inbox: no new owner actions since watermark. Plan PR #16 (plan 002) still open awaiting OWNER
+  merge, no comments/reviews on it yet. No plan_closed_unmerged, no open milestone issue, no
+  bug issues, CI green (matches origin/main).
+- Plan PR open → per CYCLE.md, ran one bounded stabilization task instead of idling: split
+  `build.zig`'s 87-line `build()` into 7 single-purpose helpers (`addLibraryModule`,
+  `addCliExecutable`, `addRunStep`, `addTestStep`, `addTidyStep`, `addBenchStep`, `addDocsStep`);
+  `build()` is now 23 lines. No behavior change (same artifacts/steps/wiring). Clears the
+  function-length violation flagged in `STATE.md` since cycle 10 (2026-09-12). PR #17: all 7 CI
+  jobs green, squash-merged, branch deleted, labeled `auto-merged`.
+- Updated `STATE.md`: recorded this fix; `tools/tidy.zig` (1266 lines) split and widening its
+  walk to cover itself/`build.zig` remain deferred (steps 1 and 3 of the recorded order) — doing
+  step 3 before step 1 would turn `zig build tidy` red immediately.
+- Next: awaiting OWNER merge of plan 002 (PR #16). Once merged, opens the milestone issue and
+  starts item 1 (fix `src/root.zig`'s hardcoded `SemanticVersion{0,1,0}` — a real version-drift
+  bug the planner caught last cycle, made plan 002's first item).
+- Open questions: none.
 
 ## Cycle 12 — 2026-09-16 — FEATURE
 - Inbox: no new owner actions since watermark (only the AI's own cycle-11 report comments on
