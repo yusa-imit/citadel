@@ -90,3 +90,8 @@ here.)
   — pass the allocator to every mutation (`.append()`, `.deinit()`). This shape changes again
   under the Zig 0.16 migration (`.empty`/`.initCapacity`, see `citadel/core/rules/zig-0.16.md`)
   — do not write new 0.15-only `ArrayList(T){}` code once that migration starts.
+- **[2026-09-15] PR #30 (zuda graph-algorithm migration) closed, not merged**: superseded by the
+  already-recorded decision to keep topo sort/cycle detection/work-stealing deque as local,
+  hand-rolled code for performance (`REALM.md` "zuda migration status"). Also stale independent
+  of that decision — references a local-path zuda dependency and APIs (`hasVertex()`,
+  `neighborIterator()`) that were never added upstream. Plan 001 item 4.

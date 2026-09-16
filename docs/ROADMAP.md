@@ -21,8 +21,8 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 | Realm | 0.16 errors (probe) | Effort | Blocked by | Version impact |
 |---|---|---|---|---|
 | sigil | 1 | trivial | — | none (0.1 → 0.2) — **done**, zon bumped to 0.2.0 (2026-09-12), unreleased (no tag) |
-| strata | 1 | trivial | — | none |
-| synod | 1 | trivial | — | none |
+| strata | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-16, PR #15) |
+| synod | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-15, PR #15) |
 | sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10) |
 | zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 |
 | sailor | 368 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 |

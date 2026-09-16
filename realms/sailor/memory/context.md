@@ -1,7 +1,33 @@
 # sailor — context
 
-last_seen_at: 2026-09-15T08:06:37Z
+last_seen_at: 2026-09-15T20:05:50Z
 rejected_plans: []
+
+## Cycle 13 — 2026-09-15 — FEATURE
+
+- Done: preflight found repo clean on PR #32's branch (`docs/module-headers-tui-core`), switched
+  to main directly. GitHub truth: CI green on main, no bug/question/directive issues, no plan PR.
+  Inbox merged PR #32 (10/10 checks green, `mergeStateStatus: CLEAN`) — squash, branch deleted,
+  `auto-merged`. Milestone #19's blocked toolchain items (4/6/7) confirmed blocked for the 6th
+  cycle running (6, 7, 9, 11, 12, 13) — not re-checking further per standing memory guidance.
+  Fell back to bounded stabilize task: completed the `//!` header sweep's final slice,
+  `src/tui/widgets/` (38 files), via a zig-developer subagent. Verified the diff directly
+  (`git diff --stat`: exactly 38 `src/tui/widgets/*.zig` files + `tidy_baseline.txt`, 397→359
+  tracked entries), spot-checked 4 header lines for content accuracy (not generic placeholders),
+  ran `zig build test` myself (exit 0, green) and `zig fmt --check` (no new drift, byte-identical
+  failing-file list). Opened as PR #33; CI still pending (cross-compile/benchmark jobs not yet
+  started) at cycle deadline — left open for next cycle's inbox, same recurring pattern as
+  #21/#25/#26/#29/#30/#31/#32. Updated STATE.md's Tiger Style table (`//!` header count 38→0,
+  sweep complete once #33 merges).
+- PRs: #32 (merged), #33 (open, CI pending).
+- Next: inbox should merge #33 once green. This closes out the `//!` header sweep entirely — no
+  more `missing_header` tidy entries will remain. Next stabilize target should be picked fresh
+  from STATE.md's remaining gaps (52 files >800 lines, `while (true)` unbounded loops, function
+  length, `assert(` density) — none are as mechanically simple as the header sweep was, so expect
+  the next few stabilize cycles to need more per-site judgment.
+- Blockers: #19 items 4/6/7 need a dedicated multi-cycle session pairing the Zig 0.16 toolchain
+  switch with the `std.Io` rewrite — verified blocked 6 cycles running; do not re-check.
+- Open questions: none.
 
 ## Cycle 12 — 2026-09-15 — FEATURE
 
@@ -78,89 +104,21 @@ rejected_plans: []
   `std.Io` rewrite) — verified blocked three ways already (cycles 6, 7, 9); do not re-check.
 - Open questions: none.
 
-## Cycle 9 — 2026-09-11 — FEATURE
+## History (cycles 0-9, condensed 2026-09-15)
 
-- Done: inbox found no new comments on issue #19 or any merged PR since the watermark, no open
-  PRs/bugs/questions/directives — nothing to triage. Picked item 4 on #19 next but independently
-  reverified against the pinned 0.15.2 stdlib (`mem.zig`, `Thread.zig`/no `Io.zig`,
-  `posix.isatty`, `process.getEnvVarOwned`) that none of its remaining renames (`Io.Mutex`, env
-  access, `posix.isatty`, `mem.indexOf*`→`find*`) have a 0.15.2-compatible spelling — same
-  conclusion as cycles 6-8, now confirmed by direct stdlib inspection rather than memory alone.
-  Fell back to CYCLE.md's all-blocked stabilize clause: STATE.md's smallest-diff pick
-  (`countdown_timer.zig`'s 3 `catch unreachable` sites) — reformatted the two lines that already
-  exceeded 100 columns (multi-line `bufPrint` calls) so each got a same-line proof comment
-  (buffer-size-matches-worst-case-width proofs, verified the arithmetic by hand for all three
-  formats). Regenerated `tidy_baseline.txt` via a fresh `zig build-exe` of `tidy_main.zig` (had
-  to rebuild explicitly — a stale cached `.zig-cache` tidy binary from before PR #25 briefly gave
-  a wrong diff, caught by cross-checking against a second freshly-built binary before trusting
-  it). `catch_unreachable` entry removed (3→0), `line_length` entry 4→3. `zig build test` green,
-  `zig fmt --check` unchanged at 82 pre-existing failures (was 83 — this file dropped off the
-  list). Opened as PR #29; 3 native test runners (Linux/macOS/Windows) green at cycle deadline,
-  6-target cross-compile + benchmarks still pending — left open for next cycle's inbox, same
-  pattern as #21/#25/#26.
-- PRs: #29 (open, 3/10 checks green, rest pending).
-- Next: inbox should merge #29 once fully green. Item 4 on #19 remains genuinely blocked on a
-  dedicated multi-cycle session pairing the toolchain switch with the `std.Io` rewrite — this is
-  now verified three separate ways (cycles 6, 7, and this cycle's direct stdlib read); stop
-  re-checking it every cycle and instead look for the next smallest-diff STATE.md stabilization
-  target when #29 is the only open item. `//!` headers on the 86 missing files is next in line.
-- Blockers: item 4/6/7's full scope needs a dedicated multi-cycle session, not a formal
-  `blocked_by` tag.
-- Open questions: none.
+Cycle 9 (FEATURE, 2026-09-11): re-verified item 4's remainder still has no 0.15.2-compatible
+spelling (direct stdlib read, same conclusion as cycles 6-8). Fell back to stabilize: proof-
+commented `countdown_timer.zig`'s 3 `catch unreachable` sites as PR #29.
 
-## Cycle 8 — 2026-09-11 — FEATURE
+Cycle 8 (FEATURE, 2026-09-11): checked item 5 (`ArrayList` literal sweep) the same way cycle 6
+found item 4's safe half — confirmed `.empty` is 0.15.2-compatible, mechanically replaced all 132
+`= .{}` sites across 34 files as PR #28 (merged). See [[patterns]] for the reusable
+"check for a 0.15.2-compatible spelling before assuming toolchain-blocked" pattern.
 
-- Done: inbox found no open PRs and no bug/question/directive issues with new OWNER activity
-  since the watermark — nothing to merge or triage. Milestone #19's item 4 remainder still had
-  no 0.15.2-compatible spelling (per cycle 7), so instead checked item 5 (`ArrayList` literal
-  sweep) the same way cycle 6 found item 4's "safe half": read 0.15.2 and 0.16.0's
-  `array_list.zig` directly and confirmed `.empty` is already a static value in 0.15.2 — only
-  the struct's default field values are dropped in 0.16.0, turning bare `.{}` into a
-  missing-field error there. Mechanically replaced all 132 `ArrayList`/`ArrayListUnmanaged`
-  `= .{}` sites across 34 files (`src/`, `tests/`, `examples/`) with `= .empty` as PR #28.
-  Verified via `git diff --stat` (132/132, no incidental changes) and `git stash` (the 83
-  pre-existing `zig fmt --check` failures unchanged). `zig build test` green, tidy clean. All 10
-  CI checks green, squash-merged, branch deleted, `auto-merged`. Confirmed post-merge CI on
-  `main` @ `df0c427` reached `success`. Ticked item 5 on #19; see [[patterns]] for the reusable
-  "check for a 0.15.2-compatible spelling before assuming toolchain-blocked" pattern.
-- PRs: #28 (merged).
-- Next: item 4's remainder (`Io.Mutex`, env access, `posix.isatty`, `mem.indexOf*`→`find*`, ~500
-  sites) is still practically blocked on pairing the toolchain switch with the `std.Io` rewrite
-  (items 6-7) — multi-cycle work. No other item on #19 has been checked yet for a similar
-  0.15.2-compatible-spelling escape hatch; worth a quick check each cycle before assuming block.
-- Blockers: item 4/6/7's full scope needs a dedicated multi-cycle session, not a formal
-  `blocked_by` tag.
-- Open questions: none.
-
-## Cycle 7 — 2026-09-10 — FEATURE
-
-- Done: inbox merged PR #26 (forward-compat Zig 0.16 renames: `linkLibC` + `GeneralPurposeAllocator`
-  →`DebugAllocator`), confirmed CI green on `main` @ `38252aa` post-merge. Picked item 4 on #19
-  next but its remaining scope (`Io.Mutex` 6, env access 14, `posix.isatty` 4, `mem.indexOf*`
-  →`find*` ~478 — confirmed by reading 0.16.0's `mem.zig` directly: `indexOf`/`lastIndexOf` etc.
-  have **no** alias or deprecated wrapper, fully removed) has zero 0.15.2-compatible spelling and
-  can't be verified without switching the pinned toolchain to 0.16.0 — which would still leave
-  `zig build`/`zig test` broken repo-wide on the separate, unstarted `std.Io` rewrite (155 sites,
-  its own checklist items). Landing ~500 unverifiable renames blind was judged unsafe; did not
-  attempt it. Fell back to CYCLE.md's "every remaining item practically blocked → one bounded
-  stabilize task" clause: proof-commented the 3 test-only `catch unreachable` sites in
-  `eventbus.zig` (single-element `std.testing.allocator` appends in a priority-ordering test
-  callback — provably safe) as PR #27; all 10 CI checks green pre-merge, squash-merged,
-  `tidy_baseline.txt` shrunk 448→447. Deliberately did **not** proof-comment
-  `event_metrics.zig`/`render_metrics.zig`'s 4 sites (caller-supplied general `Allocator`, genuine
-  OOM possibility — a proof comment there would be a false claim; needs an actual typed-error
-  return, a separate fix) nor `countdown_timer.zig`'s 3 (provably safe but 2 lines already exceed
-  100 cols, need reformatting to keep the proof comment on the same line as `catch unreachable`).
-  Updated `STATE.md`'s Tiger Style table with these findings.
-- PRs: #26 (merged), #27 (merged).
-- Next: item 4 on #19 needs a dedicated larger session (not a normal 22-min cycle) that pairs the
-  toolchain switch with enough of the `std.Io` rewrite to reach a compiling `zig build` — until
-  then it will keep being practically blocked. In the meantime, smaller STATE.md-tracked
-  stabilization slices remain available: `countdown_timer.zig` reformat + proof-comment (3 sites),
-  `//!` headers on the 86 missing files (purely additive).
-- Blockers: item 4's full scope is practically blocked on a multi-cycle toolchain migration, not
-  a formal `blocked_by` tag — STATE.md's Zig 0.16 probe summary has the error-class breakdown.
-- Open questions: none.
+Cycle 7 (FEATURE, 2026-09-10): merged PR #26 (safe-half renames). Confirmed item 4's remainder
+(`Io.Mutex`, env access, `posix.isatty`, `mem.indexOf*`→`find*`, ~500 sites) has zero
+0.15.2-compatible spelling, unsafe to land blind. Proof-commented `eventbus.zig`'s 3 test-only
+`catch unreachable` sites as PR #27.
 
 ## History (cycles 0-6, condensed 2026-09-12)
 

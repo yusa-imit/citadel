@@ -22,8 +22,8 @@
 |---|---|---|---|
 | [sigil](https://github.com/yusa-imit/sigil) | Foundation | Value IR + comptime reflection; JSON/TOML/YAML/MessagePack/CBOR/Protobuf/CSV; layered config | 0.2.0 in zon (unreleased) — plan 001 complete, plan 002 (Phase 1A Value/ValueTree) underway |
 | [sirocco](https://github.com/yusa-imit/sirocco) | Foundation | Production `std.Io.VTable` implementation (kqueue/epoll/io_uring), powering std net/http/tls | v0.2.0 — plan 001 (0.16 migration + Tiger Style) complete, plan 002 (fiber scheduler + futex core) in review |
-| [strata](https://github.com/yusa-imit/strata) | Foundation | File I/O abstraction, pages + buffer pool, segmented WAL + recovery, B+Tree, LSM, KV engine, snapshots | 0.1.0 in zon (unreleased) — plan 001 (0.16 migration + Tiger Style hygiene) nearly complete, v0.2.0 release pending |
-| [synod](https://github.com/yusa-imit/synod) | Foundation | Pure-state-machine Raft, joint consensus, SWIM, φ-accrual, HLC, deterministic simulator | 0.1.0 in zon (unreleased) — plan 001 nearly complete, v0.2.0 release pending |
+| [strata](https://github.com/yusa-imit/strata) | Foundation | File I/O abstraction, pages + buffer pool, segmented WAL + recovery, B+Tree, LSM, KV engine, snapshots | v0.2.0 (PR #15) — plan 001 (0.16 migration + Tiger Style hygiene) complete; no storage-kernel modules landed yet |
+| [synod](https://github.com/yusa-imit/synod) | Foundation | Pure-state-machine Raft, joint consensus, SWIM, φ-accrual, HLC, deterministic simulator | v0.2.0 (PR #15) — plan 001 (0.16 migration + Tiger Style hygiene) complete; Phase 1 Raft types/log not started |
 | [zuda](https://github.com/yusa-imit/zuda) | Library | ~60 containers, 24 algorithm families, 209 distributions, NDArray/linalg/stats/FFT/optimize, ML (461k LOC) | v2.3.0 (+96 unreleased commits) |
 | [sailor](https://github.com/yusa-imit/sailor) | Library | TUI framework, 140 widgets, CLI toolkit (150k LOC) | v2.99.0 |
 | [zr](https://github.com/yusa-imit/zr) | Tooling | Task runner + toolchain manager + monorepo + MCP/LSP server (112k LOC) | v1.114.0 |

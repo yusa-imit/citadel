@@ -1,7 +1,36 @@
 # synod — context
 
-last_seen_at: 2026-09-15T06:13:00Z
+last_seen_at: 2026-09-16T00:00:00Z
 rejected_plans: []
+
+## Cycle 12 — 2026-09-16 — FEATURE
+- Inbox: no new owner actions since watermark (only the AI's own cycle-11 report comments on
+  issue #3). No plan PR, no bug issues, no red CI (last completed CI run's headSha didn't match
+  origin/main because PR #14 was docs-only and CI has a paths-ignore for docs — not a failure).
+- Item 11 (release v0.2.0), the last item in milestone 001: PR #15 (build.zig.zon bump,
+  CHANGELOG `[Unreleased]` → `[0.2.0]`, plan checklist ticked), merged, all 7 CI jobs green.
+  Tagged `v0.2.0`, pushed, `gh release create` published with the changelog section as notes.
+  No real consumers pin synod yet (grepped all 8 sibling `build.zig.zon` files — zero hits), so
+  no migration issues opened. Closed milestone issue #3 with the release link. Recorded the
+  release in `STATE.md` under a new "Releases" section.
+- ~17 min remained before the 22-min deadline, so opened plan 002 (PR #16,
+  `docs/plans/002-phase1-types-log-store.md`): Phase 1 real logic — types, interfaces, log,
+  in-memory store, per REALM.md's module build order — released as v0.3.0. Drafted via the
+  `planner` agent (opus), which also caught a live bug worth flagging: `src/root.zig:11`
+  hardcodes `SemanticVersion{0,1,0}`, so the just-released v0.2.0 binary still reports `synod
+  0.1.0` (the version isn't derived from `build.zig.zon`); made it plan 002's first item since
+  it's a real defect, not scope creep, and fixing the manifest-drift risk now (before Phase 1
+  adds real wire types) is cheap. Plan also splits PRD 1A/1B into two items each (types-scalars
+  vs Message-union; log-append vs conflict-search+validate) to fit the 22-min cycle cap, and
+  flags two Tiger Style size violations (`tools/tidy.zig` 1266 lines, `build.zig`'s `build()` 87
+  lines) that have escaped detection since cycle 5 because tidy's own walk only covers `src/`.
+- Next: awaiting OWNER merge of plan 002 (PR #16). Once merged, cycle 13 opens the milestone
+  issue and starts item 1 (the version-drift bug fix).
+- Open questions: none.
+- Budget note: this cycle's planner-agent delegation (opus, full PRD+ADR+REALM.md context
+  bundled into the prompt) consumed most of the session's USD budget in one call — future
+  cycles should keep planner prompts tighter (point at files to read rather than pasting large
+  excerpts) if budget pressure recurs.
 
 ## Cycle 11 — 2026-09-15 — FEATURE
 - Inbox: no new owner actions since watermark — the only new item since cycle 10 was the AI's

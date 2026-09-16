@@ -1,7 +1,26 @@
 # strata — context
 
-last_seen_at: 2026-09-15T00:00:00Z
+last_seen_at: 2026-09-16T17:05:44Z
 rejected_plans: []
+
+## Cycle 12 — 2026-09-16 — FEATURE
+- Done: preflight clean tree on main, CI green (last completed run success, matched
+  origin/main SHA). Inbox: no new OWNER actions since watermark 2026-09-15 beyond our own
+  prior cycle-report comments; no bug/question/directive issues; no open PRs; plan PR #2
+  already merged. Milestone #3 had 1 unchecked item, "Release v0.2.0" — ran `/release strata
+  minor`: gates all green (`zig build test`, `zig fmt --check`, no tags yet, 0.1.0 < 0.2.0),
+  PR #15 bumped `build.zig.zon`/CHANGELOG/README, merged after 7/7 CI, tagged `v0.2.0` and
+  published the GitHub release. No real consumers exist yet (no sibling `build.zig.zon`
+  names strata), so no migration issues opened. Closed milestone #3. With >10 min left,
+  drafted plan 002 (via `planner` agent, opus) scoping Phase 1: `tools/tidy.zig` self-hosting
+  fix, codec (`fixed`/`varint`/`crc32c`/`xxhash`), `file/file.zig` (core + durability),
+  `testing/crash.zig` + truncation matrix, codec bench baseline, docs + release v0.3.0. `file/
+  mmap.zig` (1C) deferred to plan 003. Opened PR #16, awaiting human merge.
+- PRs: #15 merged (release v0.2.0), #16 opened (plan 002, awaiting approval).
+- Next: once PR #16 merges, `/cycle` opens milestone 002's tracking issue and Phase 1A
+  (codec) implementation begins with the `tools/tidy.zig` self-hosting fix first.
+- Blockers: none.
+- Open questions: none.
 
 ## Cycle 11 — 2026-09-15 — FEATURE
 - Done: preflight clean tree on main, CI green (last completed run success; not origin/main's
@@ -127,7 +146,9 @@ rejected_plans: []
 
 ## Next priority
 
-Milestone 001's last remaining item, Release v0.2.0, closes out the plan (`wip/*` decision
-resolved cycle 11 — see decisions.md). Phase 1A (codec) is the next concrete implementation
-step once v0.2.0 ships — it has no internal dependencies and later phases (page, wal) depend
-on it.
+Milestone 001 closed cycle 12 (v0.2.0 released, tag + GitHub release live). Plan 002 (PR #16)
+is open for human approval, scoping Phase 1: `tools/tidy.zig` self-hosting fix first, then
+codec (fixed/varint/crc32c/xxhash), `file/file.zig`, the crash-injection harness, a bench
+baseline, and release v0.3.0. Once #16 merges, `/cycle` opens the milestone 002 tracking issue
+and implementation starts with the tidy fix (blocks nothing else, unblocks a clean lint for
+every feature PR after it).
