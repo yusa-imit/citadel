@@ -193,6 +193,15 @@ Renames with **no** 0.15.2-compatible spelling (confirmed absent) — `Io.Mutex`
 `posix.isatty`, `mem.indexOf*`→`find*` (~478 sites) — stay blocked on the toolchain switch;
 extend this list when a new class is checked, don't re-derive it. See [[decisions]].
 
+**Caution on "done" mechanical sweeps**: PR #28's `ArrayList` `.{}`→`.empty` sweep (cycle 8) only
+matched bare top-level `var x: T = .{}` and was marked as completing item 5, but a fresh 0.16
+probe in cycle 14 found 65 more sites in *nested field-value position* (`.positional = .{}`,
+`std.ArrayList(u64){}` as a field initializer) that the original pattern missed — fixed by PR #35.
+When verifying a mechanical sweep is complete, use the 0.16 compiler's own error list as ground
+truth ("missing struct field: items/capacity" against `ArrayList`), not a text pattern — a grep
+for `= \.{}`/`ArrayList(...){}` is too broad (catches non-`ArrayList` `.{}` like `.style = .{}`)
+and a narrower one misses nested positions.
+
 ## Verified cross-compile targets
 
 `x86_64`/`aarch64` × `linux-gnu`/`macos`, `x86_64-windows-{gnu,msvc}` — all pass as of the
