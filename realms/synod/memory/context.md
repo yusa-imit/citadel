@@ -1,7 +1,26 @@
 # synod — context
 
-last_seen_at: 2026-09-16T06:05:37Z
+last_seen_at: 2026-09-16T18:05:32Z
 rejected_plans: []
+
+## Cycle 14 — 2026-09-16 — FEATURE
+- Inbox: no new owner actions since watermark — the only comment on plan PR #16 since cycle 13
+  was the AI's own cycle-13 report (posted under the authenticated OWNER account, not a real
+  instruction). No plan_closed_unmerged, no milestone issue, no bug issues, CI green (matches
+  origin/main).
+- Plan PR #16 (plan 002) still open awaiting OWNER merge → ran one bounded stabilization task
+  per protocol instead of idling: step 1 of the `tools/tidy.zig` size-violation fix order
+  recorded in `STATE.md` since cycle 5 — split the file's ~550 lines of inline tests into
+  `tools/tidy_test.zig` (pulled into `zig build test` via `test { _ = @import("tidy_test.zig");
+  }`, no build.zig change needed). `tools/tidy.zig` dropped from 1266 to 676 lines, clearing the
+  800-line violation. No behavior change: same 50 tidy tests, same public checker API. PR #18:
+  all 7 CI jobs green, squash-merged, branch deleted, labeled `auto-merged`.
+- Updated `STATE.md`: recorded this fix; step 3 (widening `tidy`'s own walk to cover
+  `tools/`/`build.zig`) remains deferred but is now safe to attempt on its own since tidy.zig is
+  under the floor already.
+- Next: awaiting OWNER merge of plan 002 (PR #16). Once merged, opens the milestone issue and
+  starts item 1 (fix `src/root.zig`'s hardcoded `SemanticVersion{0,1,0}`).
+- Open questions: none.
 
 ## Cycle 13 — 2026-09-16 — FEATURE
 - Inbox: no new owner actions since watermark. Plan PR #16 (plan 002) still open awaiting OWNER

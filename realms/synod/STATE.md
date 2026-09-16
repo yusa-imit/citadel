@@ -120,18 +120,27 @@ splitting its inline tests into `tools/tidy_test.zig`, and step 3, widening the 
 a future cycle — same reasoning as below: widening the walk before the tidy.zig split would turn
 `zig build tidy` red immediately).
 
+**Superseded 2026-09-16 (cycle 14, stabilization)** — step 1 done via PR #18: the ~550 lines of
+inline tests (`tools/tidy.zig:716-1266`) moved to `tools/tidy_test.zig`, pulled into the
+`zig build test` graph via `test { _ = @import("tidy_test.zig"); }` (Zig's test collector follows
+`@import`s regardless of `build.zig` wiring, so no build script change was needed). Two private
+test-only fixture helpers (`comptimeFunctionSource`, `comptimeNestedFunctionSource`) moved with
+their tests; every checker/type the tests exercise was already `pub`, so no visibility changes
+were needed beyond that. `tools/tidy.zig` is now 676 lines (under the 800 floor); `zig build`,
+`zig build test` (67/67 passing), `zig build tidy`, and `zig fmt --check` all green under 0.16.0.
+No behavior change — same 50 tidy tests, same checker functions, same public API.
+
 Still not fixed:
-- `tools/tidy.zig` at 1266 lines (limit 800) remains unenforced because `tools/tidy.zig`'s
-  `main()` (line 651) only walks `src/`; `tools/tidy.zig` is never walked by the tool that checks
-  it. Recommended remaining order: (1) split `tools/tidy.zig`'s ~550 lines of inline tests
-  (714-1267) into `tools/tidy_test.zig`, (2) only then widen `tools/tidy.zig`'s walk to cover
-  `tools/` and `build.zig` (and add a function-length check for `build.zig`, whose only current
-  self-check, `checkBuildZigHeader` at line 626, verifies just its `//!` header) — in the same PR
-  as step 1 so CI never goes red in between.
-- Latent, non-blocking: `findFunctionEnd` (`tools/tidy.zig:213`) is not char-literal-aware — a
-  `'{'`/`'}'` char literal in source would be miscounted as a real brace. Not currently triggered
-  by any file in this repo; worth a doc note or regression test whenever the size checks above
-  are touched.
+- Step 3 (widening `tools/tidy.zig`'s own walk to cover `tools/` and `build.zig`, plus a
+  function-length check for `build.zig` — its only current self-check, `checkBuildZigHeader`
+  near the end of `main()`, verifies just the `//!` header) is deferred to a future cycle. Now
+  safe to do on its own: `tools/tidy.zig` is under the size floor, so widening the walk should
+  not immediately turn `zig build tidy` red (worth confirming `tools/tidy_test.zig`, 603 lines,
+  also stays under 800 once the walk covers `tools/`).
+- Latent, non-blocking: `findFunctionEnd` (`tools/tidy.zig`, unchanged by this split) is not
+  char-literal-aware — a `'{'`/`'}'` char literal in source would be miscounted as a real brace.
+  Not currently triggered by any file in this repo; worth a doc note or regression test whenever
+  the size checks above are touched.
 
 ## Zig 0.16 probe summary
 
