@@ -131,16 +131,34 @@ were needed beyond that. `tools/tidy.zig` is now 676 lines (under the 800 floor)
 No behavior change — same 50 tidy tests, same checker functions, same public API.
 
 Still not fixed:
-- Step 3 (widening `tools/tidy.zig`'s own walk to cover `tools/` and `build.zig`, plus a
-  function-length check for `build.zig` — its only current self-check, `checkBuildZigHeader`
-  near the end of `main()`, verifies just the `//!` header) is deferred to a future cycle. Now
-  safe to do on its own: `tools/tidy.zig` is under the size floor, so widening the walk should
-  not immediately turn `zig build tidy` red (worth confirming `tools/tidy_test.zig`, 603 lines,
-  also stays under 800 once the walk covers `tools/`).
+- Step 3, size dimension: **done, cycle 15** — see the "Superseded 2026-09-17" entry below.
 - Latent, non-blocking: `findFunctionEnd` (`tools/tidy.zig`, unchanged by this split) is not
   char-literal-aware — a `'{'`/`'}'` char literal in source would be miscounted as a real brace.
   Not currently triggered by any file in this repo; worth a doc note or regression test whenever
   the size checks above are touched.
+
+**Superseded 2026-09-17 (cycle 15, stabilization)** — step 3's size/header dimension done via
+PR #19: added `pub fn checkFileSizeOnly` (line-length + function-length + missing-`//!`-header
+checks, no ban list) and wired it into `main()` to also walk `tools/*.zig` and check `build.zig`
+(previously `build.zig` got only a header check via the now-deleted `checkBuildZigHeader`, and
+`tools/` wasn't walked at all). The ban-list checks (`catch unreachable`, `std.debug.print`,
+`std.time.`, `std.Io` core-purity, wire `usize`) deliberately stay `src/`-only: `tools/tidy.zig`
+found via grep that its own source contains those exact substrings as string literals
+implementing the checks themselves (`"catch unreachable"` at the old line 310,
+`"std.debug.print"`/`"std.time."` as `checkBannedPattern` arguments around the old lines 589/591),
+and `tools/tidy_test.zig` contains deliberate fixture strings with the same substrings to test
+the checkers — a naive substring scan (this tool's whole design, documented in its own file
+header) would false-positive on its own implementation and tests if the ban list ever ran over
+`tools/`. Widening only size+header avoids that landmine entirely. 7 new tests added (TDD: red
+via test-writer confirming `checkFileSizeOnly` didn't exist, green via zig-developer); code review
+found 0 CRITICAL / 2 WARNING (missing postcondition assertion, `build.zig`'s single check not
+counted by the `files_seen`/`files_max` tripwire) / 4 SUGGESTION — both WARNINGs fixed before
+merge. `zig build test` 74/74 passing, `zig build tidy` clean (including on `tools/tidy.zig` and
+`tools/tidy_test.zig` themselves — confirmed zero false positives), `zig fmt --check` clean.
+Deferred (SUGGESTION-level, not blocking): dedupe the missing-header message and the
+line/fn-length block now duplicated between `checkFile` and `checkFileSizeOnly`, and make
+`checkFileSizeOnly`'s inferred `!bool` error set explicit — cosmetic follow-ups, not correctness
+gaps.
 
 ## Zig 0.16 probe summary
 

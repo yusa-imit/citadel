@@ -1,7 +1,31 @@
 # synod — context
 
-last_seen_at: 2026-09-16T18:05:32Z
+last_seen_at: 2026-09-17T06:20:06Z
 rejected_plans: []
+
+## Cycle 15 — 2026-09-17 — FEATURE
+- Inbox: no new owner actions since watermark — only the AI's own cycle-14 report comment on
+  plan PR #16. No plan_closed_unmerged, no milestone issue, no bug/directive/question issues,
+  CI green (matches origin/main).
+- Plan PR #16 (plan 002) still open awaiting OWNER merge → ran one bounded stabilization task:
+  widened `zig build tidy`'s size checks (line-length, function-length, missing-`//!` header) to
+  `tools/*.zig` and `build.zig` via a new `checkFileSizeOnly`, replacing the build.zig-only
+  `checkBuildZigHeader`. Deliberately did NOT widen the ban-list checks to `tools/`: grepped and
+  confirmed `tools/tidy.zig`'s own source contains `"catch unreachable"`, `"std.debug.print"`,
+  `"std.time."` as string literals implementing those checks, and `tools/tidy_test.zig` has
+  matching fixture strings to test them — the naive substring scan would false-positive on its
+  own code. TDD (test-writer: 7 failing tests confirmed red; zig-developer: green); code-reviewer
+  found 0 CRITICAL / 2 WARNING (missing postcondition assertion; `files_seen` tripwire didn't
+  count the `build.zig` check) / 4 SUGGESTION — both WARNINGs fixed before merge. PR #19: 7/7 CI
+  jobs green, squash-merged, branch deleted, labeled `auto-merged`. `zig build test` 74/74
+  passing, `zig build tidy` clean (including on `tools/tidy.zig`/`tools/tidy_test.zig`
+  themselves), `zig fmt --check` clean.
+- Updated `STATE.md`: recorded step 3's size dimension as done, with the ban-list-exclusion
+  rationale for future cycles; 4 SUGGESTION-level cosmetic follow-ups (dedupe shared logic
+  between `checkFile`/`checkFileSizeOnly`, explicit error set) left for a future cycle.
+- Next: awaiting OWNER merge of plan 002 (PR #16). Once merged, opens the milestone issue and
+  starts item 1 (fix `src/root.zig`'s hardcoded `SemanticVersion{0,1,0}`).
+- Open questions: none.
 
 ## Cycle 14 — 2026-09-16 — FEATURE
 - Inbox: no new owner actions since watermark — the only comment on plan PR #16 since cycle 13
