@@ -95,3 +95,12 @@ here.)
   hand-rolled code for performance (`REALM.md` "zuda migration status"). Also stale independent
   of that decision — references a local-path zuda dependency and APIs (`hasVertex()`,
   `neighborIterator()`) that were never added upstream. Plan 001 item 4.
+- **[2026-09-17] `wip/advanced-retry-config` left in place, not merged — superseded**: its
+  feature content (task-level advanced retry fields: backoff multiplier, jitter, max backoff,
+  retry-on codes/patterns) was already landed into `main` in an earlier cycle. The branch
+  itself predates the kingdom restructure (diffs against current `main` touch 91 files
+  including the removed `.claude/` tree) and is unmergeable as-is; left untouched per the
+  never-delete-`wip/*` rule. The one real gap it left — `applyTemplateToTask` hardcoding those
+  5 fields to zero instead of inheriting them from the task's template — was closed by PR #167
+  (`feat/template-advanced-retry-config`, itself built from a second preserved branch,
+  `wip/feat-template-advanced-retry-config-20260916`). Plan 001 item 4 fully resolved by this.
