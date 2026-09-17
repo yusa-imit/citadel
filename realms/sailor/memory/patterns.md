@@ -26,15 +26,8 @@ test "MetricsPanel.evaluateThreshold warning zone" {
 
 ## Library output pattern
 
-```zig
-// WRONG: direct stdout
-std.debug.print("hello\n", .{});
-
-// RIGHT: writer-based
-pub fn render(self: Self, writer: anytype) !void {
-    try writer.print("hello\n", .{});
-}
-```
+Never `std.debug.print` from library code — take a `writer: anytype` param and `writer.print`
+into it instead, so the caller controls the destination.
 
 ## Test output capture pattern
 
@@ -49,30 +42,14 @@ test "renders correctly" {
 
 ## Cross-platform guard pattern
 
-```zig
-const builtin = @import("builtin");
-
-pub fn enableRawMode() !RawMode {
-    if (comptime builtin.os.tag == .windows) {
-        return enableRawModeWindows();
-    } else {
-        return enableRawModePosix();
-    }
-}
-```
+Branch on `comptime builtin.os.tag == .windows` at the function level (e.g. `enableRawMode`
+dispatching to `enableRawModeWindows`/`enableRawModePosix`), not inline — keeps each OS path a
+normal, independently testable function.
 
 ## RAII cleanup pattern
 
-```zig
-pub fn init(allocator: Allocator) !Self {
-    const buf = try allocator.alloc(Cell, width * height);
-    return .{ .allocator = allocator, .cells = buf };
-}
-pub fn deinit(self: *Self) void {
-    self.allocator.free(self.cells);
-}
-// Caller: var obj = try Thing.init(allocator); defer obj.deinit();
-```
+Standard `init`/`deinit` pairing: `init` allocates and stores what `deinit` frees; caller does
+`var obj = try Thing.init(allocator); defer obj.deinit();`.
 
 ## Memory safety patterns
 
