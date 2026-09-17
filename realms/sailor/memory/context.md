@@ -1,7 +1,33 @@
 # sailor — context
 
-last_seen_at: 2026-09-15T20:05:50Z
+last_seen_at: 2026-09-16T08:30:00Z
 rejected_plans: []
+
+## Cycle 14 — 2026-09-16 — FEATURE
+
+- Done: preflight found repo clean on PR #33's branch, switched to main. GitHub truth: CI green,
+  no bug/question issues, no plan PR. Inbox merged PR #33 (10/10 green, `mergeStateStatus: CLEAN`)
+  — closes the `//!` header sweep entirely. Milestone #19 items 4/6-10 (Io renames + both `std.Io`
+  waves) re-checked with a fresh `zig test src/sailor.zig` probe on the 0.16.0 toolchain (347
+  errors remain) — reconfirmed for the 7th cycle running that no partial rename can land without
+  breaking the pinned 0.15.2 build (not a formal cross-repo blocker, just a hard
+  atomicity/sequencing wall). Filed question+needs-human issue #34 asking the owner to pick: a
+  longer continuous session, or explicit approval for a multi-cycle `wip/*` migration branch whose
+  intermediate commits don't need to pass `zig build test`. The same probe surfaced that item 5
+  ("`ArrayList` literal sweep", marked done by PR #28) was incomplete — PR #28's pattern only
+  matched bare top-level `= .{}` and missed 65 nested-field-position sites across 34 files.
+  Delegated the fix to a zig-developer subagent (see [[patterns]] "Caution on done mechanical
+  sweeps"); verified the diff myself (exactly 34 files/65 lines, `zig build test` green, `zig fmt
+  --check` unchanged, 0.16-probe count for these sites 65→0), opened as PR #35.
+- PRs: #33 (merged), #35 (open, CI running at cycle deadline).
+- Next: inbox merges #35 once green. Milestone items 4/6-10 stay off-limits for per-cycle
+  implementation until issue #34 is answered or an alternative is picked; do not re-probe every
+  cycle now that the finding is filed — check #34 for an OWNER reply instead. 3 new `ArrayList`
+  sites surfaced deeper in the 0.16 compile graph once PR #35's sites cleared
+  (`docgen.zig:288`, `event_metrics.zig:131`, `profiler.zig:115`) — small follow-up sweep, low
+  priority next to #34's answer.
+- Blockers: #34 open, awaiting OWNER decision on how to structure the Io migration session.
+- Open questions: #34 (filed this cycle).
 
 ## Cycle 13 — 2026-09-15 — FEATURE
 

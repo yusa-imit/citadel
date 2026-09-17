@@ -1,4 +1,19 @@
-# sirocco — State Survey (2026-09-05, refreshed 2026-09-16)
+# sirocco — State Survey (2026-09-05, refreshed 2026-09-17)
+
+## Refresh 2026-09-17 (cycle 17, FEATURE — bounded stabilization while plan PR #13 awaits merge)
+
+- Inbox: no new OWNER activity since the watermark (checked PR #13 review + issue comments and
+  repo-wide PR/issue comments since last_seen_at — none). No open issues, no red CI (`e58b354`
+  matches origin/main), no rejected plans, no other open implementation PRs.
+- Local `zig build test`/`fmt --check src bench build.zig`/`zig build tidy` all green under the
+  pinned 0.16.0 toolchain. Independent tidy-auditor pass: zero mechanical violations in every
+  category, all `//!` headers present, all docs cross-references resolve to real files, README
+  Status ("Bootstrap — 109 vtable slots not yet started") still matches the stub-only code, and
+  `build.zig.zon`/latest tag/README install snippet all agree on 0.2.0 — same clean baseline as
+  cycles 5/10/11/12/13/14/15/16.
+- No fixes needed — nothing to file.
+- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
+  item 1 (macOS CI runner).
 
 ## Refresh 2026-09-16 (cycle 15, STABILIZATION, n%5==0)
 

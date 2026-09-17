@@ -1,7 +1,42 @@
 # strata — context
 
-last_seen_at: 2026-09-16T17:05:44Z
+last_seen_at: 2026-09-17T05:05:36Z
 rejected_plans: []
+
+## Cycle 14 — 2026-09-17 — FEATURE
+- Done: preflight clean tree on main, CI green (last 5 runs, HEAD c17c5c9 matches
+  origin/main). stabilize_streak/escalated_sha absent, periodic_stabilization off (no n%5
+  trigger). Inbox: no new OWNER actions since watermark 2026-09-17T00:00:00Z (no comments on
+  PR #16, no open issues); plan PR #16 (plan 002) still open awaiting human merge;
+  milestone_issue: none. Plan PR open → ran one bounded `/stabilize --one` task instead of
+  idling: tidy-auditor (sonnet) confirmed `zig build test`/`zig fmt --check`/`zig build tidy`
+  all pass, 0 mechanical Tiger Style findings, no docs drift (README/CHANGELOG/build.zig.zon
+  all consistent with released v0.2.0). Only known gap unchanged: `tools/tidy.zig` still
+  excluded from `scan_roots` (2100 lines, needs a design decision per STATE.md, not an
+  ad-hoc fix). Nothing to fix — no PR opened, identical to cycle 13's block (a prior attempt
+  at this cycle number crashed before reaching `/report`; this run finalizes it). Quiet cycle
+  per CONTRACT rule 8.
+- PRs: none this cycle.
+- Next: once PR #16 merges, open milestone 002's tracking issue and start Phase 1 with the
+  `tools/tidy.zig` self-hosting fix, then codec (fixed/varint/crc32c/xxhash).
+- Blockers: none — waiting on human merge of plan PR #16.
+- Open questions: none.
+
+## Cycle 13 — 2026-09-16 — FEATURE
+- Done: preflight clean tree on main, CI green (last 5 runs, HEAD matches origin/main).
+  stabilize_streak/escalated_sha absent, periodic_stabilization off (no n%5 trigger). Inbox:
+  no new OWNER actions since watermark 2026-09-16T17:05:44Z; plan PR #16 (plan 002) still
+  open awaiting human merge; milestone_issue: none (001 closed, 002 not yet opened). Plan PR
+  open → per §2 ran one bounded `/stabilize --one` task instead of idling: CI check (green),
+  tidy-auditor audit (0 mechanical findings across src/, `zig build tidy` clean, tools/tidy.zig
+  still 2100 lines / excluded from scan_roots — unchanged known self-hosting gap), docs/README/
+  CHANGELOG/version cross-check (all consistent with released v0.2.0, no drift). Nothing needed
+  fixing — no PR opened this cycle.
+- PRs: none this cycle.
+- Next: once PR #16 merges, open milestone 002's tracking issue and start Phase 1
+  (`tools/tidy.zig` self-hosting fix first, then codec: fixed/varint/crc32c/xxhash).
+- Blockers: none — waiting on human merge of plan PR #16.
+- Open questions: none.
 
 ## Cycle 12 — 2026-09-16 — FEATURE
 - Done: preflight clean tree on main, CI green (last completed run success, matched

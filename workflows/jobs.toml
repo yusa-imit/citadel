@@ -14,6 +14,7 @@ allowedTools = []
 sessionLimitThreshold = 90
 
 [jobs.powehi-dev-v1]
+enabled = false
 expression = "45 1,4,7,10,13,16,19,22 * * *"
 cwd = "/Users/fn/codespace/powehi"
 model = "sonnet"
@@ -23,7 +24,7 @@ allowedTools = []
 sessionLimitThreshold = 90
 
 [jobs.the-kernel-dev-v1]
-expression = "50 */2 * * *"
+expression = "50 */6 * * *"
 cwd = "/Users/fn/codespace/the_kernel"
 model = "sonnet"
 permissionMode = "bypassPermissions"
@@ -33,7 +34,8 @@ allowedTools = []
 sessionLimitThreshold = 90
 # ── Foundation repos (added 2026-09-05; minutes chosen to avoid the existing jobs) ──
 
-# ── Kingdom realm cycles: one realm per hour slot, twice a day, 25-minute timeout ──
+# ── Kingdom realm cycles: one realm per hour slot, 25-minute timeout.
+#    Foundation (sigil/sirocco/strata/synod) twice a day; the rest once a day. ──
 [jobs.sigil-cycle]
 enabled = true
 expression = "5 0,12 * * *"
@@ -92,7 +94,7 @@ extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/f
 
 [jobs.zuda-cycle]
 enabled = true
-expression = "5 4,16 * * *"
+expression = "5 4 * * *"
 cwd = "/Users/fn/codespace/zuda"
 model = "sonnet"
 permissionMode = "bypassPermissions"
@@ -106,7 +108,7 @@ extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/f
 
 [jobs.sailor-cycle]
 enabled = true
-expression = "5 5,17 * * *"
+expression = "5 17 * * *"
 cwd = "/Users/fn/codespace/sailor"
 model = "sonnet"
 permissionMode = "bypassPermissions"
@@ -120,7 +122,7 @@ extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/f
 
 [jobs.zr-cycle]
 enabled = true
-expression = "5 6,18 * * *"
+expression = "5 6 * * *"
 cwd = "/Users/fn/codespace/zr"
 model = "sonnet"
 permissionMode = "bypassPermissions"
@@ -134,7 +136,7 @@ extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/f
 
 [jobs.silica-cycle]
 enabled = true
-expression = "5 7,19 * * *"
+expression = "5 19 * * *"
 cwd = "/Users/fn/codespace/silica"
 model = "sonnet"
 permissionMode = "bypassPermissions"
@@ -148,7 +150,7 @@ extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/f
 
 [jobs.zoltraak-cycle]
 enabled = true
-expression = "5 8,20 * * *"
+expression = "5 8 * * *"
 cwd = "/Users/fn/codespace/zoltraak"
 model = "sonnet"
 permissionMode = "bypassPermissions"
