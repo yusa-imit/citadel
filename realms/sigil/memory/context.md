@@ -1,25 +1,30 @@
 # sigil — context
 
-last_seen_at: 2026-09-17T00:00:00Z
+last_seen_at: 2026-09-17T03:07:36Z
 rejected_plans: []
 
-## Cycle 16 — 2026-09-17 — FEATURE
+## Cycle 17 — 2026-09-17 — FEATURE
 
 - Preflight: clean tree on main, CI green (HEAD 42f5a4f, last 5 runs all success), no open bug
   issues. Mode: FEATURE (periodic_stabilization off for sigil; stabilize_streak 0).
-- Inbox: no new OWNER activity anywhere (plan PR #17 comments, repo-wide PR/issue comments all
-  checked since the cycle 15 watermark) — nothing to action. `owner_actions_found: no`.
-- Plan PR #17 still open → ran one bounded stabilization task: fresh `tidy-auditor` sweep
-  (`zig build tidy` + manual grep across all Tiger Style categories) found **0 new findings** —
-  `src/` totals 719 lines, no function > 70 lines, hygiene/docs/deps all clean. The carried
-  `tools/tidy.zig` self-exemption finding (1860+ lines) was deliberately not re-investigated —
-  already confirmed too large for `--one` across two prior cycles. No PR opened.
-- Quiet cycle: identical shape to cycle 15 (plan PR open, no owner actions, no PR opened, CI
-  green) — GitHub tracking comment skipped per CONTRACT rule 8 carve-out; one Discord heartbeat
-  sent for today.
-- Next: same as cycle 15 — awaiting human merge of plan 002 (#17). If it stays open again, the
-  tidy.zig self-exemption finding needs a full (non `--one`) stabilization cycle or its own plan
-  item; a `--one` slot has had no smaller candidate for two cycles running.
+- Inbox: no new OWNER activity anywhere (plan PR #17 comments/reviews, repo-wide PR/issue
+  comments all checked since the cycle 16 watermark) — nothing to action. `owner_actions_found:
+  no`.
+- Plan PR #17 still open → ran one bounded stabilization task: full fresh `tidy-auditor` sweep
+  across all 7 stabilization categories (not just a re-check of the carried finding) —
+  `zig build tidy` 0 findings, `zig build test` 62/62 passing, `zig fmt --check` clean, no
+  ban-list pattern in `src/`/`bench/`, 0 functions > 70 lines, 0 files > 800 lines, every
+  `pub fn` ≥2 assertions, no docs drift, deps empty, hygiene clean.
+- **Third consecutive cycle (15, 16, 17)** confirming no finding smaller than the carried
+  `tools/tidy.zig` self-exemption exists. No PR opened. Recommendation: this should become its
+  own plan item (plan 003, once 002 lands) or a dedicated non-`--one` stabilization cycle,
+  rather than re-verifying it every cycle — diminishing value from repeated identical sweeps.
+- Quiet cycle: identical shape to cycles 15-16 (plan PR open, no owner actions, no PR opened, CI
+  green) — GitHub tracking comment AND Discord heartbeat both skipped per CONTRACT rule 8
+  carve-out (heartbeat already sent today, per cycle 16's report).
+- Next: awaiting human merge of plan 002 (#17). If it stays open again next cycle, stop
+  re-running the full `--one` sweep for the tidy.zig finding — either escalate it as a plan item
+  now or pick a different filler (e.g. re-verify plan PR #17 itself has no stale review threads).
 - Blockers: none. Open questions: none.
 
 ## History
@@ -76,6 +81,11 @@ Cycle 15 (2026-09-16, FEATURE): merged PR #19 (bounded recursion, now fully gree
 PR #17 still open → one stabilization task: re-verified tidy.zig's self-exemption finding is
 still too large for `--one` (1860 lines, ~61 undocumented functions, 15 ban-list hits to
 triage). No PR opened.
+
+Cycle 16 (2026-09-17, FEATURE): plan PR #17 still open, no OWNER activity → one stabilization
+task: fresh full-repo `tidy-auditor` sweep, 0 new findings (`src/` 719 lines, no function > 70
+lines). tidy.zig self-exemption finding not re-investigated (already too large twice running).
+No PR opened. Quiet-cycle carve-out used for the first time (GitHub comment skipped).
 
 ## Standing backlog (Phase 1, plan 002 — unchanged since bootstrap)
 

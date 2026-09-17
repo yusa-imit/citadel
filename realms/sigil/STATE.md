@@ -172,6 +172,21 @@ stub files has no hot loops, recursion, or allocation to critique. Re-audit once
 - No PR opened this cycle's stabilization slot — genuinely nothing smaller to fix. Candidate
   for a future **non-`--one`** stabilization cycle (or its own plan item) given the size.
 
+## Stabilization update (2026-09-17, cycle 17)
+
+- CI: last 5 completed runs on main all green (HEAD 42f5a4f). No open bug issues, no new OWNER
+  activity on plan PR #17 since the cycle 16 watermark — FEATURE mode, one bounded stabilization
+  task per §2 of the cycle protocol.
+- Full fresh `tidy-auditor` sweep across all 7 stabilization categories (not just a re-check of
+  the carried finding): `zig build tidy` 0 findings, `zig build test` 62/62 passing, `zig fmt
+  --check` clean, no ban-list pattern anywhere in `src/`/`bench/`, 0 functions > 70 lines, 0
+  files > 800 lines (largest `src/config.zig` at 264), every `pub fn` carries ≥2 assertions, no
+  docs drift, `build.zig.zon` `.dependencies` still empty, root hygiene clean.
+- Third consecutive cycle (15, 16, 17) confirming **no finding smaller than the carried
+  `tools/tidy.zig` self-exemption exists**. No PR opened. Recommendation carried forward
+  unchanged: scope the self-exemption fix as its own plan 003 item (or a dedicated non-`--one`
+  stabilization cycle) rather than continuing to re-verify it every cycle — see `context.md`.
+
 ## Stabilization update (2026-09-17, cycle 16)
 
 - CI: last 5 completed runs on main all green (HEAD 42f5a4f). No open bug issues, no new OWNER
