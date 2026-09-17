@@ -1,31 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-09-17T03:07:36Z
+last_seen_at: 2026-09-17T15:05:45Z
 rejected_plans: []
 
-## Cycle 17 — 2026-09-17 — FEATURE
+## Cycle 18 — 2026-09-17 — FEATURE
 
-- Preflight: clean tree on main, CI green (HEAD 42f5a4f, last 5 runs all success), no open bug
-  issues. Mode: FEATURE (periodic_stabilization off for sigil; stabilize_streak 0).
-- Inbox: no new OWNER activity anywhere (plan PR #17 comments/reviews, repo-wide PR/issue
-  comments all checked since the cycle 16 watermark) — nothing to action. `owner_actions_found:
-  no`.
-- Plan PR #17 still open → ran one bounded stabilization task: full fresh `tidy-auditor` sweep
-  across all 7 stabilization categories (not just a re-check of the carried finding) —
-  `zig build tidy` 0 findings, `zig build test` 62/62 passing, `zig fmt --check` clean, no
-  ban-list pattern in `src/`/`bench/`, 0 functions > 70 lines, 0 files > 800 lines, every
-  `pub fn` ≥2 assertions, no docs drift, deps empty, hygiene clean.
-- **Third consecutive cycle (15, 16, 17)** confirming no finding smaller than the carried
-  `tools/tidy.zig` self-exemption exists. No PR opened. Recommendation: this should become its
-  own plan item (plan 003, once 002 lands) or a dedicated non-`--one` stabilization cycle,
-  rather than re-verifying it every cycle — diminishing value from repeated identical sweeps.
-- Quiet cycle: identical shape to cycles 15-16 (plan PR open, no owner actions, no PR opened, CI
-  green) — GitHub tracking comment AND Discord heartbeat both skipped per CONTRACT rule 8
-  carve-out (heartbeat already sent today, per cycle 16's report).
-- Next: awaiting human merge of plan 002 (#17). If it stays open again next cycle, stop
-  re-running the full `--one` sweep for the tidy.zig finding — either escalate it as a plan item
-  now or pick a different filler (e.g. re-verify plan PR #17 itself has no stale review threads).
+- Done: preflight clean (main, CI green HEAD 42f5a4f, no bug issues). Inbox: no new OWNER
+  activity since watermark (plan PR #17 comments/reviews, repo-wide PR/issue comments) —
+  nothing to action. Stabilization slot: verified `zig build test`/`tidy`/`fmt --check` all
+  clean, no regressions. Investigated whether the carried `tools/tidy.zig` self-exemption
+  finding decomposes into a smaller safe fix — confirmed no: `tools/` isn't walked by
+  `scan_roots` at all, so any fix must add it there, which cascades into fail-severity
+  `checkFunctionLength` and ban-list checks (not just the warn-severity file-length check),
+  so it stays sized for a dedicated stabilize cycle or plan-003 scope, not `--one`.
+- PRs: none opened this cycle.
+- Next: awaiting human merge of plan 002 (#17). This finding should be scoped as plan 003's
+  first item once 002 merges, or done as a full non-`--one` `/stabilize sigil` cycle.
 - Blockers: none. Open questions: none.
+- Quiet cycle (4th in a row: plan PR open, no owner actions, no PR opened, CI green) — GitHub
+  comment and Discord heartbeat both skipped per CONTRACT rule 8 carve-out.
 
 ## History
 
@@ -62,8 +55,8 @@ finding via PR #14 (`isWireFormatPath`'s 2nd `catch unreachable` needed its own 
 Cycles 11-12 (2026-09-12, FEATURE): item 10 (README reconciled with reality) via PR #15; item
 11 (CHANGELOG.md + version bump 0.1.0→0.2.0) via PR #16. Plan 001 closed at 11/11 (version
 impact `none`, no release). Opened plan 002 (Phase 1A: `core/value.zig`, `core/tree.zig`,
-`core/diagnostics.zig`, folded in `core/number.zig`) as PR #17, still awaiting human merge as
-of cycle 15. Noted: local sandbox sometimes lacks the 0.16.0 toolchain — CI is the real gate.
+`core/diagnostics.zig`, folded in `core/number.zig`) as PR #17, still awaiting human merge.
+Noted: local sandbox sometimes lacks the 0.16.0 toolchain — CI is the real gate.
 
 Cycle 13 (2026-09-15, FEATURE): plan PR #17 open, no OWNER activity → one stabilization task:
 fixed carried finding 1/3 (moved `tidy_baseline.txt` from repo root to `tools/`, TDD'd via the
@@ -75,17 +68,13 @@ Cycle 14 (2026-09-15, FEATURE): plan PR #17 still open → bounded recursion in
 Linux CI with a std 0.16.0 bug in deep directory iteration (`dirReadLinux` "BADF"), reproduced
 with plain `dir.iterate()` too; worth a Zig upstream issue if it recurs. Final fix: depth-bounded
 recursion (documented Tiger Style 1.8 trade-off); regression test skipped on Linux only. PR #19
-opened, 2/8 checks green at session end, left for cycle 15's inbox — merged there.
+opened, merged in cycle 15 (fully green 8/8).
 
-Cycle 15 (2026-09-16, FEATURE): merged PR #19 (bounded recursion, now fully green 8/8). Plan
-PR #17 still open → one stabilization task: re-verified tidy.zig's self-exemption finding is
-still too large for `--one` (1860 lines, ~61 undocumented functions, 15 ban-list hits to
-triage). No PR opened.
-
-Cycle 16 (2026-09-17, FEATURE): plan PR #17 still open, no OWNER activity → one stabilization
-task: fresh full-repo `tidy-auditor` sweep, 0 new findings (`src/` 719 lines, no function > 70
-lines). tidy.zig self-exemption finding not re-investigated (already too large twice running).
-No PR opened. Quiet-cycle carve-out used for the first time (GitHub comment skipped).
+Cycles 15-17 (2026-09-16 to 09-17, FEATURE): plan PR #17 still open each cycle, no OWNER
+activity → repeated `--one` stabilization slots all confirmed no finding smaller than the
+carried `tools/tidy.zig` self-exemption exists (1860 lines, ~61 undocumented functions, 15
+ban-list hits to triage). No PR opened in any of the three cycles — diminishing value from
+identical repeated sweeps; quiet-cycle GitHub-comment carve-out used starting cycle 16.
 
 ## Standing backlog (Phase 1, plan 002 — unchanged since bootstrap)
 
@@ -100,14 +89,16 @@ milestone order:
 - **2A-2C** (after Phase 1) — `json/{scanner,dom,writer}.zig`.
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable.
 - Carried stabilization finding (not fixed, sized for a full stabilize cycle or its own plan
-  item): `tools/tidy.zig` (1860 lines) self-exempt from its own file-length/function-length/
-  ban-list checks — `scan_roots` only walks `src/bench/tests`; widening it needs baseline
-  entries for ~61 functions plus false-positive triage on path-unconditional ban rules.
+  item — confirmed cycle 18 it does not decompose into a smaller safe slice): `tools/tidy.zig`
+  (1860 lines) self-exempt from its own file-length/function-length/ban-list checks —
+  `scan_roots` only walks `src/bench/tests`; widening it needs baseline entries for ~61
+  functions plus false-positive triage on path-unconditional ban rules, since
+  `checkFunctionLength` and the ban-list checks are fail-severity (not warn like file-length).
 
 ## Next priority
 
 Awaiting human merge of plan 002 (PR #17). Once merged, `/cycle` opens its tracking issue and
-item 1 (`core/value.zig`) becomes the next `/implement` target. If it stays open again, the
-next `--one` stabilization slot has no small candidate left — consider a full (non `--one`)
-`/stabilize sigil` cycle for the tidy.zig self-exemption finding, or scoping it as its own plan
-item. Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
+item 1 (`core/value.zig`) becomes the next `/implement` target. The tidy.zig self-exemption
+finding should become plan 003's first scope item (or a dedicated non-`--one` `/stabilize
+sigil` cycle) rather than continuing to occupy the `--one` slot with no-op re-verification.
+Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
