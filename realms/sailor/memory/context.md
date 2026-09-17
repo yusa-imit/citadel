@@ -1,7 +1,35 @@
 # sailor — context
 
-last_seen_at: 2026-09-16T08:30:00Z
+last_seen_at: 2026-09-17T08:11:59Z
 rejected_plans: []
+
+## Cycle 15 — 2026-09-17 — STABILIZATION
+
+- Done: preflight found repo clean on main. GitHub truth: CI green on main @ `847ced6`, no bug
+  issues, no plan PR, issue #34 (question+needs-human) still open with no new OWNER comment.
+  Cycle 15 forced STABILIZATION via the periodic trigger (`15 % 5 == 0`). Inbox merged PR #35
+  (10/10 green, CLEAN) completing the `ArrayList` `.empty` sweep. `tidy-auditor` fresh pass:
+  zero baseline drift, every cycle-13 STATE.md count still accurate (359 tracked entries).
+  Recommended `src/arg.zig:590` as the single smallest remaining unproven `catch unreachable`
+  (test declares the flag `.type = .bool`, so `asBool()` can't hit `TypeMismatch`) — same
+  provable pattern as `eventbus.zig`/`countdown_timer.zig`/`pipeline.zig` (#27/#29/#30). Fixed it
+  myself: proof comment on the same line (tidy only exempts same-line `//`), regenerated
+  `tidy_baseline.txt` (359→358, diff limited to the one expected line), `zig build test` green,
+  `zig fmt --check` clean (one incidental pre-existing double-space fix from the repo's fmt hook,
+  same side effect noted in #29/#30). Opened as PR #36; CI still pending at cycle deadline — left
+  open for next cycle's inbox, same recurring pattern as #21/#25/#26/#29/#30/#31/#32/#33/#35.
+  Updated STATE.md's Tiger Style table and next-target recommendation.
+- PRs: #35 (merged), #36 (open, CI pending).
+- Next: inbox should merge #36 once green. Next provable-proof-comment candidates:
+  `src/tui/inspector.zig:941,966` (2 sites) and `src/tui/async_loop.zig:563,685,733,792,887`
+  (5 sites, verify each test callback's task always succeeds first). Do NOT attempt
+  `event_metrics.zig`/`render_metrics.zig` (4 sites) or `bench.zig` (5 sites, `Timer.start()` can
+  legitimately fail) or `smart_autocomplete.zig` (2 sites) as mechanical proof comments — all
+  genuinely not provable, need typed-error redesign instead.
+- Blockers: #34 still open, awaiting OWNER decision on how to structure the Io migration session
+  — no new comment this cycle, not yet eligible for AI auto-action (no `origin: ai` tag, only
+  1 cycle old).
+- Open questions: #34 (unchanged).
 
 ## Cycle 14 — 2026-09-16 — FEATURE
 
@@ -105,32 +133,10 @@ rejected_plans: []
   6, 7, 9, 11); do not re-check.
 - Open questions: none.
 
-## Cycle 10 — 2026-09-12 — STABILIZATION
+## History (cycles 0-10, condensed 2026-09-17)
 
-- Done: preflight found repo clean on `fix/countdown-timer-catch-unreachable-proof` (PR #29's
-  branch, fully green 10/10 checks, `mergeStateStatus: CLEAN`) — nothing to preserve, switched
-  to main. Inbox merged PR #29 (squash, `auto-merged`), confirmed post-merge CI on `main` @
-  `14433e7` reaches `success`. `tidy-auditor` fresh pass: zero baseline drift (446 entries,
-  byte-for-byte clean), all tracked categories unchanged from STATE.md except `catch unreachable`
-  (dropped as expected from #27/#29 landing). Recommended `pipeline.zig`'s 2 `catch_unreachable`
-  sites (`stageWidth`/`renderStageBox`, `u8` progress into an exact-fit 3-byte buffer) as the
-  smallest-diff mechanical target — same provably-safe pattern as `countdown_timer.zig`. Verified
-  the buffer-size proof by hand, reformatted both sites (already at 100 cols) to fit the proof
-  comment, regenerated `tidy_baseline.txt` (entry removed), `zig build test` green. The repo's
-  zig-fmt hook incidentally brought `pipeline.zig`'s pre-existing brace-formatting drift into
-  compliance while editing (repo-wide `zig fmt --check` pre-existing failures 82→81). Opened as
-  PR #30; CI still running at cycle deadline — left open for next cycle's inbox, same pattern as
-  #21/#25/#26/#29. Updated STATE.md's Tiger Style table.
-- PRs: #29 (merged), #30 (open, CI pending).
-- Next: inbox should merge #30 once green. `event_metrics.zig`/`render_metrics.zig`'s 4
-  `catch_unreachable` sites are NOT provable (real OOM possible, caller-supplied allocator) —
-  need a typed-error redesign, not a proof comment; do not attempt as a mechanical fix. `//!`
-  headers on the 86 missing files is next purely-mechanical target after that.
-- Blockers: item 4/6/7 on #19 still needs a dedicated multi-cycle session (toolchain switch +
-  `std.Io` rewrite) — verified blocked three ways already (cycles 6, 7, 9); do not re-check.
-- Open questions: none.
-
-## History (cycles 0-9, condensed 2026-09-15)
+Cycle 10 (STABILIZATION, 2026-09-12): merged PR #29. `tidy-auditor` found zero baseline drift.
+Proof-commented `pipeline.zig`'s 2 `catch_unreachable` sites (progress formatters) as PR #30.
 
 Cycle 9 (FEATURE, 2026-09-11): re-verified item 4's remainder still has no 0.15.2-compatible
 spelling (direct stdlib read, same conclusion as cycles 6-8). Fell back to stabilize: proof-
