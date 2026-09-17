@@ -1,41 +1,40 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-16T00:00:00Z
+last_seen_at: 2026-09-17T00:00:00Z
 rejected_plans: []
 
-## Cycle 9 — 2026-09-16 — FEATURE
-- Preflight found dirty: branch `refactor/memory-assertion-baseline-continue-2`
-  (not `wip/*`, no open PR) with an uncommitted diff — an interrupted
-  continuation of item 11 on `storage/memory.zig` (getType/setExpiry/
-  getTtlMs/incrby/incrbyfloat). Preserved to `wip/memory-assertion-
-  baseline-continue-2-20260916` per the no-discard rule.
-- While preparing to implement, found two more `wip/*` branches already on
-  origin from earlier interrupted sessions, never picked up: `wip/memory-
-  assertion-baseline-core-20260912` and `-continue-20260915` (init/deinit/
-  set/checkMemoryLimitAndEvict, 34 tests). The two chains touch disjoint
-  functions in the same file — merged clean, no conflicts — combined into
-  one PR rather than stranding one chain again. Also backfilled a missing
-  `commands/strings.zig` CHANGELOG entry PR #131 had omitted.
-- PR #132 merged (CI green: Build & Test 6m51s, Shell Integration 58s).
-  Plan 001 item 11 (assertion baseline) is now fully done across all five
-  hot modules. Tracking issue #121 updated.
-- Near-miss: a stray `git stash -u` (checking whether fmt violations were
-  pre-existing) had nothing to stash, then `git stash pop` grabbed one of
-  three untriaged stash entries left over since cycle 1 (unrelated WIP),
-  causing conflicts in `build.zig`/`memory.zig`. `git reset --hard` is
-  guard-blocked; recovered cleanly with `git checkout HEAD -- <files>` +
-  removing the one untracked file the pop introduced. All three original
-  stash entries are untouched, still in `git stash list`, still needing
-  triage (see `debugging.md`). Lesson: never run bare `git stash`/`stash
-  pop` in this repo without listing existing entries first — use `git
-  diff`/targeted `checkout` instead when only checking a baseline.
-- Next: still no unblocked plan 001 items until zuda/sailor reach v3.0.0
-  (checked this cycle: v2.3.0/v2.99.0). Triage the 3 pre-existing stash
-  entries as a future cycle's task if nothing else unblocks first.
-- Blockers: items 4-9, 12 blocked on zuda/sailor v3.0.0. Open questions:
-  none.
+## Cycle 10 — 2026-09-17 — STABILIZATION (forced, n%5==0)
+- Preflight clean (main, no dirty tree), CI green (last 5 runs), no open bug
+  issues. Inbox: no owner actions since 2026-09-16 watermark, no open plan
+  PR, milestone #121 unchanged.
+- tidy-auditor fresh audit found a self-inflicted regression: 2
+  `catch unreachable` sites in `storage/memory.zig` (`incrby`/`incrbyfloat`,
+  ~lines 6164/6233) with no proof comment, introduced by cycle 9's PR #132.
+  Fixed same-cycle via PR #133 (2-line diff, one-line proof comment each,
+  CI green: Build & Test 6m1s, Shell Integration 57s), merged, labeled
+  `auto-merged`. Metric back to 0.
+- STATE.md Tiger Style gap table refreshed: files>800 lines 52/88
+  (`memory.zig` now 16,248, +598 from cycles 7-9's assertions); functions>70
+  lines down to 125 (was 155); `assert` count up to 197 (was 40), 98%
+  concentrated in 5 files from the now-complete assertion-baseline PRs
+  (#127-132); `while(true)`/`usize`-in-format/`//!`-headers/TODOs unchanged.
+- Next: still no unblocked plan 001 items until zuda/sailor reach v3.0.0.
+  Standing backlog unchanged (see below) — 3 untriaged stash entries from
+  cycle 1 still need triage if nothing else unblocks first.
+- Blockers: plan 001 items 4-9, 12 blocked on zuda/sailor v3.0.0. Open
+  questions: none.
 
-## History (cycles before 9)
+## History (cycles before 10)
+- Cycle 9: preserved and merged two disjoint interrupted `wip/*` assertion-
+  baseline chains on `memory.zig` (getType/setExpiry/getTtlMs/incrby/
+  incrbyfloat, plus init/deinit/set/checkMemoryLimitAndEvict, 34 tests) as
+  PR #132 — plan 001 item 11 (assertion baseline) now complete across all
+  five hot modules. Backfilled a missing `strings.zig` CHANGELOG entry PR
+  #131 had omitted. Near-miss: a stray `git stash pop` grabbed an unrelated
+  pre-existing stash entry mid-check, causing conflicts; recovered via
+  targeted `git checkout HEAD --` (not `reset --hard`, guard-blocked) —
+  lesson: never run bare `git stash`/`stash pop` in this repo without
+  listing existing entries first.
 - Cycle 8: preserved and continued an interrupted `commands/strings.zig`
   assertion-baseline diff (`wip/strings-assertion-baseline-v2-20260911`);
   fixed a tidy-baseline regression from a prior `zig fmt` run (command-
