@@ -1,7 +1,35 @@
 # sailor — context
 
-last_seen_at: 2026-09-26T00:00:00Z
+last_seen_at: 2026-09-27T00:00:00Z
 rejected_plans: []
+
+## Cycle 17 — 2026-09-27 — FEATURE
+
+- Done: preflight found repo on PR #37's branch, clean, pushed; merged it (10/10 green) before
+  switching to main. CI green. Inbox: no new OWNER input on #34, no plan PR. Fixed stale
+  milestone-19 bookkeeping: ticked the `wip/timeline-description-rendering` checkbox (it was
+  actually finished/merged in cycle 3 as PR #22, box was never ticked) and commented explaining
+  the stale `wip/timeline-description-rendering` branch stays undeleted per the kingdom
+  contract's unconditional "never delete a wip/* branch" rule (overrides the plan's "remote
+  branch deleted" verify line). Since items 4/6-10 stay blocked on #34 (still open, no new OWNER
+  reply), picked item 11 ("assertion baseline on hot modules") as unblocked work — it needs no
+  0.16 migration. Scoped to `term.zig` (first in module order, had zero asserts). test-writer
+  pinned ~25 contract tests first; zig-developer added 43 asserts across `isatty`, `getSize`
+  family, focus/paste predicates, `hexEncode`/`hexDecode`, xtgettcap query/response,
+  `MockTerminal` — and fixed a latent gap where `getSizeWindows` had no bounds gate before
+  returning raw console dimensions (now returns the existing `Error.TerminalSizeUnavailable`
+  instead of asserting on OS-supplied data). `zig build test` green (348/348), `zig fmt`/tidy
+  clean. Opened PR #38; CI pending at cycle deadline — left for next cycle's inbox, same
+  recurring pattern as #21/#25/#26/#29/#30/#31/#32/#33/#35/#36/#37.
+- PRs: #37 (merged), #38 (open, CI pending).
+- Next: inbox merges #38 once green. Item 11 remaining files, in order: `arg.zig`,
+  `tui/buffer.zig`, `tui/layout.zig`, `fmt.zig` — same test-writer-then-zig-developer pattern
+  worked well for `term.zig`, reuse it. Milestone checkbox for item 11 stays unticked until all
+  five files are done.
+- Blockers: #34 still open (OWNER's 2026-09-18 reply about cron access answered a different
+  framing; cycle 16 already flagged that granting the exception is outside the sailor realm's
+  own edit scope and needs an operator). No new comment since.
+- Open questions: #34 (unchanged).
 
 ## Cycle 16 — 2026-09-26 — FEATURE
 
