@@ -1,7 +1,19 @@
 # silica — context
 
-last_seen_at: 2026-09-17T00:00:00Z
+last_seen_at: 2026-09-26T00:00:00Z
 rejected_plans: []
+
+## Cycle 15 — 2026-09-26 — STABILIZATION (forced n%5==0)
+- Preflight: repo clean on `feat/zig-build-tidy-step` (PR #153 head); main CI green.
+- Inbox: PR #153 CI all green, no hold → squash-merged, labeled `auto-merged`.
+- Stabilization: fixed the open question from cycle 12 — `zig fmt` pass over the 17 files that
+  failed `zig fmt --check` on main (PR #154, pure formatting, `zig build test` green, CI green,
+  merged). `zig fmt --check src build.zig` now clean repo-wide.
+- Next: FEATURE on plan 001 "`zig build tidy` step, part 2" (3,521 line-length violations,
+  wire tidy into `zig build test`, remaining ban-list checks).
+- Blockers: none new. Standing: plan 001 rest blocked_by zuda v3.0.0, sailor v3.0.0.
+- Open questions: buffer-pool LRU zuda contradiction; WAL concurrent-connections finding;
+  tidy.zig function-length scan not string/comment-aware. (fmt question resolved.)
 
 ## Cycle 14 — 2026-09-17 — FEATURE
 - Preflight found the repo dirty and off main on branch `feat/zig-build-tidy-step`: an
@@ -64,38 +76,12 @@ rejected_plans: []
   at clean `main` HEAD (worth a stabilization fix); buffer-pool LRU zuda-migration
   contradiction; concurrent-connections WAL-corruption finding not reconfirmed.
 
-## Cycle 12 — 2026-09-15 — FEATURE
-- Inbox: PR #150 (batch 9) already merged before this cycle started, CI green on main
-  (`b965e83`, matches origin/main). No new OWNER directives/questions/comments since watermark.
-  No plan PR open, no plan_closed_unmerged. Milestone issue #137 still the only open issue.
-- Preflight found the repo dirty and off main: an uncommitted `src/cli.zig` diff (872+/270-) on
-  branch `chore/scratch-db-tmpdir-batch10` — an interrupted `/implement` session from a prior
-  cycle that never committed. Branch was already properly named and matched the exact next
-  planned batch, so rather than shunting to a `wip/*` branch and redoing the work, verified it
-  in place: functionally complete (all 105 occurrences — 98 uniform + 7 multi-path variants:
-  backup source/dest, save-memory/exists, save source/dest, open original/new — correctly
-  route through `dir_path` from a tmp dir), `zig build test` green (4724/4747 passed, 23
-  skipped, 0 failed), `zig fmt --check src/cli.zig` clean (confirmed the repo-wide fmt-check
-  failures on 18 other files are pre-existing on main, unrelated to this diff — see Open
-  questions). Ticked the plan checklist and CHANGELOG, committed, pushed, opened PR #151.
-- PR #151 CI still pending at cycle deadline (historical 13-18m) — commented "awaiting CI;
-  merge next cycle", left for cycle 13's inbox.
-- Next: cycle 13's inbox merges #151 if green. Only 1 file remains in plan 001 item 2 part 2:
-  `sql/engine.zig` (819 occurrences) — likely needs its own multi-cycle sub-plan given size.
-- Blockers: none new. Standing blocker unchanged (plan 001 rest blocked_by zuda v3.0.0,
-  sailor v3.0.0).
-- Open questions: **new** — `zig fmt --check src build.zig` fails on 18 files repo-wide
-  (`util/varint.zig`, `util/regex.zig`, `config/file.zig`, `tx/lock.zig`,
-  `replication/{cascade,sender}.zig`, `sql/{analyzer,parser,engine,ast,index_entry,cost,
-  tokenizer_fuzz,optimizer,tokenizer,planner,pattern_match,selectivity}.zig`) even at the
-  clean `main` HEAD (`b965e83`) — confirmed via `git stash`. Contradicts kingdom rule "every
-  commit passes `zig fmt --check`"; STATE.md's CI section doesn't mention it (CI may not run
-  `zig fmt --check` today, or this drifted since the last STATE.md refresh). Worth a
-  stabilization-cycle fix (mechanical `zig fmt` pass, one PR) — not fixed this cycle to keep
-  scope to the one planned item. Unchanged from prior cycles: buffer-pool LRU zuda-migration
-  contradiction; concurrent-connections WAL-corruption finding not reconfirmed.
-
 ## History (cycle 9 and earlier, folded)
+
+- **Cycle 12** (2026-09-15, FEATURE): recovered an interrupted `chore/scratch-db-tmpdir-batch10`
+  diff in place (`src/cli.zig`, 105 scratch-DB paths), opened #151. Only `sql/engine.zig` (819
+  sites) remains in plan 001 item 2 part 2. Found `zig fmt --check` failing on 18 files on main
+  (pre-existing; see standing backlog).
 - **Cycle 11** (2026-09-12, FEATURE): inbox merged #149 (batch 8). Implemented batch 9:
   `sql/catalog.zig`'s 152 scratch-DB paths via the shared `TestCatalog` helper. Opened #150,
   left pending for cycle 12.

@@ -1,7 +1,21 @@
 # sailor — context
 
-last_seen_at: 2026-09-17T08:11:59Z
+last_seen_at: 2026-09-26T00:00:00Z
 rejected_plans: []
+
+## Cycle 16 — 2026-09-26 — FEATURE
+
+- Done: preflight found repo on PR #36's branch, switched to main. CI green, no bugs. Merged
+  PR #36 (10/10 green). Milestone #19 items still blocked on the toolchain switch; did one
+  bounded stabilize task: proof-commented `src/tui/inspector.zig`'s 2 `catch unreachable`
+  test-visitor sites (comment kept short so line stays <=100 cols), baseline 358->357. PR #37.
+- PRs: #36 (merged), #37 (open, CI pending).
+- Next: inbox merges #37 once green. Remaining candidates: `src/tui/async_loop.zig`
+  (563,685,733,792,887; verify each callback's task always succeeds).
+- Blockers: #34 got an OWNER reply 2026-09-18: "Access to cron, add exception for work from
+  cleanup schedule. After work done, roll back exception from cleanup schedule." Needs operator
+  action on cron (outside sailor realm; AI cannot edit it). Issue left open.
+- Open questions: #34.
 
 ## Cycle 15 — 2026-09-17 — STABILIZATION
 
@@ -83,57 +97,14 @@ rejected_plans: []
   switch with the `std.Io` rewrite — verified blocked 6 cycles running; do not re-check.
 - Open questions: none.
 
-## Cycle 12 — 2026-09-15 — FEATURE
-
-- Done: preflight found the repo clean on PR #31's already-pushed branch
-  (`docs/module-headers-top-level-src`), switched to main directly. GitHub truth: CI green on
-  main, no bug/question/directive issues, no plan PR. Inbox merged PR #31 (10/10 checks green,
-  `mergeStateStatus: CLEAN`) — squash, branch deleted, `auto-merged`. Milestone #19's items
-  4/6/7 (toolchain switch + `std.Io` rewrite) re-confirmed blocked for the 5th cycle running
-  (6, 7, 9, 11, 12) — not re-checking further; every other unchecked item (8-12) also depends
-  on that same pairing. Fell back to the established bounded-stabilize pattern: continued the
-  `//!` header sweep into the next STATE.md slice, `src/tui/` core (35 files, excluding
-  `widgets/`). Delegated the mechanical edit to a zig-developer subagent; verified its diff
-  (`git diff --stat`: exactly 35 `src/tui/*.zig` files + `tidy_baseline.txt`, 433→397 tracked
-  entries, `zig build test` green). Noted 9 files have pre-existing `zig fmt` drift (not
-  introduced here) — left untouched, flagged for the repo-wide fmt cleanup already in STATE.md.
-  Opened as PR #32; CI running at cycle deadline — left open for next cycle's inbox, same
-  recurring pattern as #21/#25/#26/#29/#30/#31.
-- PRs: #31 (merged), #32 (open, CI pending).
-- Next: inbox should merge #32 once green. `src/tui/widgets/` (38 files) is the final `//!`
-  header slice after that — same mechanical pattern.
-- Blockers: #19 items 4/6/7 need a dedicated multi-cycle session pairing the Zig 0.16 toolchain
-  switch with the `std.Io` rewrite — verified blocked 5 cycles running; do not re-check.
-- Open questions: none.
-
-## Cycle 11 — 2026-09-12 — FEATURE
-
-- Done: preflight found repo clean on PR #30's branch (`fix/pipeline-catch-unreachable-proof`,
-  not `wip/*`), switched to main directly. GitHub truth: CI green on main, no bug/question/
-  directive issues, no plan PR. Inbox merged PR #30 (10/10 checks green, `mergeStateStatus: CLEAN`)
-  — squash, branch deleted, `auto-merged`; post-merge CI on main confirmed running (not red).
-  No new OWNER comments on #19 or any merged PR since watermark. Milestone #19's item 4
-  (`build.zig` fix + mechanical renames) not re-verified — memory already confirmed 3x (cycles
-  6, 7, 9) it has no 0.15.2-compatible spelling for its remainder and every later checklist item
-  depends on the same toolchain switch, so treated all remaining items as practically blocked
-  and fell back to CYCLE.md's one-bounded-stabilize-task clause. Picked STATE.md's next
-  mechanical target: added `//!` headers to the 13 top-level `src/*.zig` files (excluding
-  `tui/`) tidy's `missing_header` check flagged. Regenerated `tidy_baseline.txt` via a fresh
-  `tidy generate` run, cross-checked byte-for-byte against a second independently-built binary
-  (446→433, only the 13 expected entries removed, zero other drift — same caution as cycle 9's
-  stale-cache incident). `zig fmt --check` and `zig build test` both green. Opened as PR #31;
-  left open for next cycle's inbox (CI still running at cycle deadline, same recurring pattern).
-  Updated STATE.md's Tiger Style table (`//!` header count 86→73, all remaining under `tui/`).
-- PRs: #30 (merged), #31 (open, CI pending).
-- Next: inbox should merge #31 once green. After that, `src/tui/` (35 files) is the next `//!`
-  header slice, then `src/tui/widgets/` (38 files) — same mechanical pattern, one directory per
-  PR to keep each bounded. Do not re-check item 4 on #19's remaining scope again; it needs a
-  dedicated multi-cycle session pairing the 0.16 toolchain switch with the `std.Io` rewrite.
-- Blockers: item 4/6/7 on #19 still needs that dedicated session — verified 4 ways now (cycles
-  6, 7, 9, 11); do not re-check.
-- Open questions: none.
-
 ## History (cycles 0-10, condensed 2026-09-17)
+
+Cycle 12 (FEATURE, 2026-09-15): merged PR #31; `//!` header sweep of `src/tui/` core (35 files)
+as PR #32. #19 items 4/6/7 blocked (toolchain switch + `std.Io` rewrite); do not re-check.
+
+Cycle 11 (FEATURE, 2026-09-12): merged PR #30; added `//!` headers to 13 top-level `src/*.zig`
+files as PR #31 (tidy baseline 446→433, cross-checked with a second binary).
+
 
 Cycle 10 (STABILIZATION, 2026-09-12): merged PR #29. `tidy-auditor` found zero baseline drift.
 Proof-commented `pipeline.zig`'s 2 `catch_unreachable` sites (progress formatters) as PR #30.
