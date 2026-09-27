@@ -1,7 +1,21 @@
 # strata — context
 
-last_seen_at: 2026-09-17T05:05:36Z
+last_seen_at: 2026-09-27T05:05:32Z
 rejected_plans: []
+
+## Cycle 16 — 2026-09-27 — FEATURE (no-op)
+- Done: preflight clean, CI green at c17c5c9. Plan PR #16 still open, no comments. One
+  stabilize --one audit: 0 banned constructs, files <800 lines, headers ok; nothing to fix.
+- PRs: none opened or merged.
+- Next: when #16 merges, open milestone 002 issue, implement tidy self-hosting fix.
+- Blockers: none. Open questions: none.
+
+## Cycle 15 — 2026-09-27 — FEATURE (no-op)
+- Done: preflight clean, CI green at c17c5c9. Plan PR #16 (plan 002) still open, no comments.
+  One stabilize check: `zig build test`, `zig fmt --check`, banned-construct grep all clean.
+- PRs: none opened or merged.
+- Next: when #16 merges, open milestone 002 issue, implement tidy self-hosting fix.
+- Blockers: none. Open questions: none.
 
 ## Cycle 14 — 2026-09-17 — FEATURE
 - Done: preflight clean tree on main, CI green (last 5 runs, HEAD c17c5c9 matches
