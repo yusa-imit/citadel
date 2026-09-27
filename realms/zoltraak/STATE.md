@@ -54,7 +54,7 @@ zero-violation check — counts below are the real absolute state.
 | Functions over 70 lines | 125 | down from 155; worst: `commands/geo.zig:cmdGeosearchstore` 344, `commands/geo.zig:cmdGeosearch` 329, `commands/streams_advanced.zig:cmdXread` 298 |
 | `usize` in wire-format struct fields (RESP/RDB/AOF) | 0 real hits | confirmed again; all on-disk writes use explicit `writeInt(u16/u32/u64/i64,...)`, `protocol/parser.zig` matches are internal cursors only |
 | Files missing `//!` module header | 88 / 88 (100%) | unchanged — next-cheapest mechanical class, still flagged for a future cycle |
-| `TODO`/`FIXME` | 5 | unchanged: `network/tls.zig:15,48`; `commands/utility.zig:322`; `commands/bits.zig:567`; `commands/bitfield.zig:626` |
+| `TODO`/`FIXME` | 3 | was 5; PR #134 removed stale bits/bitfield blocks; left: `network/tls.zig:15,48` (OpenSSL, real work), `commands/utility.zig:322` |
 
 ## Zig 0.16 probe summary
 

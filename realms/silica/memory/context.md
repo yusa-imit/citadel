@@ -1,7 +1,39 @@
 # silica — context
 
-last_seen_at: 2026-09-26T00:00:00Z
+last_seen_at: 2026-09-27T10:05:31Z
 rejected_plans: []
+
+## Cycle 16 — 2026-09-27 — FEATURE
+- Preflight: repo clean on main; CI green (matches origin/main SHA); no open bug/question/
+  directive issues; no open PRs.
+- Inbox: only a routine cycle-15 status comment from OWNER on #137 since watermark — no
+  actionable items. No plan PR open, milestone #137 still the only open issue.
+- Implemented plan 001's "`zig build tidy` step, part 2", ban-list batch 1: added the
+  `debug_print_in_lib` check to `src/tidy.zig` — flags `std.debug.print(` in library code,
+  skips whole test/fuzz-named harness files and in-file top-level `test` blocks, ratchets
+  per-file via a path-keyed `tidy_baseline.txt` entry (same shape as `function_too_long`).
+  Baselined the 3 current non-harness offenders: `server/server.zig` 8, `sql/engine.zig` 2,
+  `tidy.zig` 3 (self-match — its own doc comments/string literals contain the search string
+  `"std.debug.print("`, same known textual-scan limitation as `checkFunctionLength`). 8 new
+  unit tests (positive/negative space, harness-file skip, test-block skip, ratchet
+  over/under/no-match). Code-reviewer found 2 WARNING (3 new lines over 100 cols — fixed) and
+  3 SUGGESTION (stale doc comments, missing count-field doc, missing no-match test — all
+  fixed). `zig build test`, `zig fmt --check src build.zig`, `zig build tidy` (zero
+  `debug_print_in_lib` leaks) all green.
+- PR #155 opened, plan sub-checklist and CHANGELOG updated (checklist item stays unchecked —
+  batch 1 of N, same precedent as the scratch-DB item). CI still running at cycle deadline
+  (historical 13-18m) — commented "awaiting CI; merge next cycle", left for cycle 17's inbox.
+- Next: cycle 17's inbox merges #155 if green, then FEATURE resumes on plan 001's tidy step
+  part 2, ban-list batch 2 — pick from the remaining 3 ban-list checks (`catch unreachable`
+  without `SAFETY:` — 213 sites, most already covered by blanket comments from PR #143, needs
+  a proximity-window design decision; `std.time.*` in lib — 18 files, will conflict with the
+  deferred 0.16 clock-migration item, needs per-file baseline like this batch; `usize` in
+  on-disk formats — STATE.md says already 0 hits, likely fast) or start the 3,521-violation
+  line-length reduction batches.
+- Blockers: none new. Standing: plan 001 rest blocked_by zuda v3.0.0, sailor v3.0.0.
+- Open questions: unchanged — buffer-pool LRU zuda contradiction; WAL concurrent-connections
+  finding; tidy.zig function-length scan not string/comment-aware (now also true of the new
+  debug-print check, documented inline).
 
 ## Cycle 15 — 2026-09-26 — STABILIZATION (forced n%5==0)
 - Preflight: repo clean on `feat/zig-build-tidy-step` (PR #153 head); main CI green.
@@ -48,36 +80,11 @@ rejected_plans: []
   function-length scan needs a string/comment-aware rewrite to be meaningful on
   `evalFunctionCall`-sized functions — candidate for a future stabilization cycle, not blocking.
 
-## Cycle 13 — 2026-09-16 — FEATURE
-- Inbox: merged PR #151 (batch 10, `cli.zig`), CI all green, labeled `auto-merged`, branch
-  deleted, `main` fast-forwarded. No new OWNER directives/questions since watermark (only
-  routine cycle-report comments). No plan PR open, no plan_closed_unmerged. Milestone issue
-  #137 still the only open issue.
-- Implemented plan 001 item 2 part 2, batch 11 (final batch): converted all 819 remaining
-  scratch-DB path occurrences in `sql/engine.zig` to `std.testing.tmpDir`, across 6 variant
-  shapes not seen in prior batches — simple deferred-delete (616), fed into the `createTestDb`
-  helper (140), pre-open non-deferred cleanup + deferred cleanup (45), direct `Database.open`
-  with a combined `defer { db.close(); deleteFile(path); }` block unwrapped to plain `defer
-  db.close();` (11), WAL-mode tests with a companion `-wal` path rebuilt from the same
-  `dir_path` (8), and CSV import/export tests with a second `csv_path` and a dynamically built
-  `COPY` SQL literal (7). `zig build test` green (4724/4747 passed, 23 skipped, 0 failed, no
-  regression), `zig fmt --check src/sql/engine.zig` clean, no new scratch files after a full
-  test run. Completes the entire scratch-DB-to-tmp-dir sub-item (11 batches total) and its
-  parent checklist item in full.
-- PR #152 opened, plan sub-checklist and CHANGELOG updated. CI still pending at cycle deadline
-  (historical 13-18m) — commented "awaiting CI; merge next cycle", left for cycle 14's inbox.
-- Next: cycle 14's inbox merges #152 if green, then FEATURE resumes on plan 001's next
-  unblocked unchecked item: the `zig build tidy` step (line-length/function-length/ban-list
-  gate with a checked-in baseline, before the renames/collections/Io items which are all
-  `blocked_by zuda v3.0.0, sailor v3.0.0`).
-- Blockers: none new. Standing blocker unchanged (plan 001 rest blocked_by zuda v3.0.0, sailor
-  v3.0.0).
-- Open questions: unchanged — repo-wide `zig fmt --check` fails on 18 pre-existing files even
-  at clean `main` HEAD (worth a stabilization fix); buffer-pool LRU zuda-migration
-  contradiction; concurrent-connections WAL-corruption finding not reconfirmed.
+## History (cycle 13 and earlier, folded)
 
-## History (cycle 9 and earlier, folded)
-
+- **Cycle 13** (2026-09-16, FEATURE): merged #151 (batch 10). Implemented batch 11 (final):
+  819 scratch-DB occurrences in `sql/engine.zig` across 6 variant shapes, completing the
+  entire scratch-DB-to-tmp-dir sub-item (11 batches total). Opened #152.
 - **Cycle 12** (2026-09-15, FEATURE): recovered an interrupted `chore/scratch-db-tmpdir-batch10`
   diff in place (`src/cli.zig`, 105 scratch-DB paths), opened #151. Only `sql/engine.zig` (819
   sites) remains in plan 001 item 2 part 2. Found `zig fmt --check` failing on 18 files on main

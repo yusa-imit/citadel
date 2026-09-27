@@ -1,7 +1,17 @@
 # zr — context
 
-last_seen_at: 2026-09-17T00:00:00Z
+last_seen_at: 2026-09-27T00:00:00Z
 rejected_plans: []
+
+## Cycle 7 — 2026-09-27 — FEATURE
+- Preflight: tree clean on `fix/bound-days-to-year-loops` (= PR #168 head, pushed); CI green.
+- Done: merged #168 (bound days→year loops, all 8 checks green). Milestone #155 items 1-4 are
+  ticked; items 5-12 are blocked on zuda/sailor v3.0.0 (tags still v2.3.0 / v2.99.0). Ran one
+  `/stabilize --one`: PR #169 (bound loader.zig parent-walk `while (true)`), CI green, merged.
+  `wip/*` remote branches remain (rule: never delete).
+- Next: `topo_sort.zig:173` while(true), missing `//!` headers (223), zero-assertion modules,
+  `std.debug.print` decision. Re-run tidy-auditor. Watch for zuda/sailor v3.0.0.
+- Open questions: none.
 
 ## Cycle 6 — 2026-09-11 — FEATURE
 - Preflight: tree clean on `fix/wasm-leb128-shift-overflow` (= PR #163's already-pushed head) —

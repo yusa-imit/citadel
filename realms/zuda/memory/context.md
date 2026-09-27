@@ -1,7 +1,22 @@
 # zuda — context
 
-last_seen_at: 2026-09-17T00:00:00Z
+last_seen_at: 2026-09-27T00:00:00Z
 rejected_plans: []
+
+## Cycle 13 — 2026-09-27 — STABILIZATION
+- Done: forced by open bugs #44/#46. Merged PR #47 (ArrayList arity + remove() UAF; closes #44).
+  Fixed #46 in PR #48: `zoltraak_sortedset.zig` SkipList now keyed by `Key{score, member}`
+  (ties ordered by member bytes, Redis ZSET semantics; `rank` is true position among ties);
+  new tied-score rank/update/remove test; file re-wired into `root.zig` test block so its tests
+  run under `zig build test` (14429 pass, fmt clean, all 7 CI checks green). Both merged,
+  labeled `auto-merged`. No open bugs remain. No architect pass needed: change is file-private.
+- Note: milestone #31's io/seed checkbox (line 6) is fully done (skip_list done,
+  work_stealing_deque dropped) but still unticked — tick it next cycle.
+- Next: FEATURE — `std.time.*` → `Io.Clock` in containers (21 sites) or the remaining mechanical
+  renames item; tick the io/seed checkbox first.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file; fix succeeded).
+- Tooling quirk: the bash guard blocks commands referencing citadel paths via variables/mixed
+  with other commands; use Read/Write/Edit tools for citadel files.
 
 ## Cycle 12 — 2026-09-17 — STABILIZATION
 - Done: forced by open bug #44 (OWNER-filed, no `needs-human`) per the forcing rule, despite

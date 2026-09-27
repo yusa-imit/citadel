@@ -1,7 +1,47 @@
 # sigil — context
 
-last_seen_at: 2026-09-17T15:05:45Z
+last_seen_at: 2026-09-28T00:00:00Z
 rejected_plans: []
+
+## Cycle 22 — 2026-09-28 — FEATURE
+
+- Done: item 3 `core/diagnostics.zig` (`Diagnostics{line,col,message,snippet}`,
+  `DiagnosticsType(comptime limits: Limits)` sizing fixed inline buffers at comptime,
+  truncation-with-marker never silent) via PR #23, CI 8/8 green, squash-merged; issue #20 at
+  3/5. Re-exported `Diagnostics`/`DiagnosticsType` from `sigil.core`.
+- Note: inline generic-struct self-reference can't be named the same as the file-scope public
+  alias (`Diagnostics`) — ambiguous reference; named it `DiagnosticsRecord` instead, still a
+  real name per Tiger Style 3.10 (no bare `Self`).
+- Next: item 4 `core/number.zig` (i64/u64/f64 boundaries), then wiring. Blockers/questions: none.
+
+## Cycle 21 — 2026-09-27 — FEATURE
+
+- Done: item 2 `core/tree.zig` (`ValueTree` arena + dupe_string/bytes/array/key, new_map) via
+  PR #22, CI 8/8 green, squash-merged; issue #20 at 2/5. Tidy assertion baseline needs >= 2
+  asserts per pub fn (13/13 now).
+- Note: guard hook blocks heredoc bash commands; use Write/Edit tools and the absolute zig path
+  `/Users/fn/.zr/toolchains/zig/0.16.0/zig`; `rm -rf .zig-cache` fixed a stale build runner.
+- Next: item 3 `core/diagnostics.zig`, then number, wiring. Blockers/questions: none.
+
+## Cycle 20 — 2026-09-27 — FEATURE
+
+- Done: plan 002 (#17) was merged by the owner; opened milestone issue #20. Implemented
+  item 1 `core/value.zig` (Value, Timestamp, insertion-ordered Map over a caller buffer, bounded
+  `eql` returning `TooDeep`) via PR #21, CI 8/8 green, squash-merged. Local 0.16.0 toolchain
+  now present at ~/.zr/toolchains/zig/0.16.0.
+- Review (sonnet) fixed: eql depth overflow now a typed error (was assert), `put` no longer
+  runs O(n^2) `check_invariants`. Note: Map.get is O(n); a hash index may be needed for large
+  maps.
+- Next: item 2 `core/tree.zig` (ValueTree), then diagnostics, number, wiring. Issue #20 at 1/5.
+- Blockers/questions: none.
+
+## Cycle 19 — 2026-09-26 — FEATURE
+
+- Done: preflight clean (main, CI green HEAD 42f5a4f, no open issues). Inbox: no OWNER
+  activity on plan PR #17 since watermark. No stabilization PR: the only carried finding is the
+  `tools/tidy.zig` self-exemption, too big for `--one`.
+- PRs: none. Next: awaiting human merge of plan 002 (#17). Blockers/questions: none.
+- Quiet cycle (5th in a row): GitHub comment skipped; Discord heartbeat at most once per day.
 
 ## Cycle 18 — 2026-09-17 — FEATURE
 
