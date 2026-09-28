@@ -1,7 +1,45 @@
 # sailor — context
 
-last_seen_at: 2026-09-27T00:00:00Z
+last_seen_at: 2026-09-28T01:14:07Z
 rejected_plans: []
+
+## Migration window
+
+- 2026-09-28 (sailor-migration): errors (`$Z16 build test 2>&1 | grep -c 'error:'`) 696→207.
+  Preserved a dirty non-migration tree (`test/arg-assertion-baseline`'s in-progress `arg.zig`
+  assertion sweep) to `wip/arg-assertion-baseline-20260928` before starting; created
+  `wip/zig-016-migration` from main (didn't exist yet), 4 checkpoint commits pushed. Landed:
+  item 4 remainder (mem.indexOf*→find* 479 sites, ArrayList(T){}/ArrayListUnmanaged(T){}→.empty
+  ~90 sites across 3 sweeps — same recurring under-match bug as cycles 8/14, grep for bare
+  `= .{}` on an ArrayList-typed field only surfaces once an earlier error in the same struct
+  literal clears, so expect more strays next run too); item 6 (wave 1) essentially done:
+  fixedBufferStream→Io.Writer/Reader.fixed (352 sites via 4 parallel subagents, caught+fixed one
+  real regression — a subagent's blind writer→&fbs regex corrupted 3 production fns in
+  tui/style.zig, reverted), ArrayList.writer()→Io.Writer.Allocating (~155 sites via 4 more
+  subagents, clean this time), AnyWriter/AnyReader→*std.Io.Writer/*Reader (term.zig, repl.zig,
+  state_persist.zig, tui/error_recovery.zig — repl.zig's Highlighter/readLine/handleKey/
+  printPrompt/redraw narrowed from anytype, 33 null_writer test sites→Writer.Discarding). Item 7
+  (wave 2) started: filebrowser_test.zig's std.fs.cwd()-as-receiver test sites →
+  Io.Dir.cwd()+std.testing.io (166 sites) but createTestDir()'s tmp_dir.makePath/createFile/
+  file.close() method calls (not std.fs.cwd() call sites, so the sweep script didn't reach them)
+  and the file→writer(io,buf) buffered-write construction are still broken — same gap will recur
+  in session.zig/audit.zig/hotreload.zig/theme_loader.zig/docgen.zig test helpers, none touched
+  yet. Not landed (no PR opened yet, stayed in draft-checkpoint mode per amendment step 5): items
+  4's isatty/env-access remainder, all of items 8 (time/Thread.Mutex/error.Canceled — ~7 files,
+  ~50 lock/unlock call sites, needs io: Io threaded through Pool/Progress/EventBus/AsyncLoop/
+  DeveloperConsole's public APIs, a real cascading design change) and 9 (io: Io convention,
+  blocked on 8). Key API findings for next run (verified against 0.16.0 std source): env access
+  has no simple replacement — `std.process.Environ.Map` must be built once (from
+  `process.Init.environ_map` at a binary's main, or `Environ.createMap(environ, gpa)`) and
+  injected, there is no global getenv anymore, so env.zig's public functions need an `environ:
+  *const Environ.Map`-shaped parameter (a sibling convention to `io: Io`, needs an architect
+  decision, not yet made); `posix.isatty`→`Io.File.isTty(file, io) Io.Cancelable!bool` needs an
+  `Io.File`, not a raw fd, so term.zig's `isatty(fd: anytype) bool` signature must change;
+  `Io.Mutex.lock/unlock(io)` need io threaded to every caller. Branch `wip/zig-016-migration`
+  pushed, not merged (not green yet). Next: architect pass on the env-access convention +
+  isatty/File signature change, then the Thread.Mutex→Io.Mutex threading (biggest remaining
+  single item), then finish wave 2's file-write pattern and roll it out to the other 4 test
+  files, then time/Clock, then io:Io on the public API, then tests+CI+version pin.
 
 ## Cycle 17 — 2026-09-27 — FEATURE
 
