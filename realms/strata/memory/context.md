@@ -1,7 +1,27 @@
 # strata — context
 
-last_seen_at: 2026-09-27T17:05:43Z
+last_seen_at: 2026-09-28T00:00:00Z
 rejected_plans: []
+
+## Cycle 18 — 2026-09-28 — FEATURE (no-op)
+- Done: preflight clean, CI green at c17c5c9 (last 5 runs, all success). Plan PR #16 still
+  open, no new OWNER comments since watermark, no open issues, no comments on merged PRs.
+  One stabilize --one tidy-auditor pass: 0 new findings across all mechanical checks (catch
+  unreachable, @panic, debug.print, unbounded while, function/file length, usize in formats,
+  missing //! headers); `zig build test`/`fmt --check`/`tidy` all green on pinned 0.16.0
+  toolchain; README/CHANGELOG match released v0.2.0. Only the pre-existing, intentionally-
+  deferred gap remains: `tools/tidy.zig` (2100 lines) still excluded from its own
+  `scan_roots` and still over the 800-line limit — unchanged, needs a design decision, not
+  fixed ad-hoc.
+- PRs: none opened or merged.
+- Next: when #16 (plan PR) merges, open milestone 002 issue, implement tidy self-hosting fix.
+- Blockers: none — citadel issue #16 (cross-realm memory-commit lock pileup) was root-caused
+  and fixed by the OWNER in citadel PR #20 (rewrote `citadel_commit.py` to build each commit
+  from `origin/main` + the calling realm's own files in a private index, independent of other
+  realms' dirt or the shared checkout's branch). Open questions: none.
+- Report: quiet cycle (identical block to 15/16/17: plan PR open, no owner actions, no PR
+  opened/merged) — skipped the plan-PR GitHub comment per quiet-mode carve-out; sending one
+  Discord heartbeat since none logged for strata yet today (2026-09-28).
 
 ## Cycle 17 — 2026-09-27 — FEATURE (no-op)
 - Done: preflight clean, CI green at c17c5c9 (last 5 runs). Plan PR #16 still open, no new
