@@ -109,27 +109,12 @@ rejected_plans: []
   item 1 (macOS CI runner). stabilize_streak stays 0 (success).
 - Blockers: none. Open questions: none.
 
-## Cycle 14 — 2026-09-15 — FEATURE
-- Inbox: no new OWNER actions since the watermark; plan PR #13 (plan 002) still open awaiting
-  human merge, zero new review/issue/PR comments since cycle 13. No open issues, no red CI, no
-  rejected plans, no other open implementation PRs to triage.
-- Done: plan PR open, so ran one bounded stabilization task. Local `.zig-cache` was stale,
-  causing `zig build test`/`tidy` to fail with `FileNotFound` spawning the build runner —
-  cleared it (gitignored, local-only, not a repo regression) and all checks passed clean.
-  tidy-auditor mechanical sweep: zero Tiger Style violations, same clean baseline as cycles
-  5/10/11/12. Docs-drift pass found `tools/tidy.zig`'s and `tools/tidy_test.zig`'s `//!` headers
-  still describing `checkSource` as unimplemented/red-phase, though it shipped in v0.2.0 — fixed
-  via PR #16 (comment-only, CI green, merged). Also flagged but deliberately did not touch:
-  `src/root.zig` still exports the pre-ADR parallel `io`/`net`/`tls`/`http`/`ws`/`task` modules,
-  contradicting ADR 0001 — expected since plan 002 (which builds the actual `Runtime`) hasn't
-  merged yet; rewriting it now would be scope creep ahead of the plan, not a docs fix.
-- PRs: #16 opened and merged (comment-only fix, touches `.zig` so CI ran fully, `auto-merged`
-  label).
-- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
-  item 1 (macOS CI runner).
-- Blockers: none. Open questions: none.
-
-## History (cycles 0-9, 10-13)
+## History (cycles 0-9, 10-14)
+Cycle 14 (2026-09-15, FEATURE): plan PR open, bounded stabilization. Stale `.zig-cache` cleared
+(local-only, not a regression); tidy-auditor clean, same baseline as 5/10/11/12. Fixed stale
+`//!` headers in `tools/tidy.zig`/`tools/tidy_test.zig` still calling `checkSource` unimplemented
+though it shipped in v0.2.0, via PR #16 (merged). Deliberately left `root.zig`'s pre-ADR
+`io`/`net`/`tls`/`http`/`ws`/`task` exports alone — expected until plan 002's `Runtime` merges.
 Cycle 13 (2026-09-13, FEATURE): plan PR open, bounded stabilization. Reinstalled the missing
 pinned 0.16.0 toolchain (dev-box gap, not a repo regression); build/test/fmt/tidy all green
 after. tidy-auditor found one real doc-cross-reference drift: `root.zig`/`bench/main.zig` `//!`
