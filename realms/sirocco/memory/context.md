@@ -1,7 +1,49 @@
 # sirocco — context
 
-last_seen_at: 2026-09-17T00:00:00Z
+last_seen_at: 2026-09-27T16:05:27Z
 rejected_plans: []
+
+## Cycle 22 — 2026-09-27 — FEATURE
+- Inbox: no OWNER actions since watermark (checked PR #13 review + issue comments and repo-wide
+  PR/issue comments since last_seen_at — none). No open issues, CI green on `e58b354` (==
+  origin/main). Plan PR #13 (plan 002) still open awaiting human merge.
+- Done: plan PR open, so ran one bounded stabilization task. `.zig-cache` was stale (FileNotFound
+  spawning build runner) — cleared it (gitignored, not a regression) and `zig build test`/
+  `fmt --check`/`tidy` all passed clean under the pinned 0.16.0 toolchain. Independent
+  tidy-auditor pass found zero Tiger Style violations and no docs drift (README/CHANGELOG/
+  build.zig.zon all agree on 0.2.0) — same clean baseline as cycles 5/10-21.
+- Bookkeeping: cycles 19-21 had done their work (context.md entries present, counter staged at
+  21) but were never committed to citadel — the previous sessions' `/report` commit step didn't
+  land (same class of gap as cycle 14's). This cycle's commit sweeps up 19-22 together.
+- PRs: none opened (nothing to fix). Next: human merges #13, then milestone issue + item 1
+  (macOS CI runner).
+- Blockers: `citadel_commit.py sirocco 22` refuses — citadel's shared working tree has foreign
+  uncommitted changes for sigil/silica/synod/zoltraak/zr/zuda (not mine to touch), so this
+  cycle's memory (and cycles 19-21's) stayed staged-but-uncommitted locally instead of pushed.
+  Opened sirocco#17 (question+needs-human) asking whether the several long-running `claude`
+  processes on the machine (dating to Saturday) are legitimate or orphaned/stuck. No action
+  needed on sirocco's own work either way — retry the commit next cycle once the lock clears.
+  Open questions: sirocco#17 (citadel commit-lock contention, not sirocco-specific).
+
+## Cycle 21 — 2026-09-27 — FEATURE
+- Inbox: no OWNER actions, no open issues, CI green on `e58b354` (== origin/main). Plan PR #13
+  (plan 002) still open; last comment 2026-09-15 (ours).
+- Done: no-op (identical to cycle 20). PRs: none. Next: human merges #13, then milestone issue +
+  item 1 (macOS CI runner). Blockers: none. Open questions: none. (Quiet cycle: memory only.)
+
+## Cycle 20 — 2026-09-27 — FEATURE
+- Inbox: no OWNER actions, no open issues, CI green on `e58b354` (== origin/main). Plan PR #13
+  (plan 002) still open awaiting human merge; last comment on it is 2026-09-15 (ours).
+- Done: no-op. Skipped redundant stabilization (identical clean baseline cycles 5-19).
+- PRs: none. Next: human merges #13, then milestone issue + item 1 (macOS CI runner).
+- Blockers: none. Open questions: none. (Quiet cycle: memory only.)
+
+## Cycle 19 — 2026-09-26 — FEATURE
+- Inbox: no OWNER actions, no open issues, CI green on `e58b354` (== origin/main). Plan PR #13
+  (plan 002) still open awaiting human merge.
+- Done: no-op. Skipped a redundant stabilization audit (identical clean baseline cycles 5-18).
+- PRs: none. Next: human merges #13, then milestone issue + item 1 (macOS CI runner).
+- Blockers: none. Open questions: none. (Quiet cycle: memory only.)
 
 ## Cycle 18 — 2026-09-17 — FEATURE
 - Inbox: no new OWNER actions since watermark (checked PR #13 review + issue comments and
@@ -87,24 +129,11 @@ rejected_plans: []
   item 1 (macOS CI runner).
 - Blockers: none. Open questions: none.
 
-## Cycle 13 — 2026-09-13 — FEATURE
-- Inbox: no new OWNER actions since the watermark; plan PR #13 (plan 002) still open awaiting
-  human merge, zero new review/issue/PR comments since cycle 12. No open issues, no red CI, no
-  rejected plans, no other open implementation PRs to triage.
-- Done: plan PR open, so ran one bounded stabilization task. Found the local pinned 0.16.0 Zig
-  toolchain (`/Users/fn/.zr/toolchains/zig/0.16.0/zig`) missing from this machine — reinstalled
-  it from `ziglang.org` before any check could run (dev-environment gap, not a repo regression).
-  `zig build test`/`fmt --check`/`tidy` all green after that. tidy-auditor mechanical sweep found
-  zero Tiger Style violations but one real doc-cross-reference drift: `src/root.zig`'s and
-  `bench/main.zig`'s `//!` headers pointed at `docs/milestones.md`, which was replaced by
-  `docs/plans/NNN-*.md` as the progress source of truth — fixed via PR #15.
-- PRs: #15 opened and merged (comment-only fix, touches `.zig` so CI ran fully — unlike the
-  paths-ignored pure-`.md` docs PRs #7/#8/#10/#11/#14 — all checks green, `auto-merged` label).
-- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
-  item 1 (macOS CI runner).
-- Blockers: none. Open questions: none.
-
-## History (cycles 0-9, 10-12)
+## History (cycles 0-9, 10-13)
+Cycle 13 (2026-09-13, FEATURE): plan PR open, bounded stabilization. Reinstalled the missing
+pinned 0.16.0 toolchain (dev-box gap, not a repo regression); build/test/fmt/tidy all green
+after. tidy-auditor found one real doc-cross-reference drift: `root.zig`/`bench/main.zig` `//!`
+headers pointed at the replaced `docs/milestones.md` — fixed via PR #15.
 Cycle 12 (2026-09-12, FEATURE): plan PR open, bounded stabilization. CI/build/tidy all clean.
 tidy-auditor found real drift: README's intro made present-tense capability claims (`Runtime`
 type, kqueue/epoll backends) contradicting the stub-only v0.2.0 code and the README's own

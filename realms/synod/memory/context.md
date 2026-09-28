@@ -1,7 +1,83 @@
 # synod — context
 
-last_seen_at: 2026-09-17T06:20:06Z
+last_seen_at: 2026-09-28T00:00:00Z
 rejected_plans: []
+
+## Cycle 18 — 2026-09-28 — FEATURE
+- Inbox: no new OWNER actions since watermark (only the AI's own cycle-16/17 report comments
+  on issues #20/plan history). No plan PR, no plan_closed_unmerged, no bug/directive/question
+  issues, CI green (matches origin/main).
+- Item 5 (1A-ii `types.zig` — `Message` union and `ConfChange`) via PR #23: `architect` (opus)
+  designed the wire shape first — `Header` (protocol_version/term/from/to) fronts every
+  `Message` payload; PreVote gets its own tag rather than a `pre_vote: bool` (a forgotten bool
+  compiles, a forgotten switch arm does not); `AppendResponse` carries a Raft-thesis-§5.3
+  conflict hint for fast backtrack; `Configuration`/`ConfChange` are joint-consensus-only,
+  absolute (not delta). Recorded as ADR-005. Wrote tests and implementation directly (budget
+  after the architect call was tight — same pattern as cycle 17): ~30 new tests (exhaustive
+  switch, one negative test per named error, borrow-identity, a seeded model test for
+  `Configuration.validate`).
+- `code-reviewer` (sonnet) caught 1 CRITICAL before merge: `validateAppendRequest`'s
+  contiguity loop called `Index.next()` on an unranged peer-supplied index — panics the
+  process at `maxInt(u64)` per `Index.next`'s own documented precondition, a peer-triggerable
+  crash in a foundation library. Fixed with a range guard + regression test. Also fixed 2
+  WARNINGs: entry-term ordering skipped comparing the first entry against `prev_log_term`
+  (seeded `previous_term` wrong); `validateSnapshotRequest` collapsed a bad `Configuration`'s
+  specific `ConfError` into a generic `MessageSnapshotInvalid` instead of propagating it.
+  `zig build test`/`tidy`/`fmt --check` all green after fixes. CHANGELOG updated, plan 002
+  item 1A-ii ticked.
+- Budget ran very tight this cycle (architect call alone was ~$0.85 of $4; a third
+  consecutive cycle where a wire-format architect call dominates the budget — see cycle 12/17
+  notes). PR #23 pushed but **not watched to green or merged this cycle** — commented
+  "awaiting CI; merge next cycle" per protocol; next cycle's `/inbox` should merge it if CI is
+  green and no `hold` label. **Recommendation for future cycles**: when synod's remaining
+  budget after an architect call drops below ~$1, skip the `gh pr checks --watch` step
+  entirely (as done here) rather than trimming test/review depth — correctness work (which
+  caught a real peer-triggerable panic this cycle) is worth more than a same-cycle merge.
+- Next: cycle 19's inbox merges PR #23 if green, then continues with item 6 (1B-i `log.zig` —
+  `Log` with append/truncate/termAt/lastIndex).
+- Open questions: none.
+
+## Cycle 17 — 2026-09-27 — FEATURE
+- Inbox: no new OWNER actions since watermark (only the AI's own cycle-16 report comment on
+  issue #20). No plan PR, no plan_closed_unmerged, no bug/directive/question issues, CI green.
+- Item 4 (1A-i `types.zig` — scalars, `Entry`, `HardState`, `Snapshot`) via PR #22: `architect`
+  (opus) designed the wire shape first (interface/wire-format change per the implement skill) —
+  `NodeId`/`Term`/`Index` as distinct non-exhaustive `enum(u64)` types (never `usize`, each with
+  a named zero sentinel: `NodeId.none`, `Term.zero`, `Index.zero`), `EntryKind`/`Entry`,
+  `HardState` (24-byte `extern struct`, no padding, `eql()`, `validateTransition()` returning
+  `error.Invariant*` per REALM.md), `Snapshot`. Recorded as ADR-004
+  (`docs/adr/0004-distinct-scalar-types.md`). Also fixed a tidy gap the architect found:
+  `findWireDeclEnd` only matched bare `struct`/`union`, so `HardState`'s `extern struct` would
+  have silently skipped the wire-`usize` check — widened to recognize `extern`/`packed`
+  qualifiers, with 2 new tidy tests. Wrote tests and implementation directly (budget-conscious:
+  skipped separate test-writer/zig-developer/code-reviewer subagent delegation this cycle after
+  the architect call — see budget note below) — TDD still followed (tests against the
+  not-yet-existing API written first, confirmed red via compile failure, then implemented green).
+  ~30 new tests (fixed cases, boundaries, seeded model tests against `std.math.order` and a
+  field-wise/predicate reference). `zig build test` 100/100 passing, `zig build tidy` clean,
+  `zig fmt --check` clean. All 7 CI jobs green, squash-merged, branch deleted. Ticked item 4 in
+  the plan doc and issue #20.
+- Budget note: the single `architect` agent call for this item's design consumed roughly $1.20
+  of the session's $4 budget (72K subagent tokens) — the second cycle in a row this has happened
+  (see cycle 12's note). Future cycles needing `architect` for a wire-format decision should keep
+  the prompt pointed at specific files/sections to read rather than asking for a from-scratch
+  survey, and consider whether the plan item's own bullet (often already detailed, as here) is
+  specific enough to skip the architect call entirely for smaller follow-on items like 1A-ii.
+- Next: item 5 (1A-ii `types.zig` — `Message` union and `ConfChange`, with `protocol_version`
+  on every variant per REALM.md).
+- Open questions: none.
+
+## Cycle 16 — 2026-09-27 — FEATURE
+- Inbox: plan 002 (PR #16) was merged by the OWNER; no issues, CI green (main head cd8cada is a
+  docs-only merge, CI paths-ignore, not red).
+- Opened milestone issue #20; ticked plan items 2 and 3 (already landed as #17-#19).
+- Item 1 via PR #21: `synod.version` derived from `build.zig.zon` (`b.addOptions` →
+  `build_options` → comptime `SemanticVersion.parse`); fixes v0.2.0 reporting 0.1.0. 7/7 CI
+  green, 75/75 tests, merged, labeled `auto-merged`.
+- Note: the guard hook blocked a Bash command that redirected to a citadel path; use the
+  Write/Edit tools for citadel memory files.
+- Next: item 4, `types.zig` 1A-i (scalars, Entry, HardState, Snapshot).
+- Open questions: none.
 
 ## Cycle 15 — 2026-09-17 — FEATURE
 - Inbox: no new owner actions since watermark — only the AI's own cycle-14 report comment on
