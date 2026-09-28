@@ -1,7 +1,29 @@
 # sigil — context
 
-last_seen_at: 2026-09-28T12:00:00Z
+last_seen_at: 2026-09-29T00:00:00Z
 rejected_plans: []
+
+## Cycle 24 — 2026-09-29 — FEATURE
+
+- Done: merged PR #24 (item 4, cycle 23's `core/number.zig`; CI 8/8 green). Closed out plan
+  002 item 5 "wire into root.zig and tidy" via PR #25: wiring was already a side effect of
+  #24 (`core.zig` re-exports `value`/`tree`/`diagnostics`/`number`); fixed the one remaining
+  gap — `is_decimal_literal` had 0/2 assertions (tidy warning) — by asserting the loop-cursor
+  invariant `i <= text.len` on both the early- and late-return paths. Assertion baseline now
+  23/23, `zig build tidy` 0 findings (was 1 warning), 96/96 tests green, CI 8/8.
+- Plan 002 (issue #20) closed 5/5. Version impact is MINOR in the abstract semver sense, but
+  both the plan's own text and `REALM.md`'s release quirk say explicitly: no tag until a
+  format module (JSON, Phase 2) makes the library fetchable in practice — closed the issue
+  with a summary instead of running `/release`.
+- Opened plan 003 (PR #26, `planner`/opus): Phase 1C `core/unicode.zig` (UTF-8 validation +
+  escape primitives) and Phase 1D `reflect/{options,parse,stringify}.zig`, gated by a
+  design-only ADR 0002 item (reflect hook/error/coercion contract) before any reflect code.
+  10 items total. Version impact MINOR, folded into unreleased 0.3.0, no tag (same reasoning
+  as above — nothing turns bytes into `Value` yet). Flagged: plan 002's own "Done when" wanted
+  1A/1B ticked in `docs/plans/000-inherited.md` but they're still unticked on main — plan 003's
+  last item fixes it (not worth a standalone PR).
+- Next: awaiting human merge of plan 003 (#26). Once merged, item 1 (`core/unicode.zig`
+  validation) is the next `/implement` target. Blockers/questions: none.
 
 ## Cycle 23 — 2026-09-28 — FEATURE
 
@@ -49,31 +71,6 @@ rejected_plans: []
   maps.
 - Next: item 2 `core/tree.zig` (ValueTree), then diagnostics, number, wiring. Issue #20 at 1/5.
 - Blockers/questions: none.
-
-## Cycle 19 — 2026-09-26 — FEATURE
-
-- Done: preflight clean (main, CI green HEAD 42f5a4f, no open issues). Inbox: no OWNER
-  activity on plan PR #17 since watermark. No stabilization PR: the only carried finding is the
-  `tools/tidy.zig` self-exemption, too big for `--one`.
-- PRs: none. Next: awaiting human merge of plan 002 (#17). Blockers/questions: none.
-- Quiet cycle (5th in a row): GitHub comment skipped; Discord heartbeat at most once per day.
-
-## Cycle 18 — 2026-09-17 — FEATURE
-
-- Done: preflight clean (main, CI green HEAD 42f5a4f, no bug issues). Inbox: no new OWNER
-  activity since watermark (plan PR #17 comments/reviews, repo-wide PR/issue comments) —
-  nothing to action. Stabilization slot: verified `zig build test`/`tidy`/`fmt --check` all
-  clean, no regressions. Investigated whether the carried `tools/tidy.zig` self-exemption
-  finding decomposes into a smaller safe fix — confirmed no: `tools/` isn't walked by
-  `scan_roots` at all, so any fix must add it there, which cascades into fail-severity
-  `checkFunctionLength` and ban-list checks (not just the warn-severity file-length check),
-  so it stays sized for a dedicated stabilize cycle or plan-003 scope, not `--one`.
-- PRs: none opened this cycle.
-- Next: awaiting human merge of plan 002 (#17). This finding should be scoped as plan 003's
-  first item once 002 merges, or done as a full non-`--one` `/stabilize sigil` cycle.
-- Blockers: none. Open questions: none.
-- Quiet cycle (4th in a row: plan PR open, no owner actions, no PR opened, CI green) — GitHub
-  comment and Discord heartbeat both skipped per CONTRACT rule 8 carve-out.
 
 ## History
 
@@ -125,35 +122,34 @@ with plain `dir.iterate()` too; worth a Zig upstream issue if it recurs. Final f
 recursion (documented Tiger Style 1.8 trade-off); regression test skipped on Linux only. PR #19
 opened, merged in cycle 15 (fully green 8/8).
 
-Cycles 15-17 (2026-09-16 to 09-17, FEATURE): plan PR #17 still open each cycle, no OWNER
+Cycles 15-19 (2026-09-16 to 09-26, FEATURE): plan PR #17 still open each cycle, no OWNER
 activity → repeated `--one` stabilization slots all confirmed no finding smaller than the
 carried `tools/tidy.zig` self-exemption exists (1860 lines, ~61 undocumented functions, 15
-ban-list hits to triage). No PR opened in any of the three cycles — diminishing value from
+ban-list hits to triage). No PR opened across any of these cycles — diminishing value from
 identical repeated sweeps; quiet-cycle GitHub-comment carve-out used starting cycle 16.
 
-## Standing backlog (Phase 1, plan 002 — unchanged since bootstrap)
+## Standing backlog
 
-Plan 001 (issue #3) closed 11/11. Plan 002 (PR #17) awaits human merge. Phase 1 scope, in
-milestone order:
+Plan 001 (issue #3) closed 11/11. Plan 002 (issue #20) closed 5/5 — Phase 1A/1B done, no tag
+(release quirk still applies). Plan 003 (PR #26) awaits human merge — Phase 1C/1D:
 
-- **1A** — `core/{value,tree,diagnostics}.zig`: `Value` union, arena-owned `ValueTree`,
-  `Diagnostics{line,col,message}`. Tests: arena release, equality, Map insertion-order.
-- **1B** — `core/number.zig`: i64/u64/f64 boundary handling, `-0`, exponents, overflow errors.
-- **1C** — `core/unicode.zig`: UTF-8/escape utilities.
-- **1D** — `reflect/{parse,stringify,options}.zig`: comptime struct<->Value mapping.
+- **1C** — `core/unicode.zig`: UTF-8 validation + escape/surrogate primitives.
+- **1D** — `reflect/{options,parse,stringify}.zig`: comptime struct<->Value mapping, gated by
+  a design-only ADR 0002 item (hook signatures, path-only diagnostics, numeric coercion rules).
 - **2A-2C** (after Phase 1) — `json/{scanner,dom,writer}.zig`.
-- Housekeeping: populate the empty performance-targets table once a module is benchmarkable.
+- Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
+  tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
+  003's last item rather than a standalone PR).
 - Carried stabilization finding (not fixed, sized for a full stabilize cycle or its own plan
-  item — confirmed cycle 18 it does not decompose into a smaller safe slice): `tools/tidy.zig`
-  (1860 lines) self-exempt from its own file-length/function-length/ban-list checks —
-  `scan_roots` only walks `src/bench/tests`; widening it needs baseline entries for ~61
-  functions plus false-positive triage on path-unconditional ban rules, since
+  item — confirmed across cycles 15-18 it does not decompose into a smaller safe slice):
+  `tools/tidy.zig` (1860+ lines) self-exempt from its own file-length/function-length/ban-list
+  checks — `scan_roots` only walks `src/bench/tests`; widening it needs baseline entries for
+  ~61 functions plus false-positive triage on path-unconditional ban rules, since
   `checkFunctionLength` and the ban-list checks are fail-severity (not warn like file-length).
+  Deliberately kept out of plan 003's scope (a tooling theme, not Phase 1C/1D).
 
 ## Next priority
 
-Awaiting human merge of plan 002 (PR #17). Once merged, `/cycle` opens its tracking issue and
-item 1 (`core/value.zig`) becomes the next `/implement` target. The tidy.zig self-exemption
-finding should become plan 003's first scope item (or a dedicated non-`--one` `/stabilize
-sigil` cycle) rather than continuing to occupy the `--one` slot with no-op re-verification.
+Awaiting human merge of plan 003 (PR #26). Once merged, `/cycle` opens its tracking issue and
+item 1 (`core/unicode.zig` UTF-8 validation) becomes the next `/implement` target.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
