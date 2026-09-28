@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-09-28T00:00:00Z
+last_seen_at: 2026-09-29T00:00:00Z
 rejected_plans: []
+
+## Cycle 24 — 2026-09-29 — FEATURE
+- Inbox: no new OWNER actions since watermark. Closed sirocco#17 (citadel commit-lock question,
+  opened cycle 22) — verified citadel's working tree is clean this cycle, confirming cycle 23's
+  note that the lock cleared; commented and closed as self-resolved. No open bug issues, CI green
+  on `e58b354` (== origin/main). Plan PR #13 (plan 002) still open awaiting human merge.
+- Done: plan PR open, so ran one bounded stabilization task. `zig build test`/`fmt --check`/
+  `tidy` all green under the pinned 0.16.0 toolchain. Independent tidy-auditor pass found
+  sirocco's own code fully clean (zero violations, no in-repo docs drift — same baseline as
+  cycles 5/10-23) but flagged `REALM.md` in citadel as stale: Zig line still said "0.15.2 —
+  migrating to 0.16.0" though plan 001 (PR #6) merged 2026-09-07; file/line counts undercounted
+  (187/8 vs actual 244/9, missing `src/stdx.zig`); "Known gaps" section predated the 0.16
+  migration. Fixed all of it directly in `REALM.md` (citadel-side, not a sirocco PR).
+- PRs: none opened (nothing in the sirocco repo itself needed a fix). Next: human merges #13,
+  then milestone issue + item 1 (macOS CI runner). Blockers: none. Open questions: none.
 
 ## Cycle 23 — 2026-09-28 — FEATURE
 - Inbox: no OWNER actions since watermark (checked PR #13 review + issue comments and repo-wide

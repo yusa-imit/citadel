@@ -6,7 +6,7 @@
 | Path | `/Users/fn/codespace/sirocco` |
 | GitHub | `yusa-imit/sirocco` |
 | Version | 0.2.0 (`build.zig.zon`) · latest tag `v0.2.0` (2026-09-11) |
-| Zig | 0.15.2 — migrating to 0.16.0 under plan `001` |
+| Zig | 0.16.0 (`minimum_zig_version`) — plan `001` migration merged (#6, 2026-09-07) |
 | Depends on | none — Zig std only (`build.zig.zon` `.dependencies = .{}`) |
 | Consumers | sailor, zr, silica, zoltraak (planned, dotted in `KINGDOM.md`) · synod (adapter) |
 | blocked_by | — |
@@ -20,11 +20,12 @@
 sirocco is the kingdom's foundation network runtime: a zero-dependency, completion-based
 async I/O stack for Zig, meant to become the `std.Io.VTable` implementation (kqueue/epoll,
 net, sleep/now) that silica, zoltraak, sailor, zr, and synod (adapter) run on. Today it is a
-well-scaffolded but functionally empty skeleton — 187 lines across 8 files, six identical
+well-scaffolded but functionally empty skeleton — 244 lines across 9 files, six identical
 module stubs (`io`, `net`, `tls`, `http`, `ws`, `task`) each raising `error.NotImplemented`,
-plus a minimal CLI. `docs/PRD.md` and `docs/milestones.md` describe the intended surface
-honestly as not-yet-built; per ROADMAP Phase 2 the PRD itself is due for a rewrite against
-`std.Io.VTable` before Phase 1 ("Loop Core") lands.
+plus a minimal CLI and a shared `stdx.zig` (`assert`/`maybe`). `docs/PRD.md` describes the
+intended surface honestly as not-yet-built; `docs/plans/NNN-*.md` is the progress-tracking
+source of truth (the old `docs/milestones.md` no longer exists). Plan 002
+(fiber-scheduler-and-futex-core) is proposed in open PR #13, awaiting human merge.
 
 ## Build and test
 
@@ -75,14 +76,15 @@ concern, assembled only in `src/runtime.zig`.
 
 | File | Lines | Role |
 |---|---|---|
-| `src/root.zig` | 21 | Library root — re-exports io/net/tls/http/ws/task, version 0.1.0 |
-| `src/main.zig` | 36 | Minimal CLI: `version` and `--help` only |
-| `src/io.zig` | 24 | Stub: event loop, completions, timers, cancellation (no backend yet) |
+| `src/root.zig` | 23 | Library root — re-exports io/net/tls/http/ws/task, version 0.1.0 |
+| `src/main.zig` | 73 | Minimal CLI: `version` and `--help` only |
+| `src/stdx.zig` | 14 | Shared `assert`/`maybe` (Tiger Style helpers) |
+| `src/io.zig` | 25 | Stub: event loop, completions, timers, cancellation (no backend yet) |
 | `src/net.zig` | 23 | Stub: TCP/UDP/Unix sockets, address parsing, DNS, connection pool |
-| `src/tls.zig` | 20 | Stub: TLS 1.3 client/server on `std.crypto.tls` |
-| `src/http.zig` | 22 | Stub: HTTP/1.1 parser/client/server, HTTP/2 (HPACK) |
+| `src/tls.zig` | 21 | Stub: TLS 1.3 client/server on `std.crypto.tls` |
+| `src/http.zig` | 23 | Stub: HTTP/1.1 parser/client/server, HTTP/2 (HPACK) |
 | `src/ws.zig` | 20 | Stub: WebSocket (RFC 6455) client/server framing |
-| `src/task.zig` | 21 | Stub: thread pool, bounded channel, wait group, scheduler |
+| `src/task.zig` | 22 | Stub: thread pool, bounded channel, wait group, scheduler |
 
 Planned per-module sub-files (`io/backend/{kqueue,epoll,io_uring,iocp}.zig`, `net/*.zig`,
 `tls/*.zig`, `http/*.zig`, `http/h2/*.zig`, `ws/*.zig`, `task/*.zig`) do not exist yet — see
@@ -91,16 +93,17 @@ Planned per-module sub-files (`io/backend/{kqueue,epoll,io_uring,iocp}.zig`, `ne
 
 ## Known gaps (from STATE.md)
 
-- Tiger Style counters (asserts, `catch unreachable`, `@panic`, `debug.print`, unbounded
-  `while (true)`, files > 800 lines) are all 0 — not evidence of discipline, just evidence
-  that no functional code has been written yet. Re-check once Phase 1 lands.
-- No real test coverage: 7 trivial "module compiles" tests only; no loopback I/O, no
-  fuzzing, no property tests. `tests/`/`examples/` are empty placeholders.
-- Zig 0.16 probe: 2 surfaced compiler errors (~4 latent call sites across `src/main.zig` and
-  `bench/main.zig`): `GeneralPurposeAllocator` removed, `argsAlloc` removed, stdout writer
-  now needs an `Io` handle, `std.time.Timer` removed. Effort: trivial, <1h, no blockers —
-  library modules already pass under 0.16 because they are stubs.
-- No preserved `wip/*` branch this session — foundation repos (sigil, sirocco, strata,
-  synod) have none; working tree is clean.
+- Tiger Style counters (`catch unreachable`, `@panic`, `debug.print`, unbounded `while
+  (true)`, files > 800 lines) are all 0 — still evidence of no functional code yet, not
+  discipline; `main.zig` does carry real asserts (5 `assert`/`maybe` across 2 functions).
+  Re-check the ratio once Phase 1 lands.
+- No real test coverage: mostly trivial "module compiles" tests for the six stub modules;
+  no loopback I/O, no fuzzing, no property tests. `tests/`/`examples/` are empty
+  placeholders. `tools/tidy_test.zig` is the one substantial suite (mechanical checks).
+- Zig 0.16 migration is done (plan 001, PR #6, 2026-09-07): `minimum_zig_version =
+  "0.16.0"`, CI and local dev both pin the 0.16.0 toolchain, `zig build test`/`fmt --check`/
+  `tidy` all pass clean as of every cycle through 24.
+- No preserved `wip/*` branch — foundation repos (sigil, sirocco, strata, synod) have none;
+  working tree stays clean cycle over cycle.
 - External dependency timelines on sirocco (silica, zoltraak, sailor, zr, synod) are
   currently unfounded — the runtime they'd depend on does not exist yet.
