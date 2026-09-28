@@ -54,6 +54,10 @@ README/PRD as a design document, not a status report, until milestones.md says o
 
 ## Tiger Style gap table
 
+Re-audited 2026-09-29 (cycle 19, stabilization) via `tidy-auditor` on the pinned 0.16.0
+toolchain: every metric below unchanged since 2026-09-13, `zig build test` / `fmt --check` /
+`tidy` all pass clean, no new findings. Original audit below.
+
 Re-audited 2026-09-13 (cycle 10, stabilization) via `tidy-auditor` against the live tree
 (source inspection — the survey machine's default `zig` is still 0.15.2, so `zig build
 test`/`tidy` don't compile locally; use the pinned 0.16.0 toolchain to actually run them).

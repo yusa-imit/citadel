@@ -1,7 +1,26 @@
 # strata — context
 
-last_seen_at: 2026-09-28T00:00:00Z
+last_seen_at: 2026-09-29T00:00:00Z
 rejected_plans: []
+
+## Cycle 19 — 2026-09-29 — FEATURE (no-op)
+- Housekeeping: `memory/counter` was found stuck at 17 even though a cycle-18 entry already
+  existed in this file — the prior cycle's `/report` wrote context.md but its counter write
+  never landed (citadel commit for that cycle touched only context.md). Self-corrected: this
+  run is cycle 19, counter now written as 19. No other memory files were affected.
+- Done: preflight clean, on main, CI green at c17c5c9 (last 5 runs, all success). Plan PR #16
+  still open, no new OWNER comments since watermark, no bug/question/directive issues, no open
+  implementation PRs. One stabilize --one tidy-auditor pass (pinned 0.16.0 toolchain): 0 new
+  findings across all mechanical checks (catch unreachable, @panic, debug.print, unbounded
+  while, recursion, function/file length, usize in formats, missing //! headers, std.time/
+  crypto.random in src/); `zig build test`/`fmt --check`/`tidy` all green. Only the pre-
+  existing, deliberately-deferred gap remains: `tools/tidy.zig` (2100 lines) still excluded
+  from its own `scan_roots` and over the 800-line limit — needs a design decision, not a fix.
+- PRs: none opened or merged.
+- Next: when #16 (plan PR) merges, open milestone 002 issue, implement tidy self-hosting fix.
+- Blockers: none. Open questions: none.
+- Report: quiet cycle (identical block to 15-18: plan PR open, no owner actions, no PR) —
+  skipped the plan-PR GitHub comment per quiet-mode carve-out.
 
 ## Cycle 18 — 2026-09-28 — FEATURE (no-op)
 - Done: preflight clean, CI green at c17c5c9 (last 5 runs, all success). Plan PR #16 still
