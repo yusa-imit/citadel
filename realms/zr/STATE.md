@@ -37,18 +37,19 @@ Drift found, not missing functionality:
 - Open PRs: #30 "chore: migrate to zuda for graph algorithms" — needs a decision (merge or
   close as superseded by the "kept custom for perf" decision already recorded in memory).
 
-## Tiger Style gap table
+## Tiger Style gap table (refreshed by tidy-auditor, cycle 8, 2026-09-28)
 
 | Gap | Count | Note |
 |---|---|---|
-| `std.debug.assert` | 0 | Standout gap: zero runtime invariant checking in 112.5K LOC. |
-| `catch unreachable` | 12 | Each a latent panic if the "impossible" error occurs. |
-| `@panic` | 0 | Consistent with "no @panic in library code" decision. |
-| `std.debug.print` | 93 | Plausible intentional CLI/stderr output; not individually audited. |
-| `while (true)` | 46 | Not individually audited for bounded exit; some are legit service |
-| | | loops (worker threads, 500ms watch poll) per architecture notes. |
-| Functions > 70 lines | many | `parseToml` (~5112), `flushCurrentHook` (~1970), `workerFn` |
-| | | (~1128) — measured on the 3 largest files only, not exhaustive. |
+| `catch unreachable` without proof comment | 0 / 12 | All 12 sites proven (landed PRs #161-163). |
+| `@panic` in library code | 1 | `stdx.zig`'s `assert_always` itself — the invariant primitive, not debt. |
+| `std.debug.print` outside `cli/`+`output/` | 93 across 14 files | Worst: `parser.zig` (30), `scheduler.zig` (21). Needs a ban-list decision. |
+| unbounded `while (true)` (non-event-loop) | 1 known | `graph/topo_sort.zig:173` remains (touches shared DAG traversal, needs a node-count bound). `cli/common.zig` fixed cycle 8 (PR #170); `upgrade/checker.zig:75` also has an unbounded HTTP-response accumulation, lower priority. |
+| Functions > 70 lines | 72 | Worst: `parseToml` 5123 lines (has assertion baseline; structural, out of scope). |
+| Files > 800 lines | 25 | Worst: `config/parser.zig` 9076, `exec/scheduler.zig` 3802. |
+| `usize` in wire/serialized structs | 0 | Checked lock.zig, cache stats, JSON-RPC modules — clean. |
+| Missing `//!` module headers | 223 / 228 | Unchanged — bulk sweep, not yet started. |
+| Modules with zero `assert(` | 21 / 27 | `cli/` largest gap (424 fns, 0 asserts). |
 
 None of this was audited to "clean" — it is what a grep-level pass found, not a proof of absence
 of worse patterns (e.g. allocation-in-hot-loop in `exec/scheduler.zig` or `cache/remote.zig` was

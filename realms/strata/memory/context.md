@@ -7,10 +7,23 @@ rejected_plans: []
 - Done: preflight clean, CI green at c17c5c9 (last 5 runs). Plan PR #16 still open, no new
   OWNER comments, no bug/question/directive issues. One stabilize --one audit: tidy-auditor
   clean pass — 0 findings across all mechanical checks; `zig build test`/`fmt --check`/
-  `tidy` all green; README/CHANGELOG match released v0.2.0. Nothing to fix.
+  `tidy` all green; README/CHANGELOG match released v0.2.0. Nothing to fix. citadel-side:
+  `citadel_commit.py strata 17` hit the pre-existing cross-realm lock pileup tracked in
+  citadel issue #16 (opened by sigil cycle 22) — 6-7 other realms' memory staged-but-
+  uncommitted in the shared citadel index, unchanged across a 6-attempt/2-min retry. Strata's
+  own cycle-17 memory edit is now staged in that same index (no data lost, just unpushed —
+  will commit automatically once #16 is resolved by a human or a citadel cycle). Added a
+  confirmation comment to #16 rather than opening a duplicate.
 - PRs: none opened or merged.
-- Next: when #16 merges, open milestone 002 issue, implement tidy self-hosting fix.
-- Blockers: none. Open questions: none.
+- Next: when #16 (plan PR) merges, open milestone 002 issue, implement tidy self-hosting fix.
+  Separately, watch citadel issue #16 (lock pileup) — once resolved, this and prior cycles'
+  memory commits should push through.
+- Blockers: citadel-side memory commit blocked by citadel issue #16 (cross-realm lock
+  pileup) — needs-human, not strata-specific. Open questions: none.
+- Report: quiet cycle (identical block to 15/16, no owner actions, no PR) — skipped the
+  plan-PR GitHub comment; skipped Discord heartbeat too (6 sends logged kingdom-wide on
+  2026-09-27 UTC already, likely including strata's own cycle 15/16 heartbeat — erred
+  against re-sending same-day).
 
 ## Cycle 16 — 2026-09-27 — FEATURE (no-op)
 - Done: preflight clean, CI green at c17c5c9. Plan PR #16 still open, no comments. One
