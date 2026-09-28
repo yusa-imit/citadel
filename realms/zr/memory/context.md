@@ -1,7 +1,26 @@
 # zr — context
 
-last_seen_at: 2026-09-28T00:00:00Z
+last_seen_at: 2026-09-29T00:00:00Z
 rejected_plans: []
+
+## Cycle 9 — 2026-09-29 — FEATURE
+- Preflight: tree clean on `fix/bound-cli-common-parent-walk` (= PR #170 head); CI green on
+  main. Merged #170 (all 8 checks green, labelled `auto-merged`). No issues besides milestone
+  #155; zuda/sailor still v2.3.0 / v2.99.0 so items 5-11 stay blocked → one `/stabilize --one`.
+- Fixed `graph/topo_sort.zig` `getExecutionLevels` unbounded `while (true)` →
+  `for (0..processed.count() + 1)` with `else unreachable` proof (PR #171), 2 new tests (40-node
+  chain boundary, cycle after acyclic prefix). `zig build test` 1874/0, tidy 0 failing, function
+  stays at its 87-line baseline. CI: Integration green; Build & Unit Test failed on the flaky
+  `watch.livereload ... respects configured port across restarts` (AddressInUse, unrelated);
+  re-ran failed job, left "merge next cycle" on #171.
+- Gotchas: `graph/dag.zig` `addEdge` keeps edge endpoints by slice (only vertices are duped) —
+  tests must pass long-lived names (arena), not stack buffers. Bash guard blocks heredocs and
+  some `cd X; zig ...` compounds; use Edit tool / plain commands. `zig fmt --check src` on
+  global zig 0.15.2 lists 57 files locally though main CI passes — pre-existing, unchanged.
+- Next: merge #171 (re-check flake; if livereload flakes repeatedly, fix that test's port use as
+  a stabilization task). Then: 223 missing `//!` headers, zero-assert modules,
+  `upgrade/checker.zig:75`, `std.debug.print` decision. Watch for zuda/sailor v3.0.0.
+- Open questions: none.
 
 ## Cycle 8 — 2026-09-28 — FEATURE
 - Preflight: tree clean on `main`; CI green (headSha matched origin/main). Disk 85GB free.
