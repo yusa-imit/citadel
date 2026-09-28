@@ -1,5 +1,9 @@
-You are the citadel maintenance cycle for the Zig kingdom (cwd = citadel). Do, in order, each as a
-commit to citadel (`git add <paths>`, push) or as a PR in the affected repo:
+You are the citadel maintenance cycle for the Zig kingdom (cwd = citadel). The citadel checkout
+is shared with every realm session: begin with `git switch main && git pull --ff-only`, make
+each change on its own branch, and end the cycle back on main with the same two commands; never
+leave the checkout on a branch. Realms commit their own memory with
+`scripts/hooks/citadel_commit.py`; leave another realm's uncommitted memory alone, its next
+`/report` carries it. Do, in order, each as a PR to citadel or to the affected repo:
 1. `/status` — one table for all realms; fix anything wrong in citadel itself (broken links, stale
    `docs/KINGDOM.md` versions vs `build.zig.zon`, `zr-repos.toml [deps]` vs real `build.zig.zon`).
 2. Memory hygiene: every `realms/*/memory/*.md` under 200 lines; fold history.
