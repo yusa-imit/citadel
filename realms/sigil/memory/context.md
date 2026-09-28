@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-09-28T00:00:00Z
+last_seen_at: 2026-09-28T12:00:00Z
 rejected_plans: []
+
+## Cycle 23 — 2026-09-28 — FEATURE
+
+- Done: item 4 `core/number.zig` (decimal literal text -> `.int`/`.uint`/`.float`, no silent
+  coercion: prefer `.int`, widen to `.uint` only past `maxInt(i64)`, typed overflow only past
+  `maxInt(u64)`/`minInt(i64)`) via architect design pass + test-writer + zig-developer +
+  code-reviewer (0 CRITICAL/WARNING). Wired into `sigil.core`; plan doc corrected (architect
+  found the plan's "one past i64::MAX overflows" was wrong — it's lossless in u64). Local:
+  96/96 tests, tidy 0 failing, fmt clean.
+- PR #23 (cycle 22) merged since last watermark, per issue #20 comments. PR #24 opened this
+  cycle for item 4; CI had not reported by the cycle deadline — commented "awaiting CI; merge
+  next cycle" for the next cycle's inbox to pick up. Issue #20 not yet ticked for item 4
+  (deferred to the merge, so the checklist matches reality).
+- Next: once #24 merges, item 5 "wire into root.zig and tidy" (mostly done as a side effect —
+  confirm assertion-baseline count and close out the plan). Blockers/questions: none.
 
 ## Cycle 22 — 2026-09-28 — FEATURE
 
