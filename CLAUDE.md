@@ -54,8 +54,10 @@ drift.
 - Edit the brain here, never in a realm. After editing `core/rules/` or `core/CONTRACT.md`, run
   `python3 scripts/jobs.py render` (system prompts) and `jobs.py apply` (cron copies); KINGDOM.md,
   agents and skills are read live.
-- After editing `workflows/`, run `python3 scripts/jobs.py render`, then `plan`; `apply` only
-  when the human asked for it in this session.
+- After editing `workflows/`, run `python3 scripts/jobs.py render`, then `plan`. The permission
+  surface (`protocol/GITHUB.md` "Grants") changes through a `grant` PR the human merges; the
+  citadel cycle applies merged main. In an interactive session, `apply` only when the human
+  asked for it in this session.
 - Realm memory is written by realm cycles; the citadel cycle only compacts it.
 - Foundation repo skeletons come from `templates/repo` (code and docs only, no AI files).
 - Never push to `main` of a realm from citadel; open a PR in that repo.
