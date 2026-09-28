@@ -1,7 +1,21 @@
 # sirocco — context
 
-last_seen_at: 2026-09-27T16:05:27Z
+last_seen_at: 2026-09-28T00:00:00Z
 rejected_plans: []
+
+## Cycle 23 — 2026-09-28 — FEATURE
+- Inbox: no OWNER actions since watermark (checked PR #13 review + issue comments and repo-wide
+  PR/issue comments since last_seen_at — only our own cycle-22 report comment). No open bug
+  issues, CI green on `e58b354` (== origin/main). Plan PR #13 (plan 002) still open awaiting
+  human merge. Issue #17 (citadel commit-lock question) still unanswered but only 1 cycle old —
+  left open per the 2-cycle grace in the inbox protocol.
+- Done: plan PR open, so ran one bounded stabilization task. `zig build test`/`fmt --check`/
+  `tidy` all green under the pinned 0.16.0 toolchain — identical clean baseline to cycles
+  5/10-22. citadel's commit lock (blocking cycles 19-22's report step) has since cleared: those
+  cycles' memory landed via the `chore(memory): fold sirocco and synod context` commit.
+- PRs: none opened (nothing to fix). Next: human merges #13, then milestone issue + item 1
+  (macOS CI runner). Blockers: none. Open questions: sirocco#17 (citadel infra, not
+  sirocco-specific; will auto-resolve or auto-close per protocol if still unanswered next cycle).
 
 ## Cycle 22 — 2026-09-27 — FEATURE
 - Inbox: no OWNER actions since watermark (checked PR #13 review + issue comments and repo-wide
@@ -25,89 +39,16 @@ rejected_plans: []
   needed on sirocco's own work either way — retry the commit next cycle once the lock clears.
   Open questions: sirocco#17 (citadel commit-lock contention, not sirocco-specific).
 
-## Cycle 21 — 2026-09-27 — FEATURE
-- Inbox: no OWNER actions, no open issues, CI green on `e58b354` (== origin/main). Plan PR #13
-  (plan 002) still open; last comment 2026-09-15 (ours).
-- Done: no-op (identical to cycle 20). PRs: none. Next: human merges #13, then milestone issue +
-  item 1 (macOS CI runner). Blockers: none. Open questions: none. (Quiet cycle: memory only.)
-
-## Cycle 20 — 2026-09-27 — FEATURE
-- Inbox: no OWNER actions, no open issues, CI green on `e58b354` (== origin/main). Plan PR #13
-  (plan 002) still open awaiting human merge; last comment on it is 2026-09-15 (ours).
-- Done: no-op. Skipped redundant stabilization (identical clean baseline cycles 5-19).
-- PRs: none. Next: human merges #13, then milestone issue + item 1 (macOS CI runner).
-- Blockers: none. Open questions: none. (Quiet cycle: memory only.)
-
-## Cycle 19 — 2026-09-26 — FEATURE
-- Inbox: no OWNER actions, no open issues, CI green on `e58b354` (== origin/main). Plan PR #13
-  (plan 002) still open awaiting human merge.
-- Done: no-op. Skipped a redundant stabilization audit (identical clean baseline cycles 5-18).
-- PRs: none. Next: human merges #13, then milestone issue + item 1 (macOS CI runner).
-- Blockers: none. Open questions: none. (Quiet cycle: memory only.)
-
-## Cycle 18 — 2026-09-17 — FEATURE
-- Inbox: no new OWNER actions since watermark (checked PR #13 review + issue comments and
-  repo-wide PR/issue comments since last_seen_at — none). No open issues, no red CI (`e58b354`
-  matches origin/main), no rejected plans, no other open implementation PRs. Plan PR #13 (plan
-  002) still open awaiting human merge.
-- Done: plan PR open, so ran one bounded stabilization task. Local `zig build test`/
-  `fmt --check`/`tidy` all green under pinned 0.16.0 toolchain. Independent tidy-auditor pass
-  found zero Tiger Style violations and no docs drift — same clean baseline as cycles
-  5/10/11/12/13/14/15/16/17, head unchanged (`e58b354`).
-- PRs: none opened (nothing to fix).
-- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
-  item 1 (macOS CI runner).
-- Blockers: none. Open questions: none. (Quiet cycle: state identical to cycle 17's block —
-  skipped GitHub comment and Discord heartbeat, one already sent today for cycle 17.)
-
-## Cycle 17 — 2026-09-17 — FEATURE
-- Inbox: no new OWNER actions since watermark (checked PR #13 review + issue comments and
-  repo-wide PR/issue comments since last_seen_at — none). No open issues, no red CI (`e58b354`
-  matches origin/main), no rejected plans, no other open implementation PRs. Plan PR #13 (plan
-  002) still open awaiting human merge.
-- Done: plan PR open, so ran one bounded stabilization task. Local `zig build test`/
-  `fmt --check`/`tidy` all green under pinned 0.16.0 toolchain. Independent tidy-auditor pass
-  found zero Tiger Style violations and no docs drift — same clean baseline as cycles
-  5/10/11/12/13/14/15/16, head unchanged (`e58b354`).
-- PRs: none opened (nothing to fix).
-- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
-  item 1 (macOS CI runner).
-- Blockers: none. Open questions: none. (Quiet cycle: state identical to cycle 16's block —
-  skipped GitHub comment; sent one Discord heartbeat, new day since cycle 15/16's.)
-
-## Cycle 16 — 2026-09-16 — FEATURE
-- Inbox: no new OWNER actions since watermark (checked PR #13 review + issue comments and
-  repo-wide comments since last_seen_at — none). No open issues, no red CI (`e58b354` matches
-  origin/main), no rejected plans, no other open implementation PRs. Plan PR #13 (plan 002)
-  still open awaiting human merge.
-- Done: plan PR open, so ran one bounded stabilization task. Local `zig build test`/
-  `fmt --check`/`tidy` all green under pinned 0.16.0 toolchain. Independent tidy-auditor pass
-  found zero Tiger Style violations and no docs drift — same clean baseline as cycles
-  5/10/11/12/13/14/15, head unchanged (`e58b354`).
-- PRs: none opened (nothing to fix).
-- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
-  item 1 (macOS CI runner).
-- Blockers: none. Open questions: none. (Quiet cycle: state identical to cycle 15's block —
-  skipped GitHub comment and Discord heartbeat per CONTRACT rule 8 carve-out, one heartbeat/day
-  already sent for cycle 15.)
-
-## Cycle 15 — 2026-09-16 — STABILIZATION
-- Inbox: no new OWNER actions since watermark (only comment since cycle 14's watermark was our
-  own cycle-14 report comment on PR #13). No open issues, no red CI, no rejected plans, no other
-  open implementation PRs. Plan PR #13 (plan 002) still open awaiting human merge.
-- Done (full stabilize, n%5==0): CI 5/5 green (`e58b354`); `zig build test`/`fmt --check`/`tidy`
-  all green under the pinned 0.16.0 toolchain (present this cycle). tidy-auditor and test-writer
-  independent audits both found zero real defects — same clean baseline as cycles 5/10/11.
-  Two pre-existing minor test-quality observations noted, both judged non-defects (weak-oracle
-  version test in `main.zig`; untested CLI wiring in `tools/tidy_main.zig`). Docs/deps(N/A)/
-  hygiene all clean. No fixes needed — nothing to file.
-- Bookkeeping fix: cycle 14's `/report` logged its context.md entry but never wrote
-  `memory/counter` (stayed at 13). This cycle resyncs counter to 15, matching the true count of
-  completed cycles and the n%5==0 STABILIZATION cadence.
-- PRs: none opened (nothing to fix).
-- Next: plan PR #13 still needs human merge; once merged, opens the milestone issue and starts
-  item 1 (macOS CI runner). stabilize_streak stays 0 (success).
-- Blockers: none. Open questions: none.
+## History (cycles 0-9, 10-14, 15-21)
+Cycles 15-21 (2026-09-16 to 2026-09-27, mostly quiet FEATURE with one STABILIZATION at 15): plan
+PR #13 remained open awaiting human merge across all of them, zero new OWNER activity each
+watermark. Cycle 15 (STABILIZATION, n%5==0) ran the full audit: CI/build/tidy/tests all green,
+tidy-auditor and test-writer both found zero real defects (two pre-existing minor test-quality
+notes judged non-defects), and fixed a counter/context.md desync from cycle 14's incomplete
+report. Cycles 16-18 each ran one bounded stabilization task (build/test/fmt/tidy green,
+tidy-auditor clean) since the plan PR was still open; cycles 19-21 skipped the redundant audit
+entirely as a pure no-op, since the baseline had been identical since cycle 5. No PRs opened,
+no fixes needed, in any of cycles 15-21.
 
 ## History (cycles 0-9, 10-14)
 Cycle 14 (2026-09-15, FEATURE): plan PR open, bounded stabilization. Stale `.zig-cache` cleared
