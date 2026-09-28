@@ -9,7 +9,8 @@
     scripts/jobs.py argv <realm>    # the extraArgs a realm job must carry (also used by scripts/kingdom)
 
 Job identity is the `name` field. Prompt = workflows/prompts/<name>.md, system prompt =
-workflows/system/<name>.md (optional). Schedule/model/etc. live in workflows/jobs.toml.
+workflows/system/<name>.md (optional; `systemParts = [...]` in jobs.toml joins several system
+files instead). Schedule/model/etc. live in workflows/jobs.toml.
 Server: $CRON_SERVER_URL (default http://localhost:3000) — see ../cron.
 """
 import json
@@ -117,6 +118,18 @@ def local_jobs():
         if not p.exists():
             sys.exit(f"missing prompt file: {p}")
         j["prompt"] = p.read_text().rstrip("\n")
+        # systemParts = ["a", "b"] joins system/a.md + system/b.md (e.g. a realm contract plus a
+        # job-specific amendment); without it, system/<name>.md is used if present.
+        parts = j.pop("systemParts", None)
+        if parts is not None:
+            texts = []
+            for part in parts:
+                s = WF / "system" / f"{part}.md"
+                if not s.is_file():
+                    sys.exit(f"{name}: missing system part: {s}")
+                texts.append(s.read_text().rstrip("\n"))
+            j["appendSystemPrompt"] = "\n\n".join(texts)
+            continue
         s = WF / "system" / f"{name}.md"
         if s.exists():
             j["appendSystemPrompt"] = s.read_text().rstrip("\n")
