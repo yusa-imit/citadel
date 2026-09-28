@@ -1,7 +1,30 @@
 # synod — context
 
-last_seen_at: 2026-09-28T00:00:00Z
+last_seen_at: 2026-09-28T06:20:00Z
 rejected_plans: []
+
+## Cycle 19 — 2026-09-28 — FEATURE
+- Inbox: no new OWNER actions since watermark (only the AI's own cycle-18 report comment on
+  PR #23). No plan PR, no plan_closed_unmerged, no bug/directive/question issues, CI green.
+  PR #23 (item 5, 1A-ii Message union/ConfChange, held over from cycle 18 — CI was green but
+  not watched to save budget) was all-green with no `hold` label → merged via inbox rule 8,
+  labeled `auto-merged`, ticked in issue #20.
+- Item 6 (1B-i `log.zig` — `Log` with `append`/`truncate`/`termAt`/`lastIndex`) via PR #24:
+  skipped the `architect` call (plan bullet was specific enough, per cycle 17/18 budget
+  guidance) — designed directly, then `test-writer`/`zig-developer`/`code-reviewer` (all
+  sonnet). `Log` allocates `entries_max` slots once at `init`, never grows; `append` returns
+  `error.LogFull` at capacity (typed error — a real operating condition) while monotonic-index
+  and in-range-`termAt` are asserted caller preconditions (REALM.md's assert-vs-return rule).
+  11 new tests incl. a seeded append/truncate model test against a trivial reference.
+- `code-reviewer` found 0 CRITICAL, 3 WARNING (all fixed before merge): `termAt`'s doc didn't
+  warn callers to range-check peer-supplied indices first (mirroring `Index.next()`'s existing
+  warning — item 1B-ii's conflict search is where that real peer-data check will live); no
+  CHANGELOG entry; imports declared at file top instead of bottom (inconsistent with
+  `types.zig`'s convention in the same plan series). `zig build test`/`tidy`/`fmt --check` all
+  green, 7/7 CI jobs green, squash-merged, labeled `auto-merged`.
+- Milestone issue #20: 6/11 items done. Next: item 7 (1B-ii `log.zig` — conflict-point search
+  and `validate()` returning `error.Invariant*`, per ADR/REALM.md's simulator-reporting rule).
+- Open questions: none.
 
 ## Cycle 18 — 2026-09-28 — FEATURE
 - Inbox: no new OWNER actions since watermark (only the AI's own cycle-16/17 report comments
