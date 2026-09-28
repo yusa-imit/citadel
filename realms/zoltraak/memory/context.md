@@ -1,7 +1,20 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-27T00:00:00Z
+last_seen_at: 2026-09-29T00:00:00Z
 rejected_plans: []
+
+## Cycle 12 — 2026-09-29 — FEATURE (all plan items blocked)
+- Preflight: dirty tree on main (six files with new `//!` headers, interrupted work).
+  Preserved on `wip/module-headers-20260929`, then landed as PR #135 (+ tidy-baseline
+  `header_missing` shrink for those 6 files). CI green (6m55s / 59s), merged.
+- Inbox: no owner actions, no plan PR, milestone #121. Synced its checkboxes (items 3, 11 done).
+- Items 4-9, 12 still blocked (zuda v2.3.0, sailor v2.99.0; need v3.0.0).
+- Found: `zig fmt --check src build.zig` fails on 13 files on main (storage: search, jsonpath,
+  functions, eviction, listpack, tls_config; commands: search, keys, json, sets, timeseries,
+  hashes, cms). CI does not run fmt. Next stabilize task: fix them, mind the 100-col tidy
+  baseline (cycle 8 lesson: fmt reflows command arrays).
+- Guard hook blocks compound `cd repo; ...` and heredoc writes to citadel; use Write/Edit tools.
+- Next: fmt fix PR; stash triage (stash@{0} may fix signal-4 RDB crashes). Open questions: none.
 
 ## Cycle 11 — 2026-09-27 — FEATURE (all plan items blocked)
 - Preflight clean, CI green, no bugs/plan PR; milestone #121 open. Items 4-9, 12
