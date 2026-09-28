@@ -3,10 +3,12 @@
 
 Blocks: force pushes; pushes that would land on main (explicit refspec, or a bare push while HEAD is
 main); git add -A/--all/.; reset --hard; clean -f; history rewrites; deleting wip/* or plan/*
-branches; merging PRs that are plan/hold/needs-human/wip/draft/fork/foreign; rm -rf of a workspace
-root; shell writes into citadel outside the session's own realm or into another repo; jobs.py
-apply/prune from a governed session. This is a text matcher, not a policy engine — the GitHub
-ruleset on main is the server-side backstop.
+branches; merging PRs that are plan/hold/needs-human/wip/grant/draft/fork/foreign, or citadel PRs
+that touch the permission surface; rm -rf of a workspace root; shell writes into citadel outside
+the session's own realm or into another repo; jobs.py prune, and jobs.py apply unless a citadel
+session runs it on a clean main equal to origin/main; direct calls to the cron server API. Grants
+(protocol/GITHUB.md): the permission surface changes only through a PR the human merges. This is
+a text matcher, not a policy engine — the GitHub ruleset on main is the server-side backstop.
 """
 import json
 import os
@@ -18,9 +20,13 @@ data = json.load(sys.stdin)
 cmd = (data.get("tool_input") or {}).get("command", "") or ""
 cwd = os.path.realpath(data.get("cwd") or os.getcwd())
 flat = " ".join(cmd.split())
-CODESPACE = "/Users/fn/codespace"
+# KINGDOM_CODESPACE exists for scripts/tests; the hook's environment comes from the launcher.
+CODESPACE = os.path.realpath(os.environ.get("KINGDOM_CODESPACE", "/Users/fn/codespace"))
 CITADEL = f"{CODESPACE}/citadel"
 HOME = os.path.expanduser("~")
+# Everything that decides what an unattended session may do. Citadel PRs touching it are grants.
+PERMISSION_DIRS = ("core/", "workflows/", "scripts/", ".claude/", "protocol/")
+RENDERED = re.compile(r"realms/[^/]+/(settings\.json|system\.md)")
 
 
 def block(why):
@@ -33,6 +39,47 @@ def realm_of(path):
     if not path.startswith(CODESPACE + "/"):
         return None
     return path[len(CODESPACE) + 1:].split("/")[0] or None
+
+
+def on_permission_surface(rel):
+    """True for a citadel-relative path that changes what sessions may do (tests excepted)."""
+    if rel.startswith("scripts/tests/"):
+        return False
+    return rel == "CLAUDE.md" or rel.startswith(PERMISSION_DIRS) or bool(RENDERED.fullmatch(rel))
+
+
+def citadel_git(*args):
+    return subprocess.run(["git", "-C", CITADEL, *args], capture_output=True, text=True,
+                          timeout=10).stdout
+
+
+def cron_apply_refusal(command):
+    """Why `jobs.py apply` may not run now, or None. Apply pushes citadel's workflows/ to the
+    cron server, so it must be citadel's own jobs.py, run by a citadel session whose checkout is
+    main == origin/main with a clean permission surface: then only merged content can reach it."""
+    if realm != "citadel":
+        return "only a citadel session may apply cron jobs"
+    script = re.search(r"(\S*jobs\.py)\s+apply\b", command).group(1).strip("'\"")
+    if not script.startswith("/") and re.search(r"(^|[\s;&|(])(cd|pushd)\s", command):
+        return "after cd, name citadel's jobs.py by its absolute path"
+    resolved = os.path.realpath(os.path.join(cwd, os.path.expanduser(script)))
+    if resolved != f"{CITADEL}/scripts/jobs.py":
+        return "only citadel's scripts/jobs.py may apply"
+    try:
+        branch = citadel_git("symbolic-ref", "--short", "HEAD").strip()
+        head = citadel_git("rev-parse", "HEAD").strip()
+        tracking = citadel_git("rev-parse", "refs/remotes/origin/main").strip()
+        status = citadel_git("status", "--porcelain=v1", "--untracked-files=all", "-z")
+    except Exception as e:
+        return f"cannot inspect the citadel checkout ({e})"
+    if branch != "main":
+        return "the citadel checkout is not on main"
+    if not head or head != tracking:
+        return "citadel main differs from origin/main; pull first"
+    dirty = [e[3:] for e in status.split("\0") if len(e) > 3 and on_permission_surface(e[3:])]
+    if dirty:
+        return f"uncommitted permission-surface files: {', '.join(dirty[:5])}"
+    return None
 
 
 realm = realm_of(cwd)  # None outside the workspace; 'citadel' for operator sessions
@@ -99,8 +146,15 @@ if realm and realm != "citadel":
             rel = os.path.relpath(path, f"{CODESPACE}/{realm}")
             if not rel.startswith("..") and rel.split("/")[0] in ("CLAUDE.md", "CLAUDE.local.md", ".claude"):
                 block("realm repos carry no AI files")
-if re.search(r"\bjobs\.py\s+(apply|prune)\b", flat):
-    block("jobs.py apply/prune is an operator action, not a session action")
+# ── cron server: only OWNER-merged citadel main reaches it ────────────────────
+if re.search(r"\bjobs\.py\s+prune\b", flat):
+    block("jobs.py prune is an operator action, not a session action")
+if re.search(r"\bjobs\.py\s+apply\b", flat):
+    refusal = cron_apply_refusal(flat)
+    if refusal:
+        block(f"jobs.py apply refused: {refusal}")
+if re.search(r":3000/jobs\b", flat):
+    block("the cron server is reached only through citadel's scripts/jobs.py")
 
 # ── gh pr merge, any form ─────────────────────────────────────────────────────
 if re.search(r"\bgh\s+pr\s+merge\b", flat):
@@ -108,7 +162,8 @@ if re.search(r"\bgh\s+pr\s+merge\b", flat):
     repo_m = re.search(r"(?:-R|--repo)\s+(\S+)", tail)
     toks = [t for t in tail.split() if not t.startswith("-") and (not repo_m or t != repo_m.group(1))]
     selector = toks[0] if toks else None
-    args = ["gh", "pr", "view"] + ([selector] if selector else []) + ["--json", "labels,isDraft,isCrossRepository,author,number"]
+    fields = "labels,isDraft,isCrossRepository,author,number,url,files,changedFiles"
+    args = ["gh", "pr", "view"] + ([selector] if selector else []) + ["--json", fields]
     if repo_m:
         args += ["-R", repo_m.group(1)]
     try:
@@ -119,9 +174,17 @@ if re.search(r"\bgh\s+pr\s+merge\b", flat):
     if not info.get("number"):
         block("cannot identify the PR to merge")
     labels = {l["name"] for l in info.get("labels", [])}
-    bad = labels & {"plan", "hold", "needs-human", "wip"}
+    bad = labels & {"plan", "hold", "needs-human", "wip", "grant"}
     if bad or info.get("isDraft") or info.get("isCrossRepository"):
         block(f"PR #{info['number']} is {sorted(bad) or 'draft/fork'}; only the human merges it")
     if (info.get("author") or {}).get("login") != "yusa-imit":
         block("PR author is not the kingdom account")
+    if "/yusa-imit/citadel/pull/" in (info.get("url") or ""):
+        paths = [f.get("path", "") for f in info.get("files") or []]
+        if len(paths) < (info.get("changedFiles") or 0):
+            block(f"PR #{info['number']}'s file list is truncated; cannot rule out a grant")
+        touched = [p for p in paths if on_permission_surface(p)]
+        if touched:
+            block(f"PR #{info['number']} changes the permission surface ({', '.join(touched[:3])});"
+                  " it is a `grant` PR and only the human merges it (protocol/GITHUB.md)")
 sys.exit(0)
