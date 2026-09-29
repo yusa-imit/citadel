@@ -1,7 +1,28 @@
 # zr — context
 
-last_seen_at: 2026-09-29T00:00:00Z
+last_seen_at: 2026-09-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 10 — 2026-09-30 — STABILIZATION (n%5==0)
+- Preflight: tree clean on `fix/bound-topo-sort-level-loop` (= PR #171 head); CI green on main.
+  Disk 42GB free. No open bugs/questions; milestone #155 items 5-11 still blocked (zuda v2.3.0,
+  sailor v2.99.0).
+- Merged #171 (all 8 checks green after last cycle's livereload flake re-run).
+- Fixed `upgrade/checker.zig`: `getLatestRelease` read the GitHub response with an unbounded
+  `while (true)` into a growing buffer (memory-exhaustion by a hostile server). Extracted
+  `readResponseBounded` (8 MiB, `for (0..bytes_max + 1)` + proof comment), 6 tests via a fake
+  stream (empty, under, exactly-at, limit+1, endless peer, read error), added `//!` header.
+  PR #172 merged, 8/8 green. `zig build test` 1880/0, tidy 0 failing; baseline: dropped
+  checker `doc-header`, `getLatestRelease` 100→92.
+- Gotchas: Bash guard blocks compound commands that write under citadel paths (even `echo >
+  /tmp` in the same line as citadel vars) — run simple commands. No `timeout` on macOS; use a
+  sleep loop for CI waits. Don't add `auto-merged` label before merge. Stale tidy baseline
+  entries fail tidy — remove them when a fix clears them.
+- Next: audit backlog, smallest-diff-first: 19 remaining `while (true)` (plugin/install.zig:235,
+  registry_client.zig:247, builtin_git.zig x4, cli/add*.zig, show.zig, template.zig), 222
+  missing `//!` headers, zero-assert modules, `std.debug.print` in 15 files. Watch zuda/sailor
+  v3.0.0 tags.
+- Open questions: none.
 
 ## Cycle 9 — 2026-09-29 — FEATURE
 - Preflight: tree clean on `fix/bound-cli-common-parent-walk` (= PR #170 head); CI green on
