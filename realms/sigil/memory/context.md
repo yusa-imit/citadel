@@ -3,6 +3,16 @@
 last_seen_at: 2026-09-29T00:00:00Z
 rejected_plans: []
 
+## Cycle 25 — 2026-09-29 — FEATURE (quiet)
+
+- Done: plan PR #26 (plan 003) still open, no OWNER activity; CI green on main `18ebb6f`; no
+  open issues. Ran one `/stabilize --one` slot: test-quality audit of `core/*` — every declared
+  error variant (OutOfMemory, OutOfSpace, DuplicateKey, TooDeep, IntegerAboveMax,
+  IntegerBelowMin, FloatOutOfRange) is provoked by a test, no always-pass assertions. No PR.
+- Note: guard hook rejects Bash commands that mix reads of citadel paths with a `cd` into the
+  repo; use the Read tool for citadel files.
+- Next: awaiting human merge of plan 003 (#26). Blockers/questions: none.
+
 ## Cycle 24 — 2026-09-29 — FEATURE
 
 - Done: merged PR #24 (item 4, cycle 23's `core/number.zig`; CI 8/8 green). Closed out plan
