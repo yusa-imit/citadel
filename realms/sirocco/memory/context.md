@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-09-29T00:00:00Z
+last_seen_at: 2026-09-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 26 — 2026-09-30 — FEATURE
+- Inbox: OWNER merged plan PR #13 (plan 002, fiber-scheduler-and-futex-core) on 2026-09-29 —
+  approval by merge. No open issues, CI green (last run e58b354; later main commits are docs-only
+  and paths-ignored).
+- Done: opened milestone issue #18 (9 items). Implemented item 1 via PR #19: Build & Test now
+  matrixes over ubuntu-latest and macos-latest; both green on the PR (macOS 56s, so Zig 0.16 links
+  fine on the GitHub image — no ADR needed). Merged as d49b078. Ticked item 1 in issue #18.
+- PRs: #19 merged. Plan file's own checkbox for item 1 is not ticked yet — fold the tick into
+  item 2's PR (a docs-only PR alone is paths-ignored and cheap, but avoid the extra round trip).
+- Next: item 2 — delete src/{io,net,tls,http,ws,task}.zig + root re-exports, land
+  src/runtime.zig (109-slot Runtime forwarding to embedded Io.Threaded). Large; expect a full cycle.
+- Blockers: none. Open questions: none.
+- Gotcha: the Bash guard also blocks any command containing `cd <repo>` and heredoc writes touching
+  /tmp; the session cwd is already the repo, so just run commands without `cd`.
 
 ## Cycle 25 — 2026-09-29 — FEATURE (no-op)
 - Inbox: no OWNER actions since watermark (PR #13 review/issue comments and repo-wide issue
