@@ -83,85 +83,25 @@ rejected_plans: []
   action on cron (outside sailor realm; AI cannot edit it). Issue left open.
 - Open questions: #34.
 
-## Cycle 15 — 2026-09-17 — STABILIZATION
+## History (cycles 13-15, condensed 2026-09-29)
 
-- Done: preflight found repo clean on main. GitHub truth: CI green on main @ `847ced6`, no bug
-  issues, no plan PR, issue #34 (question+needs-human) still open with no new OWNER comment.
-  Cycle 15 forced STABILIZATION via the periodic trigger (`15 % 5 == 0`). Inbox merged PR #35
-  (10/10 green, CLEAN) completing the `ArrayList` `.empty` sweep. `tidy-auditor` fresh pass:
-  zero baseline drift, every cycle-13 STATE.md count still accurate (359 tracked entries).
-  Recommended `src/arg.zig:590` as the single smallest remaining unproven `catch unreachable`
-  (test declares the flag `.type = .bool`, so `asBool()` can't hit `TypeMismatch`) — same
-  provable pattern as `eventbus.zig`/`countdown_timer.zig`/`pipeline.zig` (#27/#29/#30). Fixed it
-  myself: proof comment on the same line (tidy only exempts same-line `//`), regenerated
-  `tidy_baseline.txt` (359→358, diff limited to the one expected line), `zig build test` green,
-  `zig fmt --check` clean (one incidental pre-existing double-space fix from the repo's fmt hook,
-  same side effect noted in #29/#30). Opened as PR #36; CI still pending at cycle deadline — left
-  open for next cycle's inbox, same recurring pattern as #21/#25/#26/#29/#30/#31/#32/#33/#35.
-  Updated STATE.md's Tiger Style table and next-target recommendation.
-- PRs: #35 (merged), #36 (open, CI pending).
-- Next: inbox should merge #36 once green. Next provable-proof-comment candidates:
-  `src/tui/inspector.zig:941,966` (2 sites) and `src/tui/async_loop.zig:563,685,733,792,887`
-  (5 sites, verify each test callback's task always succeeds first). Do NOT attempt
-  `event_metrics.zig`/`render_metrics.zig` (4 sites) or `bench.zig` (5 sites, `Timer.start()` can
-  legitimately fail) or `smart_autocomplete.zig` (2 sites) as mechanical proof comments — all
-  genuinely not provable, need typed-error redesign instead.
-- Blockers: #34 still open, awaiting OWNER decision on how to structure the Io migration session
-  — no new comment this cycle, not yet eligible for AI auto-action (no `origin: ai` tag, only
-  1 cycle old).
-- Open questions: #34 (unchanged).
+Cycle 15 (STABILIZATION, 2026-09-17): merged PR #35 (nested `ArrayList` `.empty` sweep).
+`tidy-auditor` found zero baseline drift. Proof-commented `src/arg.zig:590` as PR #36 (tidy
+baseline 359→358). Next provable candidates: `src/tui/inspector.zig:941,966` and
+`src/tui/async_loop.zig:563,685,733,792,887`. NOT provable, need typed-error redesign:
+`event_metrics.zig`/`render_metrics.zig` (4 sites), `bench.zig` (5, `Timer.start()` can fail),
+`smart_autocomplete.zig` (2).
 
-## Cycle 14 — 2026-09-16 — FEATURE
+Cycle 14 (FEATURE, 2026-09-16): merged PR #33 (closes the `//!` header sweep). Re-probed
+milestone #19 items 4/6-10 with `zig test src/sailor.zig` on 0.16.0 (347 errors): no partial
+rename can land on the pinned 0.15.2 build. Filed question+needs-human issue #34 (long session
+vs multi-cycle `wip/*` migration branch). Found PR #28's `ArrayList` sweep missed 65 nested-field
+sites in 34 files (see [[patterns]] "Caution on done mechanical sweeps"); fixed as PR #35.
 
-- Done: preflight found repo clean on PR #33's branch, switched to main. GitHub truth: CI green,
-  no bug/question issues, no plan PR. Inbox merged PR #33 (10/10 green, `mergeStateStatus: CLEAN`)
-  — closes the `//!` header sweep entirely. Milestone #19 items 4/6-10 (Io renames + both `std.Io`
-  waves) re-checked with a fresh `zig test src/sailor.zig` probe on the 0.16.0 toolchain (347
-  errors remain) — reconfirmed for the 7th cycle running that no partial rename can land without
-  breaking the pinned 0.15.2 build (not a formal cross-repo blocker, just a hard
-  atomicity/sequencing wall). Filed question+needs-human issue #34 asking the owner to pick: a
-  longer continuous session, or explicit approval for a multi-cycle `wip/*` migration branch whose
-  intermediate commits don't need to pass `zig build test`. The same probe surfaced that item 5
-  ("`ArrayList` literal sweep", marked done by PR #28) was incomplete — PR #28's pattern only
-  matched bare top-level `= .{}` and missed 65 nested-field-position sites across 34 files.
-  Delegated the fix to a zig-developer subagent (see [[patterns]] "Caution on done mechanical
-  sweeps"); verified the diff myself (exactly 34 files/65 lines, `zig build test` green, `zig fmt
-  --check` unchanged, 0.16-probe count for these sites 65→0), opened as PR #35.
-- PRs: #33 (merged), #35 (open, CI running at cycle deadline).
-- Next: inbox merges #35 once green. Milestone items 4/6-10 stay off-limits for per-cycle
-  implementation until issue #34 is answered or an alternative is picked; do not re-probe every
-  cycle now that the finding is filed — check #34 for an OWNER reply instead. 3 new `ArrayList`
-  sites surfaced deeper in the 0.16 compile graph once PR #35's sites cleared
-  (`docgen.zig:288`, `event_metrics.zig:131`, `profiler.zig:115`) — small follow-up sweep, low
-  priority next to #34's answer.
-- Blockers: #34 open, awaiting OWNER decision on how to structure the Io migration session.
-- Open questions: #34 (filed this cycle).
-
-## Cycle 13 — 2026-09-15 — FEATURE
-
-- Done: preflight found repo clean on PR #32's branch (`docs/module-headers-tui-core`), switched
-  to main directly. GitHub truth: CI green on main, no bug/question/directive issues, no plan PR.
-  Inbox merged PR #32 (10/10 checks green, `mergeStateStatus: CLEAN`) — squash, branch deleted,
-  `auto-merged`. Milestone #19's blocked toolchain items (4/6/7) confirmed blocked for the 6th
-  cycle running (6, 7, 9, 11, 12, 13) — not re-checking further per standing memory guidance.
-  Fell back to bounded stabilize task: completed the `//!` header sweep's final slice,
-  `src/tui/widgets/` (38 files), via a zig-developer subagent. Verified the diff directly
-  (`git diff --stat`: exactly 38 `src/tui/widgets/*.zig` files + `tidy_baseline.txt`, 397→359
-  tracked entries), spot-checked 4 header lines for content accuracy (not generic placeholders),
-  ran `zig build test` myself (exit 0, green) and `zig fmt --check` (no new drift, byte-identical
-  failing-file list). Opened as PR #33; CI still pending (cross-compile/benchmark jobs not yet
-  started) at cycle deadline — left open for next cycle's inbox, same recurring pattern as
-  #21/#25/#26/#29/#30/#31/#32. Updated STATE.md's Tiger Style table (`//!` header count 38→0,
-  sweep complete once #33 merges).
-- PRs: #32 (merged), #33 (open, CI pending).
-- Next: inbox should merge #33 once green. This closes out the `//!` header sweep entirely — no
-  more `missing_header` tidy entries will remain. Next stabilize target should be picked fresh
-  from STATE.md's remaining gaps (52 files >800 lines, `while (true)` unbounded loops, function
-  length, `assert(` density) — none are as mechanically simple as the header sweep was, so expect
-  the next few stabilize cycles to need more per-site judgment.
-- Blockers: #19 items 4/6/7 need a dedicated multi-cycle session pairing the Zig 0.16 toolchain
-  switch with the `std.Io` rewrite — verified blocked 6 cycles running; do not re-check.
-- Open questions: none.
+Cycle 13 (FEATURE, 2026-09-15): merged PR #32; `//!` headers for `src/tui/widgets/` (38 files)
+as PR #33 (tidy baseline 397→359). Items 4/6/7 confirmed toolchain-blocked; do not re-check.
+Remaining tidy gaps then: 52 files >800 lines, `while (true)` loops, function length,
+`assert(` density.
 
 ## History (cycles 0-10, condensed 2026-09-17)
 
