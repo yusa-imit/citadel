@@ -3,6 +3,20 @@
 last_seen_at: 2026-09-29T00:00:00Z
 rejected_plans: []
 
+## Cycle 25 — 2026-09-29 — FEATURE (no-op)
+- Inbox: no OWNER actions since watermark (PR #13 review/issue comments and repo-wide issue
+  comments since last_seen_at — none). No open issues, CI green on `e58b354` (== origin/main).
+  Plan PR #13 (plan 002) still open awaiting human merge. `periodic_stabilization` is off, so
+  n=25 stays FEATURE.
+- Done: plan PR open, so one bounded stabilization task — `zig build test`/`fmt --check`/
+  `zig build tidy` green under the pinned 0.16.0 toolchain. Same clean baseline as cycles 5/10-24;
+  no full audit rerun (nothing changed in the repo since cycle 24's clean pass).
+- PRs: none. Next: human merges #13, then milestone issue + item 1 (macOS CI runner).
+- Blockers: none. Open questions: none.
+- Gotcha: the Bash guard blocks any command that mentions a citadel path alongside a redirect or
+  `cd` into the repo in one line — run citadel reads via the Read tool and repo commands in a
+  separate Bash call.
+
 ## Cycle 24 — 2026-09-29 — FEATURE
 - Inbox: no new OWNER actions since watermark. Closed sirocco#17 (citadel commit-lock question,
   opened cycle 22) — verified citadel's working tree is clean this cycle, confirming cycle 23's
