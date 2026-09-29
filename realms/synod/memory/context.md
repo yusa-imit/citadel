@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-09-29T06:30:00Z
+last_seen_at: 2026-09-30T10:00:00Z
 rejected_plans: []
+
+## Cycle 22 — 2026-09-30 — FEATURE
+- Inbox: no OWNER actions after watermark, no plan PR, CI green. Item 9 (1D) via PR #27
+  (squash-merged, `auto-merged`, 7/7 CI, 207 tests). `MemoryStore` in `src/store.zig` +
+  `store.conformance(store: LogStore)` in `src/store_conformance.zig` + `src/store_test.zig`
+  (boundaries, model-based seeded test, mutation-checked). Written directly, no architect/
+  test-writer subagents (design was settled by ADR-006); `code-reviewer` found 0 CRITICAL,
+  5 WARNING (all fixed): deprecated `copyForwards` -> `@memmove`, no overlap test for compaction,
+  vacuous no-allocation test (removed), `load_hard_state` assert vs `StoreCorrupt`, test naming.
+- Deviation from plan text: store owns its own index window instead of wrapping `log.Log`
+  (Log starts at 1, borrows data). Also ticked 1C in plan 002. Milestone #20: 9/11.
+- Next: item 10 (re-measure Tiger Style baseline, flip README rows for types/log/interfaces/
+  store to implemented, new table in STATE.md); item 11 release v0.3.0. Still pending: rename
+  camelCase in `log.zig`/`types.zig` (`lastIndex`, `termAt`, `conflictAt`, `validateTransition`)
+  before v0.3.0.
+- Tool note: guard hook misreads `cd <path>;` and `sed -i` as cross-repo writes; the shell is
+  already in the repo, skip `cd`, use Edit. No `timeout` binary on macOS.
+- Open questions: none.
 
 ## Cycle 21 — 2026-09-29 — FEATURE
 - Inbox: no OWNER actions, no plan PR, CI green. Item 8 (1C `interfaces.zig`, five vtables) via

@@ -64,3 +64,11 @@ cycle 3 (plan 001 item 3) after a first "all green" pass had missed it; the revi
 caught a real off-by-one bug the dead tests would have flagged. Lesson: for any new
 `b.addExecutable` that carries `test` blocks, check `build.zig` wires a matching `b.addTest`
 before trusting `zig build test`'s green as covering that file.
+
+## LogStore implementations (cycle 22)
+
+`LogStore.init(&impl)` requires every method to take `*T` (mutable), even read-only ones
+(`get`, `last_index`, `load_*`); a `*const T` receiver is a `@compileError`. Any new store
+(strata adapter) copies that shape and must pass `store.conformance` (drives the vtable only).
+Mutation-check new tests: break the code on purpose once and confirm the suite goes red — the
+compaction overlap case only failed after a test with a long retained entry was added.
