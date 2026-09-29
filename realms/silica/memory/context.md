@@ -67,41 +67,9 @@ rejected_plans: []
 - Open questions: buffer-pool LRU zuda contradiction; WAL concurrent-connections finding;
   tidy.zig function-length scan not string/comment-aware. (fmt question resolved.)
 
-## Cycle 14 — 2026-09-17 — FEATURE
-- Preflight found the repo dirty and off main on branch `feat/zig-build-tidy-step`: an
-  uncommitted, coherent diff (`build.zig`, `src/main.zig`, `docs/plans/001-...md` +
-  untracked `src/tidy.zig`, `tidy_baseline.txt`) — an interrupted `/implement` session whose
-  branch name matched exactly the next planned item. Verified in place rather than shunting to
-  `wip/*` (same precedent as cycle 12): `zig build test` green (4738/4761 passed, 23 skipped, 0
-  failed), `zig fmt --check` clean on the changed files.
-- Inbox: no open PRs, no new OWNER comments/issues since watermark. Milestone #137 still the
-  only open issue.
-- Implemented/finished plan 001's "`zig build tidy` step, part 1": `src/tidy.zig` (checker +
-  `zig build tidy` CLI) enforces function length ≤70 lines and missing `//!` headers against a
-  shrink-only baseline (`tidy_baseline.txt`, 58+17 entries). Line-length check implemented but
-  not yet gated (3,521 pre-existing violations, deferred to part 2). Corrected an inaccurate
-  "green" claim in the plan doc (the full `zig build tidy` command still exits 1 today because
-  line-length is un-baselined by design) and documented a known measurement bug: the
-  function-length brace scan is not string/comment-aware, so `evalFunctionCall`'s baseline entry
-  is inflated to 31,568 (real ~3,758) — matches the kingdom `tidy-auditor` agent's own grep-based
-  approach, safe (never too low) but doesn't meaningfully ratchet that one function yet.
-- PR #153 opened, plan checklist part 1 ticked, CHANGELOG updated. CI still pending at cycle
-  deadline (historical 13-18m) — commented "awaiting CI; merge next cycle", left for cycle 15's
-  inbox.
-- Next: cycle 15's inbox merges #153 if green, then FEATURE resumes on plan 001's "`zig build
-  tidy` step, part 2": reduce the 3,521 line-length violations to zero, wire `tidy` as a
-  dependency of `zig build test`, add the remaining ban-list checks (`catch unreachable` without
-  `SAFETY:`, `std.debug.print`/`std.time.*` in lib, `usize` in on-disk formats).
-- Blockers: none new. Standing blocker unchanged (plan 001 rest blocked_by zuda v3.0.0, sailor
-  v3.0.0).
-- Open questions: unchanged (repo-wide `zig fmt --check` fails on 18 pre-existing files even at
-  clean main HEAD — worth a stabilization fix; buffer-pool LRU zuda-migration contradiction;
-  concurrent-connections WAL-corruption finding not reconfirmed). New: `tidy.zig`'s
-  function-length scan needs a string/comment-aware rewrite to be meaningful on
-  `evalFunctionCall`-sized functions — candidate for a future stabilization cycle, not blocking.
-
 ## History (cycle 13 and earlier, folded)
 
+- **Cycle 14** (2026-09-17, FEATURE): finished interrupted `feat/zig-build-tidy-step` in place; PR #153 (`zig build tidy` part 1: function-length ≤70 + `//!` header checks, shrink-only `tidy_baseline.txt`; line-length checked but ungated, 3,521 violations). Known: function-length brace scan not string/comment-aware.
 - **Cycle 13** (2026-09-16, FEATURE): merged #151 (batch 10). Implemented batch 11 (final):
   819 scratch-DB occurrences in `sql/engine.zig` across 6 variant shapes, completing the
   entire scratch-DB-to-tmp-dir sub-item (11 batches total). Opened #152.
