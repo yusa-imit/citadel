@@ -66,7 +66,6 @@ tags = ["service", "zig", "cache"]
 # Today's real build.zig.zon deps are: silica→{sailor,zuda}, zr→{sailor,zuda}, zoltraak→{sailor,zuda}.
 # Planned deps (ROADMAP.md) are listed so `zr affected` already respects the target graph.
 [deps]
-synod = ["sigil"]
 sailor = ["sirocco"]
 zr = ["sailor", "zuda", "sigil", "sirocco"]
 silica = ["sailor", "zuda", "sigil", "sirocco", "strata", "synod"]
