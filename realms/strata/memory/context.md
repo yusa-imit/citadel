@@ -1,7 +1,20 @@
 # strata — context
 
-last_seen_at: 2026-09-29T00:00:00Z
+last_seen_at: 2026-09-29T05:05:39Z
 rejected_plans: []
+
+## Cycle 20 — 2026-09-29 — FEATURE (no-op)
+- Done: preflight clean (disk 65 GB, on main, HEAD c17c5c9, CI green last 5). Plan PR #16
+  still open, no reviews/comments since watermark, no issues, no implementation PRs. One
+  stabilize --one pass run directly (no subagent; tree unchanged since cycle 19's audit):
+  `zig build test`, `zig fmt --check`, `zig build tidy` (0 findings) all green on pinned
+  0.16.0 toolchain. Standing gap unchanged: `tools/tidy.zig` (2100 lines) outside `scan_roots`.
+- PRs: none opened or merged.
+- Next: when #16 merges, open milestone 002 issue, implement tidy self-hosting fix.
+- Blockers: none. Open questions: none.
+- Note: the guard hook blocked two Bash commands that used `$VAR` toolchain paths, redirects
+  to /tmp, or citadel paths in a compound command; plain absolute-path commands work.
+- Report: quiet cycle — skipped plan-PR comment per quiet-mode carve-out.
 
 ## Cycle 19 — 2026-09-29 — FEATURE (no-op)
 - Housekeeping: `memory/counter` was found stuck at 17 even though a cycle-18 entry already
