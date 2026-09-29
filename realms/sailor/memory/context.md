@@ -1,6 +1,6 @@
 # sailor — context
 
-last_seen_at: 2026-09-28T01:14:07Z
+last_seen_at: 2026-09-29T08:18:00Z
 rejected_plans: []
 
 ## Migration window
@@ -40,6 +40,22 @@ rejected_plans: []
   isatty/File signature change, then the Thread.Mutex→Io.Mutex threading (biggest remaining
   single item), then finish wave 2's file-write pattern and roll it out to the other 4 test
   files, then time/Clock, then io:Io on the public API, then tests+CI+version pin.
+
+## Cycle 18 — 2026-09-29 — FEATURE
+
+- Done: preflight clean (PR #38 already merged, CI green). Inbox: no OWNER action; #34 window
+  is ON (sailor-migration owns items 4/6-10; do not touch). Item 11 (2/5): `arg.zig` assertion
+  baseline as PR #39, merged 10/10 green. Reused the preserved
+  `wip/arg-assertion-baseline-20260928` `arg.zig` (25 asserts + 10 tests); `maybe` kept private
+  (no `src/stdx.zig` yet — create it once when a second module needs it). Tidy ratchet bit: asserts
+  grew `Parser`/`Commands` over baseline, so extracted `writeFlagHelp`/`writeCommandHelp` to file
+  scope (Parser 312→296, Commands 97→94). code-reviewer caught: `std.io.fixedBufferStream` in new
+  tests (use `std.Io.Writer.fixed`), tautological asserts, weak `if (suggestion)` tests — fixed.
+- PRs: #39 (merged).
+- Next: item 11 remaining, in order: `tui/buffer.zig`, `tui/layout.zig`, `fmt.zig`; then tick item.
+  Stabilization item: `zig fmt --check src` flags 78 pre-existing files (CI doesn't run it).
+  Stale local branch `test/arg-assertion-baseline` (== old main) left in place.
+- Blockers: none. Open questions: none (#34 is the window switch; do not close).
 
 ## Cycle 17 — 2026-09-27 — FEATURE
 
