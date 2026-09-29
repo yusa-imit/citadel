@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-09-29T05:05:39Z
+last_seen_at: 2026-09-30T02:20:00Z
 rejected_plans: []
+
+## Cycle 21 — 2026-09-30 — FEATURE
+- Done: plan 002 (PR #16) was merged by the OWNER = approved. Opened milestone issue #17. Item 1
+  (`tools/tidy.zig` self-hosting) implemented: zig-developer split it into `tools/tidy/
+  {scanner,checks_file,baseline,checks_ban,checks_density,report,walk,lint}.zig` (largest 530
+  lines) + 99-line `tools/tidy.zig`; `tools` added to `scan_roots` (assert 3→4), no exemption
+  table. `zig build test` now also runs tidy's own 89 unit tests (never ran before; 102 total).
+  code-reviewer: 0 critical/warning; fixed its tautology-assert suggestion. Ban needles in
+  tidy's own source are spelled with `++` splits so tidy doesn't flag itself.
+- PRs: #18 merged (squash, CI 7/7 green, labelled auto-merged).
+- Next: item 2 — `codec/fixed.zig` + `codec/varint.zig` (plan 002, issue #17).
+- Blockers: none. Open questions: none.
+- Note: guard hook blocks compound Bash commands touching citadel paths and `timeout` is absent
+  on this box; use separate simple commands. Issue #17's checklist box for item 1 still needs
+  ticking (a sed edit failed to match).
 
 ## Cycle 20 — 2026-09-29 — FEATURE (no-op)
 - Done: preflight clean (disk 65 GB, on main, HEAD c17c5c9, CI green last 5). Plan PR #16

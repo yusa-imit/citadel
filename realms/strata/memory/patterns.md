@@ -59,3 +59,12 @@ an em dash `—`, 3 bytes/1 code point) will overcount and produce a false posit
 verify a suspected line-length violation by rerunning the actual `zig build tidy` (or the
 compiled `tidy` binary), not a shell/grep byte count — confirmed 2026-09-09 (cycle 5) when a
 tidy-auditor subagent flagged `src/lsm.zig:1` as 101 cols; the real tool measured 99.
+
+## tidy layout and self-hosting (cycle 21, 2026-09-30)
+
+`tools/tidy.zig` is now a thin entry point over `tools/tidy/*.zig`, and `tools` is in
+`scan_roots`, so tidy lints its own source. Consequences: any banned needle written in tidy's
+own source (rule tables, test fixtures) must be spelled with a `++` split (`"catch " ++
+"unreachable"`) or tidy flags itself; each `tools/tidy/` file must stay under 800 lines
+including tests; tidy's own tests run via `zig build test` (an aggregate `test {}` in
+`tools/tidy.zig` imports the modules — add new modules there or their tests silently never run).
