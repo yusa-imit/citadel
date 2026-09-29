@@ -1,7 +1,24 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-29T00:00:00Z
+last_seen_at: 2026-09-29T23:15:00Z
 rejected_plans: []
+
+## Cycle 13 — 2026-09-30 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on 165f481), no bugs, no plan PR, milestone #121 open, no
+  owner comments since watermark. Items 4-9, 12 blocked (zuda v2.3.0, sailor v2.99.0).
+- Ran `/stabilize --one`: PR #136 applied `zig fmt` to the 13 files that failed
+  `zig fmt --check` (no logic change). `zig fmt --check src build.zig` now clean on main.
+  eviction.zig WRITE_COMMANDS repacked 4/row (long_lines baseline 5 -> 2); baseline function
+  lengths raised for cmdFtSpellcheck 158, cmdObject 270, cmdHexpire 119, cmdHpexpire 115,
+  cmdHexpireat 112, cmdHpexpireat 110 (fmt split packed `a; b;` statements; no new code).
+  CI green (5m19s / 49s), merged, labeled auto-merged.
+- Local `zig build test` (0.15.2): 1106/1106 tests pass; only the 2 known signal-4 RDB
+  crashers (test_iter432/437) fail.
+- Next: fmt is still not a CI step — consider adding `zig fmt --check` to ci.yml (CI edit in
+  a realm pre-migration is allowed only as a targeted fix; keep separate PR). Triage the 3
+  cycle-1 stashes (stash@{0} may fix signal-4 crashes). Cycle 15 is forced STABILIZATION.
+- Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
+- `gh pr create --label chore` fails: no `chore` label exists in the repo; omit it.
 
 ## Cycle 12 — 2026-09-29 — FEATURE (all plan items blocked)
 - Preflight: dirty tree on main (six files with new `//!` headers, interrupted work).
