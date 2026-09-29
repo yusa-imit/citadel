@@ -1,7 +1,27 @@
 # silica — context
 
-last_seen_at: 2026-09-27T10:05:31Z
+last_seen_at: 2026-09-29T10:19:47Z
 rejected_plans: []
+
+## Cycle 17 — 2026-09-29 — FEATURE
+- Preflight: repo was clean on `feat/tidy-usize-disk-format-check` (PR #156 head, pushed; the
+  cycle-16-successor session had opened #156 without reporting, so counter stayed 16). Moved to
+  main. CI on main not red (last failed run's SHA != origin/main). No bug/question issues.
+- Inbox: no new OWNER comments besides our own "awaiting CI" notes; #156 CI green, no hold →
+  squash-merged, labeled `auto-merged`.
+- Implemented plan 001 tidy step part 2, ban-list batch 3: `catch_unreachable_no_safety` check
+  in `src/tidy.zig` (SAFETY: on the same line or within 8 lines above; skips harness files and
+  top-level test blocks; path-keyed ratchet). Baseline: `sql/executor.zig` 18, `tidy.zig` 1
+  (self-match). 8 new tests (38/38 in tidy.zig). Found and fixed a ratchet regression: the #154
+  fmt pass grew `planner.zig:resolveExprType` 74→78 lines past its baseline; extracted
+  `resolveFunctionCallType` (behavior unchanged). PR #157: CI green (build-and-test 4m39s),
+  merged. `zig build test` and `zig fmt --check` green. No code-reviewer subagent used (budget).
+- Next: batch 4 — `std.time.*` in lib (18 files; per-file baseline; conflicts with deferred
+  0.16 clock migration) or start line-length reduction (3,521 violations) then wire `tidy` into
+  `test_step`. Plan checklist item stays unchecked until all done.
+- Blockers: none new. Standing: plan 001 rest blocked_by zuda v3.0.0, sailor v3.0.0.
+- Open questions: unchanged — buffer-pool LRU zuda contradiction; WAL concurrent-connections
+  finding; tidy.zig scans are textual (not string/comment-aware).
 
 ## Cycle 16 — 2026-09-27 — FEATURE
 - Preflight: repo clean on main; CI green (matches origin/main SHA); no open bug/question/
