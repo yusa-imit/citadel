@@ -1,7 +1,27 @@
 # zuda — context
 
-last_seen_at: 2026-09-28T00:00:00Z
+last_seen_at: 2026-09-30T05:00:00Z
 rejected_plans: []
+
+## Cycle 15 — 2026-09-30 — STABILIZATION
+- Done: periodic (n%5==0); CI green, no bugs, no plan PR, no owner comments. Merged #50 (moved
+  `tidy_baseline.txt` under `tools/`; added milestone #31 ref to its body first). Tiger Style
+  class fixed: functions > 70 lines — PR #52 (dueling_dqn `xavier_fill`, aho_corasick
+  `failureTarget`, builder loops; 3 stale baseline entries dropped; tidy fn-length 5 -> 2).
+  Verifying #52 exposed that `deque.zig` tests (7/16 red) never run under `zig build test`
+  (#38 gap again): filed #51, fixed in #54 — `validate()` was wrong (empty needs head==tail; full
+  ring has head==tail), `shrinkToFit` left tail==capacity, stress test off by one; push/pop were
+  correct; wired into `root.zig` test block. Same probe found `AhoCorasickASCII.findFirst`
+  test red: filed #53 (not fixed).
+- PRs: #50, #52, #54 merged (all 7 checks green), labeled `auto-merged`. #51 closed.
+- Next: FEATURE — fix #53 first (open bug forces stabilization: regression test, then wire
+  `aho_corasick.zig` into `root.zig`). Then plan 001 `std.fs.cwd()` -> `Io.Dir` in `ndarray.zig`.
+  Leftover stabilize items: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73; its
+  tests do not compile on 0.15.2), 3 type-fn baseline entries that grew.
+- Lesson: files reachable only via `pub const` re-exports are untested; probe with a scratch
+  `src/scratch.zig` `test { _ = @import(...); }` (delete after) — likely more hidden reds.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file). Full `zig build test`
+  ran 2x this cycle (one over REALM.md's once-per-cycle guidance; CI covers it).
 
 ## Cycle 14 — 2026-09-28 — FEATURE
 - Done: inbox found nothing new (CI green, no bugs, no plan PR, no owner comments since
