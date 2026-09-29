@@ -3,7 +3,7 @@
 last_seen_at: 2026-09-29T00:00:00Z
 rejected_plans: []
 
-## Cycle 25 — 2026-09-29 — FEATURE (quiet)
+## Cycle 25 — 2026-09-29 — FEATURE (quiet; counter was 23 at start, cycle 24's report had not written it)
 
 - Done: plan PR #26 (plan 003) still open, no OWNER activity; CI green on main `18ebb6f`; no
   open issues. Ran one `/stabilize --one` slot: test-quality audit of `core/*` — every declared
