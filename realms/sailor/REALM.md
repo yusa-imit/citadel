@@ -6,7 +6,7 @@
 | Path | `/Users/fn/codespace/sailor` |
 | GitHub | `yusa-imit/sailor` |
 | Version | 2.99.0 (`build.zig.zon`) · latest tag v2.99.0 (matches; 7 unreleased commits on main) |
-| Zig | 0.15.2 (migrating to 0.16.0 under plan `001`; see `citadel/docs/ROADMAP.md`) |
+| Zig | 0.16.0 (migrated 2026-09-29, PR #40; global `zig` may still be 0.15.2, use the 0.16 toolchain) |
 | Depends on | none (zero-dependency library; `build.zig.zon` has no `.dependencies`) |
 | Consumers | zr, silica, zoltraak |
 | blocked_by | — |
@@ -16,7 +16,7 @@
 
 ## What it is
 
-Zero-dependency Zig 0.15.x TUI framework and CLI toolkit: a CLI layer (`term`, `color`, `arg`
+Zero-dependency Zig 0.16.x TUI framework and CLI toolkit: a CLI layer (`term`, `color`, `arg`
 with subcommands and did-you-mean, `repl` with history/completion, `progress`, `fmt` table/
 JSON/CSV/Plain formatters) plus an immediate-mode, ratatui-style TUI core (buffer, constraint
 layout solver, flexbox/grid, theming, sixel/kitty/iterm2 image protocols, async event loop,

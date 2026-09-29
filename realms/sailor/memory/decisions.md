@@ -46,5 +46,15 @@ _(migrated from the repo's former .claude/memory/decisions.md, 2026-09-05)_
   migration job and its cleanup exceptions); only the migration job closes it, after its PR
   merges.
 
+## 0.16 API conventions (decided 2026-09-29, PR #40 — migration window is closed)
+
+- Env reads take `environ_map: *const std.process.Environ.Map` (no global env in 0.16), first
+  after the receiver and before `io`; tests inject a map instead of C `setenv`.
+- `io: std.Io` per call on leaf fns, cached in `init` on long-lived owners; `render()` stays
+  `Io`-free. Mutexes use `lockUncancelable`; `isatty` returns `Cancelable!bool`.
+- Windows console externs live in `src/term/win32.zig` (std dropped them); externs return `c_int`.
+- `debug_log` no longer reads env lazily: apps call `debug_log.init(environ_map)` at startup.
+- #34 is closed, so regular cycles may now work items 11/12 and everything else freely.
+
 Full history (superseded/one-off decisions) lives in `git log` — this file keeps only
 decisions with ongoing relevance to future work.
