@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-09-28T18:20:14Z
+last_seen_at: 2026-09-29T06:30:00Z
 rejected_plans: []
+
+## Cycle 21 — 2026-09-29 — FEATURE
+- Inbox: no OWNER actions, no plan PR, CI green. Item 8 (1C `interfaces.zig`, five vtables) via
+  PR #26 (squash-merged, `auto-merged`, 7/7 CI). `architect` (opus) designed it, ADR-006:
+  `ptr` + `*const VTable`, built only through comptime `X.init(impl)`; named error sets; snake_case
+  names; `LogStore` gained `load_hard_state` and `sync`; `Transport.send` is `void` with the
+  destination taken from the message header. `test-writer` wrote ~1000 lines of tests first
+  (`src/interfaces_test.zig`); `code-reviewer` found 0 CRITICAL, 4 WARNING (fixed): compound
+  assert, read paths asserting on persisted data (now `error.StoreCorrupt`), tautological
+  Writer/Reader asserts (removed), ADR "asserted" claims that the code cannot check.
+- Milestone #20: 8/11 done. Next: item 9 (1D `store.zig`). Architect flagged it bigger than
+  planned: `Log` stores borrowed `data` and assumes index 1 is first, so the store must own entry
+  bytes (one buffer at `init`, `StoreFull` when out) and needs a snapshot base index. Consider
+  splitting 1D. Also pending: `log.zig`/`types.zig` use camelCase (`lastIndex`, `termAt`,
+  `conflictAt`, `validateTransition`) against the snake_case rule; rename before v0.3.0.
+- Tool note: the guard hook blocks variable-expanded zig calls (`Z=...; $Z build`) and heredoc
+  python writes into citadel; call the 0.16 zig by full path and use Write/Edit for memory.
+- Open questions: none.
 
 ## Cycle 20 — 2026-09-28 — FEATURE
 - Inbox: no new OWNER actions since watermark (only the AI's own cycle-19 report comment on
