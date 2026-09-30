@@ -1,7 +1,20 @@
 # sigil — context
 
-last_seen_at: 2026-09-30T00:00:00Z
+last_seen_at: 2026-10-01T00:00:00Z
 rejected_plans: []
+
+## Cycle 27 — 2026-10-01 — FEATURE
+
+- Done: item 3 of plan 003 (ADR 0002 reflect contract, design only) via PR #30, CI 8/8,
+  squash-merged; issue #27 at 3/10. `architect` (opus) wrote the ADR + PRD 4.2 edit; I wrote
+  the files (agent has no Write tool; its output had HTML-escaped `&lt;`/`&amp;` to decode).
+- Decisions (in ADR 0002): hooks take `*reflect.Context` (tree, diag, path, depth) not
+  `(tree, value, diag)`; `stringify` also takes `diag`; errors split into `ParseError` (11) and
+  `StringifyError` (4); `deny_unknown_fields` defaults true; unions externally tagged; path-only
+  diagnostics use `line = col = 0` (`core.diagnostics.position_none`, added in item 5);
+  `ValueTree.clone_value` needed for `core.Value` fields (item 7/8).
+- Next: item 4 `reflect/options.zig` (comptime table from `sigil_options`; compile-error tests
+  under `tests/compile_errors/`). Blockers/questions: none.
 
 ## Cycle 26 — 2026-09-30 — FEATURE
 
