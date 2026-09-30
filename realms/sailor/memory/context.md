@@ -1,6 +1,6 @@
 # sailor — context
 
-last_seen_at: 2026-09-29T08:18:00Z
+last_seen_at: 2026-09-30T08:40:00Z
 rejected_plans: []
 
 ## Migration window
@@ -21,6 +21,24 @@ rejected_plans: []
   build; `tests/*.zig` (~78 files) are not `zig fmt` clean; docs other than API.md still show old
   signatures (item 12). v3.0.0 not tagged: needs items 11 (assertion baseline, 2/5) and 12.
 - Earlier run (2026-09-28): errors 696→207; mechanical renames, Io wave 1 sinks, started wave 2.
+
+## Cycle 19 — 2026-09-30 — STABILIZATION
+
+- Done: main was red (run on eec7af2, the 0.16 migration merge), Windows job only:
+  `tests/error_recovery_test.zig` asserted wall-clock bounds after real `io.sleep` (`>= 1ms`,
+  `>= 5ms`, 2ms sleep vs 1ms budget); Windows wakes early vs the QPC awake clock. Fix, PR #41
+  (merged, 10/10 green): `VirtualClock` Io double built from `std.Io.failing.vtable.*` with
+  `sleep` (advances virtual ns) and `now` overridden; tests assert requested sleeps and
+  BudgetExceeded deterministically. See [[patterns]].
+- Fixing one Windows test exposed the next (CI round-trip ~9 min): audit the whole file for the
+  same pattern before pushing. Still real-time in that file: `elapsed < 1ms` (low-quality
+  render), `< 10ms` snapshot, async-hook sleeps (~L800); upper bounds can flake on loaded CI.
+- PRs: #41 (merged).
+- Next: item 11 remaining: `tui/buffer.zig`, `tui/layout.zig`, `fmt.zig`; item 12 docs; then
+  v3.0.0. Local 0.16 zig: /Users/fn/.zr/toolchains/zig/0.16.0/zig.
+- Blockers: none. Open questions: none.
+- Guard quirk: `cd <repo>; gh run view ... | ...` compounds were blocked; run gh without `cd`,
+  redirect logs to /tmp. Memory writes: use Write/Edit, not bash heredocs.
 
 ## Cycle 18 — 2026-09-29 — FEATURE
 

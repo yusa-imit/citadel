@@ -1,5 +1,12 @@
 # sailor — patterns
 
+## Deterministic time in tests (0.16)
+
+Never assert wall-clock bounds after a real `io.sleep`: Windows can wake early vs the QPC awake
+clock. Build a `std.Io` double: copy `std.Io.failing.vtable.*`, override `sleep` and `now` with a
+virtual-ns counter that `sleep` advances and `now` reads (`VirtualClock` in
+`tests/error_recovery_test.zig`), and inject it wherever the code takes `io`.
+
 _(migrated + condensed from the repo's former .claude/memory/patterns.md, 2026-09-05; the
 extensive per-widget test-code dumps in the original are summarized, not reproduced — the
 underlying widget files and their `tests/*_test.zig` counterparts are the source of truth)_
