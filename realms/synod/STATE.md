@@ -222,3 +222,16 @@ gaps.
    `init.minimal.args`, `std.time.Timer` → `Io.Clock`-based timing, `mem.indexOf` → `mem.find`.
    Trivial, <1h, does not block Phase 1/2.
 6. Add `CHANGELOG.md` before the first release.
+
+**Superseded 2026-09-30 (cycle 23, plan 002 item 10)** — first baseline over real Phase 1 code
+(PR #28). `zig build tidy` clean, `zig build test` 207/207, 0 `NotImplemented` in the four modules.
+
+| Module | Lines | `assert` | fns | Longest fn |
+|---|---|---|---|---|
+| `src/types.zig` | 1310 | 35 | 20 | ~25 |
+| `src/interfaces.zig` | 575 | 27 | 48 | ~25 |
+| `src/log.zig` | 686 | 26 | 15 | ~25 |
+| `src/store.zig` | 376 | 36 | 17 | ~31 |
+
+No `catch unreachable`, `@panic`, `std.debug.print`, or `while (true)` in them. README rows for
+these four modules are now *implemented*. Pending: camelCase names in `log.zig`/`types.zig`.

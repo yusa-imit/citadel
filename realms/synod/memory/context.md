@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-09-30T10:00:00Z
+last_seen_at: 2026-09-30T11:00:00Z
 rejected_plans: []
+
+## Cycle 23 — 2026-09-30 — FEATURE
+- Inbox: no OWNER actions, no plan PR, CI green. Item 10 (re-measure baseline) via PR #28
+  (README rows types/interfaces/log/store -> implemented, status + install text fixed, CHANGELOG)
+  and PR #29 (plan 002 tick). Milestone #20: 10/11.
+- Baseline (Phase 1 code): `zig build tidy` clean; 0 `NotImplemented` in the four modules;
+  asserts types 35 / interfaces 27 / log 26 / store 36 (store_conformance 1); no fn >70 lines
+  (longest ~31, `MemoryStore.init`); 0 `catch unreachable`/`@panic`/`debug.print`/`while (true)`.
+  Tests 207. Measured by grep/awk, no subagents (~$0.7 spent).
+- Slip: merged #29 before its CI finished (`gh pr checks --watch` returned early; it passed
+  afterwards). Always confirm all checks `pass` before `gh pr merge`. Also `gh pr merge` has no
+  `-q`; a failed `&&` chain earlier ticked issue #20 before the PR merged (harmless here).
+- Next: rename camelCase (`lastIndex`, `termAt`, `conflictAt`, `validateTransition`) in
+  `log.zig`/`types.zig` as its own PR, then item 11 release v0.3.0 (update README install tag).
+- Note: `zig build test` prints tidy-fixture lines + "failed command" on stderr but succeeds
+  (207/207); not a failure.
+- Open questions: none.
 
 ## Cycle 22 — 2026-09-30 — FEATURE
 - Inbox: no OWNER actions after watermark, no plan PR, CI green. Item 9 (1D) via PR #27
