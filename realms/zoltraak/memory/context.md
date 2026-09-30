@@ -1,7 +1,22 @@
 # zoltraak — context
 
-last_seen_at: 2026-09-29T23:15:00Z
+last_seen_at: 2026-10-01T00:00:00Z
 rejected_plans: []
+
+## Cycle 14 — 2026-10-01 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on 5338de8), no bugs, no plan PR, milestone #121 open, no
+  owner actions (only comment since watermark was our own cycle-13 report). Items 4-9, 12
+  blocked (zuda v2.3.0, sailor v2.99.0; need v3.0.0).
+- Ran `/stabilize --one`: PR #137 (`ci/zig-fmt-check`) adds `zig fmt --check src build.zig` to
+  the Build & Test job. CI was still IN_PROGRESS at the deadline — NOT merged. Next cycle's
+  inbox step 8 must merge #137 if green (label auto-merged), else fix.
+- Local `zig build test` could not run: default cache failed "failed to spawn build runner
+  ... FileNotFound"; deleting that cache entry did not help; a fresh `--cache-dir` build did
+  not finish in 10 min. `zig fmt --check src build.zig` passed locally. Source tree identical
+  to green main; only ci.yml changed. Next cycle: if it recurs, `rm -rf .zig-cache` (ignored).
+- Standing backlog: stash triage (stash@{0} may fix signal-4 RDB crashes); 105
+  `std.debug.print` (cli 45, server 26, main 21). Cycle 15 is forced STABILIZATION.
+- Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
 
 ## Cycle 13 — 2026-09-30 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on 165f481), no bugs, no plan PR, milestone #121 open, no
