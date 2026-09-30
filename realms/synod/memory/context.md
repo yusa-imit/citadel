@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-09-30T11:00:00Z
+last_seen_at: 2026-10-01T03:30:00Z
 rejected_plans: []
+
+## Cycle 24 — 2026-10-01 — FEATURE
+- Inbox: no OWNER actions since watermark, no plan PR, no bug issues, CI green.
+- Done: #30 renamed camelCase fns in `log.zig`/`types.zig` to snake_case (perl word-boundary
+  rename, 207/207 tests); item 11 release v0.3.0 via #31, tag + GitHub release, `zig fetch` of the
+  tag resolves; #32 ticked item 11; milestone #20 closed 11/11. No kingdom repo names synod in
+  `build.zig.zon` -> no migration issues. STATE.md has the release note.
+- Plan 003 proposed (PR #33, `plan/003-phase2-raft-core`, awaiting OWNER merge): 12 items, starts
+  with ADR-007 (architect), election/PreVote/progress/replication/commit, seeded cluster test,
+  driver, baseline, release v0.4.0. Planner (opus, ~$0.8) returned 123 lines (limit 120; trimmed
+  only if the OWNER comments). Item 2 widens tidy `core_purity_files` to `src/raft/`.
+- Next cycle: if plan 003 merged, open milestone issue and do ADR-007 (architect); else one
+  `/stabilize --one` task. Remaining camelCase fns live in `interfaces.zig`/`tools/`/`build.zig`
+  (private helpers; only log/types were renamed).
+- Tool notes: guard hook blocks any command containing `cd <path>;` or greps over sibling repos;
+  run commands from the repo cwd and read other repos via `gh api`. zsh does not word-split
+  `$var` in for loops (use `${=var}`). All 7 CI checks pass ~2-3 min after push.
+- Open questions: none.
 
 ## Cycle 23 — 2026-09-30 — FEATURE
 - Inbox: no OWNER actions, no plan PR, CI green. Item 10 (re-measure baseline) via PR #28

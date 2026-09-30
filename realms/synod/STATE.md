@@ -235,3 +235,9 @@ gaps.
 
 No `catch unreachable`, `@panic`, `std.debug.print`, or `while (true)` in them. README rows for
 these four modules are now *implemented*. Pending: camelCase names in `log.zig`/`types.zig`.
+
+**Released 2026-10-01 (cycle 24): v0.3.0** — first release with Phase 1 code (types, interfaces,
+log, in-memory store); PRs #30 (snake_case rename, done — the pending item above is closed), #31
+(release), #32 (plan tick). Milestone 002 (#20) closed 11/11. 207 tests; `zig fetch` of the tag
+resolves. No kingdom repo names synod in `build.zig.zon` yet, so no migration issues. Phase 2
+(`raft.zig`, `driver.zig`) still stubs — plan 003 next.
