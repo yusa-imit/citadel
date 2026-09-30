@@ -1,7 +1,23 @@
 # sirocco — context
 
-last_seen_at: 2026-09-30T00:00:00Z
+last_seen_at: 2026-09-30T04:15:00Z
 rejected_plans: []
+
+## Cycle 27 — 2026-09-30 — FEATURE
+- Inbox: no OWNER actions since watermark. CI green on d49b078; only open issue is milestone #18.
+- Done: plan 002 item 2 via PR #20 (merged as 28bf19e): `src/runtime.zig` (`Runtime`, `Options`
+  with no defaults incl. `environ`/`argv0`, `Backend`, `Unimplemented`, `init`/`deinit`/`io()`/
+  `baselineIo()`), all 109 slots forwarded from embedded `Io.Threaded` (.forward) or `Io.failing`
+  (.fail); six stub modules and root re-exports deleted; `tools/tidy_test.zig` real_paths updated;
+  plan checkboxes 1+2 ticked; CHANGELOG [Unreleased] started. CI green (macOS, Linux, 6 cross).
+  Issue #18 items 1-2 ticked. code-reviewer: 0 critical; fixed 5 warnings (options passthrough,
+  assertions, .fail behaviour test, header caveats).
+- Next: item 3 — `tests/parity/` harness (`expectSameResult`) + `slots.zig` 109-name table.
+- Blockers: none. Open questions: none.
+- Gotchas: `Runtime.init` returns by value (PRD signature) but is self-referential after first
+  `io()`; std `Io.failing` `await`/`cancel` are `unreachable`, so token-exchanging slot groups
+  (async/await/cancel, group*, batch*) must be swapped in atomically. Stale `.zig-cache` hit
+  again. The Bash guard also blocks shell writes to citadel memory — use Write/Edit tools.
 
 ## Cycle 26 — 2026-09-30 — FEATURE
 - Inbox: OWNER merged plan PR #13 (plan 002, fiber-scheduler-and-futex-core) on 2026-09-29 —
