@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-09-30T04:15:00Z
+last_seen_at: 2026-10-01T00:00:00Z
 rejected_plans: []
+
+## Cycle 28 — 2026-10-01 — FEATURE
+- Inbox: no OWNER actions since watermark (only our own cycle-27 comment). CI green on 28bf19e;
+  only open issue is milestone #18.
+- Done: plan 002 item 3 via PR #21 (merged as 2f89fd2, CI green Linux+macOS+6 cross):
+  `tests/parity/{harness,slots,fixtures,time,dir,root}.zig` wired into `zig build test`.
+  `expectSameResult` compares tag/payload/error name (quiet `std.meta.eql`, pointer payloads are a
+  compile error); `slots.zig` `audit` guards all 109 names (`native`/`delegated`/`divergent`) plus
+  a runtime check that lists match the real vtable. Plan checkbox + CHANGELOG + issue #18 ticked.
+  code-reviewer: 0 critical, warnings fixed (vtable identity test, no stderr noise).
+- Next: item 4 — `src/sched.zig` fiber substrate (`Io.fiber.contextSwitch`, canary, no slots).
+- Blockers: none. Open questions: none.
+- Gotchas: `expectEqualDeep` on a deliberate mismatch prints "failed command" noise though the
+  build exits 0 — avoid it in negative tests. Side-effecting/handle-returning slots need their own
+  harness helper (documented in harness header) when they turn native. `sed -i` needs `''` on macOS.
 
 ## Cycle 27 — 2026-09-30 — FEATURE
 - Inbox: no OWNER actions since watermark. CI green on d49b078; only open issue is milestone #18.
