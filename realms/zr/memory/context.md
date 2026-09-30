@@ -1,7 +1,23 @@
 # zr — context
 
-last_seen_at: 2026-09-30T00:00:00Z
+last_seen_at: 2026-10-01T00:00:00Z
 rejected_plans: []
+
+## Cycle 11 — 2026-10-01 — FEATURE
+- Preflight: tree clean on `main`; CI green (headSha matched origin/main). Disk 46GB free. Only
+  open issue is milestone #155; zuda/sailor tags still v2.3.0 / v2.99.0, so items 5-11 stay
+  blocked → one `/stabilize --one`.
+- Fixed `plugin/registry_client.zig`: `get` read the HTTP response with an unbounded
+  `while (true)` (same defect as #172). Extracted `readResponseBounded` (8 MiB, bounded `for`,
+  read error → `NetworkError`, oversize → `InvalidResponse`), 6 fake-stream tests, added `//!`
+  header. PR #173 merged, 8/8 green. `zig build test` 1886/0, tidy 0 failing; baseline: dropped
+  registry_client `doc-header`, `get` 85→76.
+- Gotchas: a stale `.zig-cache` ("failed to spawn build runner ... FileNotFound") is fixed by
+  `rm -rf .zig-cache` (gitignored). CI matrix took ~12 min from push; `gh pr checks` polls fine.
+- Next: 18 remaining `while (true)` (plugin/install.zig:235 file copy, builtin_git.zig x4,
+  cli/add*.zig, show.zig, template.zig, exec/remote.zig, process.zig), ~220 missing `//!`
+  headers, zero-assert modules, `std.debug.print`. Watch zuda/sailor v3.0.0 tags.
+- Open questions: none.
 
 ## Cycle 10 — 2026-09-30 — STABILIZATION (n%5==0)
 - Preflight: tree clean on `fix/bound-topo-sort-level-loop` (= PR #171 head); CI green on main.
