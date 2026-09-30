@@ -1,7 +1,26 @@
 # sigil — context
 
-last_seen_at: 2026-09-29T00:00:00Z
+last_seen_at: 2026-09-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 26 — 2026-09-30 — FEATURE
+
+- Done: plan 003 (PR #26) had been merged and milestone issue #27 opened (by cycle 25's tail).
+  Merged PR #28 (item 1, `core/unicode.zig` UTF-8 validation; CI 8/8 had passed the day
+  before). Implemented item 2 via PR #29, CI 8/8, squash-merged: `core/unicode_escape.zig`
+  (`encode`, `parse_hex4`, `decode_utf16`, `write_escaped` with `minimal`/`ascii_only`).
+  Issue #27 at 2/10. Local: 144 tests, tidy 0/0, fmt clean.
+- Decisions: escape primitives live in `unicode_escape.zig`, not `unicode.zig` (that file was
+  already 740 lines; adding them pushed it past the 800 soft limit and tidy's line/ban/assert
+  checks failed). `core.zig` re-exports both. DEL (U+007F) is escaped as `\u007f` because TOML
+  and YAML forbid it raw; reviewer (sonnet) caught it. `catch unreachable` needs `// proof:` on
+  the same line or the one before, and the line must stay <= 100 columns.
+- Process slip: wrote the implementation before the tests for item 2 (no red step); recovered
+  by a mutation check (weakening `decode_utf16` made a test fail). Do the red step first.
+- Note: `timeout` is absent on this macOS; use `gh pr checks --watch` directly. Bash `cd` into
+  the repo trips the guard hook; the session cwd is already the repo.
+- Next: item 3, ADR 0002 reflect contract (design only, `architect`/opus), then item 4
+  `reflect/options.zig`. Blockers/questions: none.
 
 ## Cycle 25 — 2026-09-29 — FEATURE (quiet; counter was 23 at start, cycle 24's report had not written it)
 
@@ -160,6 +179,6 @@ Plan 001 (issue #3) closed 11/11. Plan 002 (issue #20) closed 5/5 — Phase 1A/1
 
 ## Next priority
 
-Awaiting human merge of plan 003 (PR #26). Once merged, `/cycle` opens its tracking issue and
-item 1 (`core/unicode.zig` UTF-8 validation) becomes the next `/implement` target.
+Plan 003 is approved (issue #27, 2/10 ticked). Next `/implement` target: item 3, ADR 0002
+(reflect contract, design only), then `reflect/options.zig`.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
