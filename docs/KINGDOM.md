@@ -20,12 +20,12 @@
 
 | Repo | Layer | One line | Status |
 |---|---|---|---|
-| [sigil](https://github.com/yusa-imit/sigil) | Foundation | Value IR + comptime reflection; JSON/TOML/YAML/MessagePack/CBOR/Protobuf/CSV; layered config | 0.2.0 in zon (no tag yet) — plans 001 and 002 complete (core `Value`/`ValueTree`/`Diagnostics`/number parsing), plan 003 (Phase 1C/1D unicode + comptime reflection) in review (PR #26) |
-| [sirocco](https://github.com/yusa-imit/sirocco) | Foundation | Production `std.Io.VTable` implementation (kqueue/epoll/io_uring), powering std net/http/tls | v0.2.0 — plan 001 (0.16 migration + Tiger Style) complete, plan 002 (fiber scheduler + futex core) in review |
+| [sigil](https://github.com/yusa-imit/sigil) | Foundation | Value IR + comptime reflection; JSON/TOML/YAML/MessagePack/CBOR/Protobuf/CSV; layered config | 0.2.0 in zon (no tag yet) — plans 001 and 002 complete (core `Value`/`ValueTree`/`Diagnostics`/number parsing), plan 003 (Phase 1C/1D unicode + comptime reflection) approved (PR #26, 2026-09-29), `core/unicode.zig` in review (PR #28) |
+| [sirocco](https://github.com/yusa-imit/sirocco) | Foundation | Production `std.Io.VTable` implementation (kqueue/epoll/io_uring), powering std net/http/tls | v0.2.0 — plan 001 (0.16 migration + Tiger Style) complete, plan 002 (fiber scheduler + futex core) approved (PR #13, 2026-09-29) |
 | [strata](https://github.com/yusa-imit/strata) | Foundation | File I/O abstraction, pages + buffer pool, segmented WAL + recovery, B+Tree, LSM, KV engine, snapshots | v0.2.0 (PR #15) — plan 001 (0.16 migration + Tiger Style hygiene) complete; no storage-kernel modules landed yet |
 | [synod](https://github.com/yusa-imit/synod) | Foundation | Pure-state-machine Raft, joint consensus, SWIM, φ-accrual, HLC, deterministic simulator | v0.2.0 (PR #15) — plan 001 complete; plan 002 underway (`types.zig` and in-memory `log.zig` landed, PRs #22-#25; `interfaces.zig` vtables and `store.zig` next) |
 | [zuda](https://github.com/yusa-imit/zuda) | Library | ~60 containers, 24 algorithm families, 209 distributions, NDArray/linalg/stats/FFT/optimize, ML (461k LOC) | v2.3.0 (+109 unreleased commits) |
-| [sailor](https://github.com/yusa-imit/sailor) | Library | TUI framework, 140 widgets, CLI toolkit (150k LOC) | v2.99.0 |
+| [sailor](https://github.com/yusa-imit/sailor) | Library | TUI framework, 140 widgets, CLI toolkit (150k LOC) | v2.99.0 (Zig 0.16 migration merged to main, PR #40, unreleased; v3.0.0 pending — main CI red on Windows) |
 | [zr](https://github.com/yusa-imit/zr) | Tooling | Task runner + toolchain manager + monorepo + MCP/LSP server (112k LOC) | v1.114.0 |
 | [silica](https://github.com/yusa-imit/silica) | Service | Embedded/server RDBMS, SQL:2016, MVCC, PG wire, replication (184k LOC) | v1.0.1 |
 | [zoltraak](https://github.com/yusa-imit/zoltraak) | Service | Redis-compatible store, 500+ commands, RESP2/3, cluster, Lua (141k LOC) | 0.2.0 in zon (v0.2.14 latest tag) |
