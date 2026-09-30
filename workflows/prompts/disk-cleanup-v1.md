@@ -13,12 +13,6 @@ IMPORTANT: do NOT grep the full command line for strings like "cargo build" or "
 From the matching lines, read the file paths in the arguments to determine which /Users/fn/codespace/<project> each compiler is working in. Skip those projects in Steps 3-5 and list them in the report.
 Note: the `-mtime +1` filter below is the primary safety net — an entry older than a day is not part of an in-flight build. This step is a second layer.
 
-## Step 2b: TEMPORARY exception — sailor Zig 0.16 migration (sailor#34)
-Run: `gh issue view 34 -R yusa-imit/sailor --json state --jq .state`
-- Prints `OPEN`, or the command fails for any reason: add `sailor` to the Step 2 skip list and report it as `sailor (migration exception)`.
-- Prints `CLOSED`: the exception has expired; treat sailor like any other project.
-The operator removes this step from citadel/workflows/ once sailor#34 is closed.
-
 ## Step 3: Prune stale Zig cache entries
 List the candidates first: `ls -d /Users/fn/codespace/*/.zig-cache 2>/dev/null`
 For each directory found, EXCLUDING any project from Step 2:
