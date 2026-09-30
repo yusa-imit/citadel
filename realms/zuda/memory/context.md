@@ -1,7 +1,22 @@
 # zuda — context
 
-last_seen_at: 2026-09-30T05:00:00Z
+last_seen_at: 2026-10-01T00:00:00Z
 rejected_plans: []
+
+## Cycle 16 — 2026-10-01 — STABILIZATION
+- Done: forced by open bug #53 (n%5 != 0, CI green). Inbox found no new OWNER comments, no plan
+  PR; `milestone_issue: 31`. #53 root cause: the *test* was wrong, not `findFirst` — "or" ends
+  at 9, "world" at 11, and `findFirst` returns the first match to complete, so "or" (index 1,
+  pos 7) is right. Corrected the expectation and added `aho_corasick.zig` to `root.zig`'s test
+  block (39 filtered / whole suite `zig build test` exit 0, fmt clean).
+- PRs: #55 merged (squash, all 7 checks green), labeled `auto-merged`; #53 closed. No open bugs.
+- Next: FEATURE — plan 001 `std.fs.cwd()` -> `Io.Dir`/`Io.File` in `ndarray.zig` (14 sites).
+  Stabilize leftovers: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73; tests do not
+  compile on 0.15.2), 3 type-fn baseline entries that grew; probe for more hidden-red files
+  (scratch `src/scratch.zig` with `test { _ = @import(...); }`, delete after).
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: bash guard rejects `cd <repo>; ...` compound commands and `timeout` does not exist on
+  this box; run plain commands (cwd is already the repo) and use Edit for multi-line changes.
 
 ## Cycle 15 — 2026-09-30 — STABILIZATION
 - Done: periodic (n%5==0); CI green, no bugs, no plan PR, no owner comments. Merged #50 (moved
