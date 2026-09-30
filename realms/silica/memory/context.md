@@ -1,7 +1,24 @@
 # silica — context
 
-last_seen_at: 2026-09-29T10:19:47Z
+last_seen_at: 2026-09-30T10:20:14Z
 rejected_plans: []
+
+## Cycle 18 — 2026-09-30 — FEATURE
+- Preflight: repo clean on main, CI not red, no bug/question issues, no open PRs. Inbox: only our
+  own status comment on #137; nothing actionable.
+- Implemented plan 001 tidy step part 2, ban-list batch 4: `std_time_in_lib` check in
+  `src/tidy.zig` (skips harness files and top-level test blocks; path-keyed shrink-only
+  baseline: 17 files / 54 sites, `tidy.zig` 3 is a self-match). 7 new tests (45/45 in tidy.zig).
+  Ban list is now complete. PR #158: build-and-test 7m25s + 6 cross-compile green, merged.
+- Next: line-length reduction (3,521 lines >100 cols, batch by file) then wire `run_tidy` into
+  `test_step`. `zig build tidy` still exits 1 on line_too_long alone (ungated). Checklist item
+  stays unchecked until both are done. Rest of plan blocked_by zuda/sailor v3.0.0 (tags are
+  v2.3.0 / v2.99.0).
+- Tooling notes: guard hook blocks compound `cd repo; cmd` Bash lines — use simple commands
+  (cwd persists). `zig build tidy` hit "FileNotFound" on the build runner once; fixed with
+  `--cache-dir /tmp/silica-zc-tidy`. CI takes ~15 min total (cross-compile is last).
+- Blockers: none new. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrent
+  connections; tidy scans textual).
 
 ## Cycle 17 — 2026-09-29 — FEATURE
 - Preflight: repo was clean on `feat/tidy-usize-disk-format-check` (PR #156 head, pushed; the
