@@ -1,7 +1,20 @@
 # strata — context
 
-last_seen_at: 2026-09-30T02:20:00Z
+last_seen_at: 2026-09-30T05:15:00Z
 rejected_plans: []
+
+## Cycle 22 — 2026-09-30 — FEATURE
+- Done: plan 002 item 2 implemented — `src/codec/fixed.zig` (generic `read(T, buf)`/
+  `write(T, buf, v)` for u16/u32/u64 LE, `error.BufferTooSmall`) and `src/codec/varint.zig`
+  (canonical LEB128 u64, zigzag i64, 10-byte cap, `Truncated`/`Overlong`/`BufferTooSmall`;
+  decoder rejects non-canonical trailing-zero spellings). code-reviewer: 0 critical, 3
+  warnings (unreachable tail, missing Overlong vectors, weak reference) all fixed pre-merge.
+- PRs: #19 merged (squash, CI 7/7 green, labelled auto-merged). Issue #17 item 2 ticked.
+- Next: item 3 — `codec/crc32c.zig` (hw/sw parity, feature detection not `builtin.os.tag`).
+- Blockers: none. Open questions: none.
+- Note: tidy's assertion-density is per file (>= 2 per fn incl. comptime asserts, counted by
+  line), so tiny wrapper fns hurt — prefer one generic fn over many wrappers. Guard hook
+  blocks Bash heredocs/python writing into the repo; use Write/Edit tools. BSD sed has no `\n`.
 
 ## Cycle 21 — 2026-09-30 — FEATURE
 - Done: plan 002 (PR #16) was merged by the OWNER = approved. Opened milestone issue #17. Item 1
