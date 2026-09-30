@@ -1,7 +1,21 @@
 # strata — context
 
-last_seen_at: 2026-09-30T05:15:00Z
+last_seen_at: 2026-10-01T00:00:00Z
 rejected_plans: []
+
+## Cycle 23 — 2026-10-01 — FEATURE
+- Done: plan 002 item 3 — `src/codec/crc32c.zig`: `checksum`, streaming `Hasher`, `Path`
+  (software table / hardware SSE4.2+ARMv8 chosen at compile time by CPU feature set, not os tag),
+  `path_default`. RFC 3720 B.4 vectors, std parity, hw/sw parity at every alignment. code-reviewer:
+  0 critical; 2 warnings (costly recompute asserts, duplicated dispatch) fixed pre-merge.
+- PRs: #20 merged (squash, CI 7/7 green, labelled auto-merged). Issue #17 item 3 ticked.
+- Next: item 4 — `codec/xxhash.zig` (wrapper over `std.hash.XxHash64`, frozen LE digest).
+- Blockers: none. Open questions: none.
+- Note: x86_64 hw asm is compile-checked only (`-mcpu x86_64+sse4_2`), never executed in CI (CI
+  builds generic CPU → software). Zig 0.16 inline asm: no `%w[x]` modifier on aarch64 (use fixed
+  `{w9}` regs); no tied `"[name]"` input on x86 (use `"0"`); byte form needs plain `crc32`
+  mnemonic with a u32 dest. Tidy density counts `comptime assert` lines; fold wrappers into
+  one generic fn (here `checksum_path(comptime path, ...)`).
 
 ## Cycle 22 — 2026-09-30 — FEATURE
 - Done: plan 002 item 2 implemented — `src/codec/fixed.zig` (generic `read(T, buf)`/
