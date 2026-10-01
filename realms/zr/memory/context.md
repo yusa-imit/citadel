@@ -1,7 +1,25 @@
 # zr — context
 
-last_seen_at: 2026-10-01T00:00:00Z
+last_seen_at: 2026-10-02T00:00:00Z
 rejected_plans: []
+
+## Cycle 12 — 2026-10-02 — FEATURE
+- Preflight: tree clean on `main`; CI green (headSha matched origin/main). Disk 56GB free.
+  Inbox: no comments, no open PRs, only issue is milestone #155; zuda/sailor tags still v2.3.0 /
+  v2.99.0, so items 5-11 stay blocked → one `/stabilize --one`.
+- Fixed `plugin/install.zig`: `installLocalPlugin` copied each file with an unbounded
+  `while (true)`. Extracted `copyBounded` (64 MiB per file, bounded `for`, new
+  `InstallError.FileTooLarge`), 6 fake-stream tests, added `//!` header. PR #174 merged, 8/8
+  green (~14 min). `zig build test` 1892/0, tidy 0 failing; baseline: dropped install.zig
+  `doc-header`. `cli/plugin.zig` falls into `else => return err` for the new variant (no
+  friendly message yet).
+- Gotchas: guard hook blocks compound `cd X; grep ...` commands; Grep tool unavailable, use
+  `grep` via Bash plain. `for` loop over `bytes_max + 1` pattern works for generic `anytype`
+  source/sink helpers.
+- Next: remaining `while (true)`: builtin_git.zig x4, cli/add*.zig, show.zig, template.zig,
+  exec/remote.zig x4, process.zig, config_editor.zig; ~220 missing `//!` headers; zero-assert
+  modules. Cycle 15 is STABILIZATION. Watch zuda/sailor v3.0.0 tags.
+- Open questions: none.
 
 ## Cycle 11 — 2026-10-01 — FEATURE
 - Preflight: tree clean on `main`; CI green (headSha matched origin/main). Disk 46GB free. Only

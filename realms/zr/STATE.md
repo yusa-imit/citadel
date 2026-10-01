@@ -44,7 +44,7 @@ Drift found, not missing functionality:
 | `catch unreachable` without proof comment | 0 / 12 | All 12 sites proven (landed PRs #161-163). |
 | `@panic` in library code | 1 | `stdx.zig`'s `assert_always` itself — the invariant primitive, not debt. |
 | `std.debug.print` outside `cli/`+`output/` | 93 across 14 files | Worst: `parser.zig` (30), `scheduler.zig` (21). Needs a ban-list decision. |
-| unbounded `while (true)` (non-event-loop) | 1 known | `graph/topo_sort.zig:173` bounded by node count in cycle 9 (PR #171, pending CI/merge). `cli/common.zig` fixed cycle 8 (PR #170, merged cycle 9); `upgrade/checker.zig:75` has an unbounded HTTP-response accumulation, lower priority. |
+| unbounded `while (true)` (non-event-loop) | ~17 remaining (34 `while (true)` in src incl. main.zig/tests/event loops) | Fixed so far: topo_sort (#171), cli/common (#170), upgrade/checker (#172), plugin/registry_client (#173), plugin/install file copy (#174, cycle 12). Remaining candidates: builtin_git x4, cli/add*.zig, show.zig, template.zig, exec/remote.zig x4, process.zig, config_editor.zig. |
 | Functions > 70 lines | 72 | Worst: `parseToml` 5123 lines (has assertion baseline; structural, out of scope). |
 | Files > 800 lines | 25 | Worst: `config/parser.zig` 9076, `exec/scheduler.zig` 3802. |
 | `usize` in wire/serialized structs | 0 | Checked lock.zig, cache stats, JSON-RPC modules — clean. |
