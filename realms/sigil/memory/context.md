@@ -1,7 +1,23 @@
 # sigil — context
 
-last_seen_at: 2026-10-01T00:00:00Z
+last_seen_at: 2026-10-01T12:00:00Z
 rejected_plans: []
+
+## Cycle 28 — 2026-10-01 — FEATURE
+
+- Done: item 4 of plan 003, `reflect/options.zig`, via PR #31 (CI 8/8, squash-merged); issue #27
+  at 4/10. `resolve(T)` -> comptime `Table` of `Entry{zig_name, wire_name, has_default}` +
+  `deny_unknown_fields`; `find_wire`. 17 compile-error fixtures in `tests/compile_errors/`, run
+  as `b.addObject` + `expect_errors` steps from `build.zig` (`compile_error_cases` table).
+- Learned: `expect_errors .contains` is really *ends-with* on one compiler output line, so the
+  expected text must be the tail of the `@compileError` message. `@Struct(.auto, null, names,
+  types, attrs)` builds test structs in 0.16. A non-`pub` `sigil_options` is invisible to
+  `@hasDecl` (documented in `resolve`). Reviewer (sonnet) found 5 warnings, all applied.
+- Note: a first Bash command mixing `$REALM` citadel paths with repo reads trips the guard;
+  keep citadel reads to the Read tool. `/tmp/sigil_start` was never written (blocked), so the
+  deadline clock was approximate.
+- Next: item 5 `reflect/parse.zig` scalars (also needs `core.diagnostics.position_none`, `Context`,
+  `Path` per ADR 0002). Blockers/questions: none.
 
 ## Cycle 27 — 2026-10-01 — FEATURE
 
@@ -192,6 +208,6 @@ Plan 001 (issue #3) closed 11/11. Plan 002 (issue #20) closed 5/5 — Phase 1A/1
 
 ## Next priority
 
-Plan 003 is approved (issue #27, 2/10 ticked). Next `/implement` target: item 3, ADR 0002
-(reflect contract, design only), then `reflect/options.zig`.
+Plan 003 is approved (issue #27, 4/10 ticked). Next `/implement` target: item 5,
+`reflect/parse.zig` scalars (ADR 0002 is the contract).
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
