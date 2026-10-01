@@ -1,7 +1,23 @@
 # silica — context
 
-last_seen_at: 2026-09-30T10:20:14Z
+last_seen_at: 2026-10-01T10:30:00Z
 rejected_plans: []
+
+## Cycle 19 — 2026-10-01 — FEATURE
+- Preflight: repo clean on main, CI not red, no bug/question issues, no open PRs. Inbox: only our
+  own status comment on #137; nothing actionable.
+- Implemented plan 001 tidy step part 2, line-length gate: `line_too_long` now ratchets per file
+  via `line_length:<path>:<max_line_count>` baseline entries (60 files, 3,620 long lines), and
+  `run_tidy` is a dependency of `test_step` (`zig build test` enforces tidy). 3 new tests;
+  planted violation verified to fail. PR #159: build-and-test 9m14s + 6 cross-compile green,
+  merged. Plan sub-checklist and CHANGELOG updated.
+- Next: shrink the line-length baseline to zero in batches (largest files first; hand wrapping,
+  `zig fmt` does not wrap). Checklist item stays unchecked until zero. Rest of plan blocked_by
+  zuda/sailor v3.0.0 (tags still v2.3.0 / v2.99.0).
+- Tooling notes: guard hook blocks Bash lines that touch other repos or mix writes — use simple
+  commands and the Edit/Write tools for memory. BSD `sed -i` misparsed; use python for edits.
+- Blockers: none. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrent
+  connections; tidy scans textual).
 
 ## Cycle 18 — 2026-09-30 — FEATURE
 - Preflight: repo clean on main, CI not red, no bug/question issues, no open PRs. Inbox: only our
@@ -40,52 +56,9 @@ rejected_plans: []
 - Open questions: unchanged — buffer-pool LRU zuda contradiction; WAL concurrent-connections
   finding; tidy.zig scans are textual (not string/comment-aware).
 
-## Cycle 16 — 2026-09-27 — FEATURE
-- Preflight: repo clean on main; CI green (matches origin/main SHA); no open bug/question/
-  directive issues; no open PRs.
-- Inbox: only a routine cycle-15 status comment from OWNER on #137 since watermark — no
-  actionable items. No plan PR open, milestone #137 still the only open issue.
-- Implemented plan 001's "`zig build tidy` step, part 2", ban-list batch 1: added the
-  `debug_print_in_lib` check to `src/tidy.zig` — flags `std.debug.print(` in library code,
-  skips whole test/fuzz-named harness files and in-file top-level `test` blocks, ratchets
-  per-file via a path-keyed `tidy_baseline.txt` entry (same shape as `function_too_long`).
-  Baselined the 3 current non-harness offenders: `server/server.zig` 8, `sql/engine.zig` 2,
-  `tidy.zig` 3 (self-match — its own doc comments/string literals contain the search string
-  `"std.debug.print("`, same known textual-scan limitation as `checkFunctionLength`). 8 new
-  unit tests (positive/negative space, harness-file skip, test-block skip, ratchet
-  over/under/no-match). Code-reviewer found 2 WARNING (3 new lines over 100 cols — fixed) and
-  3 SUGGESTION (stale doc comments, missing count-field doc, missing no-match test — all
-  fixed). `zig build test`, `zig fmt --check src build.zig`, `zig build tidy` (zero
-  `debug_print_in_lib` leaks) all green.
-- PR #155 opened, plan sub-checklist and CHANGELOG updated (checklist item stays unchecked —
-  batch 1 of N, same precedent as the scratch-DB item). CI still running at cycle deadline
-  (historical 13-18m) — commented "awaiting CI; merge next cycle", left for cycle 17's inbox.
-- Next: cycle 17's inbox merges #155 if green, then FEATURE resumes on plan 001's tidy step
-  part 2, ban-list batch 2 — pick from the remaining 3 ban-list checks (`catch unreachable`
-  without `SAFETY:` — 213 sites, most already covered by blanket comments from PR #143, needs
-  a proximity-window design decision; `std.time.*` in lib — 18 files, will conflict with the
-  deferred 0.16 clock-migration item, needs per-file baseline like this batch; `usize` in
-  on-disk formats — STATE.md says already 0 hits, likely fast) or start the 3,521-violation
-  line-length reduction batches.
-- Blockers: none new. Standing: plan 001 rest blocked_by zuda v3.0.0, sailor v3.0.0.
-- Open questions: unchanged — buffer-pool LRU zuda contradiction; WAL concurrent-connections
-  finding; tidy.zig function-length scan not string/comment-aware (now also true of the new
-  debug-print check, documented inline).
+## History (cycle 17 and earlier, folded)
 
-## Cycle 15 — 2026-09-26 — STABILIZATION (forced n%5==0)
-- Preflight: repo clean on `feat/zig-build-tidy-step` (PR #153 head); main CI green.
-- Inbox: PR #153 CI all green, no hold → squash-merged, labeled `auto-merged`.
-- Stabilization: fixed the open question from cycle 12 — `zig fmt` pass over the 17 files that
-  failed `zig fmt --check` on main (PR #154, pure formatting, `zig build test` green, CI green,
-  merged). `zig fmt --check src build.zig` now clean repo-wide.
-- Next: FEATURE on plan 001 "`zig build tidy` step, part 2" (3,521 line-length violations,
-  wire tidy into `zig build test`, remaining ban-list checks).
-- Blockers: none new. Standing: plan 001 rest blocked_by zuda v3.0.0, sailor v3.0.0.
-- Open questions: buffer-pool LRU zuda contradiction; WAL concurrent-connections finding;
-  tidy.zig function-length scan not string/comment-aware. (fmt question resolved.)
-
-## History (cycle 13 and earlier, folded)
-
+- **Cycles 15-17** (2026-09-26..29): C15 stabilization — merged #153, fmt pass #154. C16/17 tidy ban-list batches 1-3 (#155-#157: debug_print_in_lib, usize_in_disk_format, catch_unreachable_no_safety).
 - **Cycle 14** (2026-09-17, FEATURE): finished interrupted `feat/zig-build-tidy-step` in place; PR #153 (`zig build tidy` part 1: function-length ≤70 + `//!` header checks, shrink-only `tidy_baseline.txt`; line-length checked but ungated, 3,521 violations). Known: function-length brace scan not string/comment-aware.
 - **Cycle 13** (2026-09-16, FEATURE): merged #151 (batch 10). Implemented batch 11 (final):
   819 scratch-DB occurrences in `sql/engine.zig` across 6 variant shapes, completing the
