@@ -186,6 +186,14 @@ truth ("missing struct field: items/capacity" against `ArrayList`), not a text p
 for `= \.{}`/`ArrayList(...){}` is too broad (catches non-`ArrayList` `.{}` like `.style = .{}`)
 and a narrower one misses nested positions.
 
+## Refreshing the tidy baseline after a big refactor
+
+Build `build_support/tidy_main.zig` with the 0.16 `zig build-exe`, run it from outside the guard's
+`cd` block with `generate src build.zig /tmp/out.txt`, strip the repo prefix, and diff against
+`tidy_baseline.txt`. Absolute paths skip the path-keyed `usize_in_wire_format` check, so copy those
+4 entries from the old file. Verify with `zig build tidy`. Use `--cache-dir /tmp/...`: the repo's
+`.zig-cache` held a stale build runner and failed with `FileNotFound`.
+
 ## Verified cross-compile targets
 
 `x86_64`/`aarch64` × `linux-gnu`/`macos`, `x86_64-windows-{gnu,msvc}` — all pass as of the

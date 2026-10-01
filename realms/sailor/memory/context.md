@@ -1,7 +1,24 @@
 # sailor — context
 
-last_seen_at: 2026-09-30T08:40:00Z
+last_seen_at: 2026-10-01T08:30:00Z
 rejected_plans: []
+
+## Cycle 20 — 2026-10-01 — STABILIZATION
+
+- Done: periodic stabilization (n%5). Main CI green on 137d748 (note: `gh run list --workflow CI
+  --branch main` returned a stale 09-16 run; list without `--workflow` to see the real latest).
+  Inbox clear. tidy-auditor found `tidy_baseline.txt` stale after the 0.16 migration; PR #42
+  (merged, 10/10) regenerated it, 359->334 lines, all counts equal or lower. See [[patterns]].
+- Live audit counts (src/): 12 bare `catch unreachable` (async_loop.zig 566,688,736,795,890;
+  event_metrics 181,248; render_metrics 186,255; smart_autocomplete 41,43; editor.zig 97), 8
+  `@panic` (all commented), 35 `std.debug.print`, 13 `while (true)`, 53 files >800 lines, 0
+  missing `//!`.
+- PRs: #42 (merged).
+- Next: README drift (still "Zig 0.15.x", GeneralPurposeAllocator quick start, "40+ widgets",
+  Network & Async claim) goes with item 12; item 11 remaining `tui/buffer.zig`, `tui/layout.zig`,
+  `fmt.zig`; then v3.0.0. async_loop test callbacks: replace `catch unreachable` with explicit
+  failure handling (check the :890 cancellation test first).
+- Blockers: none. Open questions: none.
 
 ## Migration window
 
@@ -58,45 +75,15 @@ rejected_plans: []
 
 ## Cycle 17 — 2026-09-27 — FEATURE
 
-- Done: preflight found repo on PR #37's branch, clean, pushed; merged it (10/10 green) before
-  switching to main. CI green. Inbox: no new OWNER input on #34, no plan PR. Fixed stale
-  milestone-19 bookkeeping: ticked the `wip/timeline-description-rendering` checkbox (it was
-  actually finished/merged in cycle 3 as PR #22, box was never ticked) and commented explaining
-  the stale `wip/timeline-description-rendering` branch stays undeleted per the kingdom
-  contract's unconditional "never delete a wip/* branch" rule (overrides the plan's "remote
-  branch deleted" verify line). Since items 4/6-10 stay blocked on #34 (still open, no new OWNER
-  reply), picked item 11 ("assertion baseline on hot modules") as unblocked work — it needs no
-  0.16 migration. Scoped to `term.zig` (first in module order, had zero asserts). test-writer
-  pinned ~25 contract tests first; zig-developer added 43 asserts across `isatty`, `getSize`
-  family, focus/paste predicates, `hexEncode`/`hexDecode`, xtgettcap query/response,
-  `MockTerminal` — and fixed a latent gap where `getSizeWindows` had no bounds gate before
-  returning raw console dimensions (now returns the existing `Error.TerminalSizeUnavailable`
-  instead of asserting on OS-supplied data). `zig build test` green (348/348), `zig fmt`/tidy
-  clean. Opened PR #38; CI pending at cycle deadline — left for next cycle's inbox, same
-  recurring pattern as #21/#25/#26/#29/#30/#31/#32/#33/#35/#36/#37.
-- PRs: #37 (merged), #38 (open, CI pending).
-- Next: inbox merges #38 once green. Item 11 remaining files, in order: `arg.zig`,
-  `tui/buffer.zig`, `tui/layout.zig`, `fmt.zig` — same test-writer-then-zig-developer pattern
-  worked well for `term.zig`, reuse it. Milestone checkbox for item 11 stays unticked until all
-  five files are done.
-- Blockers: #34 still open (OWNER's 2026-09-18 reply about cron access answered a different
-  framing; cycle 16 already flagged that granting the exception is outside the sailor realm's
-  own edit scope and needs an operator). No new comment since.
-- Open questions: #34 (unchanged).
+- Done: ticked the stale `wip/timeline-description-rendering` checkbox (branch stays, never
+  delete `wip/*`). Item 11 started with `term.zig` as PR #38: 43 asserts, `getSizeWindows` now
+  returns `TerminalSizeUnavailable` instead of passing raw OS dimensions. Pattern that worked:
+  test-writer first, then zig-developer.
 
 ## Cycle 16 — 2026-09-26 — FEATURE
 
-- Done: preflight found repo on PR #36's branch, switched to main. CI green, no bugs. Merged
-  PR #36 (10/10 green). Milestone #19 items still blocked on the toolchain switch; did one
-  bounded stabilize task: proof-commented `src/tui/inspector.zig`'s 2 `catch unreachable`
-  test-visitor sites (comment kept short so line stays <=100 cols), baseline 358->357. PR #37.
-- PRs: #36 (merged), #37 (open, CI pending).
-- Next: inbox merges #37 once green. Remaining candidates: `src/tui/async_loop.zig`
-  (563,685,733,792,887; verify each callback's task always succeeds).
-- Blockers: #34 got an OWNER reply 2026-09-18: "Access to cron, add exception for work from
-  cleanup schedule. After work done, roll back exception from cleanup schedule." Needs operator
-  action on cron (outside sailor realm; AI cannot edit it). Issue left open.
-- Open questions: #34.
+- Done: merged PR #36; proof-commented `inspector.zig`'s 2 `catch unreachable` test-visitor
+  sites as PR #37 (merged later). #34 got the OWNER's cron-exception reply (operator action).
 
 ## History (cycles 13-15, condensed 2026-09-29)
 

@@ -48,6 +48,12 @@ v2.100.0, round 3 of this audit). No `CHANGELOG.md` — release notes live only 
 
 ## Tiger Style gaps
 
+**Refreshed 2026-10-01 (cycle 20, PR #42):** baseline regenerated after the 0.16 migration, 332
+tracked entries (file 334 lines). Live counts in `src/`: 12 bare `catch unreachable` (11 more
+carry a comment), 8 `@panic` (all commented), 35 `std.debug.print`, 13 `while (true)`, 53
+files >800 lines, 0 missing `//!`, 5 `std.time.` lines. The older table and paragraph below date
+from 2026-09-17 and are superseded where they disagree.
+
 As of 2026-09-17 (cycle 15, PR #36 open): `zig build tidy` baseline is 358 tracked entries (359
 after PR #33 merged, minus 1 `catch_unreachable` entry fixed by PR #36, `src/arg.zig`'s only
 remaining unproven site) — `catch_unreachable`, `panic`, `debug_print`, `usize_in_wire_format`,
