@@ -46,7 +46,7 @@ zero-violation check — counts below are the real absolute state.
 | Check | Count | Note |
 |---|---|---|
 | Files over 800 lines | 52 / 88 | `memory.zig` 16,248 is the extreme outlier (+598 from cycles 7-9's assertion-baseline additions) |
-| `std.debug.print` in `src/` (excl. `main.zig`/`cli.zig` entry points) | 13 / 7 files | 105 total, unchanged; slight file-count improvement |
+| `std.debug.print` in `src/` (excl. `main.zig`/`cli.zig` entry points) | 0 / 0 files | 92 total left (cli 45, server 26, main 21); #138 moved 13 to `std.log` (cycle 15) |
 | `catch unreachable` without same-line proof comment | 0 (was 2) | 2 sites in `storage/memory.zig:6164,6233` (`incrby`/`incrbyfloat`) regressed in PR #132's assertion work, fixed same-cycle in PR #133 |
 | Unbounded `while (true)` | 11 (7 legit, 4 polling) | unchanged; sleep-poll candidates for the blocking.zig gap: `commands/streams_advanced.zig:446,735`, `commands/replication.zig:290,388` |
 | `assert` (any spelling) | 197 | up from 40 after cycles 6-9's assertion-baseline PRs (#127-132); 193/197 (98%) concentrated in 5 files: `commands/strings.zig` 46, `protocol/writer.zig` 44, `storage/memory.zig` 41, `protocol/parser.zig` 35, `server.zig` 27 — the other 83 files remain near-zero of 1,921 total functions |

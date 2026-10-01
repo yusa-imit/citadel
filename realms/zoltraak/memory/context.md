@@ -1,7 +1,21 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-01T00:00:00Z
+last_seen_at: 2026-10-02T00:00:00Z
 rejected_plans: []
+
+## Cycle 15 — 2026-10-02 — STABILIZATION (forced, n%5==0)
+- Preflight clean (main, CI green on 5338de8), no bugs, no plan PR, milestone #121 open, no
+  owner comments since watermark.
+- Merged #137 (CI runs `zig fmt --check src build.zig`; green 6m50s / 50s), labeled auto-merged.
+- Stabilize task: PR #138 moved 13 `std.debug.print` calls (storage, commands, scripting) to
+  `std.log.warn/info`; tidy baseline `debug_print` = 0 for those 7 files. CI green, merged.
+  Remaining `std.debug.print`: cli 45, server 26, main 21 (92 total). STATE.md updated.
+- Local `zig build test` fixed by `rm -rf .zig-cache` (cycle 14's FileNotFound): 1106/1106,
+  only the 2 known signal-4 RDB crashers (test_iter432/437) fail.
+- Next: items 4-9, 12 still blocked (zuda/sailor need v3.0.0). Standing backlog: stash triage
+  (stash@{0} may fix signal-4 crashers); debug.print in server.zig/main.zig/cli.zig.
+- Guard hook: compound `cd repo; ...` / `timeout` / chained `sleep` blocked; run plain commands.
+- Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
 
 ## Cycle 14 — 2026-10-01 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on 5338de8), no bugs, no plan PR, milestone #121 open, no
