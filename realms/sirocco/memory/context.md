@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-10-01T00:00:00Z
+last_seen_at: 2026-10-01T04:25:00Z
 rejected_plans: []
+
+## Cycle 29 — 2026-10-01 — FEATURE
+- Inbox: no OWNER actions since watermark. CI green on 2f89fd2; only open issue was milestone #18.
+- Done: plan 002 item 4 via PR #22 (merged, CI green Linux+macOS+6 cross): `src/sched.zig` fiber
+  substrate (init-time stacks, FIFO ready queue, spawn/yield/park/unpark, canary on every
+  switch-out, lock-free `unpark_foreign` inbox + futex wait), `stdx.assert_always`. Plan box,
+  CHANGELOG, issue #18 ticked. code-reviewer found a CRITICAL: optimized builds crashed on
+  aarch64 (inlined `Io.fiber.contextSwitch` clobbers x29/x30). Fixed: `noinline switch_context`,
+  `omit_frame_pointer = false` on the module, `zig build test` now honours `-Doptimize`, CI runs
+  ReleaseSafe/Fast (and ReleaseSmall on macOS).
+- OPEN BUG #23: x86_64-linux ReleaseSmall SEGVs the 4 fiber tests (Debug/Safe/Fast pass).
+  Cannot reproduce on the aarch64 dev box. Linux ReleaseSmall CI step is skipped until fixed.
+- Next: STABILIZATION on bug #23 (forced: open OWNER bug) — must be fixed before item 5.
+  Then item 5 (async/concurrent/await/cancel slots).
+- Blockers: none external. Open questions: none.
+- Gotchas: zsh treats `echo "== x"` as `=cmd` expansion; no `timeout` on macOS; `zig build test`
+  mod tests were Debug-only before this cycle. Fiber code needs frame pointers (see sched.zig).
 
 ## Cycle 28 — 2026-10-01 — FEATURE
 - Inbox: no OWNER actions since watermark (only our own cycle-27 comment). CI green on 28bf19e;

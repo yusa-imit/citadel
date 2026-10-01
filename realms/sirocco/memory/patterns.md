@@ -59,6 +59,15 @@ Phase 1 (`io/`, `net/`, backends) should follow the same shape once real `pub fn
 extract hot-path bodies into free functions, assert pre/post at both the free function and its
 thin `pub fn` wrapper, prefer independent derivations over restated branches.
 
+## Fiber context switching (`src/sched.zig`, plan 002 item 4)
+
+- `Io.fiber.contextSwitch` rewrites x29/x30 (aarch64) behind the compiler's back. Inlined, it
+  crashed ReleaseFast/Small/Safe: always call it through a `noinline` wrapper and build sirocco
+  with `omit_frame_pointer = false` (ReleaseSmall otherwise keeps live values in x29).
+- Debug-only test runs hide this: `zig build test -Doptimize=<mode>` must be run for all modes
+  after any change touching the switch. Reviewer (not the tests) caught it first.
+- Only reproducible on the host arch: x86_64 ReleaseSmall still crashes (bug #23).
+
 ## Error set per module
 
 Define `pub const Error = error{ ... }` at module top; public functions return `Error!T` or
