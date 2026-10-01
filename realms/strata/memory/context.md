@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-10-01T12:00:00Z
+last_seen_at: 2026-10-01T17:16:14Z
 rejected_plans: []
+
+## Cycle 25 — 2026-10-01 — FEATURE
+- Done: plan 002 item 5 — `src/file/file.zig` core: `File` leaf value (no cached io), `open`/
+  `close`/`readAt`/`readAtAll`/`writeAt`/`writeAtAll`/`length`/`setLength`, `SyncPolicy`,
+  `OpenOptions`; `direct` => `UnsupportedDirectIo`. Tests split into `file_model_test.zig` (seeded
+  model) + `file_fixtures.zig` (tidy 800-line cap). code-reviewer: 0 critical; fixed truncate-
+  before-lock (now `createFile(.truncate=false)` then `setLength(0)`), model assert, lock test,
+  CHANGELOG. PRD §4.2 corrected (`Mode` = `Io.Dir.OpenFileOptions.Mode`).
+- PRs: #22 merged (squash, CI 7/7 green, labelled auto-merged). Issue #17 item 5 ticked.
+- Next: item 6 — `file` durability: sync per policy, preallocate, lock/unlock (platform branch).
+- Blockers: none. Open questions: none.
+- Note: fault-injecting `Io` wrapper (short/zero count, Canceled) to prove writeAtAll's NoSpaceLeft
+  and short-read loops is now scoped into the `testing/crash.zig` item (plan edited). std 0.16:
+  no `Io.File.Mode`; `File.tryLock` exists; `readPositionalAll` exists. 1<<40 sparse tests assume
+  sparse-file FS. `PageSizeUnaligned` declared but unreturned until direct-IO.
 
 ## Cycle 24 — 2026-10-01 — FEATURE
 - Done: plan 002 item 4 — `src/codec/xxhash.zig` (asserted `std.hash.XxHash64` wrapper: `hash`,
