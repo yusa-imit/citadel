@@ -1,7 +1,21 @@
 # synod — context
 
-last_seen_at: 2026-10-01T03:30:00Z
+last_seen_at: 2026-10-01T06:08:00Z
 rejected_plans: []
+
+## Cycle 25 — 2026-10-01 — FEATURE
+- Inbox: no OWNER comments/issues since watermark; plan 003 PR #33 still open and unreviewed
+  (MERGEABLE); no bugs, CI green. Per cycle rules did one `/stabilize --one`-sized task.
+- Done: PR #34 renamed the 15 remaining camelCase fns in `src/interfaces.zig` +
+  `interfaces_test.zig` to snake_case (private helpers; 207/207 tests, fmt clean, 7/7 CI,
+  squash-merged, `auto-merged`). Remaining camelCase: `build.zig` step helpers and
+  `tools/tidy.zig` (rename together; tidy_test.zig references them).
+- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
+  more `/stabilize --one` (build.zig/tools camelCase, or docs drift).
+- Tool note: a stale `.zig-cache` produced `file_hash FileNotFound` and a failing tidy run
+  (exit 1, 148 tests); `rm -rf .zig-cache` and rerun gave exit 0, 207/207. Not a code failure.
+  `sleep` in Bash is blocked; poll with a `for` loop over `gh pr checks`.
+- Open questions: none.
 
 ## Cycle 24 — 2026-10-01 — FEATURE
 - Inbox: no OWNER actions since watermark, no plan PR, no bug issues, CI green.
