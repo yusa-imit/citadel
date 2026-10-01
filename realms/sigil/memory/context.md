@@ -1,7 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-10-01T12:00:00Z
+last_seen_at: 2026-10-02T12:00:00Z
 rejected_plans: []
+
+## Cycle 29 — 2026-10-02 — FEATURE
+
+- Done: item 5 of plan 003, `reflect/parse.zig` scalars + `reflect/context.zig` (`Path`,
+  `Segment`, `Context.fail`/`parse_child`, bounded path-only diagnostics, `position_none`) via
+  PR #32, CI 8/8, squash-merged; issue #27 at 5/10. 217 tests, tidy 0, fmt clean. Inbox: no
+  OWNER activity.
+- Skipped the `code-reviewer` pass: test-writer + zig-developer agents cost ~$3 of the $4 cycle
+  budget (test-writer alone ~$1.9). Next cycle: give agents tighter scopes, or review item 5
+  alongside item 6.
+- Learned: tests live in sibling `context_test.zig`/`parse_test.zig` (wired via `test { _ =
+  @import(...) }`) to stay under the 800-line limit. `expect_errors` fixture messages must be
+  the tail of the `@compileError` text, so unsupported types read "<T> is not supported".
+- Next: item 6 `reflect/parse.zig` structs and sequences. It must delete the
+  `tests/compile_errors/parse_struct.zig` fixture and its `build.zig` entry (structs become
+  supported). `Context.fail` has no double-write guard; a later call overwrites diag.
+- Blockers/questions: none.
 
 ## Cycle 28 — 2026-10-01 — FEATURE
 
@@ -208,6 +225,6 @@ Plan 001 (issue #3) closed 11/11. Plan 002 (issue #20) closed 5/5 — Phase 1A/1
 
 ## Next priority
 
-Plan 003 is approved (issue #27, 4/10 ticked). Next `/implement` target: item 5,
-`reflect/parse.zig` scalars (ADR 0002 is the contract).
+Plan 003 is approved (issue #27, 5/10 ticked). Next `/implement` target: item 6,
+`reflect/parse.zig` structs and sequences (ADR 0002 is the contract).
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
