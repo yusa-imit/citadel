@@ -25,7 +25,7 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 | synod | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-15, PR #15) |
 | sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10) |
 | zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 |
-| sailor | 368 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — migration merged to main (PR #40, 2026-09-29), zon at 0.16.0, unreleased; blocker: main CI red on Windows (`Test on Windows (x86_64)`) |
+| sailor | 368 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — migration merged to main (PR #40, 2026-09-29), zon at 0.16.0, unreleased; main CI green again (2026-09-30), v3.0.0 release pending |
 | zr | 79 + deps | large | zuda v3, sailor v3 | MINOR |
 | silica | 275 + deps | medium | zuda v3, sailor v3 | MINOR |
 | zoltraak | ~110 + luajit link + deps | large | zuda v3, sailor v3 | MINOR (zon 0.2.0 → 0.3.0; reconcile with latest tag v0.2.14) |
