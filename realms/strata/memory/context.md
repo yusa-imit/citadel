@@ -1,7 +1,21 @@
 # strata — context
 
-last_seen_at: 2026-10-01T00:00:00Z
+last_seen_at: 2026-10-01T12:00:00Z
 rejected_plans: []
+
+## Cycle 24 — 2026-10-01 — FEATURE
+- Done: plan 002 item 4 — `src/codec/xxhash.zig` (asserted `std.hash.XxHash64` wrapper: `hash`,
+  streaming `Hasher`, `digest_write`/`digest_read` as 8 LE bytes, explicit seed) plus test-only
+  `src/codec/xxhash_reference.zig` (XXH64 from the spec). Tests: published vectors, lengths
+  0..130 and 1023..4103 vs reference, chunked streaming, short-buffer error. code-reviewer: 0
+  critical; 3 warnings (costly asserts on hot `hash`, test gaps, redundant Hasher state) fixed.
+- PRs: #21 merged (squash, CI 7/7 green, labelled auto-merged). Issue #17 item 4 ticked.
+- Next: item 5 — `file/file.zig` core (open/close/readAt/writeAt/length/setLength, PRD §4.2).
+- Blockers: none. Open questions: none.
+- Note: tests were written together with the impl, not strictly red-first (small wrapper); the
+  reviewer-found gaps were closed. Guard hook rejects compound Bash (`;`, heredocs) in the repo —
+  run zig/git/gh as single simple commands. Tidy density: a test-only reference file needs ≥2
+  asserts per fn too; recursion-by-accident in an assert is a trap (caught before commit).
 
 ## Cycle 23 — 2026-10-01 — FEATURE
 - Done: plan 002 item 3 — `src/codec/crc32c.zig`: `checksum`, streaming `Hasher`, `Path`
@@ -58,82 +72,11 @@ rejected_plans: []
   to /tmp, or citadel paths in a compound command; plain absolute-path commands work.
 - Report: quiet cycle — skipped plan-PR comment per quiet-mode carve-out.
 
-## Cycle 19 — 2026-09-29 — FEATURE (no-op)
-- Housekeeping: `memory/counter` was found stuck at 17 even though a cycle-18 entry already
-  existed in this file — the prior cycle's `/report` wrote context.md but its counter write
-  never landed (citadel commit for that cycle touched only context.md). Self-corrected: this
-  run is cycle 19, counter now written as 19. No other memory files were affected.
-- Done: preflight clean, on main, CI green at c17c5c9 (last 5 runs, all success). Plan PR #16
-  still open, no new OWNER comments since watermark, no bug/question/directive issues, no open
-  implementation PRs. One stabilize --one tidy-auditor pass (pinned 0.16.0 toolchain): 0 new
-  findings across all mechanical checks (catch unreachable, @panic, debug.print, unbounded
-  while, recursion, function/file length, usize in formats, missing //! headers, std.time/
-  crypto.random in src/); `zig build test`/`fmt --check`/`tidy` all green. Only the pre-
-  existing, deliberately-deferred gap remains: `tools/tidy.zig` (2100 lines) still excluded
-  from its own `scan_roots` and over the 800-line limit — needs a design decision, not a fix.
-- PRs: none opened or merged.
-- Next: when #16 (plan PR) merges, open milestone 002 issue, implement tidy self-hosting fix.
-- Blockers: none. Open questions: none.
-- Report: quiet cycle (identical block to 15-18: plan PR open, no owner actions, no PR) —
-  skipped the plan-PR GitHub comment per quiet-mode carve-out.
-
-## Cycle 18 — 2026-09-28 — FEATURE (no-op)
-- Done: preflight clean, CI green at c17c5c9 (last 5 runs, all success). Plan PR #16 still
-  open, no new OWNER comments since watermark, no open issues, no comments on merged PRs.
-  One stabilize --one tidy-auditor pass: 0 new findings across all mechanical checks (catch
-  unreachable, @panic, debug.print, unbounded while, function/file length, usize in formats,
-  missing //! headers); `zig build test`/`fmt --check`/`tidy` all green on pinned 0.16.0
-  toolchain; README/CHANGELOG match released v0.2.0. Only the pre-existing, intentionally-
-  deferred gap remains: `tools/tidy.zig` (2100 lines) still excluded from its own
-  `scan_roots` and still over the 800-line limit — unchanged, needs a design decision, not
-  fixed ad-hoc.
-- PRs: none opened or merged.
-- Next: when #16 (plan PR) merges, open milestone 002 issue, implement tidy self-hosting fix.
-- Blockers: none — citadel issue #16 (cross-realm memory-commit lock pileup) was root-caused
-  and fixed by the OWNER in citadel PR #20 (rewrote `citadel_commit.py` to build each commit
-  from `origin/main` + the calling realm's own files in a private index, independent of other
-  realms' dirt or the shared checkout's branch). Open questions: none.
-- Report: quiet cycle (identical block to 15/16/17: plan PR open, no owner actions, no PR
-  opened/merged) — skipped the plan-PR GitHub comment per quiet-mode carve-out; sending one
-  Discord heartbeat since none logged for strata yet today (2026-09-28).
-
-## Cycle 17 — 2026-09-27 — FEATURE (no-op)
-- Done: preflight clean, CI green at c17c5c9 (last 5 runs). Plan PR #16 still open, no new
-  OWNER comments, no bug/question/directive issues. One stabilize --one audit: tidy-auditor
-  clean pass — 0 findings across all mechanical checks; `zig build test`/`fmt --check`/
-  `tidy` all green; README/CHANGELOG match released v0.2.0. Nothing to fix. citadel-side:
-  `citadel_commit.py strata 17` hit the pre-existing cross-realm lock pileup tracked in
-  citadel issue #16 (opened by sigil cycle 22) — 6-7 other realms' memory staged-but-
-  uncommitted in the shared citadel index, unchanged across a 6-attempt/2-min retry. Strata's
-  own cycle-17 memory edit is now staged in that same index (no data lost, just unpushed —
-  will commit automatically once #16 is resolved by a human or a citadel cycle). Added a
-  confirmation comment to #16 rather than opening a duplicate.
-- PRs: none opened or merged.
-- Next: when #16 (plan PR) merges, open milestone 002 issue, implement tidy self-hosting fix.
-  Separately, watch citadel issue #16 (lock pileup) — once resolved, this and prior cycles'
-  memory commits should push through.
-- Blockers: citadel-side memory commit blocked by citadel issue #16 (cross-realm lock
-  pileup) — needs-human, not strata-specific. Open questions: none.
-- Report: quiet cycle (identical block to 15/16, no owner actions, no PR) — skipped the
-  plan-PR GitHub comment; skipped Discord heartbeat too (6 sends logged kingdom-wide on
-  2026-09-27 UTC already, likely including strata's own cycle 15/16 heartbeat — erred
-  against re-sending same-day).
-
-## Cycle 16 — 2026-09-27 — FEATURE (no-op)
-- Done: preflight clean, CI green at c17c5c9. Plan PR #16 still open, no comments. One
-  stabilize --one audit: 0 banned constructs, files <800 lines, headers ok; nothing to fix.
-- PRs: none opened or merged.
-- Next: when #16 merges, open milestone 002 issue, implement tidy self-hosting fix.
-- Blockers: none. Open questions: none.
-
-## Cycle 15 — 2026-09-27 — FEATURE (no-op)
-- Done: preflight clean, CI green at c17c5c9. Plan PR #16 (plan 002) still open, no comments.
-  One stabilize check: `zig build test`, `zig fmt --check`, banned-construct grep all clean.
-- PRs: none opened or merged.
-- Next: when #16 merges, open milestone 002 issue, implement tidy self-hosting fix.
-- Blockers: none. Open questions: none.
-
 ## History
+- Cycles 15–19 (2026-09-27..29, FEATURE, no-op): plan PR #16 open awaiting human merge; each ran
+  one `/stabilize --one` tidy-auditor pass (always clean: 0 findings, test/fmt/tidy green).
+  Cycle 17 hit citadel issue #16 (cross-realm memory-commit lock pileup), fixed by the OWNER in
+  citadel PR #20. Cycle 19 self-corrected a stuck `counter` (17 → 19).
 - Cycles 13–14 (2026-09-16/17, FEATURE, no-op): plan PR #16 still open awaiting human merge;
   each ran one bounded `/stabilize --one` (tidy-auditor + docs cross-check, always clean).
   Cycle 14 finalized a cycle-13-numbered attempt that crashed before `/report`.
