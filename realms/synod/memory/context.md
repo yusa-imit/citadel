@@ -1,7 +1,21 @@
 # synod — context
 
-last_seen_at: 2026-10-01T06:08:00Z
+last_seen_at: 2026-10-01T18:08:00Z
 rejected_plans: []
+
+## Cycle 26 — 2026-10-02 — FEATURE
+- Inbox: no non-AI comments; plan 003 PR #33 still open (its two "OWNER" comments are the AI's own
+  cycle reports posted under the same login, no change requested). No bugs, CI green.
+- Done: one `/stabilize --one` task — PR #35 renamed the last camelCase fns in `build.zig`,
+  `tools/tidy.zig`, `tools/tidy_test.zig`, `bench/main.zig` to snake_case (207/207 tests, fmt +
+  tidy clean, 7/7 CI, squash-merged, `auto-merged`). No camelCase fns remain in the repo.
+- Gotcha: a blind perl rename made a local `is_core_purity_file` shadow the new fn name (renamed
+  local to `is_core`), and longer names pushed 5 test lines past 100 cols (tidy fails, tests still
+  pass) — always run `zig build tidy` too. `gh pr create --label stabilize` fails (label absent).
+  `gh pr checks --watch --interval 20` worked this time.
+- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
+  more `/stabilize --one` (docs drift; no camelCase left).
+- Open questions: none.
 
 ## Cycle 25 — 2026-10-01 — FEATURE
 - Inbox: no OWNER comments/issues since watermark; plan 003 PR #33 still open and unreviewed
