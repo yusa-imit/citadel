@@ -101,25 +101,10 @@ pub const Menu = struct {
 
 ## Date arithmetic pattern (Zeller's congruence)
 
-Calendar widgets use Zeller's congruence for day-of-week (keep this formula verbatim):
-
-```zig
-// Returns 0=Sunday, 1=Monday, ..., 6=Saturday
-pub fn dayOfWeek(self: Date) u3 {
-    var m = self.month;
-    var y = self.year;
-    if (m < 3) { m += 12; y -= 1; } // Jan=13, Feb=14 of prior year
-    const q = self.day;
-    const k = y % 100; // year of century
-    const j = y / 100; // century
-    const h = (q + (13 * (m + 1)) / 5 + k + k / 4 + j / 4 - 2 * j) % 7; // 0=Saturday
-    const day_val = @as(i8, @intCast(h)) - 1; // convert Zeller (0=Sat) to 0=Sun
-    return @intCast(@mod(day_val, 7));
-}
-```
-
-Valid for the Gregorian calendar (1582+). `@mod(negative_i8, 7)` handles negatives correctly in
-Zig (unlike `%`/`rem`) — use `u3` for the 3-bit day-of-week result.
+Calendar widgets compute day-of-week with Zeller's congruence (`Date.dayOfWeek`, returns `u3`,
+0=Sunday): treat Jan/Feb as months 13/14 of the prior year, `h = (q + 13*(m+1)/5 + k + k/4 +
+j/4 - 2*j) % 7` (0=Saturday), then shift by -1 with `@mod(.., 7)`. Valid for 1582+. `@mod` handles
+negatives correctly in Zig (unlike `%`/`rem`). The code is the source of truth; keep the formula.
 
 ## Calendar grid rendering pattern
 

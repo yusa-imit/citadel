@@ -49,104 +49,6 @@ rejected_plans: []
 - Next: item 4 `reflect/options.zig` (comptime table from `sigil_options`; compile-error tests
   under `tests/compile_errors/`). Blockers/questions: none.
 
-## Cycle 26 — 2026-09-30 — FEATURE
-
-- Done: plan 003 (PR #26) had been merged and milestone issue #27 opened (by cycle 25's tail).
-  Merged PR #28 (item 1, `core/unicode.zig` UTF-8 validation; CI 8/8 had passed the day
-  before). Implemented item 2 via PR #29, CI 8/8, squash-merged: `core/unicode_escape.zig`
-  (`encode`, `parse_hex4`, `decode_utf16`, `write_escaped` with `minimal`/`ascii_only`).
-  Issue #27 at 2/10. Local: 144 tests, tidy 0/0, fmt clean.
-- Decisions: escape primitives live in `unicode_escape.zig`, not `unicode.zig` (that file was
-  already 740 lines; adding them pushed it past the 800 soft limit and tidy's line/ban/assert
-  checks failed). `core.zig` re-exports both. DEL (U+007F) is escaped as `\u007f` because TOML
-  and YAML forbid it raw; reviewer (sonnet) caught it. `catch unreachable` needs `// proof:` on
-  the same line or the one before, and the line must stay <= 100 columns.
-- Process slip: wrote the implementation before the tests for item 2 (no red step); recovered
-  by a mutation check (weakening `decode_utf16` made a test fail). Do the red step first.
-- Note: `timeout` is absent on this macOS; use `gh pr checks --watch` directly. Bash `cd` into
-  the repo trips the guard hook; the session cwd is already the repo.
-- Next: item 3, ADR 0002 reflect contract (design only, `architect`/opus), then item 4
-  `reflect/options.zig`. Blockers/questions: none.
-
-## Cycle 25 — 2026-09-29 — FEATURE (quiet; counter was 23 at start, cycle 24's report had not written it)
-
-- Done: plan PR #26 (plan 003) still open, no OWNER activity; CI green on main `18ebb6f`; no
-  open issues. Ran one `/stabilize --one` slot: test-quality audit of `core/*` — every declared
-  error variant (OutOfMemory, OutOfSpace, DuplicateKey, TooDeep, IntegerAboveMax,
-  IntegerBelowMin, FloatOutOfRange) is provoked by a test, no always-pass assertions. No PR.
-- Note: guard hook rejects Bash commands that mix reads of citadel paths with a `cd` into the
-  repo; use the Read tool for citadel files.
-- Next: awaiting human merge of plan 003 (#26). Blockers/questions: none.
-
-## Cycle 24 — 2026-09-29 — FEATURE
-
-- Done: merged PR #24 (item 4, cycle 23's `core/number.zig`; CI 8/8 green). Closed out plan
-  002 item 5 "wire into root.zig and tidy" via PR #25: wiring was already a side effect of
-  #24 (`core.zig` re-exports `value`/`tree`/`diagnostics`/`number`); fixed the one remaining
-  gap — `is_decimal_literal` had 0/2 assertions (tidy warning) — by asserting the loop-cursor
-  invariant `i <= text.len` on both the early- and late-return paths. Assertion baseline now
-  23/23, `zig build tidy` 0 findings (was 1 warning), 96/96 tests green, CI 8/8.
-- Plan 002 (issue #20) closed 5/5. Version impact is MINOR in the abstract semver sense, but
-  both the plan's own text and `REALM.md`'s release quirk say explicitly: no tag until a
-  format module (JSON, Phase 2) makes the library fetchable in practice — closed the issue
-  with a summary instead of running `/release`.
-- Opened plan 003 (PR #26, `planner`/opus): Phase 1C `core/unicode.zig` (UTF-8 validation +
-  escape primitives) and Phase 1D `reflect/{options,parse,stringify}.zig`, gated by a
-  design-only ADR 0002 item (reflect hook/error/coercion contract) before any reflect code.
-  10 items total. Version impact MINOR, folded into unreleased 0.3.0, no tag (same reasoning
-  as above — nothing turns bytes into `Value` yet). Flagged: plan 002's own "Done when" wanted
-  1A/1B ticked in `docs/plans/000-inherited.md` but they're still unticked on main — plan 003's
-  last item fixes it (not worth a standalone PR).
-- Next: awaiting human merge of plan 003 (#26). Once merged, item 1 (`core/unicode.zig`
-  validation) is the next `/implement` target. Blockers/questions: none.
-
-## Cycle 23 — 2026-09-28 — FEATURE
-
-- Done: item 4 `core/number.zig` (decimal literal text -> `.int`/`.uint`/`.float`, no silent
-  coercion: prefer `.int`, widen to `.uint` only past `maxInt(i64)`, typed overflow only past
-  `maxInt(u64)`/`minInt(i64)`) via architect design pass + test-writer + zig-developer +
-  code-reviewer (0 CRITICAL/WARNING). Wired into `sigil.core`; plan doc corrected (architect
-  found the plan's "one past i64::MAX overflows" was wrong — it's lossless in u64). Local:
-  96/96 tests, tidy 0 failing, fmt clean.
-- PR #23 (cycle 22) merged since last watermark, per issue #20 comments. PR #24 opened this
-  cycle for item 4; CI had not reported by the cycle deadline — commented "awaiting CI; merge
-  next cycle" for the next cycle's inbox to pick up. Issue #20 not yet ticked for item 4
-  (deferred to the merge, so the checklist matches reality).
-- Next: once #24 merges, item 5 "wire into root.zig and tidy" (mostly done as a side effect —
-  confirm assertion-baseline count and close out the plan). Blockers/questions: none.
-
-## Cycle 22 — 2026-09-28 — FEATURE
-
-- Done: item 3 `core/diagnostics.zig` (`Diagnostics{line,col,message,snippet}`,
-  `DiagnosticsType(comptime limits: Limits)` sizing fixed inline buffers at comptime,
-  truncation-with-marker never silent) via PR #23, CI 8/8 green, squash-merged; issue #20 at
-  3/5. Re-exported `Diagnostics`/`DiagnosticsType` from `sigil.core`.
-- Note: inline generic-struct self-reference can't be named the same as the file-scope public
-  alias (`Diagnostics`) — ambiguous reference; named it `DiagnosticsRecord` instead, still a
-  real name per Tiger Style 3.10 (no bare `Self`).
-- Next: item 4 `core/number.zig` (i64/u64/f64 boundaries), then wiring. Blockers/questions: none.
-
-## Cycle 21 — 2026-09-27 — FEATURE
-
-- Done: item 2 `core/tree.zig` (`ValueTree` arena + dupe_string/bytes/array/key, new_map) via
-  PR #22, CI 8/8 green, squash-merged; issue #20 at 2/5. Tidy assertion baseline needs >= 2
-  asserts per pub fn (13/13 now).
-- Note: guard hook blocks heredoc bash commands; use Write/Edit tools and the absolute zig path
-  `/Users/fn/.zr/toolchains/zig/0.16.0/zig`; `rm -rf .zig-cache` fixed a stale build runner.
-- Next: item 3 `core/diagnostics.zig`, then number, wiring. Blockers/questions: none.
-
-## Cycle 20 — 2026-09-27 — FEATURE
-
-- Done: plan 002 (#17) was merged by the owner; opened milestone issue #20. Implemented
-  item 1 `core/value.zig` (Value, Timestamp, insertion-ordered Map over a caller buffer, bounded
-  `eql` returning `TooDeep`) via PR #21, CI 8/8 green, squash-merged. Local 0.16.0 toolchain
-  now present at ~/.zr/toolchains/zig/0.16.0.
-- Review (sonnet) fixed: eql depth overflow now a typed error (was assert), `put` no longer
-  runs O(n^2) `check_invariants`. Note: Map.get is O(n); a hash index may be needed for large
-  maps.
-- Next: item 2 `core/tree.zig` (ValueTree), then diagnostics, number, wiring. Issue #20 at 1/5.
-- Blockers/questions: none.
-
 ## History
 
 Cycle 0 (2026-09-05, RESTRUCTURE): realm created; scaffold survey (285 LOC, all stub modules).
@@ -202,6 +104,21 @@ activity → repeated `--one` stabilization slots all confirmed no finding small
 carried `tools/tidy.zig` self-exemption exists (1860 lines, ~61 undocumented functions, 15
 ban-list hits to triage). No PR opened across any of these cycles — diminishing value from
 identical repeated sweeps; quiet-cycle GitHub-comment carve-out used starting cycle 16.
+
+Cycles 20-25 (2026-09-27 to 09-29, FEATURE): plan 002 items 1-5 via PRs #21-#25 — `core/value.zig`
+(bounded `eql` returns `TooDeep`; `Map.get` is O(n), may need a hash index), `core/tree.zig`
+(`ValueTree` arena), `core/diagnostics.zig` (`DiagnosticsType(limits)`, inline generic self-ref
+cannot share the file-scope alias name), `core/number.zig` (prefer `.int`, widen to `.uint` past
+`maxInt(i64)`, typed overflow past `maxInt(u64)`), wiring + assertion baseline 23/23. Plan 002
+closed 5/5, no tag (release quirk). Plan 003 opened as PR #26 (ADR 0002 gate before reflect).
+Cycle 25 was quiet: test-quality audit of `core/*`, every error variant provoked. Hook notes: the
+guard blocks heredocs and Bash commands mixing citadel reads with a repo `cd`; use Read/Write.
+
+Cycle 26 (2026-09-30, FEATURE): plan 003 merged; items 1-2 via PRs #28-#29 (`core/unicode.zig`,
+`core/unicode_escape.zig`; escapes live apart because unicode.zig hit the 800-line limit). DEL
+(U+007F) is escaped as `\u007f`. `catch unreachable` needs a `// proof:` comment, <= 100 cols.
+Slip: implementation before tests for item 2; recovered by a mutation check. Red step first.
+`timeout` is absent on macOS; use `gh pr checks --watch`.
 
 ## Standing backlog
 

@@ -62,38 +62,16 @@ rejected_plans: []
 - Guard hook blocks compound `cd repo; ...` and heredoc writes to citadel; use Write/Edit tools.
 - Next: fmt fix PR; stash triage (stash@{0} may fix signal-4 RDB crashes). Open questions: none.
 
-## Cycle 11 — 2026-09-27 — FEATURE (all plan items blocked)
-- Preflight clean, CI green, no bugs/plan PR; milestone #121 open. Items 4-9, 12
-  still blocked (zuda latest v2.3.0, sailor v2.99.0; need v3.0.0).
-- Ran one `/stabilize --one`: PR #134 removed 2 stale keyspace-notification TODO
-  blocks (bits.zig/bitfield.zig; work already implemented). TODO count 5 -> 3
-  (left: tls.zig OpenSSL x2, utility.zig:322). CI green, merged.
-- Observed: local `zig build test` (0.15.2) still hits the 2 signal-4 RDB crashes
-  (test_iter432/437) though CI passes; 3 cycle-1 stash entries untriaged. Try
-  stash@{0} next stabilization.
-- Guard hook blocks `>` redirects to /tmp in realm sessions; use sed -i instead.
-- Open questions: none.
-
-## Cycle 10 — 2026-09-17 — STABILIZATION (forced, n%5==0)
-- Preflight clean (main, no dirty tree), CI green (last 5 runs), no open bug
-  issues. Inbox: no owner actions since 2026-09-16 watermark, no open plan
-  PR, milestone #121 unchanged.
-- tidy-auditor fresh audit found a self-inflicted regression: 2
-  `catch unreachable` sites in `storage/memory.zig` (`incrby`/`incrbyfloat`,
-  ~lines 6164/6233) with no proof comment, introduced by cycle 9's PR #132.
-  Fixed same-cycle via PR #133 (2-line diff, one-line proof comment each,
-  CI green: Build & Test 6m1s, Shell Integration 57s), merged, labeled
-  `auto-merged`. Metric back to 0.
-- STATE.md Tiger Style gap table refreshed: files>800 lines 52/88
-  (`memory.zig` now 16,248, +598 from cycles 7-9's assertions); functions>70
-  lines down to 125 (was 155); `assert` count up to 197 (was 40), 98%
-  concentrated in 5 files from the now-complete assertion-baseline PRs
-  (#127-132); `while(true)`/`usize`-in-format/`//!`-headers/TODOs unchanged.
-- Next: still no unblocked plan 001 items until zuda/sailor reach v3.0.0.
-  Standing backlog unchanged (see below) — 3 untriaged stash entries from
-  cycle 1 still need triage if nothing else unblocks first.
-- Blockers: plan 001 items 4-9, 12 blocked on zuda/sailor v3.0.0. Open
-  questions: none.
+- Cycles 10-14 (2026-09-17 to 10-01): plan 001 items 4-9, 12 stay blocked on zuda/sailor v3.0.0.
+  Cycle 10 tidy-auditor caught 2 unproven `catch unreachable` in `storage/memory.zig` (PR #133).
+  Cycle 11 removed 2 stale TODO blocks (PR #134). Cycle 12 landed `//!` headers (PR #135, via
+  `wip/module-headers-20260929`). Cycle 13 ran `zig fmt` on 13 files (PR #136; baseline function
+  lengths raised for the fmt-split `cmd*` functions). Cycle 14 opened PR #137 adding
+  `zig fmt --check src build.zig` to CI (merge if green). `memory.zig` is 16,248 lines.
+  Quirks: local `zig build test` hits 2 signal-4 RDB crashers (test_iter432/437) while CI
+  passes; 3 cycle-1 stashes untriaged (stash@{0} may fix them); if the build runner fails with
+  FileNotFound, `rm -rf .zig-cache`; `gh pr create --label chore` fails (no such label); the guard
+  hook blocks compound `cd`, heredocs and `>` redirects to /tmp.
 
 ## History (cycles before 10)
 - Cycle 9: preserved and merged two disjoint interrupted `wip/*` assertion-
