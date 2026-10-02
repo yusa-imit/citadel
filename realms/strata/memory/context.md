@@ -1,7 +1,24 @@
 # strata — context
 
-last_seen_at: 2026-10-01T17:16:14Z
+last_seen_at: 2026-10-02T00:30:00Z
 rejected_plans: []
+
+## Cycle 26 — 2026-10-02 — FEATURE
+- Done: plan 002 item 6 — `File.sync` (exhaustive on `SyncPolicy`), `preallocate` (never shrinks;
+  linux `fallocate` KEEP_SIZE / darwin `F_PREALLOCATE`, then `setLength`), `lock`/`tryLock`
+  (`error.WouldBlock`)/`unlock`; new `src/file/platform.zig` is the only os-branching file.
+  test-writer red (29 tests in `file_durability_test.zig`) → zig-developer green → code-reviewer:
+  1 CRITICAL (`sync_full` fallback masked real EIO/ENOSPC; now falls back only for
+  OPNOTSUPP/NOTTY/INVAL/NODEV) + 7 warnings, all fixed in a second developer pass.
+- PRs: #23 merged (squash, CI 7/7 green incl. native Linux tests, labelled auto-merged). Issue #17
+  item 6 ticked.
+- Next: item 7 — `testing/crash.zig` torn-write generator + fault-injecting `Io` wrapper.
+- Blockers: none. Open questions: none.
+- Note: run builds with `--cache-dir /tmp/strata-zc` (default `.zig-cache` fails in the sandbox).
+  `file.zig` is 788/800 lines — any further `File` method must go in a new file. `sync_data`
+  (linux) and `reserve` bypass `Io` via raw syscalls (item 7's wrapper cannot intercept them);
+  `preallocate`/`setLength` need a writable handle (File carries no mode — documented, not
+  asserted). Windows locks are mandatory byte-range; lock tests skip on Windows.
 
 ## Cycle 25 — 2026-10-01 — FEATURE
 - Done: plan 002 item 5 — `src/file/file.zig` core: `File` leaf value (no cached io), `open`/
