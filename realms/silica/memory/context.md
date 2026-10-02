@@ -1,7 +1,21 @@
 # silica — context
 
-last_seen_at: 2026-10-01T10:30:00Z
+last_seen_at: 2026-10-02T00:00:00Z
 rejected_plans: []
+
+## Cycle 20 — 2026-10-02 — STABILIZATION (n%5==0)
+- Preflight: repo clean on main, CI green on main (ddb8f92), no bug/question issues, no open PRs.
+  Inbox: no comments since watermark; only milestone #137 open.
+- Audit (hand-run, no subagent): hygiene clean (`zig-pkg/` already gitignored, no tracked
+  artifacts), deps at newest tags (sailor v2.99.0, zuda v2.3.0), 0 `expect(true)`, `@panic(` only in
+  test blocks. Fixed one class: 17 files lacking `//!` headers (PR #160, comment-only; baseline
+  entries removed). CI 7/7 green, merged, labeled `auto-merged`. STATE.md header row 17 -> 0.
+- Next: shrink line-length baseline (60 files, 3,620 lines) in batches; plan 001 rest blocked_by
+  zuda/sailor v3.0.0. Stabilize streak stays 0.
+- Tooling notes: guard hook rejects compound `gh pr view; gh pr merge` lines — run `gh pr merge N -R
+  yusa-imit/silica` alone. `timeout` is not installed on this box; use `gh pr checks --watch`.
+- Blockers: none. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrent
+  connections; tidy scans textual).
 
 ## Cycle 19 — 2026-10-01 — FEATURE
 - Preflight: repo clean on main, CI not red, no bug/question issues, no open PRs. Inbox: only our

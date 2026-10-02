@@ -74,7 +74,7 @@ Refreshed by tidy-auditor, stabilization cycle 10 (2026-09-11, commit `9f5f0c1`,
 | | | last survey (scratch-DB tmpDir batches touched both heavily) |
 | functions > 70 lines | 161 | worst: `sql/executor.zig:evalFunctionCall` ~3,758 lines; |
 | | | `computeAggregate` 1,169; `engine.zig:execSQLUnlocked` 1,135 |
-| missing `//!` header | 17/61 | unchanged file list from 2026-09-05 survey |
+| missing `//!` header | 0/61 | fixed by PR #160 (cycle 20); was 17/61 |
 | bare `usize` in wire/on-disk structs | 0 | all `usize` hits are local offset/loop vars in (de)serialize |
 | | | methods, not struct fields — `PageHeader`/`DatabaseHeader`/wire |
 | | | message structs already use sized ints correctly |
