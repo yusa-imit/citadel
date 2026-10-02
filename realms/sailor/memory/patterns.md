@@ -7,6 +7,17 @@ clock. Build a `std.Io` double: copy `std.Io.failing.vtable.*`, override `sleep`
 virtual-ns counter that `sleep` advances and `now` reads (`VirtualClock` in
 `tests/error_recovery_test.zig`), and inject it wherever the code takes `io`.
 
+## Assertion-baseline pattern for a module (item 11)
+
+Order that worked for `buffer.zig`: red tests first (`check_invariants()` is the compile-red),
+then asserts. Writing precondition asserts surfaces real defects: u16 `a + b` extents (use `+|`
+and clip), `undefined` bytes reaching a writer, `x + 1` overflow at `maxInt(u16)`. Reviewer
+guidance that stuck: don't assert what the line above guarantees (`alloc` length, loop condition)
+or what Zig's slice bounds check already enforces; put asserts at the batch boundary, not per
+cell; don't add `check_invariants` calls to `diff`/`clone` (error_recovery swaps `cells`
+temporarily); a "model-based" test needs a real independent reference, not the code under test.
+`maybe` lives in `src/stdx.zig`.
+
 _(migrated + condensed from the repo's former .claude/memory/patterns.md, 2026-09-05; the
 extensive per-widget test-code dumps in the original are summarized, not reproduced — the
 underlying widget files and their `tests/*_test.zig` counterparts are the source of truth)_

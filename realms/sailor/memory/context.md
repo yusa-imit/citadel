@@ -1,7 +1,25 @@
 # sailor — context
 
-last_seen_at: 2026-10-01T08:30:00Z
+last_seen_at: 2026-10-02T00:00:00Z
 rejected_plans: []
+
+## Cycle 21 — 2026-10-02 — FEATURE
+
+- Done: preflight clean, CI green on main (1188931), inbox clear (no OWNER comments, no plan PR).
+  Item 11 (3/5): `src/tui/buffer.zig` assertion baseline, PR #43 merged 10/10 (Windows 9m54s).
+  Fixed `Buffer.fill` u16 overflow (saturating extents) and `renderDiff` emitting an
+  uninitialized byte for unencodable code points (now U+FFFD; cursor math widened to u32). Added
+  `Buffer.check_invariants()`, `deinit` poisons `self.*`, seeded model-based `diff` test.
+  New shared `src/stdx.zig` (`maybe`); `arg.zig` now imports it. See [[patterns]].
+- PRs: #43 (merged). Tracking issue #19 commented; item 11 stays unticked (3/5).
+- Next: item 11 remaining: `tui/layout.zig`, `fmt.zig` (check `fill`-style u16 `a + b` overflows
+  there too); then item 12 docs + v3.0.0. Next cycle is n=22 (FEATURE; n=25 is stabilization).
+- Blockers: none. Open questions: none.
+- Quirks: `cd` must be `cd <repo> && <cmd>` in one Bash call (separate or `;`-chained cd was
+  blocked or lost); a stale `.zig-cache` build runner broke `zig build` ("FileNotFound"), worked
+  around with `--cache-dir /tmp/sailor-zig-cache`. The "failed command: .../test --listen" line in
+  `zig build test` output is noise when exit=0. Fast loop: `zig test -Mroot=src/sailor.zig
+  --test-filter X` (single-file `zig test` fails on `../` imports).
 
 ## Cycle 20 — 2026-10-01 — STABILIZATION
 
