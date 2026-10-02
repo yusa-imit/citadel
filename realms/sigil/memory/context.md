@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-10-02T12:35:00Z
+last_seen_at: 2026-10-03T00:00:00Z
 rejected_plans: []
+
+## Cycle 31 — 2026-10-03 — FEATURE
+
+- Done: item 7 of plan 003, `reflect/parse.zig` tagged unions, `array_hash_map.String(V)` maps and
+  the `sigilParse` hook, via PR #34, CI 8/8, squash-merged; issue #27 at 7/10. 296 tests, tidy 0,
+  fmt clean. Inbox: no OWNER activity.
+- Process: `test-writer` (~$1.1, 3 new `parse_{union,map,hook}_test.zig` + 5 compile-error
+  fixtures), I implemented parse.zig myself (green on the first run), tight `code-reviewer`
+  (~$0.2): 0 critical / 3 warnings, all fixed (hook + `sigil_options` check, `sigilStringify`
+  signature check in `has_hook`, doc line > 100 cols), +2 fixtures.
+- Learned: a hooked type never reaches `options.resolve`, so the hook-vs-options check lives in
+  `parse.has_hook`. `String(V)` is detected by `T == std.array_hash_map.String(@FieldType(T.KV,
+  "value"))`. A void union variant only counts as a container when written as a map.
+- Next: item 8 `reflect/stringify.zig` (mirror of parse; `sigilStringify` signature already
+  enforced by `parse.has_hook`; reuse it, do not re-derive). Blockers/questions: none.
 
 ## Cycle 30 — 2026-10-02 — FEATURE
 
