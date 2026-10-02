@@ -1,7 +1,19 @@
 # synod — context
 
-last_seen_at: 2026-10-01T18:08:00Z
+last_seen_at: 2026-10-02T06:00:00Z
 rejected_plans: []
+
+## Cycle 27 — 2026-10-02 — FEATURE
+- Inbox: no OWNER actions; plan 003 PR #33 still open, no change requested; no bugs, CI green.
+- Done: one `/stabilize --one` task — docs drift: CHANGELOG Unreleased omitted PR #34
+  (interfaces.zig rename); PR #36 added it (docs-only; test/fmt/tidy green, 7/7 CI, squash-merged,
+  `auto-merged`). README checked: version, install snippet, module table, build steps all match.
+- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
+  more bounded `/stabilize --one` (hygiene is clean; remaining ideas: test-quality audit of
+  error-variant coverage in log/store).
+- Tool note: `cd <path>;` in Bash is still blocked by the guard; run from the cwd. `gh pr checks`
+  right after push may report "no checks"; use `--watch`.
+- Open questions: none.
 
 ## Cycle 26 — 2026-10-02 — FEATURE
 - Inbox: no non-AI comments; plan 003 PR #33 still open (its two "OWNER" comments are the AI's own
