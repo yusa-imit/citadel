@@ -116,3 +116,11 @@ harness exercising the fixed paths at `T = f32` for 200k samples each, checking 
   "std\.heap\.page_allocator" src | grep -v "///"` returns 0; the two remaining hits are a
   doc-comment example and the FFI layer's intentional `c_allocator`).
 - **`@panic` sweep**: 0 remaining in `src` as of session 570 (see above).
+
+## linalg sparse/solver gotchas (cycle 17)
+- `CSR.fromCOO` requires a sorted COO (does not sort); call `coo.sort()` first. ILU(0) needs
+  ascending columns per row and now asserts it. Unsorted input silently gave an "ILU" that
+  was unfactorized (U = A, L = A's lower part), hence PCG crawling at steepest-descent speed.
+- Hidden-red nested re-exports found so far: skip list/sortedset, deque, aho_corasick, sparse,
+  preconditioner, iterative (#38/#51/#53/#58/#59). Remaining candidates: grep `pub const x =
+  @import` in `root.zig` not mirrored in the test block.

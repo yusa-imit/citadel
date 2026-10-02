@@ -1,7 +1,25 @@
 # zuda — context
 
-last_seen_at: 2026-10-01T00:00:00Z
+last_seen_at: 2026-10-02T19:20:00Z
 rejected_plans: []
+
+## Cycle 17 — 2026-10-03 — STABILIZATION
+- Done: forced by open bug #57 (CI green, n%5 != 0). Inbox merged #58 (ILU init double free +
+  sparse/preconditioner tests wired into `root.zig`, left open by the interrupted cycle 16
+  tail). Fixed #57 in #59: `iterative.zig` tests had stale gmres/bicgstab arity; once running,
+  8 were red from a REAL GMRES bug (lucky breakdown `h(j+1,j)~0` exited before rotating col j,
+  so exactly-solved systems never updated x, converged=false). Also CG read `norm2(r)` after
+  `free(r)`; zero pivot now `error.SingularMatrix`; ILU(0) asserts ascending CSR columns
+  (tests skipped `coo.sort()`; `CSR.fromCOO` requires sorted COO and does NOT sort).
+- PRs: #58, #59 merged (squash, 7/7 checks green), labeled `auto-merged`. #57 closed.
+- Next: FEATURE — plan 001 `std.fs.cwd()` -> `Io.Dir` in `ndarray.zig`, but it is 0.16-only and
+  CI is pinned 0.15.2: see question #56 (origin: ai, non-blocking, unanswered, filed 2026-10-01;
+  after two cycles with no answer, proceed with its option 1 = big-bang flip PR, cycle 19+).
+  Stabilize leftovers: `bagging.zig` fit (73 lines, tests don't compile), 3-4 type-fn tidy
+  baseline entries grew (Cuckoo/RobinHood/ConcurrentSkipList/ILUPreconditioner), more
+  hidden-red probes via scratch `src/scratch.zig` (works with `zig test`, delete after).
+- Blockers: none. Open questions: #56. stabilize_streak: 0 (no file).
+- Quirk: full `zig build test` took ~4 min locally this time; CI Build & Test 7 min.
 
 ## Cycle 16 — 2026-10-01 — STABILIZATION
 - Done: forced by open bug #53 (n%5 != 0, CI green). Inbox found no new OWNER comments, no plan
