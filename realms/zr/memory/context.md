@@ -1,7 +1,24 @@
 # zr — context
 
-last_seen_at: 2026-10-02T00:00:00Z
+last_seen_at: 2026-10-03T00:00:00Z
 rejected_plans: []
+
+## Cycle 13 — 2026-10-03 — FEATURE
+- Preflight: tree clean on `main`; CI green. Disk 73GB free. Inbox: no owner comments, no open
+  PRs, only issue is milestone #155; zuda/sailor tags still v2.3.0 / v2.99.0, so items 5-11 stay
+  blocked → one `/stabilize --one`.
+- Fixed `plugin/builtin_git.zig`: four git queries read stdout with an unbounded `while (true)`.
+  Extracted `collectStdout` + `readBounded` (16 MiB, bounded `for`, child killed on overflow,
+  new `error.OutputTooLarge`; read error still = end of stream), 8 tests (fake source + real
+  child), `//!` header. PR #175 merged, 8/8 green (~14 min). `zig build test` 1900/0, tidy 0
+  failing; baseline: dropped builtin_git `doc-header`.
+- Gotchas: Bash `grep --include` fails under zsh glob (use plain `grep -rn pat dir`); stopping a
+  pipe read early without killing the child would deadlock `wait()`, so kill on overflow.
+- Next: remaining `while (true)`: cli/add*.zig, show.zig, template.zig, exec/remote.zig x4,
+  process.zig, config_editor.zig (watch/*, mcp/lsp/jsonrpc/registry servers are likely event
+  loops — check); ~220 missing `//!` headers; zero-assert modules. Cycle 15 is STABILIZATION.
+  Watch zuda/sailor v3.0.0 tags.
+- Open questions: none.
 
 ## Cycle 12 — 2026-10-02 — FEATURE
 - Preflight: tree clean on `main`; CI green (headSha matched origin/main). Disk 56GB free.
