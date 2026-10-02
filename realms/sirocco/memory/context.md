@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-10-02T01:30:00Z
+last_seen_at: 2026-10-03T01:20:00Z
 rejected_plans: []
+
+## Cycle 31 — 2026-10-03 — FEATURE
+- Inbox: no OWNER activity since watermark; CI green on edb1a36; only open issue milestone #18.
+- Preflight found the repo dirty on `feat/async-await-slots`: ~680 lines of an interrupted item-5
+  attempt (`src/concurrency.zig`, `tests/parity/concurrency.zig`, edits to runtime/sched/parity).
+  Preserved as `wip/async-await-slots-20261003` (pushed, commit may not be green). Do not delete.
+- Trial: restored those files onto `feat/async-await-slots` and ran `zig build test` — it hung
+  >400s (hung runner + test binary; likely a fiber deadlock/park-without-unpark in the new slots).
+  Killed it, restored the branch to clean main. No PR, no merge. Time budget ran out for debugging.
+- Next: item 5. `git checkout wip/async-await-slots-20261003 -- <those 7 files>` onto
+  `feat/async-await-slots` (local branch == main), find the hanging test by running parity
+  tests filtered one at a time under a manual kill timer, fix, PR.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: zsh `Z=...; $Z build` fails in a `&&` chain — use the full path. A stale hung test
+  binary from Oct 1 (pid 68879, `.zig-cache2`) was still running in the sirocco repo; I did not
+  start it and left it — kill it if still present. Guard blocks compound commands mixing /tmp
+  writes with citadel paths; split them.
 
 ## Cycle 30 — 2026-10-02 — STABILIZATION (forced: open OWNER bug #23)
 - Inbox: only OWNER item was bug #23; CI green on 337931a; milestone #18 open, no plan PR.
