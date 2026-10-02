@@ -1,7 +1,20 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-02T00:00:00Z
+last_seen_at: 2026-10-03T00:00:00Z
 rejected_plans: []
+
+## Cycle 16 — 2026-10-03 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on b866a4d), no bugs, no plan PR, milestone #121 open, no
+  owner comments since watermark. Items 4-9, 12 blocked (zuda v2.3.0, sailor v2.99.0).
+- `/stabilize --one`: PR #139 moved server.zig's 26 `std.debug.print` to `std.log`
+  (warn/info, ANSI banner dropped), tidy baseline server.zig debug_print = 0. CI green
+  (5m6s / 56s), merged, labeled auto-merged. Remaining `debug.print`: cli 45, main 21.
+- Local `zig build test` HUNG: a test binary sat at 0% CPU for 14+ min (a leaked binary from
+  `.zig-cache2` is hung 2 days too; pid 68879, not mine, left alone — kill it). Cause unknown;
+  not caused by #139 (CI passed). Triage next stabilize: find the hanging test.
+- README still says "Zig 0.15.0 or later"/"Planned Features"; rewrite is plan item 12.
+- Next: main.zig/cli.zig debug.print; stash triage; hung local test.
+- Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
 
 ## Cycle 15 — 2026-10-02 — STABILIZATION (forced, n%5==0)
 - Preflight clean (main, CI green on 5338de8), no bugs, no plan PR, milestone #121 open, no
