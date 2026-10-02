@@ -1,7 +1,19 @@
 # synod — context
 
-last_seen_at: 2026-10-02T06:00:00Z
+last_seen_at: 2026-10-03T06:00:00Z
 rejected_plans: []
+
+## Cycle 28 — 2026-10-03 — FEATURE
+- Inbox: no OWNER actions; plan 003 PR #33 still open, no change requested; no bugs, CI green.
+- Done: one `/stabilize --one` task — test quality: all 8 `store.InvariantError` variants were
+  declared but never provoked; PR #37 adds 5 tests (corrupt one field, expect the error, restore,
+  expect ok). 212/212, tidy + fmt clean, 7/7 CI, squash-merged, `auto-merged`.
+- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
+  more `/stabilize --one` (remaining idea: audit `types.Error`/`ConfError` variant coverage).
+- Tool note: `gh pr merge --label` does not exist; add the label with `gh pr edit --add-label`.
+  First Bash calls containing `echo > /tmp/...` or `2>/dev/null` with citadel paths tripped the
+  guard; read citadel files with Read and keep Bash commands simple.
+- Open questions: none.
 
 ## Cycle 27 — 2026-10-02 — FEATURE
 - Inbox: no OWNER actions; plan 003 PR #33 still open, no change requested; no bugs, CI green.

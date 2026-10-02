@@ -241,3 +241,8 @@ log, in-memory store); PRs #30 (snake_case rename, done — the pending item abo
 (release), #32 (plan tick). Milestone 002 (#20) closed 11/11. 207 tests; `zig fetch` of the tag
 resolves. No kingdom repo names synod in `build.zig.zon` yet, so no migration issues. Phase 2
 (`raft.zig`, `driver.zig`) still stubs — plan 003 next.
+
+**Test quality 2026-10-03 (cycle 28, PR #37):** the eight `store.InvariantError` variants were
+declared but never provoked; five tests now corrupt one field each and expect the named error.
+Tests 212/212, tidy and fmt clean. Remaining unprovoked variants: `types.Error`/`ConfError` and
+`log.InvariantError` not re-audited this cycle (log's three show hits in `log.zig`).
