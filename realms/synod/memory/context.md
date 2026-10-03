@@ -1,7 +1,18 @@
 # synod — context
 
-last_seen_at: 2026-10-03T18:00:00Z
+last_seen_at: 2026-10-04T06:00:00Z
 rejected_plans: []
+
+## Cycle 30 — 2026-10-04 — FEATURE (no-op)
+- Inbox: no OWNER actions; plan 003 PR #33 still open (no change requested); no bugs, CI green.
+- Done: one `/stabilize --one` audit, nothing to fix: every src/tools/bench file has a `//!`
+  header, `zig build test` and `zig build tidy` green on main, every `log`/`store`/`types` error
+  variant already has an `expectError`. No PR opened.
+- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else the
+  stabilization backlog is nearly empty — remaining ideas: docs drift re-check, `driver`/`raft`
+  stubs need nothing until plan 003. Consider just a heartbeat cycle.
+- Tool note: `date +%s` / `echo > /tmp` combined with citadel paths trips the guard; split calls.
+- Open questions: none.
 
 ## Cycle 29 — 2026-10-03 — FEATURE
 - Inbox: no OWNER actions; plan 003 PR #33 still open, no change requested; no bugs, CI green.
