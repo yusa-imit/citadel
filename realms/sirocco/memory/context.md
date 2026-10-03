@@ -1,7 +1,20 @@
 # sirocco — context
 
-last_seen_at: 2026-10-03T04:20:00Z
+last_seen_at: 2026-10-04T00:00:00Z
 rejected_plans: []
+
+## Cycle 33 — 2026-10-04 — FEATURE
+- Inbox: no OWNER activity; CI green on d312de3; milestone #18 only open issue.
+- Done: plan 002 item 5 closed via PR #26 (merged 2f6c447, CI green Linux+macOS+6 cross):
+  `bench/spawn.zig` / `zig build bench-spawn` (gate 6). Numbers (arm64 mac, ReleaseFast): 1 in
+  flight sirocco 32 ns vs Threaded 1799 ns (pass); 1000 in flight 62283 ns vs 660 ns (FAIL: async
+  is lazy, bodies start at first await). Recorded in PRD §5 table; tracking issue ticked.
+- Next: item 6 (checkCancel/recancel/swapCancelProtection) + PR #25 review warnings (await outside
+  a fiber -> run only until task done; checked adds in task_create; zero-size ctx/result tests;
+  cancel-after-done). Revisit gate 6 at 1000 with items 8/9 (eager start or batch-aware).
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: global `zig` is 0.15.2; use /Users/fn/.zr/toolchains/zig/0.16.0/zig by full path.
+  No `timeout`/`sysctl` on this box. Skipped code-reviewer (bench-only change, tight budget).
 
 ## Cycle 32 — 2026-10-03 — FEATURE
 - Inbox: no OWNER activity since watermark; CI green on edb1a36; milestone #18 only open issue.
