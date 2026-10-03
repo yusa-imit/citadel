@@ -1,7 +1,20 @@
 # synod — context
 
-last_seen_at: 2026-10-03T06:00:00Z
+last_seen_at: 2026-10-03T18:00:00Z
 rejected_plans: []
+
+## Cycle 29 — 2026-10-03 — FEATURE
+- Inbox: no OWNER actions; plan 003 PR #33 still open, no change requested; no bugs, CI green.
+- Done: one `/stabilize --one` task — test quality: 3 of 4 `MessageLogPositionInvalid` return sites
+  in `Message.validate` were never provoked; PR #38 adds 2 tests with valid controls. 214/214,
+  tidy + fmt clean, 7/7 CI, squash-merged, `auto-merged`. Every `types.Error`/`ConfError`/
+  `MessageError` variant now has an `expectError`.
+- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
+  more `/stabilize --one` (error-variant audit is done for types/log/store; try docs drift or
+  `log.zig` branch coverage).
+- Tool note: first Bash call combining `echo > /tmp/...` with citadel paths was blocked by the
+  guard; split into simple commands. `gh pr checks --watch` needs a second call right after push.
+- Open questions: none.
 
 ## Cycle 28 — 2026-10-03 — FEATURE
 - Inbox: no OWNER actions; plan 003 PR #33 still open, no change requested; no bugs, CI green.
