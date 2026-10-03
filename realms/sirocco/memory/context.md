@@ -1,7 +1,27 @@
 # sirocco — context
 
-last_seen_at: 2026-10-03T01:20:00Z
+last_seen_at: 2026-10-03T04:20:00Z
 rejected_plans: []
+
+## Cycle 32 — 2026-10-03 — FEATURE
+- Inbox: no OWNER activity since watermark; CI green on edb1a36; milestone #18 only open issue.
+- Done: plan 002 item 5 slots via PR #25 (merged d312de3, CI green Linux+macOS+6 cross):
+  native `async`/`await`/`cancel` (`src/concurrency.zig`), `concurrent` = ConcurrencyUnavailable
+  (divergence cited in slots.zig), 16 parity tests. Hang root cause: std's unwinder (DebugAllocator
+  captures a trace on every alloc) walked off the fiber base via a stale return address and read
+  addr 0x8; fixed by a zero return-address sentinel (x30 / word below Start). Killed stale hung
+  test pid 68879. `wip/async-await-slots-20261003` kept (do not delete).
+- Item 5 box left OPEN: `bench/spawn.zig` (PRD §5 gate 6 at 1 and 1000 in flight) still missing.
+- Next: (a) bench/spawn.zig + tick item 5; (b) code-reviewer warnings from PR #25: `await` outside a
+  fiber should `run_until(task.done)` not drain all fibers; guard pages or deeper canary; checked
+  adds in `task_create`; tests for zero-size ctx/result under `.fail`, cancel-after-done; x86_64 test
+  calling a stack-trace capture inside a fiber. Then item 6 (cancel state).
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: `zig test --dep sirocco -Mroot=tests/parity/root.zig -Msirocco=src/root.zig -fno-omit-
+  frame-pointer --test-no-exec -femit-bin=/tmp/..` builds the parity binary alone; run it under a
+  python subprocess timeout (no `timeout`, lldb cannot attach). `--test-filter` is compile-time
+  only. Guard blocks `cd <repo>` in compound commands. Tests name an item-5 failure as hang when it
+  is really a crash in the Zig handler: read the last `N/M name...` line.
 
 ## Cycle 31 — 2026-10-03 — FEATURE
 - Inbox: no OWNER activity since watermark; CI green on edb1a36; only open issue milestone #18.
@@ -53,51 +73,13 @@ rejected_plans: []
 - Gotchas: zsh treats `echo "== x"` as `=cmd` expansion; no `timeout` on macOS; `zig build test`
   mod tests were Debug-only before this cycle. Fiber code needs frame pointers (see sched.zig).
 
-## Cycle 28 — 2026-10-01 — FEATURE
-- Inbox: no OWNER actions since watermark (only our own cycle-27 comment). CI green on 28bf19e;
-  only open issue is milestone #18.
-- Done: plan 002 item 3 via PR #21 (merged as 2f89fd2, CI green Linux+macOS+6 cross):
-  `tests/parity/{harness,slots,fixtures,time,dir,root}.zig` wired into `zig build test`.
-  `expectSameResult` compares tag/payload/error name (quiet `std.meta.eql`, pointer payloads are a
-  compile error); `slots.zig` `audit` guards all 109 names (`native`/`delegated`/`divergent`) plus
-  a runtime check that lists match the real vtable. Plan checkbox + CHANGELOG + issue #18 ticked.
-  code-reviewer: 0 critical, warnings fixed (vtable identity test, no stderr noise).
-- Next: item 4 — `src/sched.zig` fiber substrate (`Io.fiber.contextSwitch`, canary, no slots).
-- Blockers: none. Open questions: none.
-- Gotchas: `expectEqualDeep` on a deliberate mismatch prints "failed command" noise though the
-  build exits 0 — avoid it in negative tests. Side-effecting/handle-returning slots need their own
-  harness helper (documented in harness header) when they turn native. `sed -i` needs `''` on macOS.
+## History (cycles 26-28)
 
-## Cycle 27 — 2026-09-30 — FEATURE
-- Inbox: no OWNER actions since watermark. CI green on d49b078; only open issue is milestone #18.
-- Done: plan 002 item 2 via PR #20 (merged as 28bf19e): `src/runtime.zig` (`Runtime`, `Options`
-  with no defaults incl. `environ`/`argv0`, `Backend`, `Unimplemented`, `init`/`deinit`/`io()`/
-  `baselineIo()`), all 109 slots forwarded from embedded `Io.Threaded` (.forward) or `Io.failing`
-  (.fail); six stub modules and root re-exports deleted; `tools/tidy_test.zig` real_paths updated;
-  plan checkboxes 1+2 ticked; CHANGELOG [Unreleased] started. CI green (macOS, Linux, 6 cross).
-  Issue #18 items 1-2 ticked. code-reviewer: 0 critical; fixed 5 warnings (options passthrough,
-  assertions, .fail behaviour test, header caveats).
-- Next: item 3 — `tests/parity/` harness (`expectSameResult`) + `slots.zig` 109-name table.
-- Blockers: none. Open questions: none.
-- Gotchas: `Runtime.init` returns by value (PRD signature) but is self-referential after first
-  `io()`; std `Io.failing` `await`/`cancel` are `unreachable`, so token-exchanging slot groups
-  (async/await/cancel, group*, batch*) must be swapped in atomically. Stale `.zig-cache` hit
-  again. The Bash guard also blocks shell writes to citadel memory — use Write/Edit tools.
-
-## Cycle 26 — 2026-09-30 — FEATURE
-- Inbox: OWNER merged plan PR #13 (plan 002, fiber-scheduler-and-futex-core) on 2026-09-29 —
-  approval by merge. No open issues, CI green (last run e58b354; later main commits are docs-only
-  and paths-ignored).
-- Done: opened milestone issue #18 (9 items). Implemented item 1 via PR #19: Build & Test now
-  matrixes over ubuntu-latest and macos-latest; both green on the PR (macOS 56s, so Zig 0.16 links
-  fine on the GitHub image — no ADR needed). Merged as d49b078. Ticked item 1 in issue #18.
-- PRs: #19 merged. Plan file's own checkbox for item 1 is not ticked yet — fold the tick into
-  item 2's PR (a docs-only PR alone is paths-ignored and cheap, but avoid the extra round trip).
-- Next: item 2 — delete src/{io,net,tls,http,ws,task}.zig + root re-exports, land
-  src/runtime.zig (109-slot Runtime forwarding to embedded Io.Threaded). Large; expect a full cycle.
-- Blockers: none. Open questions: none.
-- Gotcha: the Bash guard also blocks any command containing `cd <repo>` and heredoc writes touching
-  /tmp; the session cwd is already the repo, so just run commands without `cd`.
+Plan 002 items 1-3 shipped: macOS CI runner (#19), `src/runtime.zig` `Runtime` with all 109 slots
+forwarded and the stub modules deleted (#20, cycle 27), `tests/parity/` harness + 109-slot table
+(#21, cycle 28). Gotchas: `expectEqualDeep` on a deliberate mismatch prints noise (avoid in
+negative tests); handle-returning slots need their own harness helper; `sed -i` needs `''` on macOS;
+zsh treats `echo "== x"` as `=cmd` expansion; no `timeout` on macOS.
 
 ## History (cycles 22-25)
 Cycles 22-25 (2026-09-27 to 09-29, FEATURE): plan PR #13 stayed open; each cycle ran at most one

@@ -17,3 +17,12 @@ count asm bodies (should be one). Run `zig build test -Doptimize=<mode>` for all
 
 _(Earlier: the first CI run (33944341024) failed before a Linux-only restriction fixed it; the
 cause was never written up.)_
+
+## Fiber test "hangs" (cycles 31-32)
+**Cause**: not a deadlock: a SEGV at address 0x8 inside a fiber, then Zig's crash handler wedges
+(it unwinds on the fiber stack). The trigger was std's stack-trace capture (DebugAllocator on
+every alloc) walking past `fiber_main` through a stale return address with fp = 0.
+**Fix**: zero return address at fiber entry (aarch64 `mov x30, xzr` in `fiber_entry`; x86_64 zero
+word below `Start` in `spawn`), so the unwinder reads ra <= 1 and stops.
+**Detect**: run the test binary under a subprocess timeout and read the last `N/M name...` line;
+add `std.debug.print` probes in `task_entry`/`task_finish` (lldb cannot attach here).
