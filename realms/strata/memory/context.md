@@ -1,7 +1,21 @@
 # strata — context
 
-last_seen_at: 2026-10-02T00:30:00Z
+last_seen_at: 2026-10-03T00:30:00Z
 rejected_plans: []
+
+## Cycle 28 — 2026-10-03 — FEATURE
+- Done: fixed PR #24's Linux-red CI. Cause: `FaultIo` vtable started from `Io.failing`, whose
+  `checkCancel` is `unreachable`; Linux `platform.sync_data` calls `io.checkCancel()` before its raw
+  fdatasync (macOS never does, so it passed locally). Added `forward_check_cancel` + regression test
+  (red first: vtable slot != failing's). Plan 002 item 7 (`testing/crash.zig` + `FaultIo`) is done.
+- PRs: #24 merged (squash, CI 7/7 green, labelled auto-merged). Issue #17 item 7 ticked.
+- Next: item 8 — truncation matrix over a checksummed record (`src/testing/`, `tests/`).
+- Blockers: none. Open questions: none.
+- Note: counter was stuck at 26 though cycle 27's block was written (its report ran out of budget);
+  this cycle is 28. Use `/Users/fn/.zr/toolchains/zig/0.16.0/zig` (PATH zig is 0.15.2 and fails with
+  hundreds of errors). Any new `Io` wrapper must forward every slot that `File` or `platform` reach,
+  including `checkCancel`; local macOS runs miss Linux-only slots, so compile-check with
+  `zig test src/root.zig -target x86_64-linux --test-no-exec` (does not execute).
 
 ## Cycle 26 — 2026-10-02 — FEATURE
 - Done: plan 002 item 6 — `File.sync` (exhaustive on `SyncPolicy`), `preallocate` (never shrinks;
@@ -170,3 +184,6 @@ codec (fixed/varint/crc32c/xxhash), `file/file.zig`, the crash-injection harness
 baseline, and release v0.3.0. Once #16 merges, `/cycle` opens the milestone 002 tracking issue
 and implementation starts with the tidy fix (blocks nothing else, unblocks a clean lint for
 every feature PR after it).
+
+## Cycle 27 — 2026-10-03 — FEATURE (PR open, CI red)
+- Item 7 implemented on PR #24 (feat/testing-crash): CrashSink/TruncationPoints/FaultIo, reviewed+fixed. CI Linux red: fault_io test "open, sync, setLength, length, lock and close ..." SIGABRT (passes macOS). Next cycle: fix attempt 1 (suspect fileLock/fileStat forwarder), then merge, tick #17 item 7. Budget ran out.
