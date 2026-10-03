@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-10-03T00:30:00Z
+last_seen_at: 2026-10-04T00:30:00Z
 rejected_plans: []
+
+## Cycle 29 — 2026-10-04 — FEATURE
+- Done: plan 002 item 8 — `src/testing/truncation_matrix_test.zig` (test-only): CRC32C-framed
+  record `[u32 len][payload][u32 crc]`, every `.truncate` and `.torn` cut at all `0..=len` points
+  for sizes 8..64 KiB around 512/4096 boundaries; each damaged prefix must be TornWrite or
+  ChecksumMismatch. A checksum-skipping decoder and an always-torn decoder both fail the sweep
+  (proves the matrix can fail). code-reviewer: 0 critical; 2 warnings (release-mode asserts for
+  test conclusions, unprovoked `RejectedIntactRecord`) + suggestions fixed pre-merge.
+- PRs: #25 merged (squash, CI 7/7 green, labelled auto-merged). Issue #17 item 8 ticked.
+- Next: item 9 — codec bench baseline (`bench/main.zig`: crc32c hw+sw, xxhash64, varint).
+- Blockers: none. Open questions: none.
+- Note: a torn cut one byte past a sector boundary is just a clean truncation (aligned cut), so
+  no checksum failure there. Full 64 KiB sweep is cheap (~1 s Debug) because the length prefix
+  rejects short images before any CRC. Fixed-frame test decoder here should be replaced by the
+  real WAL/page frame decoder when those land.
 
 ## Cycle 28 — 2026-10-03 — FEATURE
 - Done: fixed PR #24's Linux-red CI. Cause: `FaultIo` vtable started from `Io.failing`, whose
@@ -105,20 +120,10 @@ rejected_plans: []
   on this box; use separate simple commands. Issue #17's checklist box for item 1 still needs
   ticking (a sed edit failed to match).
 
-## Cycle 20 — 2026-09-29 — FEATURE (no-op)
-- Done: preflight clean (disk 65 GB, on main, HEAD c17c5c9, CI green last 5). Plan PR #16
-  still open, no reviews/comments since watermark, no issues, no implementation PRs. One
-  stabilize --one pass run directly (no subagent; tree unchanged since cycle 19's audit):
-  `zig build test`, `zig fmt --check`, `zig build tidy` (0 findings) all green on pinned
-  0.16.0 toolchain. Standing gap unchanged: `tools/tidy.zig` (2100 lines) outside `scan_roots`.
-- PRs: none opened or merged.
-- Next: when #16 merges, open milestone 002 issue, implement tidy self-hosting fix.
-- Blockers: none. Open questions: none.
-- Note: the guard hook blocked two Bash commands that used `$VAR` toolchain paths, redirects
-  to /tmp, or citadel paths in a compound command; plain absolute-path commands work.
-- Report: quiet cycle — skipped plan-PR comment per quiet-mode carve-out.
-
 ## History
+- Cycle 20 (2026-09-29, FEATURE, no-op): plan PR #16 open; one direct stabilize --one pass
+  (test/fmt/tidy green). Guard hook blocks `$VAR` toolchain paths, /tmp redirects and compound
+  commands touching citadel paths; plain absolute-path commands work.
 - Cycles 15–19 (2026-09-27..29, FEATURE, no-op): plan PR #16 open awaiting human merge; each ran
   one `/stabilize --one` tidy-auditor pass (always clean: 0 findings, test/fmt/tidy green).
   Cycle 17 hit citadel issue #16 (cross-realm memory-commit lock pileup), fixed by the OWNER in
@@ -184,6 +189,3 @@ codec (fixed/varint/crc32c/xxhash), `file/file.zig`, the crash-injection harness
 baseline, and release v0.3.0. Once #16 merges, `/cycle` opens the milestone 002 tracking issue
 and implementation starts with the tidy fix (blocks nothing else, unblocks a clean lint for
 every feature PR after it).
-
-## Cycle 27 — 2026-10-03 — FEATURE (PR open, CI red)
-- Item 7 implemented on PR #24 (feat/testing-crash): CrashSink/TruncationPoints/FaultIo, reviewed+fixed. CI Linux red: fault_io test "open, sync, setLength, length, lock and close ..." SIGABRT (passes macOS). Next cycle: fix attempt 1 (suspect fileLock/fileStat forwarder), then merge, tick #17 item 7. Budget ran out.
