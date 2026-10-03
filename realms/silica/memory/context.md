@@ -1,7 +1,24 @@
 # silica — context
 
-last_seen_at: 2026-10-02T00:00:00Z
+last_seen_at: 2026-10-03T00:00:00Z
 rejected_plans: []
+
+## Cycle 21 — 2026-10-03 — FEATURE
+- Preflight: repo clean on main, CI green on main (650e327), no bug/question issues, no open PRs.
+  Inbox: only our own status comment on #137; nothing actionable.
+- Done: plan 001 tidy part 2, line-length batch 1 (PR #161, merged, labeled `auto-merged`): 16 files
+  with <= 4 long lines each wrapped; `line_length:` baseline 60 -> 44 files. CI 7/7 green.
+- Learned: tidy counts BYTES, so `// ── X ───` banner comments (3-byte dashes) trip the gate —
+  trim the dash run instead of wrapping. Remaining baseline: 44 files, largest first is cheapest in
+  tokens per file only for banner-heavy files; a python script for bannners + explicit line-number
+  replacement table worked well (`/tmp/wrap.py` pattern).
+- Next: line-length batch 2 (files with 6-20 long lines: replication/monitor, sql/stats,
+  storage/fsm, server/auth, util/regex, etc.). Rest of plan 001 blocked_by zuda/sailor v3.0.0
+  (tags still v2.3.0 / v2.99.0).
+- Tooling notes: `gh pr checks` right after `gh pr create` reports "no checks" — retry. Chained
+  `sleep` is blocked by the harness.
+- Blockers: none. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrent
+  connections; tidy scans textual).
 
 ## Cycle 20 — 2026-10-02 — STABILIZATION (n%5==0)
 - Preflight: repo clean on main, CI green on main (ddb8f92), no bug/question issues, no open PRs.
