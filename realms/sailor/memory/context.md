@@ -1,7 +1,22 @@
 # sailor — context
 
-last_seen_at: 2026-10-02T00:00:00Z
+last_seen_at: 2026-10-03T00:00:00Z
 rejected_plans: []
+
+## Cycle 22 — 2026-10-03 — FEATURE
+
+- Done: preflight clean, CI green on main (6f5d27a), inbox clear (only comment since watermark was
+  our own on #19). Item 11 (4/5): `src/tui/layout.zig` assertion baseline, PR #44 merged 10/10
+  (Windows 9m3s). 54 asserts + 20 `maybe`, `Rect.check_invariants()`, u16 overflow fixes in
+  `Rect` edge math, `split` fixes (u32 overflow, over-commit, offset overflow), 19 new tests incl.
+  seeded model test. Behavior change: lone `.min` larger than span is honored fully, others
+  squeezed to 0; `split` asserts area edges <= 65536. tidy baseline layout.zig 22 -> 13.
+- PRs: #44 (merged). Tracking issue #19 commented; item 11 stays unticked (4/5).
+- Next: item 11 last module `fmt.zig` (0 asserts, 1387 lines; check u16/u32 overflow in table
+  width math); then tick item 11, item 12 docs + v3.0.0. n=23 FEATURE (n=25 stabilization).
+- Blockers: none. Open questions: none.
+- Quirks: delegating the whole TDD cycle to one zig-developer agent (~$1.4, ~10 min) worked;
+  ran PR-to-merge in ~11 min. Consumers (zr tui migration) should note the `split` lone-min change.
 
 ## Cycle 21 — 2026-10-02 — FEATURE
 
