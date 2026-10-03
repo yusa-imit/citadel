@@ -1,7 +1,26 @@
 # sigil — context
 
-last_seen_at: 2026-10-03T00:00:00Z
+last_seen_at: 2026-10-03T12:00:00Z
 rejected_plans: []
+
+## Cycle 32 — 2026-10-03 — FEATURE
+
+- Done: item 8 of plan 003, `reflect/stringify.zig` (mirror of parse; hooks, options, string maps,
+  `Value` deep copy, UTF-8 check), via PR #35, CI 8/8, squash-merged; issue #27 at 8/10. 277 tests
+  in the module run, tidy 0, fmt clean. Inbox: no OWNER activity.
+- Process: wrote tests myself first (no test-writer, ~$0.7 total before the reviewer), then
+  `stringify.zig`; one `code-reviewer` (~$0.2): 0 critical / 5 warnings, all fixed (depth at 127/128
+  per container kind via a pre-depthed `Context`, hook self-recursion, array `InputTooLarge`, OOM
+  sweep for maps and `Value`, `clone_map` precondition doc). Cycle cost ~$2.3 of $4.
+- Learned: `Context` gained `fail_stringify` + `stringify_child` (parse's `fail` stays
+  ParseError-typed). `parse.has_hook/string_map_value/assert_supported` are now `pub`. Wire names
+  and enum names in results are comptime statics (not copied). The `Value` deep copy is private
+  to stringify.zig (not `ValueTree.clone_value` as ADR 0002 consequences said). A long
+  `@typeName` of a test-local type truncates the fallback message: declare test types at file
+  scope. tidy flags `switch (err)` without a `// proof:` on the same/previous line, and every `pub
+  fn` (hooks in tests too) needs 2 asserts.
+- Next: item 9 round-trip property test (seeded, 1,000 seeds, matrix of every kind nested 3 deep;
+  `parse` -> `stringify` -> `eql`), then item 10 wire and close. Blockers/questions: none.
 
 ## Cycle 31 — 2026-10-03 — FEATURE
 
