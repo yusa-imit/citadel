@@ -1,7 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-10-03T12:00:00Z
+last_seen_at: 2026-10-04T12:00:00Z
 rejected_plans: []
+
+## Cycle 33 — 2026-10-04 — FEATURE
+
+- Done: item 9 of plan 003, `reflect/roundtrip_test.zig` (seeded, 1,000 seeds, matrix of every kind
+  incl. hook, Timestamp, Value, String maps, odd-width ints, renamed/deny_unknown structs, 5
+  containers deep), via PR #36, CI 8/8, squash-merged; issue #27 at 9/10. tidy 0, fmt clean.
+  Inbox: no OWNER activity.
+- Process: wrote the test myself (no test-writer), mutation-checked (float `+1.0` in stringify
+  fails at seed 0 with the seed logged), one `code-reviewer` (~$0.1): 0 critical / 4 warnings, all
+  fixed (a `Coverage` tally fails the test if a matrix branch is never generated, comparator
+  mutation tests per field kind, more matrix kinds, asserts). Cycle cost ~$1.5 of $4.
+- Learned: `std.log.err` in a test reports the seed (tidy bans `std.debug.print`). `zig test
+  --test-filter` on root.zig ran only 1 test; use `zig build test` for the real signal. Do not
+  `git checkout` a file holding uncommitted wiring edits during a mutation check; back it up.
+- Next: item 10 wire and close (`reflect.zig`/`core.zig` drop `error.NotImplemented`, tick 1A-1D
+  in `docs/plans/000-inherited.md`), then plan 003 closes 10/10, version impact none (no tag).
+  Blockers/questions: none.
 
 ## Cycle 32 — 2026-10-03 — FEATURE
 
@@ -193,6 +210,6 @@ Plan 001 (issue #3) closed 11/11. Plan 002 (issue #20) closed 5/5 — Phase 1A/1
 
 ## Next priority
 
-Plan 003 is approved (issue #27, 6/10 ticked). Next `/implement` target: item 7,
-`reflect/parse.zig` unions, string maps, hook (ADR 0002 is the contract).
+Plan 003 is approved (issue #27, 9/10 ticked). Next `/implement` target: item 10 (wire and
+close); then close the milestone (version impact none) and `/plan` Phase 2 (json).
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
