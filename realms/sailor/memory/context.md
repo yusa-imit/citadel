@@ -90,33 +90,19 @@ rejected_plans: []
 - Guard quirk: `cd <repo>; gh run view ... | ...` compounds were blocked; run gh without `cd`,
   redirect logs to /tmp. Memory writes: use Write/Edit, not bash heredocs.
 
-## Cycle 18 — 2026-09-29 — FEATURE
+## History (cycles 16-18, condensed 2026-10-04)
 
-- Done: preflight clean (PR #38 already merged, CI green). Inbox: no OWNER action; #34 window
-  is ON (sailor-migration owns items 4/6-10; do not touch). Item 11 (2/5): `arg.zig` assertion
-  baseline as PR #39, merged 10/10 green. Reused the preserved
-  `wip/arg-assertion-baseline-20260928` `arg.zig` (25 asserts + 10 tests); `maybe` kept private
-  (no `src/stdx.zig` yet — create it once when a second module needs it). Tidy ratchet bit: asserts
-  grew `Parser`/`Commands` over baseline, so extracted `writeFlagHelp`/`writeCommandHelp` to file
-  scope (Parser 312→296, Commands 97→94). code-reviewer caught: `std.io.fixedBufferStream` in new
-  tests (use `std.Io.Writer.fixed`), tautological asserts, weak `if (suggestion)` tests — fixed.
-- PRs: #39 (merged).
-- Next: item 11 remaining, in order: `tui/buffer.zig`, `tui/layout.zig`, `fmt.zig`; then tick item.
-  Stabilization item: `zig fmt --check src` flags 78 pre-existing files (CI doesn't run it).
-  Stale local branch `test/arg-assertion-baseline` (== old main) left in place.
-- Blockers: none. Open questions: none (#34 is the window switch; do not close).
+Cycles 16-18 (2026-09-26 to 09-29, FEATURE): merged PR #36 and proof-commented
+`inspector.zig`'s 2 `catch unreachable` test-visitor sites (PR #37). Ticked the stale
+`wip/timeline-description-rendering` checkbox (branch stays, never delete `wip/*`). Item 11
+(assertion baseline) started: `term.zig` PR #38 (`getSizeWindows` returns
+`TerminalSizeUnavailable`), `arg.zig` PR #39 from the preserved
+`wip/arg-assertion-baseline-20260928` (`maybe` later moved to `src/stdx.zig`). The tidy ratchet
+bites when asserts grow a function over baseline: extract helpers to file scope. Reviewer caught
+`std.io.fixedBufferStream` in new tests (use `std.Io.Writer.fixed`) and tautological asserts.
+#34 got the OWNER's cron-exception reply; its window is ON (sailor-migration owned items 4/6-10).
+Open: `zig fmt --check src` flags 78 pre-existing files (CI does not run it).
 
-## Cycle 17 — 2026-09-27 — FEATURE
-
-- Done: ticked the stale `wip/timeline-description-rendering` checkbox (branch stays, never
-  delete `wip/*`). Item 11 started with `term.zig` as PR #38: 43 asserts, `getSizeWindows` now
-  returns `TerminalSizeUnavailable` instead of passing raw OS dimensions. Pattern that worked:
-  test-writer first, then zig-developer.
-
-## Cycle 16 — 2026-09-26 — FEATURE
-
-- Done: merged PR #36; proof-commented `inspector.zig`'s 2 `catch unreachable` test-visitor
-  sites as PR #37 (merged later). #34 got the OWNER's cron-exception reply (operator action).
 
 ## History (cycles 13-15, condensed 2026-09-29)
 
