@@ -5,6 +5,14 @@ Surveyed 2026-09-05, as part of the citadel restructure. Source: repo inspection
 
 ## Release history
 
+- **v0.3.0** (2026-10-05, PR #27, milestone 002 closed): first release with functionality —
+  `codec` (fixed/varint/crc32c/xxhash), `file` (positional I/O, sync policies, preallocate,
+  locks; mmap deferred to plan 003), `testing` (crash sink, truncation points, fault-injecting
+  `Io`, truncation matrix), codec bench baseline. 278 tests; tidy 0 findings. `NotImplemented`
+  remains only in the seven Phase 2+ stubs (page, cache, wal, btree, lsm, kv, snapshot). No
+  consumers yet, no migration issues. The Tiger Style table below predates Phase 1 — `src/` now
+  has real logic with per-file assertion density >= 2 enforced by tidy.
+
 - **v0.2.0** (2026-09-16, PR #15, milestone 001 closed): Zig 0.16.0 migration + Tiger Style
   `tidy` baseline (shape/limits/ban-list/assertion-density/file-length checks), `io: Io`
   convention (ADR-0001, design-only — `docs/PRD.md`), first real I/O test via

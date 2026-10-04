@@ -1,7 +1,18 @@
 # strata — context
 
-last_seen_at: 2026-10-04T00:50:00Z
+last_seen_at: 2026-10-04T17:14:00Z
 rejected_plans: []
+
+## Cycle 31 — 2026-10-05 — FEATURE
+- Done: plan 002 item 10 — PR #27 merged (docs, `NotImplemented` dropped from codec/file/testing,
+  README rows Landed, `strata.version` fixed 0.1.0→0.3.0, CHANGELOG + zon 0.3.0); tag v0.3.0 +
+  GitHub release created; milestone #17 closed. No consumers, no migration issues. STATE.md has
+  the v0.3.0 entry; its Tiger Style table is still the pre-Phase-1 audit (re-audit pending).
+- Plan 003 proposed (Phase 2 page + CLOCK buffer pool, ends v0.4.0), PR #28, awaiting merge.
+  Scope cut for the human: freelist is trunk-list only, bitmap deferred. Plan item 1 adds the
+  ADR-0001 tidy guards (never landed). `file.zig` is 788/800 lines: no new `File` methods.
+- Next: when #28 merges, open milestone issue "milestone: 003 ..." and start item 1.
+- Note: guard hook rejects compound Bash and `$VAR` paths into citadel; use simple commands.
 
 ## Cycle 30 — 2026-10-04 — FEATURE
 - Done: plan 002 item 9 — `bench/main.zig` codec baseline: crc32c software + hardware (hardware
@@ -78,10 +89,10 @@ rejected_plans: []
 
 ## Standing backlog
 
-- Version: 0.2.0 released; 0.3.0 pending plan 002 item 10. `file/mmap.zig` deferred to plan 003.
+- Version: 0.3.0 released (2026-10-05). `file/mmap.zig` deferred again (plan 003 out of scope).
 - `docs/milestones.md` is the single source of truth for progress; `docs/PRD.md` for requirements.
 
 ## Next priority
 
-Plan 002 item 10: docs + module status + release v0.3.0, then `/plan strata` for plan 003 (WAL/page
-or mmap; check ROADMAP).
+Plan 003 (PR #28) awaits the OWNER's merge. After merge: open the milestone issue and implement
+item 1 (tidy ADR-0001 `Io` guards). Do not start item work before the merge.
