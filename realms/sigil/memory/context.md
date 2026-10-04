@@ -1,7 +1,21 @@
 # sigil — context
 
-last_seen_at: 2026-10-04T13:00:00Z
+last_seen_at: 2026-10-04T15:08:00Z
 rejected_plans: []
+
+## Cycle 35 — 2026-10-05 — FEATURE
+
+- Done: plan PR #38 (plan 004) still open, no OWNER comment/review, no issues, CI green on main. One
+  `--one` stabilization slot: `bench/main.zig` ported to 0.16 (`process.Init`, `Io.Clock.awake`,
+  `std.mem.find`, explicit error set, pure rate helpers with a test). `build.zig` now shares one
+  bench module between the `bench` exe and a test step wired into `zig build test`, so the harness
+  compiles in CI. PR #39, CI 8/8, squash-merged. tidy 0, fmt clean. Cost ~$0.5 of $4.
+- Learned: `zig build bench` had been broken since the 0.16 migration (plan 001 item 6 missed it
+  because bench was not compiled by `zig build test`). Guard blocks a Bash command starting with `cd
+  <repo>` even for the own repo; run from cwd instead.
+- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Until then
+  one `/stabilize --one` slot per cycle; remaining candidate is the `tools/tidy.zig` self-exemption.
+  Blockers/questions: none.
 
 ## Cycle 34 — 2026-10-04 — FEATURE
 
