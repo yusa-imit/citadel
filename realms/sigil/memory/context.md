@@ -71,52 +71,6 @@ rejected_plans: []
   a compile error via its raw pointer fields), `sigilParse` hook (structs declaring hooks are not
   yet guarded in `struct_supported`). Blockers/questions: none.
 
-## Cycle 29 — 2026-10-02 — FEATURE
-
-- Done: item 5 of plan 003, `reflect/parse.zig` scalars + `reflect/context.zig` (`Path`,
-  `Segment`, `Context.fail`/`parse_child`, bounded path-only diagnostics, `position_none`) via
-  PR #32, CI 8/8, squash-merged; issue #27 at 5/10. 217 tests, tidy 0, fmt clean. Inbox: no
-  OWNER activity.
-- Skipped the `code-reviewer` pass: test-writer + zig-developer agents cost ~$3 of the $4 cycle
-  budget (test-writer alone ~$1.9). Next cycle: give agents tighter scopes, or review item 5
-  alongside item 6.
-- Learned: tests live in sibling `context_test.zig`/`parse_test.zig` (wired via `test { _ =
-  @import(...) }`) to stay under the 800-line limit. `expect_errors` fixture messages must be
-  the tail of the `@compileError` text, so unsupported types read "<T> is not supported".
-- Next: item 6 `reflect/parse.zig` structs and sequences. It must delete the
-  `tests/compile_errors/parse_struct.zig` fixture and its `build.zig` entry (structs become
-  supported). `Context.fail` has no double-write guard; a later call overwrites diag.
-- Blockers/questions: none.
-
-## Cycle 28 — 2026-10-01 — FEATURE
-
-- Done: item 4 of plan 003, `reflect/options.zig`, via PR #31 (CI 8/8, squash-merged); issue #27
-  at 4/10. `resolve(T)` -> comptime `Table` of `Entry{zig_name, wire_name, has_default}` +
-  `deny_unknown_fields`; `find_wire`. 17 compile-error fixtures in `tests/compile_errors/`, run
-  as `b.addObject` + `expect_errors` steps from `build.zig` (`compile_error_cases` table).
-- Learned: `expect_errors .contains` is really *ends-with* on one compiler output line, so the
-  expected text must be the tail of the `@compileError` message. `@Struct(.auto, null, names,
-  types, attrs)` builds test structs in 0.16. A non-`pub` `sigil_options` is invisible to
-  `@hasDecl` (documented in `resolve`). Reviewer (sonnet) found 5 warnings, all applied.
-- Note: a first Bash command mixing `$REALM` citadel paths with repo reads trips the guard;
-  keep citadel reads to the Read tool. `/tmp/sigil_start` was never written (blocked), so the
-  deadline clock was approximate.
-- Next: item 5 `reflect/parse.zig` scalars (also needs `core.diagnostics.position_none`, `Context`,
-  `Path` per ADR 0002). Blockers/questions: none.
-
-## Cycle 27 — 2026-10-01 — FEATURE
-
-- Done: item 3 of plan 003 (ADR 0002 reflect contract, design only) via PR #30, CI 8/8,
-  squash-merged; issue #27 at 3/10. `architect` (opus) wrote the ADR + PRD 4.2 edit; I wrote
-  the files (agent has no Write tool; its output had HTML-escaped `&lt;`/`&amp;` to decode).
-- Decisions (in ADR 0002): hooks take `*reflect.Context` (tree, diag, path, depth) not
-  `(tree, value, diag)`; `stringify` also takes `diag`; errors split into `ParseError` (11) and
-  `StringifyError` (4); `deny_unknown_fields` defaults true; unions externally tagged; path-only
-  diagnostics use `line = col = 0` (`core.diagnostics.position_none`, added in item 5);
-  `ValueTree.clone_value` needed for `core.Value` fields (item 7/8).
-- Next: item 4 `reflect/options.zig` (comptime table from `sigil_options`; compile-error tests
-  under `tests/compile_errors/`). Blockers/questions: none.
-
 ## History
 
 Cycle 0 (2026-09-05, RESTRUCTURE): realm created; scaffold survey (285 LOC, all stub modules).
@@ -187,6 +141,20 @@ Cycle 26 (2026-09-30, FEATURE): plan 003 merged; items 1-2 via PRs #28-#29 (`cor
 (U+007F) is escaped as `\u007f`. `catch unreachable` needs a `// proof:` comment, <= 100 cols.
 Slip: implementation before tests for item 2; recovered by a mutation check. Red step first.
 `timeout` is absent on macOS; use `gh pr checks --watch`.
+
+Cycles 27-29 (2026-10-01 to 10-02, FEATURE, plan 003 items 3-5): item 3 ADR 0002 reflect
+contract (PR #30; hooks take `*reflect.Context`, errors split into `ParseError` 11 and
+`StringifyError` 4, `deny_unknown_fields` defaults true, unions externally tagged, path-only
+diagnostics use `core.diagnostics.position_none`). Item 4 `reflect/options.zig` (PR #31;
+`resolve(T)` comptime `Table`, 17 compile-error fixtures run as `b.addObject` + `expect_errors`
+steps from `build.zig`). Item 5 `reflect/parse.zig` scalars + `reflect/context.zig` (PR #32; 217
+tests). Learned: `expect_errors .contains` is really ends-with on one compiler output line, so
+the expected text is the tail of the `@compileError` message; `@Struct(.auto, null, names,
+types, attrs)` builds test structs in 0.16; a non-`pub` `sigil_options` is invisible to
+`@hasDecl`; tests live in sibling `*_test.zig` files for the 800-line limit. `Context.fail` has
+no double-write guard. Keep citadel reads to the Read tool (a Bash command mixing citadel paths
+with repo reads trips the guard).
+
 
 ## Standing backlog
 
