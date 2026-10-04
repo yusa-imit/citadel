@@ -1,7 +1,18 @@
 # synod — context
 
-last_seen_at: 2026-10-04T06:00:00Z
+last_seen_at: 2026-10-04T18:00:00Z
 rejected_plans: []
+
+## Cycle 31 — 2026-10-04 — FEATURE (no-op)
+- Inbox: no OWNER actions; plan 003 PR #33 still open and MERGEABLE (all its comments are the AI's
+  own cycle reports); no bugs, CI green on 5d4d37f.
+- Done: nothing opened. Stabilization backlog is empty (cycle 30 audit: headers, tidy, error-variant
+  coverage all clean), so no filler task; memory-only cycle.
+- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else another
+  heartbeat cycle.
+- Tool note: a Bash command mixing `echo > /tmp/...` and citadel paths is blocked by the guard;
+  read citadel files with Read, keep Bash commands simple.
+- Open questions: none.
 
 ## Cycle 30 — 2026-10-04 — FEATURE (no-op)
 - Inbox: no OWNER actions; plan 003 PR #33 still open (no change requested); no bugs, CI green.
