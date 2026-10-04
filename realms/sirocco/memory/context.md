@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-10-04T07:00:00Z
+last_seen_at: 2026-10-05T07:00:00Z
 rejected_plans: []
+
+## Cycle 35 — 2026-10-05 — FEATURE
+- Inbox: no OWNER activity; CI green on aad6b0f; milestone #18 only open issue; no plan PR.
+- Done: plan 002 item 7 via PR #28 (merged fdf7d6b, CI green Linux+macOS+6 cross; #18 ticked).
+  Native `groupAsync`/`groupAwait`/`groupCancel` + `crashHandler` in `src/concurrency.zig`;
+  `groupConcurrent` = ConcurrencyUnavailable (listed in `slots.divergent`). `Io.Group.token` ->
+  `GroupRec` (intrusive member list, count, one parked awaiter); member fiber frees its own Task.
+  `tests/parity/group.zig` new; `cancel.zig` worker-thread test now spawns its group via
+  `rt.baselineIo()` (rt.io() groups no longer reach Threaded workers).
+- Reviewer fixed: crashHandler must set `.acknowledged` (Threaded's `.canceled` = delivered), not
+  `.requested`; self-await tripwire; OOM/born-canceled/in-fiber-cancel tests; docs.
+- Next: item 8 (`src/futex.zig` wait table; first cancelable park: unpark target on cancel, then
+  groupAwait can propagate a cancel that arrives while parked), item 9 release 0.3.0.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: guard blocks `cd <repo> && ...` and `sed -i` on repo paths in compound commands; use
+  Edit/python for edits and run `zig` by full path without `cd`. Slot-table negative tests in
+  `slots.zig` hardcode a delegated sample slot (now `futexWait`): pick the first still-delegated one.
 
 ## Cycle 34 — 2026-10-04 — FEATURE
 - Inbox: no OWNER activity; CI green on 2f6c447; milestone #18 only open issue; no plan PR.
@@ -17,38 +34,16 @@ rejected_plans: []
 - Blockers: none. Open questions: none. Stabilize streak 0.
 - Gotchas: stale `.zig-cache` FileNotFound again; `rm -rf .zig-cache` fixed it.
 
-## Cycle 33 — 2026-10-04 — FEATURE
-- Inbox: no OWNER activity; CI green on d312de3; milestone #18 only open issue.
-- Done: plan 002 item 5 closed via PR #26 (merged 2f6c447, CI green Linux+macOS+6 cross):
-  `bench/spawn.zig` / `zig build bench-spawn` (gate 6). Numbers (arm64 mac, ReleaseFast): 1 in
-  flight sirocco 32 ns vs Threaded 1799 ns (pass); 1000 in flight 62283 ns vs 660 ns (FAIL: async
-  is lazy, bodies start at first await). Recorded in PRD §5 table; tracking issue ticked.
-- Next: item 6 (checkCancel/recancel/swapCancelProtection) + PR #25 review warnings (await outside
-  a fiber -> run only until task done; checked adds in task_create; zero-size ctx/result tests;
-  cancel-after-done). Revisit gate 6 at 1000 with items 8/9 (eager start or batch-aware).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: global `zig` is 0.15.2; use /Users/fn/.zr/toolchains/zig/0.16.0/zig by full path.
-  No `timeout`/`sysctl` on this box. Skipped code-reviewer (bench-only change, tight budget).
-
-## Cycle 32 — 2026-10-03 — FEATURE
-- Inbox: no OWNER activity since watermark; CI green on edb1a36; milestone #18 only open issue.
-- Done: plan 002 item 5 slots via PR #25 (merged d312de3, CI green Linux+macOS+6 cross):
-  native `async`/`await`/`cancel` (`src/concurrency.zig`), `concurrent` = ConcurrencyUnavailable
-  (divergence cited in slots.zig), 16 parity tests. Hang root cause: std's unwinder (DebugAllocator
-  captures a trace on every alloc) walked off the fiber base via a stale return address and read
-  addr 0x8; fixed by a zero return-address sentinel (x30 / word below Start). Killed stale hung
-  test pid 68879. `wip/async-await-slots-20261003` kept (do not delete).
-- Item 5 box left OPEN: `bench/spawn.zig` (PRD §5 gate 6 at 1 and 1000 in flight) still missing.
-- Next: (a) bench/spawn.zig + tick item 5; (b) code-reviewer warnings from PR #25: `await` outside a
-  fiber should `run_until(task.done)` not drain all fibers; guard pages or deeper canary; checked
-  adds in `task_create`; tests for zero-size ctx/result under `.fail`, cancel-after-done; x86_64 test
-  calling a stack-trace capture inside a fiber. Then item 6 (cancel state).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: `zig test --dep sirocco -Mroot=tests/parity/root.zig -Msirocco=src/root.zig -fno-omit-
-  frame-pointer --test-no-exec -femit-bin=/tmp/..` builds the parity binary alone; run it under a
-  python subprocess timeout (no `timeout`, lldb cannot attach). `--test-filter` is compile-time
-  only. Guard blocks `cd <repo>` in compound commands. Tests name an item-5 failure as hang when it
-  is really a crash in the Zig handler: read the last `N/M name...` line.
+## History (cycles 32-33)
+Cycle 33 (10-04): item 5 closed via PR #26, `bench/spawn.zig`/`zig build bench-spawn` (gate 6:
+1 in flight 32 ns vs Threaded 1799 ns pass; 1000 in flight 62283 ns vs 660 ns FAIL since async is
+lazy; revisit with items 8/9). Cycle 32 (10-03): item 5 slots via PR #25: native async/await/
+cancel in `src/concurrency.zig`; hang root cause was std's unwinder walking off the fiber base
+(fixed by a zero return-address sentinel); `wip/async-await-slots-20261003` kept (do not delete).
+Gotchas: `zig test --dep sirocco -Mroot=tests/parity/root.zig -Msirocco=src/root.zig
+-fno-omit-frame-pointer --test-no-exec` builds the parity binary alone; no `timeout` on macOS
+(python subprocess timeout); `--test-filter` is compile-time only; read the last `N/M name...`
+line to tell a crash from a hang.
 
 ## History (cycles 30-31)
 Cycle 31 (10-03): found ~680 dirty lines of an interrupted item-5 attempt, preserved as
