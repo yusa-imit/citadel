@@ -1,7 +1,23 @@
 # sigil — context
 
-last_seen_at: 2026-10-04T12:00:00Z
+last_seen_at: 2026-10-04T13:00:00Z
 rejected_plans: []
+
+## Cycle 34 — 2026-10-04 — FEATURE
+
+- Done: item 10 of plan 003 (wire and close), PR #37, CI 8/8, squash-merged; issue #27 closed 10/10,
+  no tag. `core.Error` is now `number.Error || unicode.Error || EscapeError || {TooDeep, OutOfMemory}`
+  (comptime test pins members; was red first). 1A-1D ticked in `000-inherited.md`. 324 tests, tidy 0.
+- Plan 004 proposed: Phase 2A-2C JSON (ADR 0003, scanner x2, dom, writer, round-trip, JSONTestSuite,
+  `json.parse(T)`, `parseFile`, bench port, release v0.3.0) as PR #38, awaiting human merge. Planner
+  (opus, ~$0.9) drafted it. Inbox: no OWNER activity, no open PRs.
+- Learned: sandbox `zig build` fails with cache FileNotFound; use `--cache-dir /tmp/sigil-zc`. Guard
+  blocks a command that has `push` while the checkout is on main: branch first, separate command.
+  Plan 003 item 4 box is still unticked (plan 004's release item ticks it). `bench/main.zig` is
+  still 0.15 code (plan 004 ports it). REALM.md in citadel is stale (says plan 003 awaiting merge).
+- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Until then
+  one `/stabilize --one` slot per cycle (candidate: port `bench/main.zig` to 0.16).
+  Blockers/questions: none.
 
 ## Cycle 33 — 2026-10-04 — FEATURE
 
@@ -39,39 +55,13 @@ rejected_plans: []
 - Next: item 9 round-trip property test (seeded, 1,000 seeds, matrix of every kind nested 3 deep;
   `parse` -> `stringify` -> `eql`), then item 10 wire and close. Blockers/questions: none.
 
-## Cycle 31 — 2026-10-03 — FEATURE
-
-- Done: item 7 of plan 003, `reflect/parse.zig` tagged unions, `array_hash_map.String(V)` maps and
-  the `sigilParse` hook, via PR #34, CI 8/8, squash-merged; issue #27 at 7/10. 296 tests, tidy 0,
-  fmt clean. Inbox: no OWNER activity.
-- Process: `test-writer` (~$1.1, 3 new `parse_{union,map,hook}_test.zig` + 5 compile-error
-  fixtures), I implemented parse.zig myself (green on the first run), tight `code-reviewer`
-  (~$0.2): 0 critical / 3 warnings, all fixed (hook + `sigil_options` check, `sigilStringify`
-  signature check in `has_hook`, doc line > 100 cols), +2 fixtures.
-- Learned: a hooked type never reaches `options.resolve`, so the hook-vs-options check lives in
-  `parse.has_hook`. `String(V)` is detected by `T == std.array_hash_map.String(@FieldType(T.KV,
-  "value"))`. A void union variant only counts as a container when written as a map.
-- Next: item 8 `reflect/stringify.zig` (mirror of parse; `sigilStringify` signature already
-  enforced by `parse.has_hook`; reuse it, do not re-derive). Blockers/questions: none.
-
-## Cycle 30 — 2026-10-02 — FEATURE
-
-- Done: item 6 of plan 003, `reflect/parse.zig` structs, `[N]T`, `[]T`, via PR #33, CI 8/8,
-  squash-merged; issue #27 at 6/10. Inbox: no OWNER activity. tidy 0, fmt clean, all tests pass.
-- Process: `test-writer` (~$1.4, split tests into `parse_rig.zig` + 3 `parse_*_test.zig` files for
-  the 800-line limit), then I implemented `parse.zig` myself (no zig-developer, to save budget),
-  then a tight `code-reviewer` (~$0.1, 0 critical / 3 warnings, all fixed): slice alignment/
-  volatile/allowzero, std hash maps, arrays > `array_bytes_max` (64 KiB, stack bound).
-- Learned: `Pointer.alignment` is `?usize` in 0.16 (null = natural). `assert_supported` must not
-  recurse into struct fields (recursive `Node` never finishes); element types are checked when
-  parsed. Container entry rule: `depth >= nesting_max` -> `TooDeep` (128 pass, 129 fail).
-  Bash guard blocks heredocs and `cd <repo> ;` chains; write files with the Write tool.
-  `git add` of an already-staged deletion fails the whole `&&` chain; omit that path.
-- Next: item 7 `reflect/parse.zig` unions, string maps (`std.array_hash_map.String(V)`, currently
-  a compile error via its raw pointer fields), `sigilParse` hook (structs declaring hooks are not
-  yet guarded in `struct_supported`). Blockers/questions: none.
-
 ## History
+
+Cycles 30-31 (2026-10-02 to 10-03, FEATURE, plan 003 items 6-7): `reflect/parse.zig` structs, arrays,
+slices (PR #33), then unions, `array_hash_map.String(V)` maps and `sigilParse` hook (PR #34). Learned:
+`Pointer.alignment` is `?usize`; `assert_supported` must not recurse into fields; container entry
+`depth >= nesting_max` -> `TooDeep`; a hooked type skips `options.resolve` so `parse.has_hook` checks
+hook-vs-options; `String(V)` detected via `T.KV`. Bash guard blocks heredocs: use Write.
 
 Cycle 0 (2026-09-05, RESTRUCTURE): realm created; scaffold survey (285 LOC, all stub modules).
 Zig 0.16 probe found sigil nearly migration-ready. Plan 001 PR opened.
@@ -178,6 +168,6 @@ Plan 001 (issue #3) closed 11/11. Plan 002 (issue #20) closed 5/5 — Phase 1A/1
 
 ## Next priority
 
-Plan 003 is approved (issue #27, 9/10 ticked). Next `/implement` target: item 10 (wire and
-close); then close the milestone (version impact none) and `/plan` Phase 2 (json).
+Plan 003 closed 10/10 (issue #27). Plan 004 (Phase 2A-2C JSON, first tag v0.3.0) is PR #38 awaiting
+human merge; on merge open its milestone issue and `/implement` item 1 (ADR 0003).
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
