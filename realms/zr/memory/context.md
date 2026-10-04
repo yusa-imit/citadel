@@ -1,7 +1,28 @@
 # zr — context
 
-last_seen_at: 2026-10-04T00:00:00Z
+last_seen_at: 2026-10-05T00:00:00Z
 rejected_plans: []
+
+## Cycle 15 — 2026-10-05 — STABILIZATION
+- Preflight: tree clean, CI green (5/5), inbox clear (only milestone #155); zuda v2.3.0 /
+  sailor v2.99.0 still the newest tags, so items 5-11 stay blocked.
+- Fixed `exec/process.zig` `streamReader`: per-line buffer was unbounded and `append catch {}`
+  dropped bytes silently. Extracted `emitLines` (1 MiB `line_bytes_max`, over-long line
+  delivered in pieces; on OOM the pending tail is delivered, pipe keeps draining), 4 tests.
+  Local: `zig build test` 1911/0, tidy 0 failing, fmt clean.
+- PR #177 OPEN, not merged: Build & Unit + Integration green, 6 cross-compile jobs pending at
+  the 22 min deadline (suite took ~6 min locally + ~8 min CI). NEXT CYCLE: first
+  `gh pr checks 177 -R yusa-imit/zr`; if green and no `hold`, merge (squash), label
+  `auto-merged`; if red, fix it.
+- Gotchas: stale `.zig-cache` again ("failed to spawn build runner") → `rm -rf .zig-cache`;
+  BSD sed has no `\n` in replacement (use Edit); `zig test src/root.zig` does not include
+  `exec/process.zig` tests, only `zig build test` runs them; the 100-col tidy line-length
+  baseline counts test names — keep test names short; FixedBufferAllocator makes a robust OOM
+  test (FailingAllocator indices were unpredictable with ArrayList growth/remap).
+- Next: remaining `while (true)` in cli/show.zig (159 follow loop, 441 tail), add*.zig,
+  template.zig, config_editor.zig; ~220 missing `//!` headers; process.zig still has
+  doc-header baseline entry. Watch zuda/sailor v3.0.0 tags.
+- Open questions: none.
 
 ## Cycle 14 — 2026-10-04 — FEATURE
 - Preflight: tree clean on `main`; CI green (latest completed run on ea14a07). Disk 66GB free.
