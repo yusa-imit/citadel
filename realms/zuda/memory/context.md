@@ -1,7 +1,26 @@
 # zuda — context
 
-last_seen_at: 2026-10-02T19:20:00Z
+last_seen_at: 2026-10-05T00:00:00Z
 rejected_plans: []
+
+## Cycle 18 — 2026-10-05 — FEATURE
+- Done: preflight found branch `chore/zig-0.16-flip` (PR #60, clean, pushed, 7/7 checks green,
+  no hold). Inbox merged #60 (squash, labeled `auto-merged`): flip to 0.16.0 plus ndarray
+  `Io.Dir`, Io.Mutex, PriorityQueue unmanaged, bench `Io`. #56 was closed by cycle 17. Main CI
+  on the merge commit: green. Then plan 001 item `mem.indexOf*` -> `find*`: 43 sites, 13 files,
+  PR #61 (`zig build`, `zig build test` exit 0 on 0.16; formatted 5 touched files that already
+  failed fmt). Ticked plan items done by #60 (indexOf/AutoArrayHashMap, ndarray fs, flip).
+- Found: many files outside `root.zig`'s test graph still fail on 0.16 (managed
+  `ArrayList(T).init`, `.writer()`, `std.time.timestamp`, `std.posix.getrandom` in bogosort,
+  kmeans/gmm/dqn/ddpg/tsne). Added a plan item for it. `zig fmt --check src` still fails on
+  `max_sum_rectangle.zig` and `target_sum.zig` (parse errors, `anytype`) and ~160 unformatted
+  files; CI has no fmt gate.
+- PRs: #60 merged. #61 open, Build & Test pending at the deadline; next inbox merges it.
+- Next: merge #61, then the new hidden-red 0.16 plan item; then `Thread` sync/bogosort,
+  harness `internal/testing.zig` (`std.time.milliTimestamp`), assertion baseline, v3.0.0.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: zsh has no PIPESTATUS (use `pipestatus`); `zig build test` prints a "failed command"
+  block from stderr-printing tests yet exits 0, trust the exit code and Build Summary.
 
 ## Cycle 17 — 2026-10-03 — STABILIZATION
 - Done: forced by open bug #57 (CI green, n%5 != 0). Inbox merged #58 (ILU init double free +
@@ -72,99 +91,13 @@ rejected_plans: []
   unchecked plan 001 item.
 - Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
 
-## Cycle 13 — 2026-09-27 — STABILIZATION
-- Done: forced by open bugs #44/#46. Merged PR #47 (ArrayList arity + remove() UAF; closes #44).
-  Fixed #46 in PR #48: `zoltraak_sortedset.zig` SkipList now keyed by `Key{score, member}`
-  (ties ordered by member bytes, Redis ZSET semantics; `rank` is true position among ties);
-  new tied-score rank/update/remove test; file re-wired into `root.zig` test block so its tests
-  run under `zig build test` (14429 pass, fmt clean, all 7 CI checks green). Both merged,
-  labeled `auto-merged`. No open bugs remain. No architect pass needed: change is file-private.
-- Note: milestone #31's io/seed checkbox (line 6) is fully done (skip_list done,
-  work_stealing_deque dropped) but still unticked — tick it next cycle.
-- Next: FEATURE — `std.time.*` → `Io.Clock` in containers (21 sites) or the remaining mechanical
-  renames item; tick the io/seed checkbox first.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file; fix succeeded).
-- Tooling quirk: the bash guard blocks commands referencing citadel paths via variables/mixed
-  with other commands; use Read/Write/Edit tools for citadel files.
-
-## Cycle 12 — 2026-09-17 — STABILIZATION
-- Done: forced by open bug #44 (OWNER-filed, no `needs-human`) per the forcing rule, despite
-  green CI and n%5 != 0. Inbox merged PR #45 (SkipList seed injection, all 7 checks green),
-  labeled `auto-merged` — this completes plan 001's io/seed rollout item entirely. Fixed #44:
-  `zoltraak_sortedset.zig`'s `range()`/`rangeByScore()` called `ArrayList.append` (and
-  `deinit`/`toOwnedSlice`) with the pre-unification arity; this repo's pinned Zig 0.15.2
-  `std.ArrayList` needs the allocator per call. Verifying the fix (via a scratch driver, since
-  this file's tests are still unreachable from `zig build test`, issue #38's gap) surfaced a
-  real use-after-free: `remove()`/`add()`'s update path freed the SkipList entry's owned member
-  string before unlinking that same allocation from `StringHashMap` (both share the one
-  `dupe()`'d string), segfaulting on the next lookup — reordered to unlink first, fixed in the
-  same PR. Verification also surfaced a third, separate bug: `score_to_member` (keyed by `f64`
-  score alone) silently overwrites and leaks entries when two members share a score, which
-  zoltraak's Sorted Set API requires supporting (Redis ZSET semantics) — filed as #46 with a fix
-  sketch (composite `{score, member}` SkipList key), deliberately not fixed here to keep #47
-  scoped and avoid turning CI red on an unrelated, pre-existing failure. Kept the file out of
-  `root.zig`'s `refAllDecls` for the same reason; #46 says to re-wire it once fixed.
-- PRs: #47 open (fixes #44), Build & Test green, cross-compile matrix still running at the
-  cycle deadline — left "awaiting CI; merge next cycle" comment. #45 merged.
-- Next: merge #47 once green (closes #44). Then FEATURE resumes: plan 001's io/seed rollout is
-  fully done, so pick the next unchecked plan 001 item — `std.time.*` → `Io.Clock` in the
-  container layer, or the `mem.indexOf*`/`AutoArrayHashMap` mechanical-rename item, either is a
-  reasonable pick. #46 (duplicate-score SkipList key redesign) is unscheduled — call `architect`
-  before implementing given the internal-representation change.
-- Blockers: none. Open questions: none. stabilize_streak: not incremented (fix succeeded and is
-  verified; only slower cross-compile CI jobs were still pending at the deadline, not a failed
-  attempt).
-
-## Cycle 11 — 2026-09-16 — FEATURE
-- Done: inbox merged PR #43 (tidy comment-aware fn scanner, all 7 checks green), labeled
-  `auto-merged`. No new OWNER comments/questions/directives beyond routine cycle-report notes.
-  Completed plan 001's io/seed rollout item (ADR 0001 D1): applied seed injection to
-  `skip_list.zig`, the last file in scope (`concurrent_skip_list.zig`, `robin_hood_hash_map.zig`,
-  `cuckoo_hash_map.zig` done in cycles 7-9; `work_stealing_deque.zig` dropped, zero
-  `std.time`/`std.crypto.random` sites). Consolidated `init`/`initWithSeed` into one
-  `init(allocator, ctx, Options{ seed: u64 })`, no default; `initDefault()` now uses a fixed
-  seed constant instead of the clock; `fromSlice()` gained `Options`; `clone()` copies the
-  source's `prng` value directly (Xoshiro256 is a plain value type) to continue its sequence.
-  2 new determinism tests mirroring `concurrent_skip_list.zig`'s pattern. Updated external call
-  sites: `builder.zig`'s `toSkipList` (trailing `seed: u64`, matches `toHashMap`),
-  `zoltraak_sortedset.zig` (fixed seed constant — also fixed a pre-existing arity bug at this
-  call site, `InnerSkipList.init(allocator)` was missing its `ctx` arg entirely, invisible to CI
-  via the same non-recursive-`refAllDecls` gap issue #38 found), `bench/lists.zig`,
-  `bench/memory_profile.zig`, `examples/skip_list_demo.zig`, `tests/memory_safety_audit.zig`.
-  Verified via `zig test` on the touched file plus a scratch driver importing `builder.zig`
-  (137/137 pass, transitively covers `skip_list.zig`); `zig build` and `zig fmt --check` clean.
-  Ticked the plan item. Filed #44 (not fixed — separate, unrelated bug) for
-  `zoltraak_sortedset.zig`'s `range()`/`rangeByScore()` calling `ArrayList.append` with the wrong
-  arity, found incidentally while compile-checking that file, same test-invisibility root cause
-  as issue #38.
-- PRs: #45 open (SkipList seed injection), Build & Test pending at the cycle deadline — left
-  "awaiting CI; merge next cycle" comment, next cycle's inbox merges it. #43 merged.
-- Next: merge #45 once green. Plan 001's io/seed rollout item (line 101) is now fully complete —
-  advance to the next unchecked item: `std.time.*` → `Io.Clock` in the container layer (21
-  sites) or the `mem.indexOf*`/`AutoArrayHashMap` mechanical-rename item (line 78, also unchecked
-  and independent) — either is a reasonable next pick.
-- Blockers: none. Open questions: none.
-
-## Cycle 10 — 2026-09-15 — STABILIZATION
-- Done: forced (n=10, n%5==0), no red CI/bug forcing condition otherwise. Inbox merged PR #42
-  (CuckooHashMap seed injection, plan 001 rollout), labeled `auto-merged`. Tiger Style audit
-  (tidy-auditor): most counts flat since 2026-09-10; `std.time.*` in src 21->19
-  (robin_hood_hash_map/cuckoo_hash_map/concurrent_skip_list now clean, skip_list.zig still
-  open); `zig fmt --check` regressed ~20->170 files + 2 files with genuine parse errors
-  (`max_sum_rectangle.zig`, `target_sum.zig`, `anytype` outside generic-fn position) —
-  re-audit needed. Fixed `tools/tidy.zig`'s comment-unaware function-length scanner
-  (`extractFnName` mis-parsed `fn` signatures inside `///` doc-comment examples as real code,
-  3 confirmed false positives) — RED-first test, all 21/21 tool tests pass, `zig build tidy`
-  confirmed the 3 false positives gone (5 real violations remain, separate issue). STATE.md
-  refreshed with full 2026-09-15 numbers and candidate list.
-- PRs: #43 open (tidy comment-aware fn scanner), Build & Test in progress at the cycle deadline
-  — left "awaiting CI; merge next cycle" comment. #42 merged.
-- Next: merge #43 once green, then FEATURE resumes with plan 001's last io/seed rollout item
-  (`skip_list.zig`). Stabilize candidates queued: `tools/tidy.zig` baseline key-collision
-  (`bagging.zig:fit` confirmed colliding, needs a baseline-format decision), 5 now-verified
-  real function-length violations to baseline/shorten, `zig fmt` regression + its 2 parse
-  errors, `tidy_baseline.txt` root-placement hygiene.
-- Blockers: none. Open questions: none.
+## History cycles 10-13 (folded 2026-10-05)
+Cycle 10: tidy comment-aware fn scanner (PR #43); CuckooHashMap seed injection (#42). Cycle 11:
+SkipList seed injection (#45) completed the ADR 0001 D1 rollout; filed #44. Cycle 12: fixed #44
+(`zoltraak_sortedset` ArrayList arity + remove() use-after-free, #47); filed #46. Cycle 13: #46
+fixed in #48 (SkipList keyed by `{score, member}`, file wired into `root.zig` tests). Recurring
+cause: files reached only via nested `pub const` re-exports are invisible to `refAllDecls`
+(issue #38), so probe with a scratch `src/scratch.zig` and wire fixed files into the test block.
 
 ## History (cycles 0-9, folded 2026-09-17 to keep this file under 200 lines)
 Realm created 2026-09-05; plan 001 (Zig 0.16 migration) merged, milestone issue #31 opened.
