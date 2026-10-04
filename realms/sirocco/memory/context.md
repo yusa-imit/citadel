@@ -1,7 +1,21 @@
 # sirocco — context
 
-last_seen_at: 2026-10-04T00:00:00Z
+last_seen_at: 2026-10-04T07:00:00Z
 rejected_plans: []
+
+## Cycle 34 — 2026-10-04 — FEATURE
+- Inbox: no OWNER activity; CI green on 2f6c447; milestone #18 only open issue; no plan PR.
+- Done: plan 002 item 6 via PR #27 (merged aad6b0f, CI green Linux+macOS+6 cross; #18 ticked).
+  `checkCancel`/`recancel`/`swapCancelProtection` native: state in the Task record (`CancelState`
+  + protection), `Fiber.arg` maps fiber -> task; off-fiber callers forward to the baseline.
+  PR #25 follow-up: `Sched.run_until` so `await` outside a fiber stops at the awaited task.
+- Reviewer CRITICAL fixed before merge: group slots are still Threaded, their workers call
+  `rt.io()`, so native slots ran on a foreign thread. `in_fiber` now checks threadlocal
+  `carrier_active`; regression test (group task + cancel + recancel) fails without the fix.
+- Next: item 7 (group slots + crashHandler: closes P0's 12), then item 8 futex (first cancelable
+  park site: unpark target on cancel), item 9 release 0.3.0. Revisit gate 6 at 1000 in flight.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: stale `.zig-cache` FileNotFound again; `rm -rf .zig-cache` fixed it.
 
 ## Cycle 33 — 2026-10-04 — FEATURE
 - Inbox: no OWNER activity; CI green on d312de3; milestone #18 only open issue.
@@ -36,38 +50,15 @@ rejected_plans: []
   only. Guard blocks `cd <repo>` in compound commands. Tests name an item-5 failure as hang when it
   is really a crash in the Zig handler: read the last `N/M name...` line.
 
-## Cycle 31 — 2026-10-03 — FEATURE
-- Inbox: no OWNER activity since watermark; CI green on edb1a36; only open issue milestone #18.
-- Preflight found the repo dirty on `feat/async-await-slots`: ~680 lines of an interrupted item-5
-  attempt (`src/concurrency.zig`, `tests/parity/concurrency.zig`, edits to runtime/sched/parity).
-  Preserved as `wip/async-await-slots-20261003` (pushed, commit may not be green). Do not delete.
-- Trial: restored those files onto `feat/async-await-slots` and ran `zig build test` — it hung
-  >400s (hung runner + test binary; likely a fiber deadlock/park-without-unpark in the new slots).
-  Killed it, restored the branch to clean main. No PR, no merge. Time budget ran out for debugging.
-- Next: item 5. `git checkout wip/async-await-slots-20261003 -- <those 7 files>` onto
-  `feat/async-await-slots` (local branch == main), find the hanging test by running parity
-  tests filtered one at a time under a manual kill timer, fix, PR.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: zsh `Z=...; $Z build` fails in a `&&` chain — use the full path. A stale hung test
-  binary from Oct 1 (pid 68879, `.zig-cache2`) was still running in the sirocco repo; I did not
-  start it and left it — kill it if still present. Guard blocks compound commands mixing /tmp
-  writes with citadel paths; split them.
-
-## Cycle 30 — 2026-10-02 — STABILIZATION (forced: open OWNER bug #23)
-- Inbox: only OWNER item was bug #23; CI green on 337931a; milestone #18 open, no plan PR.
-- Done: fixed #23 via PR #24 (merged as edb1a36, CI green Linux+macOS+6 cross, #23 auto-closed).
-  Root cause from x86_64 `-femit-asm`: LLVM -Os emitted `lea rax,[rbp-56]` but never copied it to
-  `rsi`, so std's inline-asm `Io.fiber.contextSwitch` read the wrong context. Replaced by own
-  naked `switch_context_asm` (push callee-saved, save sp/fp/pc, jump), called via a
-  `callconv(.c)` pointer with `@call(.never_inline)` (else LLVM splices the asm into `run`).
-  `sched.supported` now false on Windows; comptime Context-layout assert; Linux ReleaseSmall CI
-  step restored. code-reviewer: 0 critical; warnings (Windows ABI, stale docs) fixed.
-- Next: plan 002 item 5 (async/concurrent/await/cancel slots) — no longer blocked.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: naked fn params break the self-hosted x86_64 backend (Debug on Linux CI) — declare none.
-  `zig test -target x86_64-linux -fno-emit-bin` does not run that backend, only CI catches it.
-  No Rosetta/qemu here: x86_64 is verifiable by asm inspection + CI only. `sleep` in Bash is
-  blocked; wait with `until` loops. The guard blocks any command containing `cd <repo>`.
+## History (cycles 30-31)
+Cycle 31 (10-03): found ~680 dirty lines of an interrupted item-5 attempt, preserved as
+`wip/async-await-slots-20261003` (do not delete); trial run hung. Cycle 30 (10-02, forced
+STABILIZATION on OWNER bug #23): x86_64 ReleaseSmall SEGV fixed via PR #24 with own naked
+`switch_context_asm` (LLVM -Os dropped a `lea` into rsi), `callconv(.c)` pointer +
+`@call(.never_inline)`. Gotchas: naked fn params break the self-hosted x86_64 backend (only CI
+catches it); no Rosetta/qemu, so x86_64 is verified by asm inspection + CI; `sleep` blocked in
+Bash (use `until` loops); no `timeout` on macOS; guard blocks `cd <repo>` in compound commands
+and inline python writing into citadel (use Edit/Write tools).
 
 ## Cycle 29 — 2026-10-01 — FEATURE
 - Inbox: no OWNER actions since watermark. CI green on 2f89fd2; only open issue was milestone #18.
