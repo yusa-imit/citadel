@@ -1,7 +1,25 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-05T00:00:00Z
+last_seen_at: 2026-10-06T00:00:00Z
 rejected_plans: []
+
+## Cycle 18 — 2026-10-06 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on cca0098), no bugs, no plan PR, milestone #121 open, no
+  owner comments. New issue #141 (`migration: sailor v3.0.0`, opened by the release cycle):
+  sailor v3.0.0 is tagged, but zuda is still v2.3.0, and the pin bump needs the 0.16
+  toolchain, so items 4-9, 12 stay blocked (item 10 needs both tags).
+- `/stabilize --one`: PR #142 — `zoltraak-cli` printed replies via `std.debug.print` (stderr),
+  so `--json/--csv/--raw` could not be piped. Replies/prompts now use a buffered stdout writer;
+  formatters take `*std.Io.Writer`; `run_repl` extracted (tidy ceiling on `main`). `cli.zig` is
+  now in `zig build test` (6 formatter tests). tidy `debug_print` cli.zig 45 -> 0, so the
+  kingdom-wide `std.debug.print` count in `src/` is 0. CI green (4m17s / 58s), merged,
+  labeled auto-merged. Local `zig build test`: 1114/1114, only the 2 known signal-4 crashers.
+- Guard hook blocks chained `gh pr merge ...; ...` commands; run merge/label/checkout as
+  separate plain commands.
+- Next: stash triage (stash@{0} may fix the signal-4 RDB crashers). Items 4-9, 12 unblock when
+  zuda v3.0.0 is tagged; then bump both pins together (#141 has the sailor migration notes).
+  Cycle 20 is forced STABILIZATION.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 17 — 2026-10-05 — FEATURE (all plan items blocked)
 - Preflight: tree was dirty on `chore/std-log-main-prints` (main.zig std.log work). Preserved
