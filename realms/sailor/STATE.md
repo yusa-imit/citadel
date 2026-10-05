@@ -1,5 +1,10 @@
 # sailor — STATE
 
+**Update 2026-10-05 (cycle 24): v3.0.0 released** (Zig 0.16.0, milestone #19 closed). README,
+PRD header and `CHANGELOG.md` now match reality; the claimed-vs-present gap below is closed
+except `CLAUDE.md`-era notes. Migration issues: zr#178, silica#163, zoltraak#141. Assertion
+baseline landed on term, arg, buffer, layout, fmt (~175 asserts). No plan open; plan 002 next.
+
 Survey date: 2026-09-05 (citadel restructure), Tiger Style table refreshed 2026-09-12 (cycle
 11). Sources: repo survey + Zig 0.16 breakage probe.
 

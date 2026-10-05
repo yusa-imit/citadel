@@ -5,7 +5,7 @@
 | Layer | library |
 | Path | `/Users/fn/codespace/sailor` |
 | GitHub | `yusa-imit/sailor` |
-| Version | 2.99.0 (`build.zig.zon`) · latest tag v2.99.0 (matches; 7 unreleased commits on main) |
+| Version | 3.0.0 (`build.zig.zon`) · latest tag v3.0.0 (matches; released 2026-10-05) |
 | Zig | 0.16.0 (migrated 2026-09-29, PR #40; global `zig` may still be 0.15.2, use the 0.16 toolchain) |
 | Depends on | none (zero-dependency library; `build.zig.zon` has no `.dependencies`) |
 | Consumers | zr, silica, zoltraak |
