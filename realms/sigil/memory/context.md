@@ -1,7 +1,20 @@
 # sigil — context
 
-last_seen_at: 2026-10-04T15:08:00Z
+last_seen_at: 2026-10-05T03:05:24Z
 rejected_plans: []
+
+## Cycle 36 — 2026-10-05 — FEATURE
+
+- Done: plan PR #38 (plan 004) still open; inbox found no OWNER activity (the only new comment was
+  the AI's own cycle-35 report). CI green on main. One `--one` stabilization slot: docs drift — README
+  still said "nothing implemented" and listed core/reflect as Planned; reconciled (Schema(T) kept as
+  planned, install note now says first tag lands with json). PR #40, CI 8/8, squash-merged. tidy 0.
+  Cost ~$0.6 of $4.
+- Learned: the docs-only PR still gets full PR CI (paths-ignore applies only to push on main), and
+  `gh pr checks --watch` right after `gh pr create` can say "no checks reported"; wait ~20 s, retry.
+- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Until then
+  one `/stabilize --one` slot per cycle; the only remaining candidate is the `tools/tidy.zig`
+  self-exemption (does not decompose). Blockers/questions: none.
 
 ## Cycle 35 — 2026-10-05 — FEATURE
 
@@ -50,26 +63,13 @@ rejected_plans: []
   in `docs/plans/000-inherited.md`), then plan 003 closes 10/10, version impact none (no tag).
   Blockers/questions: none.
 
-## Cycle 32 — 2026-10-03 — FEATURE
-
-- Done: item 8 of plan 003, `reflect/stringify.zig` (mirror of parse; hooks, options, string maps,
-  `Value` deep copy, UTF-8 check), via PR #35, CI 8/8, squash-merged; issue #27 at 8/10. 277 tests
-  in the module run, tidy 0, fmt clean. Inbox: no OWNER activity.
-- Process: wrote tests myself first (no test-writer, ~$0.7 total before the reviewer), then
-  `stringify.zig`; one `code-reviewer` (~$0.2): 0 critical / 5 warnings, all fixed (depth at 127/128
-  per container kind via a pre-depthed `Context`, hook self-recursion, array `InputTooLarge`, OOM
-  sweep for maps and `Value`, `clone_map` precondition doc). Cycle cost ~$2.3 of $4.
-- Learned: `Context` gained `fail_stringify` + `stringify_child` (parse's `fail` stays
-  ParseError-typed). `parse.has_hook/string_map_value/assert_supported` are now `pub`. Wire names
-  and enum names in results are comptime statics (not copied). The `Value` deep copy is private
-  to stringify.zig (not `ValueTree.clone_value` as ADR 0002 consequences said). A long
-  `@typeName` of a test-local type truncates the fallback message: declare test types at file
-  scope. tidy flags `switch (err)` without a `// proof:` on the same/previous line, and every `pub
-  fn` (hooks in tests too) needs 2 asserts.
-- Next: item 9 round-trip property test (seeded, 1,000 seeds, matrix of every kind nested 3 deep;
-  `parse` -> `stringify` -> `eql`), then item 10 wire and close. Blockers/questions: none.
-
 ## History
+
+Cycle 32 (2026-10-03): plan 003 item 8 `reflect/stringify.zig` via PR #35; one reviewer, 5 warnings
+fixed. `Context` gained `fail_stringify`/`stringify_child`; `parse.has_hook/string_map_value/
+assert_supported` are `pub`; the `Value` deep copy is private to stringify.zig; declare test types
+at file scope (long `@typeName` truncates messages); tidy wants `// proof:` on `switch (err)` and 2
+asserts per `pub fn`, hooks in tests included.
 
 Cycles 30-31 (2026-10-02 to 10-03, FEATURE, plan 003 items 6-7): `reflect/parse.zig` structs, arrays,
 slices (PR #33), then unions, `array_hash_map.String(V)` maps and `sigilParse` hook (PR #34). Learned:
