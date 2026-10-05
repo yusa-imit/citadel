@@ -1,7 +1,18 @@
 # strata — context
 
-last_seen_at: 2026-10-05T05:10:00Z
+last_seen_at: 2026-10-06T00:00:00Z
 rejected_plans: []
+
+## Cycle 33 — 2026-10-06 — FEATURE
+- Done: plan PR #28 still open (CI green, no new OWNER comment), so one `/stabilize --one`: `//!`
+  module header on `build.zig` (steps + allocation contract).
+- PRs: #30 merged (squash, CI 7/7, auto-merged).
+- Remaining audit sweeps, smallest first: assertion density in `tools/tidy/baseline.zig` (1.08) and
+  `checks_ban.zig` (1.33); `allocator:` -> `gpa:` and the `std.debug.assert` alias across `tools/`
+  (~88, tidy ban check does not flag it); camelCase public API in `src/file/file.zig` (needs a plan).
+- Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
+- Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
+- Note: guard hook rejects compound Bash (`;`, `&&`, `$VAR` paths); run one simple command per call.
 
 ## Cycle 32 — 2026-10-05 — FEATURE
 - Done: plan PR #28 still open (CI green, no new OWNER comment; only our own status note), so one
