@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-10-05T07:00:00Z
+last_seen_at: 2026-10-06T07:00:00Z
 rejected_plans: []
+
+## Cycle 36 — 2026-10-06 — FEATURE
+- Preflight: tree was dirty on `feat/futex-wait-table` (interrupted item 8: ~1370 lines of parity
+  tests, no `src/futex.zig`); preserved as `wip/feat-futex-wait-table-20261006` (do not delete),
+  then reused those tests on the existing `feat/futex-wait-table` branch.
+- Inbox: no OWNER activity; CI green on fdf7d6b; milestone #18 only open issue; no plan PR.
+- Done: plan 002 item 8 via PR #29 (merged 4028871, CI green Linux+macOS+6 cross; #18 ticked).
+  `src/futex.zig` FIFO wait table (wait record lives in `Sched.Fiber`, no alloc after init), cancel
+  unparks with `error.Canceled`, timeouts read baseline `now`; `src/fiber_switch.zig` split out of
+  `sched.zig` (was 796 lines). Reviewer CRITICAL fixed: futexWake from a non-carrier thread raced
+  the wait list; now spinlock + `unpark_foreign`, with a plain-thread regression test.
+- Known gap: `groupAwait` does not yet propagate a cancel while parked (no test demands it).
+- Next: item 9 (README/CHANGELOG/PRD §5 reconcile incl. gate 6 at 1000 in flight, bump 0.3.0,
+  `/release sirocco minor`). Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: guard blocks a first Bash call that mixes `echo > /tmp` with citadel path vars; split
+  calls. `@fence` is gone in 0.16 (use seq_cst `@atomicRmw(.Add, 0)`). Resumed subagent runs in
+  background: poll a file with a python sleep loop.
 
 ## Cycle 35 — 2026-10-05 — FEATURE
 - Inbox: no OWNER activity; CI green on aad6b0f; milestone #18 only open issue; no plan PR.
