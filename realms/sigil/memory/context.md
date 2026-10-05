@@ -1,7 +1,20 @@
 # sigil — context
 
-last_seen_at: 2026-10-05T03:05:24Z
+last_seen_at: 2026-10-06T00:00:00Z
 rejected_plans: []
+
+## Cycle 37 — 2026-10-06 — FEATURE
+
+- Done: plan PR #38 (plan 004) still open; inbox found no OWNER activity (only the AI's own cycle-36
+  comment). CI green on main. One `--one` stabilization slot: CHANGELOG Unreleased was missing the
+  `core.Error` wiring (#37) and the bench port (#39) and its intro was stale; fixed. PR #41, CI 8/8,
+  squash-merged, labelled auto-merged. Local `zig build test` and fmt green, tidy 0. Cost ~$0.6.
+- Learned: `gh pr checks --watch` right after `gh pr create` still says "no checks reported" for
+  over a minute; use a Monitor with an until-loop on `gh pr checks` instead. A Python heredoc works
+  in Bash from the repo cwd. The guard blocks `echo > /tmp/...` and any command starting `cd <repo>`.
+- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Until then
+  one `/stabilize --one` slot per cycle; the only candidate left is the `tools/tidy.zig`
+  self-exemption (does not decompose); consider a quiet cycle instead. Blockers/questions: none.
 
 ## Cycle 36 — 2026-10-05 — FEATURE
 
