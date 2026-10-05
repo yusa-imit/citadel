@@ -10,8 +10,8 @@ Surveyed 2026-09-05, as part of the citadel restructure. Source: repo inspection
   locks; mmap deferred to plan 003), `testing` (crash sink, truncation points, fault-injecting
   `Io`, truncation matrix), codec bench baseline. 278 tests; tidy 0 findings. `NotImplemented`
   remains only in the seven Phase 2+ stubs (page, cache, wal, btree, lsm, kv, snapshot). No
-  consumers yet, no migration issues. The Tiger Style table below predates Phase 1 — `src/` now
-  has real logic with per-file assertion density >= 2 enforced by tidy.
+  consumers yet, no migration issues. The Tiger Style table below was re-audited on 2026-10-05
+  against this tree.
 
 - **v0.2.0** (2026-09-16, PR #15, milestone 001 closed): Zig 0.16.0 migration + Tiger Style
   `tidy` baseline (shape/limits/ban-list/assertion-density/file-length checks), `io: Io`
@@ -62,40 +62,36 @@ README/PRD as a design document, not a status report, until milestones.md says o
 
 ## Tiger Style gap table
 
-Re-audited 2026-09-29 (cycle 19, stabilization) via `tidy-auditor` on the pinned 0.16.0
-toolchain: every metric below unchanged since 2026-09-13, `zig build test` / `fmt --check` /
-`tidy` all pass clean, no new findings. Original audit below.
-
-Re-audited 2026-09-13 (cycle 10, stabilization) via `tidy-auditor` against the live tree
-(source inspection — the survey machine's default `zig` is still 0.15.2, so `zig build
-test`/`tidy` don't compile locally; use the pinned 0.16.0 toolchain to actually run them).
+Re-audited 2026-10-05 (cycle 32, stabilization `--one`) via `tidy-auditor` on the v0.3.0 tree
+(38 files: `src/`, `tools/`, `bench/`, `build.zig`). `zig build test` (tidy 0 findings) and
+`zig fmt --check` pass on the pinned 0.16.0 toolchain. Phase 1 has landed, so this replaces the
+pre-Phase-1 table; `tools/tidy` now lints itself (`tools` in `scan_roots`, split in PR #18).
 
 | Metric | Count | Note |
 |---|---|---|
-| `assert(` | 0 in `src/`; 87 in `tools/tidy.zig` (the lint tool itself) | `src/` stubs still have no logic to assert over; tidy.zig's own count rose with its size |
-| `catch unreachable` w/o proof | 0 | — |
-| `@panic(` in library code | 0 | — |
-| `std.debug.print` in library code | 0 | — |
-| unbounded `while (true)` | 0 | — |
-| files > 800 lines | 1 | `tools/tidy.zig` — 2100 lines (grew from 1452 at the 2026-09-09 audit) |
-| functions > 70 lines | 0 | — |
-| `usize` in wire-format structs | 0 | no format structs exist yet (codec/page/wal/snapshot still stubs) |
-| `.zig` missing leading `//!` | 0 | all `src/`, `tools/tidy.zig`, `bench/main.zig` have headers |
-| `zig build tidy` | 0 findings (live tree, by inspection) | `checkFileLength` (PR #13, 2026-09-12) added an 800-line hard limit with no baseline exemption, but can't yet flag `tools/tidy.zig` itself |
+| `assert(` | 412 over 197 fns (2.09/fn) | every `src/` file with fns >= 2.00; weak: `tools/tidy/baseline.zig` 1.08, `checks_ban.zig` 1.33, `build.zig` 0/8 |
+| `catch unreachable` / `catch {}` w/o proof | 0 | the one `catch {}` in `src/main.zig` was fixed in PR #29 |
+| `@panic(` / `std.debug.print` / unbounded `while (true)` | 0 | — |
+| files > 800 lines | 0 | near the cap: `src/file/file.zig` 788, `src/testing/crash_test.zig` 714 |
+| functions > 70 lines | 0 | `tools/tidy_baseline.txt` has no entries |
+| lines > 100 columns | 0 | two 101-byte lines hold an em-dash (99 code points) |
+| `usize` in public/wire structs | 0 | hits are return types, consts, test-local `Model` structs |
+| `.zig` missing leading `//!` | 1 | `build.zig` (line 1 is `const std`) |
+| banned `std.debug.assert(` spelling | ~88 in `tools/` | `src/` clean after PR #29; the tidy ban check does not flag it yet |
+| `allocator:` parameter name | 20 in `tools/tidy/*` | none in `src/` |
+| camelCase fn names | 7 in `src/file/file.zig` (`readAt`, `writeAt`, `setLength`, ...), 47 in `tools/` | the `file.zig` ones are public API, so renaming is a plan item, not a fix |
+| `== error.` / `anyerror` / `usingnamespace` / `setRuntimeSafety` | 0 | — |
+| `.dependencies` in `build.zig.zon` | `.{}` | foundation rule holds |
 
-`tools/tidy.zig` still does not lint itself (`scan_roots = .{ "src", "bench", "tests" }`
-excludes `tools/`, guarded by `assert(scan_roots.len == 3)` in `collectFiles`) — flagged as a
-self-hosting gap since cycle 5 (2026-09-09). PR #13 (2026-09-12) closed half of it by adding the
-800-line file-length rule, but deliberately left `tools/` out of `scan_roots`: flipping that on
-today would make tidy immediately fail on itself (2100 > 800), because `checkFileLength` has no
-shrink-only exemption table the way `checkFunctionLength` does. Closing this fully needs a
-**design decision**, not a mechanical fix — either (a) add a baseline-exemption mechanism for
-file length (reopens the "no exemption" design choice PR #13 made deliberately), or (b) split
-`tools/tidy.zig` into multiple files each under 800 lines. Worth a dedicated plan item rather
-than an ad-hoc stabilization PR; recorded here instead of rushed in cycle 10.
+Remaining sweeps, smallest first: `//!` header for `build.zig`; assertion density in
+`tools/tidy/baseline.zig` and `checks_ban.zig`; `allocator:` -> `gpa:`/`arena:` and the
+`std.debug.assert` alias across `tools/`; camelCase API names (versioned, needs a plan).
+README and docs claims match the code (checked 2026-10-05).
+
 CLAUDE.md-era domain rules (checksum every disk byte, fsync as policy, idempotent recovery,
-magic+version formats, no `@panic`/`catch unreachable`, page-size matrix 512B–64KB) are now in
-`REALM.md`; **re-audit this table once real Phase 1 code lands.**
+magic+version formats, no `@panic`/`catch unreachable`, page-size matrix 512B–64KB) are in
+`REALM.md`; the remaining stub modules (page, cache, wal, btree, lsm, kv, snapshot) have no
+logic to audit yet.
 
 ## Zig 0.16 probe summary (historical — migration landed 2026-09-08 via PR #7)
 
