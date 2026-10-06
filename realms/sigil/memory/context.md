@@ -175,13 +175,9 @@ with repo reads trips the guard).
 
 ## Standing backlog
 
-Plan 001 (issue #3) closed 11/11. Plan 002 (issue #20) closed 5/5 — Phase 1A/1B done, no tag
-(release quirk still applies). Plan 003 (PR #26) awaits human merge — Phase 1C/1D:
+Plans 001-003 closed (issues #3, #20, #27); no tag yet (release quirk still applies).
+Plan 004 (Phase 2A-2C `json/{scanner,dom,writer}.zig`, first tag) is PR #38.
 
-- **1C** — `core/unicode.zig`: UTF-8 validation + escape/surrogate primitives.
-- **1D** — `reflect/{options,parse,stringify}.zig`: comptime struct<->Value mapping, gated by
-  a design-only ADR 0002 item (hook signatures, path-only diagnostics, numeric coercion rules).
-- **2A-2C** (after Phase 1) — `json/{scanner,dom,writer}.zig`.
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
   003's last item rather than a standalone PR).
