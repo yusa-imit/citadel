@@ -1,7 +1,20 @@
 # strata — context
 
-last_seen_at: 2026-10-06T12:00:00Z
+last_seen_at: 2026-10-06T17:07:53Z
 rejected_plans: []
+
+## Cycle 35 — 2026-10-06 — FEATURE
+- Done: plan PR #28 still open (CI 7/7 green, no OWNER comment or review, no open issues), so one
+  `/stabilize --one`: `tools/tidy/checks_ban.zig` now has >= 2 assertions per function, `gpa:`
+  instead of `allocator:`, and one `assert` alias.
+- PRs: #32 merged (squash, CI 7/7, auto-merged).
+- Remaining audit sweeps: `allocator:` -> `gpa:` and `std.debug.assert` alias across the rest of
+  `tools/` (~60); assertion density elsewhere in `tools/` (tidy density gate covers `src/` only);
+  camelCase public API in `src/file/file.zig` (needs a plan).
+- Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
+- Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
+- Note: global `zig` is 0.15.2; run builds with `/Users/fn/.zr/toolchains/zig/0.16.0/zig`. Guard
+  hook rejects `sleep` chains; use `gh pr checks --watch`.
 
 ## Cycle 34 — 2026-10-06 — FEATURE
 - Done: plan PR #28 still open (CI 7/7 green, no OWNER comment), so one `/stabilize --one`:
