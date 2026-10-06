@@ -1,7 +1,23 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-06T00:00:00Z
+last_seen_at: 2026-10-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 19 — 2026-10-07 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on b49036f), no bugs, no plan PR, milestone #121 open, no
+  owner comments since watermark. zuda still v2.3.0 (GitHub + local), so items 4-9, 12 blocked.
+- `/stabilize --one`: PR #143 bounded `TopKValue.heapifyDown` and `HeavyKeeper.heapifyDown`
+  (`for (0..@bitSizeOf(usize))` + `else unreachable` with proof comment), +1 heap-order test
+  each. CI green (6m54s / 1m6s), merged, labeled auto-merged. `while (true)` in `src/`: 11 -> 9.
+  Local `zig build test`: 1114/1114, only the 2 known signal-4 crashers; tidy clean.
+- Finding: the new unit tests pass under `zig test src/storage/topk.zig` but the `zig build test`
+  total did not grow, so `storage/topk.zig` and `storage/heavykeeper.zig` unit tests may not be
+  reachable from the `src/main.zig` test root. Verify and wire them in (could apply to more files).
+- Guard hook blocks `git -C <other repo> fetch` and `echo > /tmp/..` in a realm session; plain
+  read-only `git -C zuda tag -l` or `gh api repos/.../tags` works. BSD sed: no multi-line patterns.
+- Next: cycle 20 is forced STABILIZATION (n%5==0): verify unit-test reachability; stash triage
+  (stash@{0} may fix the signal-4 RDB crashers). Items 4-9, 12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 18 — 2026-10-06 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on cca0098), no bugs, no plan PR, milestone #121 open, no
