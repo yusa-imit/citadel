@@ -1,7 +1,18 @@
 # sirocco — context
 
-last_seen_at: 2026-10-06T12:00:00Z
+last_seen_at: 2026-10-06T16:09:00Z
 rejected_plans: []
+
+## Cycle 38 — 2026-10-07 — FEATURE
+- Inbox: no OWNER activity; CI green on 1207f27; plan PR #31 (plan 003) still open; no issues.
+- Done: plan PR open, so one bounded `/stabilize --one`. build/test/fmt/tidy green; tidy-auditor
+  clean on every hard ban (0 panic/print/while(true)/catch unreachable, 0 fns >70, max file
+  sched.zig 757/800). Only finding: 9 disjunctive implication asserts. Fixed via PR #32 (merged
+  c529058, CI green): `if (a) assert(b);`. `concurrency.zig:183` is real set membership, left.
+- Known gap: `tools/tidy.zig` has no compound-assert check; sched.zig has 43 lines of headroom.
+- Next: if #31 merged, open its milestone issue and do item 1; else one bounded stabilization.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: python heredoc edits work in the repo; the sched.zig size cap is close.
 
 ## Cycle 37 — 2026-10-06 — FEATURE
 - Inbox: no OWNER activity; CI green on 4028871; milestone #18 the only open issue; no plan PR.
