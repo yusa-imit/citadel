@@ -1,7 +1,26 @@
 # zr — context
 
-last_seen_at: 2026-10-06T00:00:00Z
+last_seen_at: 2026-10-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 17 — 2026-10-07 — FEATURE
+- Preflight: cwd was on `fix/bound-show-line-reader` (clean) → `main`; CI green; PR #181 8/8 green,
+  no `hold` → merged. Inbox clear (issue #178 `migration: sailor v3.0.0` is informational,
+  origin ai; no owner comments). sailor v3.0.0 tagged, zuda still v2.3.0 → items 5-11 blocked.
+- Stabilize --one: three copies of an unbounded byte-by-byte stdin loop (`cli/add.zig`,
+  `add_interactive.zig`, `config_editor.zig` x2) → shared `cli/line_input.zig` `readLine`
+  (4096-byte caller buffer, `error.LineTooLong`, tail discard ≤ 1 MiB, bounded `for`), 9 tests.
+  PR #182 merged, 8/8 green (~12 min CI). Tests 1924/0, tidy 0 failing, `config_editor run`
+  baseline 133→113. EOF at the editor confirm prompt still defaults to yes.
+- Found: `src/jsonrpc/transport.zig` is dead code (imported by `mcp/server.zig` but unused, uses
+  the 0.14 `ArrayList(u8).init` API, never compiled) — decide delete vs fix in a later cycle.
+- Gotchas: the fmt-on-save hook reformatted all of `src/main.zig` (+293/-269) on an Edit; undo
+  with `git checkout` and insert via `perl -0pi` instead. Only `zig fmt --check` on the files
+  you touched is meaningful (dir-wide lists 57 pre-existing).
+- Next: remaining `while (true)`: template.zig (245, 299), task_picker.zig, tui.zig,
+  run.zig:1427, registry/server.zig:43 (likely event loops — check); ~220 missing `//!` headers.
+  Watch zuda v3.0.0 tag. Cycle 18 FEATURE, cycle 20 STABILIZATION.
+- Open questions: none.
 
 ## Cycle 16 — 2026-10-06 — FEATURE
 - Preflight: tree clean on PR #177's branch → `main`; CI green; inbox: only new issue #178
