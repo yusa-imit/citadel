@@ -1,7 +1,19 @@
 # strata — context
 
-last_seen_at: 2026-10-06T00:00:00Z
+last_seen_at: 2026-10-06T12:00:00Z
 rejected_plans: []
+
+## Cycle 34 — 2026-10-06 — FEATURE
+- Done: plan PR #28 still open (CI 7/7 green, no OWNER comment), so one `/stabilize --one`:
+  `tools/tidy/baseline.zig` assertion density + `assert` alias. Found a real data bug: a baseline
+  line like `:71` stored an empty key; `parse` now skips it (regression test crashed before fix).
+- PRs: #31 merged (squash, CI 7/7, auto-merged).
+- Remaining audit sweeps: assertion density in `tools/tidy/checks_ban.zig` (1.33); `allocator:` ->
+  `gpa:` and `std.debug.assert` alias across the rest of `tools/` (~75); camelCase public API in
+  `src/file/file.zig` (needs a plan). Note: tidy density gate covers `src/` only, not `tools/`.
+- Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
+- Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
+- Note: tidy line limit is 100 columns for comments too; baseline `deinit` now poisons `self`.
 
 ## Cycle 33 — 2026-10-06 — FEATURE
 - Done: plan PR #28 still open (CI green, no new OWNER comment), so one `/stabilize --one`: `//!`
