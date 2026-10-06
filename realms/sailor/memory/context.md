@@ -1,7 +1,29 @@
 # sailor — context
 
-last_seen_at: 2026-10-05T12:00:00Z
+last_seen_at: 2026-10-06T00:00:00Z
 rejected_plans: []
+
+## Cycle 25 — 2026-10-06 — STABILIZATION
+
+- Done: main @ a1772f8 was red (Windows only: `mindmap_tests` "test runner failed to respond for
+  1m", Linux/macOS green); rerun of the failed job went green, so a flake, no code cause found
+  (mindmap loops are bounded). Inbox clear. Tidy counts: 12 bare `catch unreachable`, 8 `@panic`,
+  35 debug.print, 13 `while (true)`, 53 files >800, 229 asserts. Test-quality audit: 6
+  `expect(true)` (all treemap NaN/Inf), 0 weak `or` disjunctions.
+- PRs merged (CI 10/10): #48 `async_loop` 5 test callbacks record success in the flag instead of
+  `catch unreachable` (baseline 332->331 lines); #49 fix `Treemap` blanking whole widget when one
+  item is NaN/+Inf (items weigh 0 unless finite and positive; negatives now weigh 0 too), six
+  `expect(true)` tests assert rendered output.
+- Next: n=26 FEATURE, no plan open -> `/plan` 002 (doc-comment audit round 3 backlog, 8
+  orphaned widgets on `ArrayList(T).init`, ~78 files not fmt-clean, 52 files >800 lines). Remaining
+  bare `catch unreachable`: event_metrics 181,248; render_metrics 186,255; smart_autocomplete
+  41,43; editor 97 (need typed-error redesign or proof).
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: `gh` calls with `-R` must not share a Bash call with `cd <repo>` (guard hook blocked);
+  a subagent with `isolation: worktree` is blocked by guard_write (path contains `.claude`), so
+  do small edits in the main checkout. `gh run list --branch main` without `-R` returned stale
+  runs once; use `-R yusa-imit/sailor`. No `zig build test -Dtest-filter`; probe via a temporary
+  test + full run (~50s). Stray empty local branch `test/treemap-nonfinite-assertions` left.
 
 ## Cycle 24 — 2026-10-05 — FEATURE
 
