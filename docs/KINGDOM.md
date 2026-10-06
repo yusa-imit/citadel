@@ -25,7 +25,7 @@
 | [strata](https://github.com/yusa-imit/strata) | Foundation | File I/O abstraction, pages + buffer pool, segmented WAL + recovery, B+Tree, LSM, KV engine, snapshots | v0.3.0 (2026-10-04, PR #27) — plans 001 and 002 complete (`codec/`, `file/`, crash-test `testing/`, codec bench baseline); plan 003 (Phase 2 page layer and CLOCK buffer pool) proposed (PR #28) |
 | [synod](https://github.com/yusa-imit/synod) | Foundation | Pure-state-machine Raft, joint consensus, SWIM, φ-accrual, HLC, deterministic simulator | v0.3.0 (2026-09-30, PR #31) — plan 002 complete (`types.zig`, in-memory `log.zig`, `store.zig` LogStore); plan 003 (phase 2 pure Raft core) proposed (PR #33) |
 | [zuda](https://github.com/yusa-imit/zuda) | Library | ~60 containers, 24 algorithm families, 209 distributions, NDArray/linalg/stats/FFT/optimize, ML (461k LOC) | v2.3.0 (+117 unreleased commits; Zig 0.16 toolchain flip merged 2026-10-04, PR #60, zon at 0.16.0, v3.0.0 pending; ILU double-free PR #58 and GMRES breakdown PR #59 merged 2026-10-02) |
-| [sailor](https://github.com/yusa-imit/sailor) | Library | TUI framework, 140 widgets, CLI toolkit (150k LOC) | v2.99.0 (Zig 0.16 migration merged to main, PR #40, unreleased; v3.0.0 pending — main CI green again since 2026-09-30) |
+| [sailor](https://github.com/yusa-imit/sailor) | Library | TUI framework, 140 widgets, CLI toolkit (150k LOC) | v3.0.0 (2026-10-05, Zig 0.16 migration PR #40; consumer migration issues zr#178, silica#163, zoltraak#141; Windows job red on the release commit's main run) |
 | [zr](https://github.com/yusa-imit/zr) | Tooling | Task runner + toolchain manager + monorepo + MCP/LSP server (112k LOC) | v1.114.0 |
 | [silica](https://github.com/yusa-imit/silica) | Service | Embedded/server RDBMS, SQL:2016, MVCC, PG wire, replication (184k LOC) | v1.0.1 |
 | [zoltraak](https://github.com/yusa-imit/zoltraak) | Service | Redis-compatible store, 500+ commands, RESP2/3, cluster, Lua (141k LOC) | 0.2.0 in zon (v0.2.14 latest tag) |
@@ -74,7 +74,7 @@ Solid = dependency that exists today in `build.zig.zon`. Dotted = planned (see `
 3. **One version of each dependency across the kingdom.** `zr-repos.toml` `[deps]` is the reference; pin the same tag in every `build.zig.zon` (today zr pins zuda via a forbidden `git+…?ref=main` ref resolving to an untagged commit past v2.0.4 (pre-v2.1.0), zoltraak pins tag v2.0.4, silica pins tag v2.3.0 — tracked as the Phase 1 blocker in ROADMAP.md, converges once zr/zoltraak land zuda v3.0.0).
 4. **Every repo has the same shape.** Code, `docs/` (`PRD.md`, `plans/`, `adr/`, `guides/`), `.github/`. No `CLAUDE.md`, no `.claude/` — the brain is `citadel/core/KINGDOM.md`, loaded through `/Users/fn/codespace/CLAUDE.md`. Policy: `protocol/DOCS.md`.
 5. **Every repo is driven the same way.** A cron job (`workflows/jobs.toml`) runs `claude -p "/cycle <repo>"` in the repo with citadel attached (`--add-dir`). Plans are approved by merging PRs; see `protocol/GITHUB.md`.
-6. **Zig 0.16.0 everywhere.** Realms still on 0.15.2 migrate under plan `001` (`docs/ROADMAP.md`); consumers wait for zuda/sailor v3.0.0.
+6. **Zig 0.16.0 everywhere.** Realms still on 0.15.2 migrate under plan `001` (`docs/ROADMAP.md`); consumers wait for zuda v3.0.0 (sailor v3.0.0 is released).
 
 ## Names
 
