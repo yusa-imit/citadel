@@ -1,4 +1,13 @@
-# sirocco — State Survey (2026-09-05, refreshed 2026-09-17)
+# sirocco — State Survey (2026-09-05, refreshed 2026-10-06)
+
+## Release 2026-10-06 (cycle 37) — v0.3.0
+
+Plan 002 closed via PR #30 (1207f27), tag `v0.3.0`, GitHub release published; milestone #18
+closed. Native on fibers (single carrier): async/await/cancel, group*, checkCancel/recancel/
+swapCancelProtection, futexWait/futexWake, crashHandler; everything else forwards to
+`Io.Threaded`. Internal milestone, not ready for silica/zoltraak. PRD §5 gate 6: pass at 1 in
+flight (45 ns vs 1752 ns), FAIL at 1000 (86056 ns vs 599 ns). No consumer pins sirocco, so no
+migration issues. Older refresh sections below describe the pre-0.3.0 stub-only state.
 
 ## Refresh 2026-09-17 (cycle 17, FEATURE — bounded stabilization while plan PR #13 awaits merge)
 

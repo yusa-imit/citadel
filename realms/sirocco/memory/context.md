@@ -1,7 +1,21 @@
 # sirocco — context
 
-last_seen_at: 2026-10-06T07:00:00Z
+last_seen_at: 2026-10-06T12:00:00Z
 rejected_plans: []
+
+## Cycle 37 — 2026-10-06 — FEATURE
+- Inbox: no OWNER activity; CI green on 4028871; milestone #18 the only open issue; no plan PR.
+- Done: plan 002 item 9 + release v0.3.0. PR #30 (merged 1207f27, CI green Linux+macOS+6 cross):
+  README Status (internal milestone, single carrier, not for silica/zoltraak), CHANGELOG
+  `[0.3.0]`, PRD §5 gate 6 re-measured (1 in flight pass 45 vs 1752 ns; 1000 FAIL 86056 vs 599
+  ns), version bump. Tag v0.3.0 + GitHub release; milestone #18 closed. No consumers pin sirocco.
+- Plan 003 `carrier-never-blocks` proposed, PR #31 (label plan), awaiting human merge: groupAwait
+  cancel, eager async start (gate 6), timer wheel + native sleep (gate 7), offload pool for
+  blocking slots (ADR 0002 picks offload over multi-carrier; now/clockResolution stay forwarded).
+- Next: if #31 merged, open its milestone issue and do item 1; else one bounded `/stabilize --one`.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: guard blocks any compound Bash that has `cd` into a repo or a glob over sibling repos;
+  the primary cwd is already sirocco, so skip `cd`. Zig 0.16.0 `zig build test` is silent on pass.
 
 ## Cycle 36 — 2026-10-06 — FEATURE
 - Preflight: tree was dirty on `feat/futex-wait-table` (interrupted item 8: ~1370 lines of parity
@@ -20,36 +34,15 @@ rejected_plans: []
   calls. `@fence` is gone in 0.16 (use seq_cst `@atomicRmw(.Add, 0)`). Resumed subagent runs in
   background: poll a file with a python sleep loop.
 
-## Cycle 35 — 2026-10-05 — FEATURE
-- Inbox: no OWNER activity; CI green on aad6b0f; milestone #18 only open issue; no plan PR.
-- Done: plan 002 item 7 via PR #28 (merged fdf7d6b, CI green Linux+macOS+6 cross; #18 ticked).
-  Native `groupAsync`/`groupAwait`/`groupCancel` + `crashHandler` in `src/concurrency.zig`;
-  `groupConcurrent` = ConcurrencyUnavailable (listed in `slots.divergent`). `Io.Group.token` ->
-  `GroupRec` (intrusive member list, count, one parked awaiter); member fiber frees its own Task.
-  `tests/parity/group.zig` new; `cancel.zig` worker-thread test now spawns its group via
-  `rt.baselineIo()` (rt.io() groups no longer reach Threaded workers).
-- Reviewer fixed: crashHandler must set `.acknowledged` (Threaded's `.canceled` = delivered), not
-  `.requested`; self-await tripwire; OOM/born-canceled/in-fiber-cancel tests; docs.
-- Next: item 8 (`src/futex.zig` wait table; first cancelable park: unpark target on cancel, then
-  groupAwait can propagate a cancel that arrives while parked), item 9 release 0.3.0.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: guard blocks `cd <repo> && ...` and `sed -i` on repo paths in compound commands; use
-  Edit/python for edits and run `zig` by full path without `cd`. Slot-table negative tests in
-  `slots.zig` hardcode a delegated sample slot (now `futexWait`): pick the first still-delegated one.
-
-## Cycle 34 — 2026-10-04 — FEATURE
-- Inbox: no OWNER activity; CI green on 2f6c447; milestone #18 only open issue; no plan PR.
-- Done: plan 002 item 6 via PR #27 (merged aad6b0f, CI green Linux+macOS+6 cross; #18 ticked).
-  `checkCancel`/`recancel`/`swapCancelProtection` native: state in the Task record (`CancelState`
-  + protection), `Fiber.arg` maps fiber -> task; off-fiber callers forward to the baseline.
-  PR #25 follow-up: `Sched.run_until` so `await` outside a fiber stops at the awaited task.
-- Reviewer CRITICAL fixed before merge: group slots are still Threaded, their workers call
-  `rt.io()`, so native slots ran on a foreign thread. `in_fiber` now checks threadlocal
-  `carrier_active`; regression test (group task + cancel + recancel) fails without the fix.
-- Next: item 7 (group slots + crashHandler: closes P0's 12), then item 8 futex (first cancelable
-  park site: unpark target on cancel), item 9 release 0.3.0. Revisit gate 6 at 1000 in flight.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: stale `.zig-cache` FileNotFound again; `rm -rf .zig-cache` fixed it.
+## History (cycles 34-35)
+Cycle 35 (10-05): item 7 via PR #28 (merged fdf7d6b): native `groupAsync`/`groupAwait`/`groupCancel` +
+`crashHandler` in `src/concurrency.zig`, `groupConcurrent` = ConcurrencyUnavailable; crashHandler must
+set `.acknowledged`. Cycle 34 (10-04): item 6 via PR #27 (merged aad6b0f): native
+`checkCancel`/`recancel`/`swapCancelProtection`; reviewer CRITICAL: `in_fiber` must check threadlocal
+`carrier_active` since group workers still run on Threaded threads. Gotchas: guard blocks `cd <repo>`
+and `sed -i` in compound commands (use Edit/python, run zig by full path); stale `.zig-cache`
+FileNotFound -> `rm -rf .zig-cache`; slot-table negative tests in `slots.zig` hardcode a delegated
+sample slot, pick the first still-delegated one.
 
 ## History (cycles 32-33)
 Cycle 33 (10-04): item 5 closed via PR #26, `bench/spawn.zig`/`zig build bench-spawn` (gate 6:
