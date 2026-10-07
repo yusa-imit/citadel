@@ -1,7 +1,19 @@
 # sailor — context
 
-last_seen_at: 2026-10-06T00:00:00Z
+last_seen_at: 2026-10-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 26 — 2026-10-07 — FEATURE
+
+- Plan 002 "post-v3 cleanup" proposed, PR #50 (branch `plan/002-tails-and-hygiene`), awaiting
+  merge. Scope: 9 files still on `ArrayList(T).init` (8 widgets + `term/windows.zig:554`), CI
+  compiling examples/benchmarks + `zig fmt --check`, fmt of 69 `tests/` files, doc-comment audit
+  tail (terminal, pager, metrics_dashboard/richtext), typed errors for 4 non-provable
+  `catch unreachable` sites; MINOR v3.1.0. Inbox clear; CI green; no open issues/PRs before it.
+- Next: n=27 FEATURE. If #50 still open -> one `/stabilize --one` task; if merged -> open
+  milestone issue for 002 and implement item 1.
+- Quirk: guard blocked `cd /Users/fn/codespace/sailor; ...` (cwd already the repo; run git with
+  no cd). `gh run list --branch main` returned a headSha != origin/main again; trust `-R` runs.
 
 ## Cycle 25 — 2026-10-06 — STABILIZATION
 
