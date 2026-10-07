@@ -1,7 +1,17 @@
 # sirocco — context
 
-last_seen_at: 2026-10-06T16:09:00Z
+last_seen_at: 2026-10-07T04:05:00Z
 rejected_plans: []
+
+## Cycle 39 — 2026-10-07 — FEATURE
+- Inbox: no OWNER activity (only comment on #31 is our own cycle-38 report); plan PR #31 (plan 003)
+  still open; no issues; CI green on c529058.
+- Done: one bounded `/stabilize --one`: build/test/fmt/tidy green; every declared error variant
+  (`InitError` x2, `SpawnError`) has a provoking test; README/zon/tag aligned at 0.3.0; no tracked
+  junk. Nothing to fix, no PRs. Remaining `assert(a or b)` (tools/tidy.zig x5, concurrency.zig:183)
+  are real set membership, left. Quiet cycle: no GitHub comment, no Discord heartbeat.
+- Next: if #31 merged, open its milestone issue and do item 1; else one bounded stabilization.
+- Blockers: none. Open questions: none. Stabilize streak 0.
 
 ## Cycle 38 — 2026-10-07 — FEATURE
 - Inbox: no OWNER activity; CI green on 1207f27; plan PR #31 (plan 003) still open; no issues.
@@ -28,24 +38,13 @@ rejected_plans: []
 - Gotchas: guard blocks any compound Bash that has `cd` into a repo or a glob over sibling repos;
   the primary cwd is already sirocco, so skip `cd`. Zig 0.16.0 `zig build test` is silent on pass.
 
-## Cycle 36 — 2026-10-06 — FEATURE
-- Preflight: tree was dirty on `feat/futex-wait-table` (interrupted item 8: ~1370 lines of parity
-  tests, no `src/futex.zig`); preserved as `wip/feat-futex-wait-table-20261006` (do not delete),
-  then reused those tests on the existing `feat/futex-wait-table` branch.
-- Inbox: no OWNER activity; CI green on fdf7d6b; milestone #18 only open issue; no plan PR.
-- Done: plan 002 item 8 via PR #29 (merged 4028871, CI green Linux+macOS+6 cross; #18 ticked).
-  `src/futex.zig` FIFO wait table (wait record lives in `Sched.Fiber`, no alloc after init), cancel
-  unparks with `error.Canceled`, timeouts read baseline `now`; `src/fiber_switch.zig` split out of
-  `sched.zig` (was 796 lines). Reviewer CRITICAL fixed: futexWake from a non-carrier thread raced
-  the wait list; now spinlock + `unpark_foreign`, with a plain-thread regression test.
-- Known gap: `groupAwait` does not yet propagate a cancel while parked (no test demands it).
-- Next: item 9 (README/CHANGELOG/PRD §5 reconcile incl. gate 6 at 1000 in flight, bump 0.3.0,
-  `/release sirocco minor`). Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: guard blocks a first Bash call that mixes `echo > /tmp` with citadel path vars; split
-  calls. `@fence` is gone in 0.16 (use seq_cst `@atomicRmw(.Add, 0)`). Resumed subagent runs in
-  background: poll a file with a python sleep loop.
-
-## History (cycles 34-35)
+## History (cycles 34-36)
+Cycle 36 (10-06): item 8 via PR #29 (merged 4028871): `src/futex.zig` FIFO wait table (record in
+`Sched.Fiber`), `src/fiber_switch.zig` split out of sched.zig; interrupted tree preserved as
+`wip/feat-futex-wait-table-20261006` (do not delete); reviewer CRITICAL: futexWake from a non-carrier
+thread raced the wait list (spinlock + `unpark_foreign`). Known gap: `groupAwait` ignores cancel
+while parked (plan 003). Gotchas: `@fence` gone in 0.16 (seq_cst `@atomicRmw(.Add, 0)`); guard blocks
+a first Bash call mixing `echo > /tmp` with citadel path vars.
 Cycle 35 (10-05): item 7 via PR #28 (merged fdf7d6b): native `groupAsync`/`groupAwait`/`groupCancel` +
 `crashHandler` in `src/concurrency.zig`, `groupConcurrent` = ConcurrencyUnavailable; crashHandler must
 set `.acknowledged`. Cycle 34 (10-04): item 6 via PR #27 (merged aad6b0f): native
