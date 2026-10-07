@@ -23,7 +23,7 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 | sigil | 1 | trivial | — | none (0.1 → 0.2) — **done**, zon bumped to 0.2.0 (2026-09-12), unreleased (no tag) |
 | strata | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-16, PR #15); plan 002 released v0.3.0 (2026-10-04, PR #27) |
 | synod | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-15, PR #15) |
-| sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10) |
+| sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10); plan 002 released v0.3.0 (2026-10-06, PR #30) |
 | zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — toolchain flip merged (PR #60, 2026-10-04), zon at 0.16.0, v3.0.0 pending |
 | sailor | 368 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — migration merged to main (PR #40, 2026-09-29), zon at 0.16.0 — **done**, released v3.0.0 (2026-10-05, PR #47) |
 | zr | 79 + deps | large | zuda v3, sailor v3 | MINOR |
