@@ -1,7 +1,18 @@
 # sigil — context
 
-last_seen_at: 2026-10-07T00:00:00Z
+last_seen_at: 2026-10-07T12:00:00Z
 rejected_plans: []
+
+## Cycle 40 — 2026-10-07 — FEATURE (quiet)
+
+- Done: plan PR #38 (plan 004) still open; its comments are all the AI's own reports (last
+  2026-10-05), no OWNER review, no issues, no other PRs. CI green on main (HEAD 1cd7547). No
+  stabilization slot used: only the `tools/tidy.zig` self-exemption is left and it does not
+  decompose. No PR opened. Cost ~$0.3.
+- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Stay quiet
+  until then. Blockers/questions: none.
+- Learned: the guard blocks a Bash command that mixes citadel paths with repo commands; read citadel
+  files with Read and keep Bash to repo-only commands.
 
 ## Cycle 39 — 2026-10-07 — FEATURE (quiet)
 
