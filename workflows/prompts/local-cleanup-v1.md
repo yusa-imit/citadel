@@ -5,12 +5,6 @@ Run: `ps aux | awk '$8 ~ /Z/ {print $2, $11}'`
 - Kill any zombie processes found: `kill -9 <pid>`
 - If the zombie's parent is also stale, kill the parent too.
 
-## Step 1b: TEMPORARY exception — sailor Zig 0.16 migration (sailor#34)
-Run: `gh issue view 34 -R yusa-imit/sailor --json state --jq .state`
-- Prints `OPEN`, or the command fails for any reason: in Steps 2 and 3, a process whose working directory is under /Users/fn/codespace/sailor (`lsof -a -p <pid> -d cwd -Fn | sed -n 's/^n//p'`) is stale only once its elapsed time exceeds 3h15m. The `sailor-migration` job runs up to 3h and the cron server enforces that timeout itself.
-- Prints `CLOSED`: the exception has expired; use the normal thresholds.
-The operator removes this step from citadel/workflows/ once sailor#34 is closed.
-
 ## Step 2: Find stale Claude processes
 Run: `ps aux | grep -E '[c]laude' | grep -v 'grep'`
 For each Claude process found:

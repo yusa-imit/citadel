@@ -33,8 +33,7 @@ maxBudget = 10
 allowedTools = []
 sessionLimitThreshold = 90
 
-# Created on the server 2026-09-08 and registered here 2026-09-28. Carries a TEMP(sailor#34)
-# exception in its prompt (Step 2b).
+# Created on the server 2026-09-08 and registered here 2026-09-28.
 [jobs.disk-cleanup-v1]
 enabled = true
 expression = "30 11 * * *"
@@ -132,24 +131,6 @@ allowedTools = []
 sessionLimitThreshold = 90
 blockTokenLimit = 80000000
 extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/sailor/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
-
-# TEMP(sailor#34): Zig 0.16 migration window, OWNER-approved in sailor#34 / citadel#15. Nightly
-# 20:05-23:05, a slot no other kingdom job uses. Remove this table and the TEMP(sailor#34) steps
-# in prompts/{disk,local}-cleanup-v1.md once sailor#34 is closed; the job no-ops after that.
-[jobs.sailor-migration]
-enabled = true
-expression = "5 20 * * *"
-cwd = "/Users/fn/codespace/sailor"
-model = "sonnet"
-permissionMode = "bypassPermissions"
-timeoutMs = 10800000
-maxBudget = 25
-dailyBudgetUsd = 30
-allowedTools = []
-sessionLimitThreshold = 90
-blockTokenLimit = 80000000
-extraArgs = ["--add-dir", "/Users/fn/codespace/citadel", "--settings", "/Users/fn/codespace/citadel/realms/sailor/settings.json", "--strict-mcp-config", "--permission-prompts", "none", "--effort", "high"]
-systemParts = ["sailor-cycle", "sailor-migration"]
 
 [jobs.zr-cycle]
 enabled = true
