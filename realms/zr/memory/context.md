@@ -1,7 +1,23 @@
 # zr — context
 
-last_seen_at: 2026-10-07T00:00:00Z
+last_seen_at: 2026-10-07T21:21:00Z
 rejected_plans: []
+
+## Cycle 18 — 2026-10-07 — FEATURE
+- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational).
+  sailor v3.0.0 tagged, zuda still v2.3.0 → items 5-11 blocked → one `/stabilize --one`.
+- Fixed `cli/template.zig` `applyTemplate`: two unbounded byte-by-byte stdin loops (param value,
+  confirm) → `readReply` helper over shared `line_input.readLine` (4096-byte buffer). Over-long
+  param → error, exit 1; over-long confirm → cancelled. 4 tests. PR #183 merged, 8/8 green
+  (~13 min). Tests 1928/0, tidy 0 failing, baseline `applyTemplate` 167→137.
+- Gotchas: guard hook blocks heredoc appends into the repo (`cat >> file <<EOF`) — use Edit;
+  a test-only `anytype` source struct used by `line_input.readLine` from another file needs
+  `pub fn read`; `zig test` on a single `src/cli/*.zig` fails (outside module path).
+- Next: `while (true)` left: cli/add.zig 275/379 (prompt loops, check bound), task_picker.zig,
+  tui.zig, run.zig:1427 (watch loop), process.zig:416 (EOF-bounded), server/watch event loops,
+  dead `jsonrpc/transport.zig` (delete vs fix). ~220 missing `//!` headers. Watch zuda
+  v3.0.0. Cycle 19 FEATURE; cycle 20 STABILIZATION.
+- Open questions: none.
 
 ## Cycle 17 — 2026-10-07 — FEATURE
 - Preflight: cwd was on `fix/bound-show-line-reader` (clean) → `main`; CI green; PR #181 8/8 green,
