@@ -51,28 +51,28 @@ later push, not a failure).
 
 ## Open issues / PRs
 
-0 open issues, 0 open PRs (`gh issue list` / `gh pr list`, both empty).
+2026-10-07: open issues #137 (milestone 001), #163 (sailor v3.0.0 migration, blocked on zuda v3.0.0); PR #166 merged.
 
 ## Tiger Style gap table
 
-Refreshed by tidy-auditor, stabilization cycle 10 (2026-09-11, commit `9f5f0c1`, `src/` 61 files).
+Refreshed by grep + `tidy_baseline.txt`, stabilization cycle 25 (2026-10-07, main `b63b71f`, `src/` 61 files).
 
 | Metric | Count | Note |
 |---|---|---|
 | `assert(` (any spelling) | 19 | concentrated in `storage/page.zig` (4), `tx/wal.zig` (9), |
 | | | `sql/{parser,catalog,index_entry,executor}.zig` (6); still low for 184k LOC |
-| `catch unreachable` | 213 | of the 22 flagged as unjustified by proximity heuristic, |
+| `catch unreachable` | 213 | unjustified per tidy: 1 baselined (`tidy.zig`), executor fixed by PR #166 (cycle 25). Older note: of the 22 flagged as unjustified by proximity heuristic, |
 | | | 20 were a false positive (covered by a blanket comment above |
 | | | `toCharTimestamp`, PR #143) — only 2 genuinely unjustified, in |
 | | | `toCharNumber`, fixed by PR #148 (cycle 10) |
 | `@panic(` in library code | 0 | all 7 raw hits are inside `test` blocks in |
 | | | `replication/{slot,sync}.zig`, not library code — 2026-09-05 count miscounted |
-| debug `print` in library code | 14 | `server/server.zig` (8), `storage/fuzz.zig` (4), `sql/engine.zig` (2) |
+| debug `print` in library code | 14 (tidy-baselined: server 8, engine 2, tidy 3) | `server/server.zig` (8), `storage/fuzz.zig` (4), `sql/engine.zig` (2) |
 | `while (true)` | 104 | no drift; ~90 are bounded inner loops with internal `break`, |
 | | | not top-level event loops — not yet reclassified per-site |
-| files > 800 lines | 40 | `engine.zig` 43,242 and `executor.zig` 35,712 both grew since |
+| files > 800 lines | 42 | `engine.zig` 43,242 and `executor.zig` 35,712 both grew since |
 | | | last survey (scratch-DB tmpDir batches touched both heavily) |
-| functions > 70 lines | 161 | worst: `sql/executor.zig:evalFunctionCall` ~3,758 lines; |
+| functions > 70 lines | 58 baselined (`function_length` entries in `tidy_baseline.txt`) | worst: `sql/executor.zig:evalFunctionCall` ~3,758 lines; |
 | | | `computeAggregate` 1,169; `engine.zig:execSQLUnlocked` 1,135 |
 | missing `//!` header | 0/61 | fixed by PR #160 (cycle 20); was 17/61 |
 | bare `usize` in wire/on-disk structs | 0 | all `usize` hits are local offset/loop vars in (de)serialize |

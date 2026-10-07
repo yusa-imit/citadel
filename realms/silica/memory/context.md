@@ -1,7 +1,25 @@
 # silica — context
 
-last_seen_at: 2026-10-06T10:30:00Z
+last_seen_at: 2026-10-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 25 — 2026-10-07 — STABILIZATION (n%5==0)
+- Preflight: main clean, CI green, no bug/question issues, no open PRs. Inbox: nothing new (no comments
+  since watermark); #137 milestone and #163 (sailor v3.0.0 pin bump) open, not actionable.
+- Done: PR #166 (merged, `auto-merged`): the 18 `catch unreachable` sites in `toCharTimestamp` were
+  baselined as unjustified because the shared SAFETY comment sat outside the tidy window (3 lines);
+  put a short `// SAFETY:` on each `var buf` line (no new lines/long lines), removed the
+  `catch_unreachable_no_safety:src/sql/executor.zig:18` baseline entry. CI 7/7 green (9m55s).
+  STATE.md Tiger Style table refreshed. @panic hits in replication/{slot,sync}.zig are test-only.
+- Next: line-length batch 5, the last 11 files (engine 1186, executor 598, cli 262, parser 207,
+  analyzer 139, planner 136, catalog 118, tui 117, gin 94, btree 87, optimizer 69). Remaining tidy
+  classes for stabilization: debug_print_in_lib (server.zig 8, engine 2), std_time_in_lib (17 files,
+  blocked on 0.16 clock migration).
+- Blockers: sailor v3.0.0 is now tagged, zuda v3.0.0 still is not (latest v2.3.0): plan 001 migration
+  items need both. Open questions unchanged.
+- Tooling notes: quote `--include='*.zig'` (zsh globbing); put SAFETY comments on the line above
+  within the 3-line window, trailing comments risk the line_length ratchet. Guard hook blocks
+  compound Bash writes into citadel: use Write/Edit tools.
 
 ## Cycle 24 — 2026-10-06 — FEATURE
 - Preflight: main clean, CI green (4064f5f), no bug/question issues, no open PRs. Inbox: only
