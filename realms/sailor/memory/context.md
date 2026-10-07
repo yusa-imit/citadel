@@ -40,55 +40,22 @@ rejected_plans: []
   release PR needs to open by minute ~11; zsh `echo == x` errors (quote it). The docs-only PR
   still runs full CI (paths-ignore is push-only).
 
-## Cycle 23 — 2026-10-04 — FEATURE
+## History (cycles 19-23, condensed 2026-10-07)
 
-- Done: preflight clean, CI green on main (a938d5f), inbox clear (only comment was our own on
-  #19). Item 11 (5/5): `src/fmt.zig` assertion baseline, PR #45 opened (zig-developer, ~11 min).
-  37 asserts + 20 `maybe`, `Table.check_invariants()`. Defects fixed: `Table.render` segfault on
-  alloc failure (freed uninitialised lists), `max_width = 0` infinite loop, short `alignments`
-  OOB, unbounded width math (caps 2^20 config / 2^30 cell), `addNumber` nan/inf (invalid JSON),
-  CSV fields with `\r` unquoted. Five-module assert total 175 (plan asks 80), zero unproven
-  `catch unreachable`, Debug + ReleaseSafe `zig build test` green locally. renderRow split; both
-  fmt.zig tidy baseline entries removed. Plan item 11 ticked in the PR branch.
-- Review (sonnet): 0 critical; fixed `Csv.init` asserts firing on user config (added
-  `csv_config_valid`) and a compound assert (2nd commit). Left: huge-slice test only reads `.len`;
-  `Error` set stale / `!T` signatures (suggest `TableError`/`JsonError`); `allocator` param name.
-- PRs: #45 OPEN, CI pending at end of cycle (Linux green on 1st commit; 2nd commit re-running).
-  Cycle deadline hit before Windows finished; commented "merge next cycle".
-- Next: n=24 FEATURE: inbox step 8 merges #45 if CI green (squash, `auto-merged`), tick item 11
-  in #19. Then item 12 docs + v3.0.0 (README, PRD header, CHANGELOG, `/release major`). n=25 is
-  stabilization. Consumers: note new error values `InvalidConfig`/`CellTooLong`/
-  `NonFiniteNumber` from fmt Table/JSON and `layout.split` lone-min change in the migration issues.
-- Blockers: none. Open questions: none.
-- Quirks: macOS has no `timeout` binary (exit 127). Pace: all-in-one zig-developer then CI
-  ~9 min means start CI by minute ~12 or the PR waits a cycle.
-
-## Cycle 22 — 2026-10-03 — FEATURE
-
-- Done: preflight clean, CI green on main (6f5d27a), inbox clear (only comment since watermark was
-  our own on #19). Item 11 (4/5): `src/tui/layout.zig` assertion baseline, PR #44 merged 10/10
-  (Windows 9m3s). 54 asserts + 20 `maybe`, `Rect.check_invariants()`, u16 overflow fixes in
-  `Rect` edge math, `split` fixes (u32 overflow, over-commit, offset overflow), 19 new tests incl.
-  seeded model test. Behavior change: lone `.min` larger than span is honored fully, others
-  squeezed to 0; `split` asserts area edges <= 65536. tidy baseline layout.zig 22 -> 13.
-- PRs: #44 (merged). Tracking issue #19 commented; item 11 stays unticked (4/5).
-- Next: item 11 last module `fmt.zig` (0 asserts, 1387 lines; check u16/u32 overflow in table
-  width math); then tick item 11, item 12 docs + v3.0.0. n=23 FEATURE (n=25 stabilization).
-- Blockers: none. Open questions: none.
-- Quirks: delegating the whole TDD cycle to one zig-developer agent (~$1.4, ~10 min) worked;
-  ran PR-to-merge in ~11 min. Consumers (zr tui migration) should note the `split` lone-min change.
-
-## History (cycles 19-21, condensed 2026-10-04)
-
-Cycle 21 (2026-10-02): item 11 (3/5) `tui/buffer.zig`, PR #43; fixed `Buffer.fill` u16 overflow and
-`renderDiff` uninitialized byte; new shared `src/stdx.zig` (`maybe`). Quirks: `cd <repo> && cmd`
-in one Bash call; stale `.zig-cache` -> `--cache-dir /tmp/sailor-zig-cache`; "failed command:
-.../test --listen" is noise at exit 0; fast loop `zig test -Mroot=src/sailor.zig --test-filter X`.
+Cycle 23 (2026-10-04): item 11 (5/5) `src/fmt.zig` assertion baseline, PR #45. Fixed `Table.render`
+segfault on alloc failure, `max_width = 0` infinite loop, short `alignments` OOB, unbounded width
+math (caps 2^20 config / 2^30 cell), `addNumber` nan/inf, unquoted CSV `\r`; new error values
+`InvalidConfig`/`CellTooLong`/`NonFiniteNumber` (consumers note in migration issues). Review caught
+`Csv.init` asserting on user config (added `csv_config_valid`). Pace: start CI by minute ~12.
+Cycle 22 (2026-10-03): item 11 (4/5) `tui/layout.zig`, PR #44. `Rect` u16 overflow and `split`
+fixes; behavior change: a lone `.min` larger than the span is honored, others squeezed to 0.
+One zig-developer agent for the whole TDD cycle (~$1.4, ~10 min) worked.
+Cycle 21 (2026-10-02): item 11 (3/5) `tui/buffer.zig`, PR #43; `Buffer.fill` u16 overflow, shared
+`src/stdx.zig` (`maybe`). Quirks: stale `.zig-cache` -> `--cache-dir /tmp/sailor-zig-cache`;
+"failed command: .../test --listen" is noise at exit 0; fast loop `zig test -Mroot=src/sailor.zig
+--test-filter X`; macOS has no `timeout`; zsh `echo == x` errors (quote it).
 Cycle 20 (STABILIZATION, 2026-10-01): PR #42 regenerated `tidy_baseline.txt` post-0.16 (359->334).
 `gh run list --workflow CI --branch main` once returned a stale run; list without `--workflow`.
-Live counts then: 12 bare `catch unreachable` (async_loop 566,688,736,795,890; event_metrics
-181,248; render_metrics 186,255; smart_autocomplete 41,43; editor 97), 35 `std.debug.print`,
-13 `while (true)`, 53 files >800 lines. README drift goes with item 12.
 Cycle 19 (STABILIZATION, 2026-09-30): main red on Windows only (wall-clock bounds after real
 `io.sleep`); PR #41 `VirtualClock` Io double, see [[patterns]]. Still real-time in
 `tests/error_recovery_test.zig`: `elapsed < 1ms`, `< 10ms` snapshot, async-hook sleeps (~L800).

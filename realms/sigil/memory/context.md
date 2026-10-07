@@ -62,38 +62,19 @@ rejected_plans: []
   one `/stabilize --one` slot per cycle; remaining candidate is the `tools/tidy.zig` self-exemption.
   Blockers/questions: none.
 
-## Cycle 34 — 2026-10-04 — FEATURE
+## History (cycles 33-34, condensed 2026-10-07)
 
-- Done: item 10 of plan 003 (wire and close), PR #37, CI 8/8, squash-merged; issue #27 closed 10/10,
-  no tag. `core.Error` is now `number.Error || unicode.Error || EscapeError || {TooDeep, OutOfMemory}`
-  (comptime test pins members; was red first). 1A-1D ticked in `000-inherited.md`. 324 tests, tidy 0.
-- Plan 004 proposed: Phase 2A-2C JSON (ADR 0003, scanner x2, dom, writer, round-trip, JSONTestSuite,
-  `json.parse(T)`, `parseFile`, bench port, release v0.3.0) as PR #38, awaiting human merge. Planner
-  (opus, ~$0.9) drafted it. Inbox: no OWNER activity, no open PRs.
-- Learned: sandbox `zig build` fails with cache FileNotFound; use `--cache-dir /tmp/sigil-zc`. Guard
-  blocks a command that has `push` while the checkout is on main: branch first, separate command.
-  Plan 003 item 4 box is still unticked (plan 004's release item ticks it). `bench/main.zig` is
-  still 0.15 code (plan 004 ports it). REALM.md in citadel is stale (says plan 003 awaiting merge).
-- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Until then
-  one `/stabilize --one` slot per cycle (candidate: port `bench/main.zig` to 0.16).
-  Blockers/questions: none.
-
-## Cycle 33 — 2026-10-04 — FEATURE
-
-- Done: item 9 of plan 003, `reflect/roundtrip_test.zig` (seeded, 1,000 seeds, matrix of every kind
-  incl. hook, Timestamp, Value, String maps, odd-width ints, renamed/deny_unknown structs, 5
-  containers deep), via PR #36, CI 8/8, squash-merged; issue #27 at 9/10. tidy 0, fmt clean.
-  Inbox: no OWNER activity.
-- Process: wrote the test myself (no test-writer), mutation-checked (float `+1.0` in stringify
-  fails at seed 0 with the seed logged), one `code-reviewer` (~$0.1): 0 critical / 4 warnings, all
-  fixed (a `Coverage` tally fails the test if a matrix branch is never generated, comparator
-  mutation tests per field kind, more matrix kinds, asserts). Cycle cost ~$1.5 of $4.
-- Learned: `std.log.err` in a test reports the seed (tidy bans `std.debug.print`). `zig test
-  --test-filter` on root.zig ran only 1 test; use `zig build test` for the real signal. Do not
-  `git checkout` a file holding uncommitted wiring edits during a mutation check; back it up.
-- Next: item 10 wire and close (`reflect.zig`/`core.zig` drop `error.NotImplemented`, tick 1A-1D
-  in `docs/plans/000-inherited.md`), then plan 003 closes 10/10, version impact none (no tag).
-  Blockers/questions: none.
+Cycle 34 (2026-10-04): plan 003 item 10 (wire and close), PR #37, issue #27 closed, no tag.
+`core.Error` = `number.Error || unicode.Error || EscapeError || {TooDeep, OutOfMemory}` (comptime
+test pins members). Plan 004 (Phase 2A-2C JSON, ADR 0003) proposed as PR #38, drafted by planner.
+Learned: sandbox `zig build` needs `--cache-dir /tmp/sigil-zc`; guard blocks a command containing
+`push` while on main (branch first, separate command). Plan 003 item 4 box ticks with plan 004's
+release item.
+Cycle 33 (2026-10-04): item 9 `reflect/roundtrip_test.zig` (seeded, 1,000 seeds, every kind),
+PR #36. Mutation-checked; one code-reviewer (0 critical, 4 warnings fixed; a `Coverage` tally
+fails the test if a matrix branch is never generated). Learned: `std.log.err` reports the seed in
+tests (tidy bans `std.debug.print`); `zig test --test-filter` on root.zig ran 1 test, use
+`zig build test`; back up files before `git checkout` during mutation checks.
 
 ## History
 
