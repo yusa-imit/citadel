@@ -21,9 +21,15 @@ R=<realm>; CITADEL=/Users/fn/codespace/citadel; REALM=$CITADEL/realms/$R
    non-zero exit commits nothing locally: your edits stay in the working tree and your next
    cycle carries them. Never `git add`/`commit`/`stash`/`switch` in citadel yourself, and never
    commit another realm's files; the helper is the only writer.
-3. Quiet mode (CONTRACT rule 8 carve-out): if the inbox found no owner actions, no PR was opened
-   or merged, and the plan/CI state is identical to the previous cycle's block, skip step 4 and
-   send step 5 only if no Discord line was sent today (one heartbeat per realm per day).
-4. GitHub: one comment on the tracking issue (or the open plan PR): mode, done, next.
-5. Discord: `openclaw message send --channel discord --target user:264745080709971968
+3. Waiting merges, every cycle including quiet ones. Run exactly this, with no `2>&1` or other
+   redirection (the guard reads `>` as a write into citadel):
+   `python3 $CITADEL/scripts/hooks/awaiting_merge.py sync $R`
+   It opens the citadel `awaiting-merge` issue for each PR of yours that only the human can
+   merge (`plan`, `needs-human`) and closes those that stopped waiting. Put its `opened …`
+   lines in the GitHub comment and the Discord line; an error goes into Blockers.
+4. Quiet mode (CONTRACT rule 8 carve-out): if the inbox found no owner actions, no PR was opened
+   or merged, and the plan/CI state is identical to the previous cycle's block, skip step 5 and
+   send step 6 only if no Discord line was sent today (one heartbeat per realm per day).
+5. GitHub: one comment on the tracking issue (or the open plan PR): mode, done, next.
+6. Discord: `openclaw message send --channel discord --target user:264745080709971968
    --message "[<realm>] cycle <n> <mode> | done: … | next: … | blockers: …"`.

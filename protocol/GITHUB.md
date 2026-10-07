@@ -64,6 +64,8 @@ deletes a server-only job. `apply` does overwrite server-side edits to jobs decl
   Out of scope · Risks · Done when (verifiable) · Version impact.
 - The first plan of every realm is `001` and is prescribed by `citadel/docs/ROADMAP.md`.
 - While the plan PR is open, the cycle does inbox and stabilization only.
+- Opening it opens a citadel `awaiting-merge` issue for it (see Questions), so the human sees
+  the merge is pending without watching nine repositories.
 
 ## Tracking issues
 
@@ -94,6 +96,14 @@ deletes a server-only job. `apply` does overwrite server-side edits to jobs decl
   `from:<realm>`), and closes it when the realm issue is resolved or loses the label. A citadel
   issue exists only while a human decision is pending: there is no standing digest issue and no
   periodic status comment. When nothing needs the human, citadel stays silent.
+- Waiting merges: every open realm PR labeled `plan` or `needs-human` (the PRs no session may
+  merge) has one citadel issue `awaiting-merge: <realm>#<n> — <title>`, labeled
+  `awaiting-merge` and `from:<realm>`. GitHub does not notify an account of its own PRs, so this
+  issue is how the human learns of them. `scripts/hooks/awaiting_merge.py` owns these issues; no
+  session opens or closes them by hand. A PostToolUse hook runs it right after a `gh pr` create,
+  edit, ready, close or reopen; `/report` runs it for the realm every cycle; the citadel cycle
+  runs it for all realms. It closes the issue, with the reason, once the PR is merged, closed,
+  or no longer labeled. The human answers on the PR, not on the issue.
 
 ## Reports
 
