@@ -71,35 +71,15 @@ rejected_plans: []
 - Blockers: none. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrent
   connections; tidy scans textual).
 
-## Cycle 20 — 2026-10-02 — STABILIZATION (n%5==0)
-- Preflight: repo clean on main, CI green on main (ddb8f92), no bug/question issues, no open PRs.
-  Inbox: no comments since watermark; only milestone #137 open.
-- Audit (hand-run, no subagent): hygiene clean (`zig-pkg/` already gitignored, no tracked
-  artifacts), deps at newest tags (sailor v2.99.0, zuda v2.3.0), 0 `expect(true)`, `@panic(` only in
-  test blocks. Fixed one class: 17 files lacking `//!` headers (PR #160, comment-only; baseline
-  entries removed). CI 7/7 green, merged, labeled `auto-merged`. STATE.md header row 17 -> 0.
-- Next: shrink line-length baseline (60 files, 3,620 lines) in batches; plan 001 rest blocked_by
-  zuda/sailor v3.0.0. Stabilize streak stays 0.
-- Tooling notes: guard hook rejects compound `gh pr view; gh pr merge` lines — run `gh pr merge N -R
-  yusa-imit/silica` alone. `timeout` is not installed on this box; use `gh pr checks --watch`.
-- Blockers: none. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrent
-  connections; tidy scans textual).
+## History (cycles 19-20, condensed 2026-10-07)
 
-## Cycle 19 — 2026-10-01 — FEATURE
-- Preflight: repo clean on main, CI not red, no bug/question issues, no open PRs. Inbox: only our
-  own status comment on #137; nothing actionable.
-- Implemented plan 001 tidy step part 2, line-length gate: `line_too_long` now ratchets per file
-  via `line_length:<path>:<max_line_count>` baseline entries (60 files, 3,620 long lines), and
-  `run_tidy` is a dependency of `test_step` (`zig build test` enforces tidy). 3 new tests;
-  planted violation verified to fail. PR #159: build-and-test 9m14s + 6 cross-compile green,
-  merged. Plan sub-checklist and CHANGELOG updated.
-- Next: shrink the line-length baseline to zero in batches (largest files first; hand wrapping,
-  `zig fmt` does not wrap). Checklist item stays unchecked until zero. Rest of plan blocked_by
-  zuda/sailor v3.0.0 (tags still v2.3.0 / v2.99.0).
-- Tooling notes: guard hook blocks Bash lines that touch other repos or mix writes — use simple
-  commands and the Edit/Write tools for memory. BSD `sed -i` misparsed; use python for edits.
-- Blockers: none. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrent
-  connections; tidy scans textual).
+Cycle 20 (STABILIZATION, 2026-10-02): hygiene clean, deps at newest tags (sailor v2.99.0, zuda
+v2.3.0), 0 `expect(true)`. PR #160 added `//!` headers to 17 files. Guard hook rejects compound
+`gh pr view; gh pr merge` lines; run the merge as its own command with `-R yusa-imit/silica`.
+Cycle 19 (2026-10-01): plan 001 tidy part 2, PR #159: `line_too_long` ratchets per file via
+`line_length:<path>:<max_line_count>` baseline entries (60 files, 3,620 long lines); `run_tidy` is
+a dependency of `test_step`. Guard hook blocks Bash lines that touch other repos or mix writes;
+BSD `sed -i` misparsed, use python. Rest of plan 001 blocked_by zuda/sailor v3.0.0.
 
 ## History (cycle 18 and earlier, folded)
 
