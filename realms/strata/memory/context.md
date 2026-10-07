@@ -1,7 +1,19 @@
 # strata — context
 
-last_seen_at: 2026-10-07T05:07:21Z
+last_seen_at: 2026-10-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 37 — 2026-10-08 — FEATURE
+- Done: plan 003 approved (PR #28 merged by OWNER); opened milestone issue #34. Item 1 done: tidy
+  ADR-0001 `Io` guards — `Io.Threaded`/`Io.Evented`/`global_single_threaded` banned under `src/`,
+  new `io-field` rule (Io struct field only in `src/kv/db.zig`, `src/testing/fault_io.zig`;
+  multi-line param lists skipped via paren depth).
+- PRs: #35 merged (squash, CI 7/7, auto-merged). Issue #34 item 1 ticked.
+- Next: item 2 — ADR-0002 page format v1 (`docs/adr/0002-page-format.md`), then item 3 header codec.
+- Blockers: none. Open questions: none.
+- Note: PATH zig is 0.15.2; use the 0.16.0 toolchain with `--cache-dir /tmp/strata-zc`. macOS
+  `sed -i` needs `''`. A failed `&&` skips a following `Z=...` assignment. The guard hook blocks
+  compound Bash that writes into citadel; use Write/Edit for memory files.
 
 ## Cycle 36 — 2026-10-07 — FEATURE
 - Done: plan PR #28 still open (CI 7/7 green, only our own status note, no OWNER feedback, no open
@@ -155,5 +167,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 (PR #28) awaits the OWNER's merge. After merge: open the milestone issue and implement
-item 1 (tidy ADR-0001 `Io` guards). Do not start item work before the merge.
+Plan 003 approved; milestone issue #34. Item 1 done; implement item 2 (ADR-0002 page format).
