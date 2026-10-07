@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-10-07T04:05:00Z
+last_seen_at: 2026-10-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 40 — 2026-10-08 — FEATURE
+- Inbox: no OWNER comments; plan PR #31 (plan 003) was merged 10-07; no issues; CI green on c529058.
+- Done: opened milestone #33 (plan 003 carrier-never-blocks), then item 1 via PR #34 (merged 9745baa,
+  CI green Linux+macOS+6 cross): `groupAwait` honors a cancel arriving while parked. `Task.awaiting`
+  armed in `group_park`; a request unparks the awaiter, which cancels members from its own fiber
+  (no recursion), parks again, returns Canceled. Blocked awaiter keeps waiting; a request racing the
+  last member stays pending. Tests in tests/parity/group.zig (3 new, hung before the fix).
+- Reviewer: 0 CRITICAL; applied named `parks_max`, doc fixes, race test. Not done (suggestions):
+  nested-group test, cancel-during-groupCancel test, assert `.blocked` request survives.
+- Next: item 2 (eager task start, gate 6); sched.zig 757/800 lines, concurrency.zig now ~660.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: a red hang in `zig build test` blocks the 120s tool limit; run it through python
+  subprocess with timeout and `pkill -f .zig-cache` afterwards. Parity tests that need a parked
+  fiber: use `scene.yield` x4 then act, `scene.run_modes(12, ...)`.
 
 ## Cycle 39 — 2026-10-07 — FEATURE
 - Inbox: no OWNER activity (only comment on #31 is our own cycle-38 report); plan PR #31 (plan 003)
