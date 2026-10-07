@@ -1,7 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-10-07T12:00:00Z
+last_seen_at: 2026-10-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 41 — 2026-10-08 — FEATURE
+
+- Done: owner merged plan 004 (PR #38, 2026-10-07). Opened milestone issue #42. Item 1 (ADR 0003 JSON
+  contract) via `architect` (opus, ~11 min, ~$2.9 — expensive); I wrote the file verbatim. Also
+  amended PRD §4.2/§4.3/§5 and added an ADR 0001 pointer. PR #43, CI 8/8, squash-merged; plan item 1
+  and #42 ticked. Docs-only, so no local `zig build test` run (CI is the gate).
+- Next: item 2 `json/scanner.zig` (also adds `core.diagnostics.Position/position_of/snippet_of`).
+  Item 10 is partly done already (bench port landed in #39; JSON benches and CI bench build step
+  remain). New APIs per ADR 0003: `Map.index_of` (item 4), `reflect.context.write_diagnostic`
+  (item 5), `parse_traced`/`Context.trace`/`scanner.locate` (item 8). Item 9 changes the root.zig
+  parity test (7 params, `arena`, `diag`). Blockers/questions: none.
+- Learned: an architect ADR draft can cost most of the cycle budget; for the next design-heavy item
+  give it a tighter scope (it must return the full file text, since it has no Write). `gh pr checks
+  --watch` right after create still says "no checks"; a Monitor until-loop works. Open risk: 0.16
+  `ArenaAllocator` in-place shrink (ADR 0003 §4 fallback = three scans); `Io.Dir` read/write names
+  unverified until item 9.
 
 ## Cycle 40 — 2026-10-07 — FEATURE (quiet)
 
