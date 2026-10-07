@@ -77,3 +77,11 @@ claimed `v0.2.13`, and the actual latest git tag is `v0.2.14`. This is a 3-way m
 a 2-way one — the manifest was never bumped in step with tagged releases at some point.
 Before trusting any single version string in this repo, check all three: `build.zig.zon`,
 `git tag -l 'v*' --sort=-v:refname | head -1`, and whatever the current docs claim.
+
+## Unit tests only run for files the test root analyzes (found cycle 20)
+
+Zig runs `test` blocks only of files something analyzes. `src/` has ~2659 `test` blocks; `zig build
+test` runs ~1160. A new test in an unreferenced file passes under `zig test <file>` but the
+build total does not grow. Fix: `_ = @import("...")` in a `src/main.zig` test block, one file at
+a time (most unreferenced files carry stale non-compiling tests). Check the build total before
+and after to prove the tests run.

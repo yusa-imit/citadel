@@ -1,7 +1,23 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-07T00:00:00Z
+last_seen_at: 2026-10-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 20 — 2026-10-08 — STABILIZATION (forced, n%5==0)
+- Preflight clean (main, CI green on 6e5a6e3), no bugs, no plan PR, milestone #121 open, no
+  owner comments. zuda still v2.3.0 (sailor v3.0.0 tagged, #141 open), items 4-9, 12 blocked.
+- Finding: Zig runs `test` blocks only for files something analyzes. `src/` has 2659 `test`
+  blocks but `zig build test` runs 1114. Referencing storage/topk.zig + heavykeeper.zig from a
+  `src/main.zig` test block gave 1160/1160 (+45; includes #143's heap-order tests).
+- PR #144 (`test/unit-test-reachability`) does exactly that. Local green (1160/1160, only the 2
+  known signal-4 crashers); CI was still pending at the deadline — NOT merged. Next cycle's
+  inbox step 8 must merge it if green, else fix.
+- Bulk-referencing all 84 other src files does NOT compile: stale tests (commands/acl.zig:
+  arity, `**Storage`, const-ptr, plus a 32-arg format limit error). Wire one file at a time and
+  repair its tests; a full-tree `zig build test` error dump took >10 min, so grep one file.
+- Guard hook blocks compound `cd repo; ...`; `gh pr create` hit a transient GraphQL error, retry.
+- Next: merge #144; wire next file (smallest test counts first); stash triage (stash@{0}).
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 19 — 2026-10-07 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on b49036f), no bugs, no plan PR, milestone #121 open, no
