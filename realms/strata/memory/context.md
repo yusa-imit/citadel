@@ -1,7 +1,18 @@
 # strata — context
 
-last_seen_at: 2026-10-06T17:07:53Z
+last_seen_at: 2026-10-07T05:07:21Z
 rejected_plans: []
+
+## Cycle 36 — 2026-10-07 — FEATURE
+- Done: plan PR #28 still open (CI 7/7 green, only our own status note, no OWNER feedback, no open
+  issues), so one `/stabilize --one`: `allocator:` params renamed `gpa` across `tools/tidy/*.zig`.
+- PRs: #33 merged (squash, CI 7/7, auto-merged).
+- Remaining audit sweeps: `std.debug.assert` alias across `tools/` (~65; tidy ban check does not flag
+  it); assertion density elsewhere in `tools/` (tidy density gate covers `src/` only); camelCase
+  public API in `src/file/file.zig` (needs a plan).
+- Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
+- Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
+- Note: the `gh pr checks --watch` call right after PR create may say "no checks reported"; rerun.
 
 ## Cycle 35 — 2026-10-06 — FEATURE
 - Done: plan PR #28 still open (CI 7/7 green, no OWNER comment or review, no open issues), so one
