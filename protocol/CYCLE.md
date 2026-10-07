@@ -59,8 +59,10 @@ PR or comment:
 1. `memory/context.md`: session number, mode, what happened, next priority, open questions.
    Other memory files as needed; keep each under 200 lines.
 2. Commit citadel (`chore(<realm>): cycle <n> memory`) and push citadel.
-3. Comment on the tracking issue or plan PR; Discord summary.
-4. Kill any process this cycle started (servers, watchers); free ports.
+3. `scripts/hooks/awaiting_merge.py sync <realm>`: one citadel issue per PR waiting on the
+   human's merge, closed once the PR stops waiting (GITHUB.md, Questions).
+4. Comment on the tracking issue or plan PR; Discord summary.
+5. Kill any process this cycle started (servers, watchers); free ports.
 
 ## Budget and tools
 

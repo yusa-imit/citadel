@@ -20,6 +20,10 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [{ "type": "command", "command": "python3 /Users/fn/codespace/citadel/scripts/hooks/zig_fmt.py" }]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "python3 /Users/fn/codespace/citadel/scripts/hooks/awaiting_merge.py hook", "timeout": 90 }]
       }
     ]
   }

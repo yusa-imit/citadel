@@ -22,5 +22,8 @@ in progress (or needs its `milestone` issue opened by `/cycle`); do not write th
 4. Branch `plan/NNN-<theme>` from `main`; commit `docs: plan NNN — <theme>`; push;
    `gh pr create --label plan --assignee yusa-imit --title "plan NNN: <theme>" --body <summary +
    footer>`; body ends with `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
+   The PostToolUse hook then opens the citadel `awaiting-merge` issue for the PR and says so;
+   if it reports a failure, `/report` retries it. Never open or close that issue yourself.
 5. Record in `/Users/fn/codespace/citadel/realms/<realm>/memory/context.md`: "plan NNN
-   proposed, PR #n, awaiting merge". Questions the plan raises go in an issue with `origin: ai`.
+   proposed, PR #n, awaiting merge (citadel#m)". Questions the plan raises go in an issue with
+   `origin: ai`.

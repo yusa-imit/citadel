@@ -15,9 +15,13 @@ leave the checkout on a branch. Realms commit their own memory with
    clean main equal to origin/main, run `python3 scripts/jobs.py apply --yes`. Then comment
    `applied` on each `grant` issue whose PR is now live, and close it. Never `prune`: name
    server-only jobs in the Discord line instead. Report any `scheduled: false` kingdom job.
-5. Escalation — only when a human decision is genuinely needed. Collect realm issues labeled
-   `needs-human` (`gh issue list --label needs-human -R yusa-imit/<realm>`) and check what is
-   already escalated (`gh issue list -R yusa-imit/citadel --label needs-human --state open`).
+5. Escalation — only when a human decision is genuinely needed. First run
+   `python3 scripts/hooks/awaiting_merge.py sync` (all realms): it opens and closes the
+   `awaiting-merge` issues for realm PRs only the human may merge (`plan`, `needs-human`); never
+   open, edit or close those by hand, and leave them out of the rest of this step. Then collect
+   realm issues labeled `needs-human` (`gh issue list --label needs-human -R
+   yusa-imit/<realm>`) and check what is already escalated (`gh issue list -R
+   yusa-imit/citadel --label needs-human --state open`).
    For each realm issue not yet escalated, open its own citadel issue titled
    `needs-human: <realm> — <topic>`, labels `needs-human` + `from:<realm>`
    (`gh label create from:<realm> --color EDEDED --force -R yusa-imit/citadel`), body = the
