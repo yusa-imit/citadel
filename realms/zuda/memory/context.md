@@ -1,7 +1,28 @@
 # zuda — context
 
-last_seen_at: 2026-10-05T00:00:00Z
+last_seen_at: 2026-10-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 19 — 2026-10-08 — FEATURE
+- Done: preflight found uncommitted backtracking work on `fix/backtracking-0.16-compile` (the
+  interrupted prior cycle); preserved it as `wip/fix-backtracking-0.16-compile-20261008` (the
+  `...20261007` wip is an older, smaller subset), then restored those files onto
+  `fix/compile-clean-outside-test-graph`, verified on 0.16 (`zig test` each file, `zig build
+  test` exit 0, fmt clean) and merged PR #62: all 9 `algorithms/backtracking/*` compile,
+  wired into `root.zig` tests; sudoku invalid-board hang + `isValidSudoku` OOB fixed; two wrong
+  `word_search` expectations (2 -> 4). Squash, 7/7 checks, labeled `auto-merged`.
+- Found: reviewer's OOM harness showed pre-existing alloc-failure leaks in palindrome_partition
+  (undefined free in `minCut`), knights_tour, combination_sum, permutations, n_queens, subsets.
+  Filed bug #63 (OWNER-account bug, forces STABILIZATION next cycle; fix with the word_search
+  pattern + `checkAllAllocationFailures` tests per file).
+- Next: fix #63, then finish plan item "compile-clean files outside test graph": `nfa`,
+  `matrix_chain`, `ford_fulkerson`, `bogosort`, `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne`, then a
+  full `src/**` `zig test <file>` sweep. Then Thread sync, harness, assertion baseline, v3.0.0.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: stale `.zig-cache` gave "failed to spawn build runner: FileNotFound"; use
+  `zig build test --cache-dir /tmp/zuda-zcache`. CI Build & Test now ~9.5 min. Shell writes
+  into citadel are blocked by the guard; use Write/Edit there. Main CI for 82fe3fc was still in
+  flight at preflight.
 
 ## Cycle 18 — 2026-10-05 — FEATURE
 - Done: preflight found branch `chore/zig-0.16-flip` (PR #60, clean, pushed, 7/7 checks green,
