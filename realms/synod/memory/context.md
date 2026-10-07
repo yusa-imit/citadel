@@ -1,163 +1,39 @@
 # synod — context
 
-last_seen_at: 2026-10-07T12:10:00Z
+last_seen_at: 2026-10-08T07:30:00Z
 rejected_plans: []
 
-## Cycle 37 — 2026-10-07 — FEATURE (no-op)
-- Inbox: no OWNER actions; plan 003 PR #33 still open and MERGEABLE (no comments since 2026-10-03,
-  all the AI's own); no bugs, no issues, CI green on 5d4d37f.
-- Done: nothing opened. Stabilization backlog empty (cycle 30 audit); memory-only cycle. No Discord
-  heartbeat (cycle 36 already sent today's).
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else another
-  heartbeat cycle.
-- Blockers: plan 003 awaiting OWNER merge. Open questions: none.
+## Cycle 38 — 2026-10-08 — FEATURE
+- Inbox: plan 003 PR #33 merged by OWNER 2026-10-07T10:16Z; no comments, no bugs, CI green.
+  Opened milestone issue #39 (12 items).
+- Done: item 1 ADR-007 (`docs/adr/0007-raft-node-contract.md`) via PR #40 — architect (opus,
+  ~$1.4 incl. context) returned the ADR text, the main session wrote the file (architect has no
+  Write). Docs-only; test/fmt green, 7/7 CI, squash-merged, `auto-merged`, #39 item 1 ticked.
+- Key ADR-007 decisions: one ordered init-sized `Effects` list (phase non-decreasing:
+  persist→send→apply→notify); `Input = message | tick | propose`, tick = logical count, Driver
+  turns `Clock` into ticks; node owns entry bytes (`log_bytes_max`); `Node.init` takes a `Restore`
+  struct (data, no LogStore); driver does persist → one `sync()` → send → apply, any Fault is
+  fail-stop; `src/raft/{node,progress}.zig`, progress internal.
+- Next: item 2 (2A-i): FIRST widen tidy `core_purity_files` to cover `src/raft/`, then
+  `src/raft/node.zig` skeleton (roles, term rules, `check_invariants`). Tests via test-writer,
+  impl via zig-developer; PRD §4.2 should be updated to point at ADR-007 in that PR.
+- Blockers: none. Open questions: none.
+- Tool notes: `rm -rf .zig-cache` fixes `build runner FileNotFound`. Poll CI with a `for` loop
+  around `gh pr checks <n> --watch`. Budget: architect ≈ $1.4 of $4; item 2 needs test-writer +
+  zig-developer + reviewer, so expect one subagent-heavy item per cycle.
 
-## Cycle 36 — 2026-10-07 — FEATURE (no-op)
-- Inbox: no OWNER actions; plan 003 PR #33 still open and MERGEABLE (no comments since 2026-10-03,
-  all the AI's own); no bugs, no issues, CI green on 5d4d37f.
-- Done: nothing opened. Stabilization backlog empty (cycle 30 audit); memory-only cycle. One
-  Discord heartbeat (first dated 2026-10-07).
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else another
-  heartbeat cycle.
-- Blockers: plan 003 awaiting OWNER merge. Open questions: none.
-
-## Cycle 35 — 2026-10-06 — FEATURE (no-op)
-- Inbox: no OWNER actions; plan 003 PR #33 still open and MERGEABLE (comments are only the AI's
-  own cycle reports, latest 2026-10-03); no bugs, no issues, CI green on 5d4d37f.
-- Done: nothing opened. Stabilization backlog empty (cycle 30 audit); memory-only cycle. No Discord
-  heartbeat sent (cycle 34 is dated the same day).
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else another
-  heartbeat cycle.
-- Blockers: plan 003 awaiting OWNER merge. Open questions: none.
-
-## Cycle 34 — 2026-10-06 — FEATURE (no-op)
-- Inbox: no OWNER actions; plan 003 PR #33 still open and MERGEABLE (no new comments since
-  2026-10-03, all the AI's own); no bugs, no issues, CI green on 5d4d37f.
-- Done: nothing opened. Stabilization backlog empty (cycle 30 audit); memory-only cycle.
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else another
-  heartbeat cycle.
-- Blockers: plan 003 awaiting OWNER merge. Open questions: none.
-
-## Cycle 33 — 2026-10-05 — FEATURE (no-op)
-- Inbox: no OWNER actions; plan 003 PR #33 still open (only the AI's own cycle comments); no bugs,
-  no issues, CI green on 5d4d37f.
-- Done: nothing opened. Stabilization backlog empty (cycle 30 audit), memory-only cycle.
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else another
-  heartbeat cycle.
-- Blockers: plan 003 awaiting OWNER merge. Open questions: none.
-
-## Cycle 32 — 2026-10-05 — FEATURE (no-op)
-- Inbox: no OWNER actions; plan 003 PR #33 still open and MERGEABLE (last activity is the AI's own
-  cycle-29 comment); no bugs, no issues, CI green on 5d4d37f.
-- Done: nothing opened. Stabilization backlog empty (see cycle 30-31); memory-only cycle.
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else another
-  heartbeat cycle.
-- Blockers: plan 003 awaiting OWNER merge. Open questions: none.
-
-## Cycle 31 — 2026-10-04 — FEATURE (no-op)
-- Inbox: no OWNER actions; plan 003 PR #33 still open and MERGEABLE (all its comments are the AI's
-  own cycle reports); no bugs, CI green on 5d4d37f.
-- Done: nothing opened. Stabilization backlog is empty (cycle 30 audit: headers, tidy, error-variant
-  coverage all clean), so no filler task; memory-only cycle.
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else another
-  heartbeat cycle.
-- Tool note: a Bash command mixing `echo > /tmp/...` and citadel paths is blocked by the guard;
-  read citadel files with Read, keep Bash commands simple.
-- Open questions: none.
-
-## Cycle 30 — 2026-10-04 — FEATURE (no-op)
-- Inbox: no OWNER actions; plan 003 PR #33 still open (no change requested); no bugs, CI green.
-- Done: one `/stabilize --one` audit, nothing to fix: every src/tools/bench file has a `//!`
-  header, `zig build test` and `zig build tidy` green on main, every `log`/`store`/`types` error
-  variant already has an `expectError`. No PR opened.
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else the
-  stabilization backlog is nearly empty — remaining ideas: docs drift re-check, `driver`/`raft`
-  stubs need nothing until plan 003. Consider just a heartbeat cycle.
-- Tool note: `date +%s` / `echo > /tmp` combined with citadel paths trips the guard; split calls.
-- Open questions: none.
-
-## Cycle 29 — 2026-10-03 — FEATURE
-- Inbox: no OWNER actions; plan 003 PR #33 still open, no change requested; no bugs, CI green.
-- Done: one `/stabilize --one` task — test quality: 3 of 4 `MessageLogPositionInvalid` return sites
-  in `Message.validate` were never provoked; PR #38 adds 2 tests with valid controls. 214/214,
-  tidy + fmt clean, 7/7 CI, squash-merged, `auto-merged`. Every `types.Error`/`ConfError`/
-  `MessageError` variant now has an `expectError`.
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
-  more `/stabilize --one` (error-variant audit is done for types/log/store; try docs drift or
-  `log.zig` branch coverage).
-- Tool note: first Bash call combining `echo > /tmp/...` with citadel paths was blocked by the
-  guard; split into simple commands. `gh pr checks --watch` needs a second call right after push.
-- Open questions: none.
-
-## Cycle 28 — 2026-10-03 — FEATURE
-- Inbox: no OWNER actions; plan 003 PR #33 still open, no change requested; no bugs, CI green.
-- Done: one `/stabilize --one` task — test quality: all 8 `store.InvariantError` variants were
-  declared but never provoked; PR #37 adds 5 tests (corrupt one field, expect the error, restore,
-  expect ok). 212/212, tidy + fmt clean, 7/7 CI, squash-merged, `auto-merged`.
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
-  more `/stabilize --one` (remaining idea: audit `types.Error`/`ConfError` variant coverage).
-- Tool note: `gh pr merge --label` does not exist; add the label with `gh pr edit --add-label`.
-  First Bash calls containing `echo > /tmp/...` or `2>/dev/null` with citadel paths tripped the
-  guard; read citadel files with Read and keep Bash commands simple.
-- Open questions: none.
-
-## Cycle 27 — 2026-10-02 — FEATURE
-- Inbox: no OWNER actions; plan 003 PR #33 still open, no change requested; no bugs, CI green.
-- Done: one `/stabilize --one` task — docs drift: CHANGELOG Unreleased omitted PR #34
-  (interfaces.zig rename); PR #36 added it (docs-only; test/fmt/tidy green, 7/7 CI, squash-merged,
-  `auto-merged`). README checked: version, install snippet, module table, build steps all match.
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
-  more bounded `/stabilize --one` (hygiene is clean; remaining ideas: test-quality audit of
-  error-variant coverage in log/store).
-- Tool note: `cd <path>;` in Bash is still blocked by the guard; run from the cwd. `gh pr checks`
-  right after push may report "no checks"; use `--watch`.
-- Open questions: none.
-
-## Cycle 26 — 2026-10-02 — FEATURE
-- Inbox: no non-AI comments; plan 003 PR #33 still open (its two "OWNER" comments are the AI's own
-  cycle reports posted under the same login, no change requested). No bugs, CI green.
-- Done: one `/stabilize --one` task — PR #35 renamed the last camelCase fns in `build.zig`,
-  `tools/tidy.zig`, `tools/tidy_test.zig`, `bench/main.zig` to snake_case (207/207 tests, fmt +
-  tidy clean, 7/7 CI, squash-merged, `auto-merged`). No camelCase fns remain in the repo.
-- Gotcha: a blind perl rename made a local `is_core_purity_file` shadow the new fn name (renamed
-  local to `is_core`), and longer names pushed 5 test lines past 100 cols (tidy fails, tests still
-  pass) — always run `zig build tidy` too. `gh pr create --label stabilize` fails (label absent).
-  `gh pr checks --watch --interval 20` worked this time.
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
-  more `/stabilize --one` (docs drift; no camelCase left).
-- Open questions: none.
-
-## Cycle 25 — 2026-10-01 — FEATURE
-- Inbox: no OWNER comments/issues since watermark; plan 003 PR #33 still open and unreviewed
-  (MERGEABLE); no bugs, CI green. Per cycle rules did one `/stabilize --one`-sized task.
-- Done: PR #34 renamed the 15 remaining camelCase fns in `src/interfaces.zig` +
-  `interfaces_test.zig` to snake_case (private helpers; 207/207 tests, fmt clean, 7/7 CI,
-  squash-merged, `auto-merged`). Remaining camelCase: `build.zig` step helpers and
-  `tools/tidy.zig` (rename together; tidy_test.zig references them).
-- Next: if #33 merged, open milestone issue for plan 003 and run ADR-007 (architect); else one
-  more `/stabilize --one` (build.zig/tools camelCase, or docs drift).
-- Tool note: a stale `.zig-cache` produced `file_hash FileNotFound` and a failing tidy run
-  (exit 1, 148 tests); `rm -rf .zig-cache` and rerun gave exit 0, 207/207. Not a code failure.
-  `sleep` in Bash is blocked; poll with a `for` loop over `gh pr checks`.
-- Open questions: none.
-
-## Cycle 24 — 2026-10-01 — FEATURE
-- Inbox: no OWNER actions since watermark, no plan PR, no bug issues, CI green.
-- Done: #30 renamed camelCase fns in `log.zig`/`types.zig` to snake_case (perl word-boundary
-  rename, 207/207 tests); item 11 release v0.3.0 via #31, tag + GitHub release, `zig fetch` of the
-  tag resolves; #32 ticked item 11; milestone #20 closed 11/11. No kingdom repo names synod in
-  `build.zig.zon` -> no migration issues. STATE.md has the release note.
-- Plan 003 proposed (PR #33, `plan/003-phase2-raft-core`, awaiting OWNER merge): 12 items, starts
-  with ADR-007 (architect), election/PreVote/progress/replication/commit, seeded cluster test,
-  driver, baseline, release v0.4.0. Planner (opus, ~$0.8) returned 123 lines (limit 120; trimmed
-  only if the OWNER comments). Item 2 widens tidy `core_purity_files` to `src/raft/`.
-- Next cycle: if plan 003 merged, open milestone issue and do ADR-007 (architect); else one
-  `/stabilize --one` task. Remaining camelCase fns live in `interfaces.zig`/`tools/`/`build.zig`
-  (private helpers; only log/types were renamed).
-- Tool notes: guard hook blocks any command containing `cd <path>;` or greps over sibling repos;
-  run commands from the repo cwd and read other repos via `gh api`. zsh does not word-split
-  `$var` in for loops (use `${=var}`). All 7 CI checks pass ~2-3 min after push.
-- Open questions: none.
+## Cycles 24-37 (2026-10-01 to 10-07), folded
+- 24: camelCase renames in `log.zig`/`types.zig` (#30); item 11 release v0.3.0 (#31), milestone
+  #20 closed; plan 003 proposed (#33). 25-29: one `/stabilize --one` each while #33 waited —
+  snake_case in `interfaces.zig` (#34) and `build.zig`/tools/bench (#35), CHANGELOG drift (#36),
+  every `MemoryStore.check_invariants` variant provoked (#37), every `MessageLogPositionInvalid`
+  branch provoked (#38). 30: audit found nothing left (headers, tidy, error-variant coverage).
+  31-37: no-op memory-only cycles awaiting the OWNER's merge of #33 (one Discord heartbeat/day).
+- Lessons: a blind rename can shadow a new fn name and push lines past 100 cols — run
+  `zig build tidy` too. `gh pr create --label stabilize` fails (label absent); `gh pr merge` has
+  no `--label` (use `gh pr edit --add-label`). Guard hook blocks `cd <path>;`, `sed -i`, heredocs
+  into citadel, `echo > /tmp` mixed with citadel paths, greps over sibling repos (use `gh api`);
+  zsh does not word-split `$var` in for loops (use `${=var}`); `sleep` is blocked.
 
 ## History (cycles 0-23)
 Cycles 13-16 (2026-09-16 to 09-27, mostly FEATURE with plan PR #16 open): plan 002 (Phase 1:
@@ -191,18 +67,13 @@ Cycle 10 (2026-09-12, STABILIZATION): fixed a bookkeeping bug (cycle 9's `/repor
 - Standing backlog: Phase 1 real work order — `types.zig` → `log.zig` → `interfaces.zig` +
   `store.zig` → Phase 2's `raft/node.zig` election state machine.
 
-Full per-cycle detail for cycles 0-16 (PR numbers, code-reviewer findings, the disk-gate abort)
-lived here before this fold; see git history of this file if needed.
-
 Cycles 17-23 (2026-09-27 to 09-30, FEATURE): plan 002 items 4-10 via PRs #22-#29. `types.zig`
 scalars as distinct `enum(u64)` (ADR-004), `Message`/`ConfChange` wire shape (ADR-005; a
 reviewer caught a peer-triggerable panic in `validateAppendRequest`, range-guarded), `log.zig`
 (`append`/`truncate`/`termAt`, `conflictAt` fast-backtrack, `validate()` returning typed
 `Invariant*` errors), `interfaces.zig` five vtables (ADR-006, built only via comptime
 `X.init(impl)`), `store.zig` `MemoryStore` + `store_conformance.zig`, README/baseline re-measure
-(tests 207, no fn > 70 lines). Lessons: an `architect` call costs ~$0.85-1.20 of the $4 budget,
+(tests 207, no fn > 70 lines). Lessons: an `architect` call costs ~$0.85-1.40 of the $4 budget,
 skip it when a doc comment already specifies the contract; confirm every check shows `pass`
-before merging (`gh pr checks --watch` once returned early); `zig build test` prints tidy-fixture
-lines and "failed command" on stderr yet succeeds; use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`
-(global zig drifted); guard hook blocks `cd <path>;`, `sed -i`, variable-expanded zig calls and
-heredocs into citadel. Pending then: camelCase renames in `log.zig`/`types.zig` before v0.3.0.
+before merging; `zig build test` prints tidy-fixture lines and "failed command" on stderr yet
+succeeds; use `/Users/fn/.zr/toolchains/zig/0.16.0/zig` (global zig drifted).
