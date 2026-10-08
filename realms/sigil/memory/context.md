@@ -1,7 +1,25 @@
 # sigil — context
 
-last_seen_at: 2026-10-08T00:30:00Z
+last_seen_at: 2026-10-08T15:16:39Z
 rejected_plans: []
+
+## Cycle 43 — 2026-10-09 — FEATURE
+
+- Done: plan 004 item 3 `json/scanner.zig` strings. A `.key`/`.string` token is validated whole (strict
+  UTF-8, controls < 0x20, escapes, surrogate pairs; earliest fault wins), 4 new `ScanError` variants,
+  `decode_string(raw, out)`. Tests in `scanner_string_test.zig`: seeded model (500 seeds) + seed-corpus
+  differential vs `std.json.validate`. Two mutations caught. PR #45, CI 8/8, squash-merged; #42 ticked
+  3/11; plan item and CHANGELOG updated. Local `zig build test` 371 pass, tidy 0, fmt ok. One
+  code-reviewer: 0 critical, 3 warnings fixed (closed `EscapeFault` set, accurate proofs, test titles).
+  Wall ~11 min, cost ~$2. I wrote tests and impl myself (no test-writer/zig-developer subagents).
+- Next: item 4 `json/dom.zig` (ADR 0003 section 4: two-pass child counts or scratch stack for `Map`
+  capacity; explicit stack bounded by `depth_max`; numbers via `core.number`; duplicate-key policy;
+  OOM sweep with `checkAllAllocationFailures`). Blockers/questions: none.
+- Learned: tidy wants `// proof:` on the line of (or directly above) each `switch (err)`, one line
+  only; `scanner.zig` is 580 lines, so tests go in sibling files. `Weight.value/rangeAtMost` live in
+  `std.testing.Smith.Weight`; a test-file fn named `seed` clashes with `|seed|` captures. A
+  truncated UTF-8 sequence at an unterminated string reports `InvalidUtf8` (pinned by a test).
+  Background `Bash` until-loops on `gh pr checks` notify on completion; use them for CI waits.
 
 ## Cycle 42 — 2026-10-08 — FEATURE
 
