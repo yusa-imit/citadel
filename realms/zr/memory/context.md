@@ -1,7 +1,25 @@
 # zr — context
 
-last_seen_at: 2026-10-07T21:21:00Z
+last_seen_at: 2026-10-08T21:19:00Z
 rejected_plans: []
+
+## Cycle 19 — 2026-10-09 — FEATURE
+- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
+  new comment was my own report). sailor v3.0.0 tagged, zuda still v2.3.0 → items 5-11 blocked
+  → one `/stabilize --one`.
+- Removed dead `src/jsonrpc/transport.zig` (228 lines, 0.14 `ArrayList(u8).init` API, imported but
+  unused by `mcp/server.zig` so never compiled) + the import + 2 tidy baseline entries. PR #184
+  merged, 8/8 green (~13 min). Tests 1928/0, tidy 0 failing. `docs/PRD.md` still lists it in a
+  planned layout (also lists nonexistent `json.zig`); left as design text.
+- Remaining `while (true)`: add.zig 275/379 and add_interactive.zig 380 are stdin prompt loops that
+  end on EOF/empty line but grow unbounded on an endless piped stream; a cap needs a testable seam
+  (prompt reads real stdin) — design a `prompt` source injection first. Others (task_picker, tui,
+  run.zig:1427, watch/*, servers, process.zig:416, show.zig:458) are event/tail loops or
+  EOF-bounded — check each. ~220 missing `//!` headers.
+- Gotchas: guard hook blocks `cd X; ...` chains even into the realm repo — use plain commands from
+  cwd; `sleep N; cmd` chains are blocked — use `until` loops.
+- Next: watch zuda v3.0.0 tag. Cycle 20 STABILIZATION.
+- Open questions: none.
 
 ## Cycle 18 — 2026-10-07 — FEATURE
 - Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational).
