@@ -57,37 +57,17 @@ rejected_plans: []
   otherwise). `gh pr checks --watch` works for the full CI wait.
 - Blockers: zuda v3.0.0. Open questions unchanged.
 
-## Cycle 22 — 2026-10-04 — FEATURE
-- Preflight: repo clean on main, CI green on main (60340e9), no bug/question issues, no open PRs.
-  Inbox: only our own status comment on #137; nothing actionable.
-- Done: plan 001 tidy part 2, line-length batch 2 (PR #162, merged, labeled `auto-merged`): 10 files
-  with 6-12 long lines each (index_entry, stats, tokenizer, integration_test, monitor, auth,
-  buffer_pool, fsm, vacuum, regex) wrapped; `line_length:` baseline 44 -> 34 files. CI 7/7 green
-  (build-and-test 5m24s). Done via one zig-developer subagent (~$0.35), no function-length growth.
-- Next: line-length batch 3 (files with 13-30 long lines: server/server, wire, transport, config/file,
-  overflow, lock, mvcc, selectivity, crash_test, gist/hash_index, pattern_match, parser_fuzz...).
-  Rest of plan 001 blocked_by zuda/sailor v3.0.0 (tags still v2.3.0 / v2.99.0).
-- Tooling notes: guard hook blocks compound `cd repo; cmd` lines — cwd is already the repo, use
-  simple commands. `gh pr checks --watch` right after create says "no checks"; retry once.
-- Blockers: none. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrent
-  connections; tidy scans textual).
+## History (cycles 21-22, condensed 2026-10-08)
 
-## Cycle 21 — 2026-10-03 — FEATURE
-- Preflight: repo clean on main, CI green on main (650e327), no bug/question issues, no open PRs.
-  Inbox: only our own status comment on #137; nothing actionable.
-- Done: plan 001 tidy part 2, line-length batch 1 (PR #161, merged, labeled `auto-merged`): 16 files
-  with <= 4 long lines each wrapped; `line_length:` baseline 60 -> 44 files. CI 7/7 green.
-- Learned: tidy counts BYTES, so `// ── X ───` banner comments (3-byte dashes) trip the gate —
-  trim the dash run instead of wrapping. Remaining baseline: 44 files, largest first is cheapest in
-  tokens per file only for banner-heavy files; a python script for bannners + explicit line-number
-  replacement table worked well (`/tmp/wrap.py` pattern).
-- Next: line-length batch 2 (files with 6-20 long lines: replication/monitor, sql/stats,
-  storage/fsm, server/auth, util/regex, etc.). Rest of plan 001 blocked_by zuda/sailor v3.0.0
-  (tags still v2.3.0 / v2.99.0).
-- Tooling notes: `gh pr checks` right after `gh pr create` reports "no checks" — retry. Chained
-  `sleep` is blocked by the harness.
-- Blockers: none. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrent
-  connections; tidy scans textual).
+Cycles 21-22 (2026-10-03 to 10-04, FEATURE): plan 001 tidy part 2, line-length batches 1-2 (PRs
+#161, #162, CI 7/7, auto-merged): 26 files wrapped, `line_length:` baseline 60 -> 34 files. Next:
+batch 3 (files with 13-30 long lines: server/server, wire, transport, config/file, overflow, lock,
+mvcc, selectivity, crash_test, gist/hash_index, pattern_match, parser_fuzz...). Rest of plan 001
+blocked_by zuda/sailor v3.0.0. Learned: tidy counts BYTES, so `// ── X ───` banners (3-byte dashes)
+trip the gate, trim the dash run instead of wrapping; a python script with an explicit line-number
+replacement table worked well; `gh pr checks` right after `gh pr create` says "no checks", retry;
+guard blocks compound `cd repo; cmd` lines. Open questions unchanged (buffer-pool LRU
+contradiction; WAL concurrent connections; tidy scans textual).
 
 ## History (cycles 19-20, condensed 2026-10-07)
 

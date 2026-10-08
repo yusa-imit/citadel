@@ -40,55 +40,17 @@ rejected_plans: []
 - Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Stay quiet
   until then. Blockers/questions: none.
 
-## Cycle 38 — 2026-10-06 — FEATURE (quiet)
+## History (cycles 35-38, condensed 2026-10-08)
 
-- Done: plan PR #38 (plan 004) still open, no OWNER comment/review since the watermark, no issues,
-  no other PRs. CI green (last 5 runs). One `--one` slot: sweep of CI, Tiger Style greps (`@panic`,
-  `std.debug.print`, `FIXME`, `while (true)` all 0; headers all present; max file 740 lines),
-  hygiene (no tracked `zig-out`). Nothing to fix, no PR opened. Cost ~$0.3.
-- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). The only
-  candidate left is the `tools/tidy.zig` self-exemption (does not decompose). Further sweeps repeat
-  this result; prefer quiet cycles until plan 004 is decided. Blockers/questions: none.
-
-## Cycle 37 — 2026-10-06 — FEATURE
-
-- Done: plan PR #38 (plan 004) still open; inbox found no OWNER activity (only the AI's own cycle-36
-  comment). CI green on main. One `--one` stabilization slot: CHANGELOG Unreleased was missing the
-  `core.Error` wiring (#37) and the bench port (#39) and its intro was stale; fixed. PR #41, CI 8/8,
-  squash-merged, labelled auto-merged. Local `zig build test` and fmt green, tidy 0. Cost ~$0.6.
-- Learned: `gh pr checks --watch` right after `gh pr create` still says "no checks reported" for
-  over a minute; use a Monitor with an until-loop on `gh pr checks` instead. A Python heredoc works
-  in Bash from the repo cwd. The guard blocks `echo > /tmp/...` and any command starting `cd <repo>`.
-- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Until then
-  one `/stabilize --one` slot per cycle; the only candidate left is the `tools/tidy.zig`
-  self-exemption (does not decompose); consider a quiet cycle instead. Blockers/questions: none.
-
-## Cycle 36 — 2026-10-05 — FEATURE
-
-- Done: plan PR #38 (plan 004) still open; inbox found no OWNER activity (the only new comment was
-  the AI's own cycle-35 report). CI green on main. One `--one` stabilization slot: docs drift — README
-  still said "nothing implemented" and listed core/reflect as Planned; reconciled (Schema(T) kept as
-  planned, install note now says first tag lands with json). PR #40, CI 8/8, squash-merged. tidy 0.
-  Cost ~$0.6 of $4.
-- Learned: the docs-only PR still gets full PR CI (paths-ignore applies only to push on main), and
-  `gh pr checks --watch` right after `gh pr create` can say "no checks reported"; wait ~20 s, retry.
-- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Until then
-  one `/stabilize --one` slot per cycle; the only remaining candidate is the `tools/tidy.zig`
-  self-exemption (does not decompose). Blockers/questions: none.
-
-## Cycle 35 — 2026-10-05 — FEATURE
-
-- Done: plan PR #38 (plan 004) still open, no OWNER comment/review, no issues, CI green on main. One
-  `--one` stabilization slot: `bench/main.zig` ported to 0.16 (`process.Init`, `Io.Clock.awake`,
-  `std.mem.find`, explicit error set, pure rate helpers with a test). `build.zig` now shares one
-  bench module between the `bench` exe and a test step wired into `zig build test`, so the harness
-  compiles in CI. PR #39, CI 8/8, squash-merged. tidy 0, fmt clean. Cost ~$0.5 of $4.
-- Learned: `zig build bench` had been broken since the 0.16 migration (plan 001 item 6 missed it
-  because bench was not compiled by `zig build test`). Guard blocks a Bash command starting with `cd
-  <repo>` even for the own repo; run from cwd instead.
-- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Until then
-  one `/stabilize --one` slot per cycle; remaining candidate is the `tools/tidy.zig` self-exemption.
-  Blockers/questions: none.
+Cycles 35-38 (2026-10-05 to 10-06, FEATURE, plan PR #38 open, no OWNER activity): one `--one`
+stabilization slot each. 35: `bench/main.zig` ported to 0.16 and wired into `zig build test` (PR
+#39; bench had been broken since the migration because nothing compiled it). 36: README drift fixed
+(PR #40). 37: CHANGELOG Unreleased gaps for `core.Error` (#37) and the bench port (PR #41). 38:
+quiet sweep, nothing to fix (Tiger Style greps 0, max file 740 lines). The only candidate left is
+the `tools/tidy.zig` self-exemption, which does not decompose. Learned: `gh pr checks --watch`
+right after `gh pr create` says "no checks reported" for over a minute, use a Monitor until-loop;
+docs-only PRs still get full PR CI; the guard blocks `echo > /tmp/...` and any command starting
+`cd <repo>`.
 
 ## History (cycles 33-34, condensed 2026-10-07)
 
