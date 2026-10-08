@@ -90,22 +90,15 @@ catches it); no Rosetta/qemu, so x86_64 is verified by asm inspection + CI; `sle
 Bash (use `until` loops); no `timeout` on macOS; guard blocks `cd <repo>` in compound commands
 and inline python writing into citadel (use Edit/Write tools).
 
-## Cycle 29 — 2026-10-01 — FEATURE
-- Inbox: no OWNER actions since watermark. CI green on 2f89fd2; only open issue was milestone #18.
-- Done: plan 002 item 4 via PR #22 (merged, CI green Linux+macOS+6 cross): `src/sched.zig` fiber
-  substrate (init-time stacks, FIFO ready queue, spawn/yield/park/unpark, canary on every
-  switch-out, lock-free `unpark_foreign` inbox + futex wait), `stdx.assert_always`. Plan box,
-  CHANGELOG, issue #18 ticked. code-reviewer found a CRITICAL: optimized builds crashed on
-  aarch64 (inlined `Io.fiber.contextSwitch` clobbers x29/x30). Fixed: `noinline switch_context`,
-  `omit_frame_pointer = false` on the module, `zig build test` now honours `-Doptimize`, CI runs
-  ReleaseSafe/Fast (and ReleaseSmall on macOS).
-- OPEN BUG #23: x86_64-linux ReleaseSmall SEGVs the 4 fiber tests (Debug/Safe/Fast pass).
-  Cannot reproduce on the aarch64 dev box. Linux ReleaseSmall CI step is skipped until fixed.
-- Next: STABILIZATION on bug #23 (forced: open OWNER bug) — must be fixed before item 5.
-  Then item 5 (async/concurrent/await/cancel slots).
-- Blockers: none external. Open questions: none.
-- Gotchas: zsh treats `echo "== x"` as `=cmd` expansion; no `timeout` on macOS; `zig build test`
-  mod tests were Debug-only before this cycle. Fiber code needs frame pointers (see sched.zig).
+## History (cycle 29)
+
+Cycle 29 (2026-10-01): plan 002 item 4 via PR #22: `src/sched.zig` fiber substrate (init-time
+stacks, FIFO ready queue, spawn/yield/park/unpark, canary on every switch-out, lock-free
+`unpark_foreign` inbox + futex wait), `stdx.assert_always`. code-reviewer CRITICAL: optimized
+aarch64 builds crashed (inlined `Io.fiber.contextSwitch` clobbers x29/x30); fixed with `noinline
+switch_context`, `omit_frame_pointer = false`, `zig build test` honouring `-Doptimize`, CI running
+ReleaseSafe/Fast (ReleaseSmall on macOS). Opened bug #23 (x86_64 ReleaseSmall SEGV, fixed in cycle
+30). Gotchas: zsh treats `echo "== x"` as `=cmd` expansion; fiber code needs frame pointers.
 
 ## History (cycles 26-28)
 
@@ -115,22 +108,14 @@ forwarded and the stub modules deleted (#20, cycle 27), `tests/parity/` harness 
 negative tests); handle-returning slots need their own harness helper; `sed -i` needs `''` on macOS;
 zsh treats `echo "== x"` as `=cmd` expansion; no `timeout` on macOS.
 
-## History (cycles 22-25)
-Cycles 22-25 (2026-09-27 to 09-29, FEATURE): plan PR #13 stayed open; each cycle ran at most one
-bounded stabilization (build/test/fmt/tidy green under the pinned 0.16.0 toolchain, tidy-auditor
-clean). Cycle 22 cleared a stale `.zig-cache` and swept up uncommitted cycles 19-21 memory
-(citadel commit lock contention, sirocco#17). Cycle 25 was a no-op. No PRs, no fixes needed.
+## History (cycles 15-25)
 
-## History (cycles 0-9, 10-14, 15-21)
-Cycles 15-21 (2026-09-16 to 2026-09-27, mostly quiet FEATURE with one STABILIZATION at 15): plan
-PR #13 remained open awaiting human merge across all of them, zero new OWNER activity each
-watermark. Cycle 15 (STABILIZATION, n%5==0) ran the full audit: CI/build/tidy/tests all green,
-tidy-auditor and test-writer both found zero real defects (two pre-existing minor test-quality
-notes judged non-defects), and fixed a counter/context.md desync from cycle 14's incomplete
-report. Cycles 16-18 each ran one bounded stabilization task (build/test/fmt/tidy green,
-tidy-auditor clean) since the plan PR was still open; cycles 19-21 skipped the redundant audit
-entirely as a pure no-op, since the baseline had been identical since cycle 5. No PRs opened,
-no fixes needed, in any of cycles 15-21.
+Cycles 15-25 (2026-09-16 to 09-29, mostly quiet FEATURE, one STABILIZATION at 15): plan PR #13
+stayed open awaiting the human with zero OWNER activity. Cycle 15's full audit (CI/build/tidy/tests
+green, tidy-auditor and test-writer found no real defects) fixed a counter/context.md desync;
+cycles 16-18 and 22-25 ran at most one bounded stabilization, 19-21 skipped it as a no-op. Cycle 22
+cleared a stale `.zig-cache` and swept up uncommitted cycles 19-21 memory (citadel commit lock
+contention, sirocco#17). No PRs, no fixes needed.
 
 ## History (cycles 0-9, 10-14)
 Cycle 14 (2026-09-15, FEATURE): plan PR open, bounded stabilization. Stale `.zig-cache` cleared
