@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-10-08T00:00:00Z
+last_seen_at: 2026-10-08T12:00:00Z
 rejected_plans: []
+
+## Cycle 38 — 2026-10-08 — FEATURE
+- Done: plan 003 item 2 — ADR-0002 page format v1 (`docs/adr/0002-page-format.md`, drafted by the
+  architect agent). Fixes: 24-byte header (magic, type, flags, version, checksum@8, reserved@12,
+  lsn@16), CRC32C seeded with u64 page id and checksum field read as zero, `Id = enum(u32)` with
+  0 = null, page 0 = ordinary page + 48-byte file header, all-zero page decodes to
+  `error.Unwritten`, decode order magic/version/checksum/then type, trunk-only freelist
+  (`capacity = (page_size-32)/4`). PRD §4.3 links it; plan items 1 and 2 ticked.
+- PRs: #36 merged (squash, CI 7/7, auto-merged). Issue #34 item 2 ticked.
+- Next: item 3 — `src/page/header.zig` codecs per ADR-0002 §9 (tests first: golden image, all
+  bit flips at 512 B, other-id decode, zero page at 8 sizes).
+- Blockers: none. Open questions: none.
+- Note: agent output may arrive HTML-escaped (`&lt;`); unescape before writing. macOS has no
+  `timeout`; use `gh pr checks --watch` directly. Plan item 1 had never been ticked in the plan
+  file; fixed in #36.
 
 ## Cycle 37 — 2026-10-08 — FEATURE
 - Done: plan 003 approved (PR #28 merged by OWNER); opened milestone issue #34. Item 1 done: tidy
@@ -167,4 +182,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 approved; milestone issue #34. Item 1 done; implement item 2 (ADR-0002 page format).
+Plan 003 approved; milestone issue #34. Items 1-2 done; implement item 3 (`page/header.zig`).
