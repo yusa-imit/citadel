@@ -1,7 +1,23 @@
 # zuda — context
 
-last_seen_at: 2026-10-08T00:00:00Z
+last_seen_at: 2026-10-09T00:00:00Z
 rejected_plans: []
+
+## Cycle 20 — 2026-10-09 — STABILIZATION
+- Done: periodic (n%5==0) and open OWNER bug #63. Fixed it in PR #64 (squash, 7/7 checks, Build &
+  Test 6m18s, labeled `auto-merged`; #63 closed by `Fixes #63`): OOM leaks and an undefined free in
+  `palindrome_partition` (minCut rows, partition base case, dupe/append), `knights_tour` (both
+  board setups), and append-failure leaks in `combination_sum`, `permutations`, `subsets`,
+  `n_queens`. Each file has a `checkAllAllocationFailures` test, confirmed red against HEAD.
+  Reviewer: 0 critical; fixed 2 warnings (line > 100 cols, camelCase runner fn names).
+- Next: FEATURE — plan 001 item "compile-clean files outside test graph": `nfa`, `matrix_chain`,
+  `ford_fulkerson`, `bogosort`, `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne`, then a full `src/**`
+  `zig test <file>` sweep. Then Thread sync, harness, assertion baseline, v3.0.0. Stabilize
+  leftovers: hamiltonian.zig not OOM-audited; Tiger Style class audit not run this cycle.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: the `zig` on PATH is still 0.15.2; use `/Users/fn/.zr/toolchains/zig/0.16.0/zig` for
+  every command (the 0.15 `zig build test` fails). The guard rejects `cd X; ...` and `for` loops
+  mixing the repo path; run plain commands. zsh expands `==`, so avoid `echo == x`.
 
 ## Cycle 19 — 2026-10-08 — FEATURE
 - Done: preflight found uncommitted backtracking work on `fix/backtracking-0.16-compile` (the
