@@ -1,7 +1,21 @@
 # synod — context
 
-last_seen_at: 2026-10-08T07:30:00Z
+last_seen_at: 2026-10-08T09:00:00Z
 rejected_plans: []
+
+## Cycle 39 — 2026-10-08 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
+- Done: item 2 (2A-i) via PR #41 (squash-merged, 7/7 CI, `auto-merged`, #39 item 2 ticked):
+  tidy `is_core_purity_file` now also matches `src/raft/*.zig`; `src/raft/node.zig` skeleton
+  (init/deinit/step/status/entries/check_invariants, term rules, 261 tests). Tests via
+  test-writer (~$1.6 — expensive), impl via zig-developer (~$1.0). Code-reviewer SKIPPED for budget.
+- ADR-007 deviations: extra `RestoreInconsistent` shapes; init makes 4 allocations (members array);
+  stale-term requests get no reply yet (2A-ii/2B add rejects).
+- Next: item 3 (2A-ii Election). FIRST run `code-reviewer` on `src/raft/node.zig` (skipped now);
+  `step_propose` leader path and Invariant{ProgressOrder,InflightOverflow,EntryDataMisplaced}
+  are unprovoked — items 2B-i/2C must add tests. Budget: a test-writer+developer item costs
+  ~$2.6; tell test-writer to keep fixtures small and not exhaustive-seed everything.
+- Blockers: none. Open questions: none.
 
 ## Cycle 38 — 2026-10-08 — FEATURE
 - Inbox: plan 003 PR #33 merged by OWNER 2026-10-07T10:16Z; no comments, no bugs, CI green.
