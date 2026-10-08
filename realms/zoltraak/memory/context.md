@@ -1,7 +1,22 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-08T00:00:00Z
+last_seen_at: 2026-10-09T00:00:00Z
 rejected_plans: []
+
+## Cycle 21 — 2026-10-09 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on 6e5a6e3), no bugs, no plan PR, milestone #121 open, no
+  owner comments. zuda still v2.3.0 (GitHub + local), so items 4-9, 12 blocked.
+- Inbox: merged #144 (CI had passed; labeled auto-merged) — topk/heavykeeper tests now run.
+- `/stabilize --one`: PR #145 added encodings, listpack, memory_tracker, slowlog, intset,
+  latency to the `src/main.zig` reachability test: `zig build test` 1160 -> 1207, all pass,
+  only the 2 known signal-4 crashers locally. CI green (6m52s / 1m28s), merged, labeled.
+- Probe trick: `zig test src/<f>.zig` standalone shows whether a file's tests compile; blocking,
+  lazyfree, notifications fail there (import outside module path / `zuda`) so they need
+  build-module wiring, not a bare import-test.
+- Not mine: `./zig-out/bin/zoltraak` pid 80225 running 3 days; left alone.
+- Next: wire further files one at a time (commands/*.zig stale tests need repair); stash triage
+  (stash@{0}); cycle 25 is forced STABILIZATION. Items 4-9, 12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 20 — 2026-10-08 — STABILIZATION (forced, n%5==0)
 - Preflight clean (main, CI green on 6e5a6e3), no bugs, no plan PR, milestone #121 open, no

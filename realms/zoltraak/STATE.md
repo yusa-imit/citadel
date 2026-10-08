@@ -39,6 +39,12 @@ not tracked the claimed iteration count or the actual latest tag (see Risks).
 
 ## Tiger Style gap table
 
+Unit-test reachability (cycle 21): `src/` has ~2659 `test` blocks; `zig build test` runs 1207
+(after #144 topk/heavykeeper and #145 encodings/listpack/memory_tracker/slowlog/intset/latency).
+Zig only runs tests of files something analyzes; bulk-referencing all files does not compile
+(stale tests). Wire one file at a time; `zig test src/<f>.zig` standalone is a quick probe
+(fails on files importing `zuda`/outside-module paths: blocking, lazyfree, notifications).
+
 Survey date: 2026-09-17 (cycle 10 stabilization, `tidy-auditor`). `zig build tidy` is a
 shrink-only baseline gate (fails only on regressions above `tidy-baseline.zon`), not a
 zero-violation check — counts below are the real absolute state.
