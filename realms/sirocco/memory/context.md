@@ -12,6 +12,9 @@ rejected_plans: []
   backwards clock, `next_deadline` = tick-rounded fire time. 10 tests incl. seeded 10k-op model.
   Local build/test/tidy/fmt green; Linux CI green, macOS job still pending at the deadline.
 - Reviewer: 0 CRITICAL; all warnings applied (cost sketch for the overflow scan stays O(overflow)).
+- After report: macOS job on PR #36 ended `cancelled` after 15m (not a test failure; Linux green, local
+  green); re-ran the failed job once (attempt 1 of 2). If it cancels again, check whether the macOS runner
+  or the new timer tests hang (run `zig build test` locally under a python timeout) before retrying.
 - Next: FIRST merge PR #36 if macOS CI is green (squash, delete branch, label auto-merged, tick item 3
   in #33; plan file and CHANGELOG already ticked on the branch); then item 4 (native sleep, delete
   `Sched.timers`; sched.zig is 803 lines).
