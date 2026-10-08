@@ -1,7 +1,23 @@
 # sirocco — context
 
-last_seen_at: 2026-10-08T04:16:00Z
+last_seen_at: 2026-10-09T00:00:00Z
 rejected_plans: []
+
+## Cycle 42 — 2026-10-09 — FEATURE
+- Inbox: no OWNER activity (only own milestone comments); CI green on 463f252; milestone #33 the only
+  open issue; no plan PR.
+- Done: plan 003 item 3 implemented as PR #36 (`feat/timer-wheel`, label none yet): `src/timer.zig`,
+  4x64-slot hierarchical wheel + overflow list, 131 us tick, deadlines round up, wheel-owned node array
+  (plan text amended: not inside `Sched.Fiber`), `expire` jumps slot to slot, `pop_due`, clamps a
+  backwards clock, `next_deadline` = tick-rounded fire time. 10 tests incl. seeded 10k-op model.
+  Local build/test/tidy/fmt green; Linux CI green, macOS job still pending at the deadline.
+- Reviewer: 0 CRITICAL; all warnings applied (cost sketch for the overflow scan stays O(overflow)).
+- Next: FIRST merge PR #36 if macOS CI is green (squash, delete branch, label auto-merged, tick item 3
+  in #33; plan file and CHANGELOG already ticked on the branch); then item 4 (native sleep, delete
+  `Sched.timers`; sched.zig is 803 lines).
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: tidy line limit also hits `//!` header wraps; `gh pr checks --watch` hit the 540s tool cap,
+  macOS runner can lag past 9 min.
 
 ## Cycle 41 — 2026-10-08 — FEATURE
 - Inbox: no OWNER activity; CI green on 9745baa; milestone #33 the only open issue; no plan PR.
