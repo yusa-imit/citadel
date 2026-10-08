@@ -1,7 +1,28 @@
 # synod — context
 
-last_seen_at: 2026-10-08T09:00:00Z
+last_seen_at: 2026-10-09T09:00:00Z
 rejected_plans: []
+
+## Cycle 40 — 2026-10-09 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
+- Done: item 3 (2A-ii Election) via PR #42 (squash-merged, 7/7 CI, `auto-merged`, #39 item 3
+  ticked). Tick → campaign, request_vote grant/refuse (§5.4.1), joint-shaped quorum, winner
+  appends empty entry. New files `raft/election.zig` (pure helpers), `raft/node_init.zig`
+  (init helpers; node.zig hit 804 lines), `node_election_test.zig` (36+3 tests).
+- Review (also covered the skipped cycle-39 review of node.zig) found 2 CRITICAL, fixed: a
+  term-zero assert reachable from a stranger's message; term wrap at u64 max. Also fixed:
+  zero-term restore entry → `RestoreInconsistent`; `pre_vote*` now dropped (adopts no term).
+- Cost: test-writer ~$0.93, zig-developer ~$0.9, reviewer ~$0.4; total ≈ $3.4 of $4. One
+  test-writer+developer+reviewer item per cycle is the ceiling.
+- Next: item 4 (2A-iii PreVote). Open suggestions not done: `is_member` includes learners for
+  `request_vote` (should be voters only); `votes_len` not cleared in `term_adopt`;
+  `node.*` dangling after `RestoreLogFull`; `assert_config` lacks `election_ticks <= maxInt(u32)/2`;
+  `become_leader` swallowing `LogFull` has no test. Unprovoked invariants: ProgressOrder,
+  InflightOverflow, EntryDataMisplaced; leader propose path (items 2B-i/2C).
+- Blockers: none. Open questions: none.
+- Tool notes: test-writer's invalid fixture (vote_request_at with last_log_term > header term)
+  fails `Message.validate` — keep log terms <= header term. python3 heredocs for multi-edit
+  work in the guard.
 
 ## Cycle 39 — 2026-10-08 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
