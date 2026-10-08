@@ -56,19 +56,11 @@ Cycle 39 (10-07): quiet bounded stabilization, nothing to fix. Cycle 38 (10-07):
 disjunctive implication asserts into `if (a) assert(b);`; `concurrency.zig:183` is real set
 membership. Known gap: `tools/tidy.zig` has no compound-assert check.
 
-## Cycle 37 — 2026-10-06 — FEATURE
-- Inbox: no OWNER activity; CI green on 4028871; milestone #18 the only open issue; no plan PR.
-- Done: plan 002 item 9 + release v0.3.0. PR #30 (merged 1207f27, CI green Linux+macOS+6 cross):
-  README Status (internal milestone, single carrier, not for silica/zoltraak), CHANGELOG
-  `[0.3.0]`, PRD §5 gate 6 re-measured (1 in flight pass 45 vs 1752 ns; 1000 FAIL 86056 vs 599
-  ns), version bump. Tag v0.3.0 + GitHub release; milestone #18 closed. No consumers pin sirocco.
-- Plan 003 `carrier-never-blocks` proposed, PR #31 (label plan), awaiting human merge: groupAwait
-  cancel, eager async start (gate 6), timer wheel + native sleep (gate 7), offload pool for
-  blocking slots (ADR 0002 picks offload over multi-carrier; now/clockResolution stay forwarded).
-- Next: if #31 merged, open its milestone issue and do item 1; else one bounded `/stabilize --one`.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: guard blocks any compound Bash that has `cd` into a repo or a glob over sibling repos;
-  the primary cwd is already sirocco, so skip `cd`. Zig 0.16.0 `zig build test` is silent on pass.
+## History (cycle 37)
+Cycle 37 (10-06): plan 002 item 9 + release v0.3.0 via PR #30; proposed plan 003 (PR #31, since merged:
+groupAwait cancel, eager async, timer wheel + native sleep, offload pool). No consumers pin sirocco.
+Gotchas: guard blocks compound Bash with `cd` into a repo or globs over sibling repos; the primary cwd
+is already sirocco; `zig build test` on 0.16.0 is silent on pass.
 
 ## History (cycles 34-36)
 Cycle 36 (10-06): item 8 via PR #29 (merged 4028871): `src/futex.zig` FIFO wait table (record in
