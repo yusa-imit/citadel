@@ -1,7 +1,21 @@
 # strata — context
 
-last_seen_at: 2026-10-08T12:00:00Z
+last_seen_at: 2026-10-09T12:00:00Z
 rejected_plans: []
+
+## Cycle 39 — 2026-10-09 — FEATURE
+- Done: plan 003 item 3 — `src/page/header.zig` (page header, file header, `peek_page_size`,
+  id-seeded CRC32C) per ADR-0002. `page.Id` lives in header.zig, re-exported by `page.zig`.
+  Tests (29) are in `src/page/header_test.zig` (tests + code exceeded the 800-line tidy limit
+  in one file); test-writer mutation-checked them (8 mutants caught).
+- PRs: #37 merged (squash, CI 7/7, auto-merged). Issue #34 item 3 ticked.
+- Next: item 4 — `page/freelist.zig` trunk codec (ADR-0002 §7; tests first: capacity at 8
+  sizes, seeded 10k-op model, spill/drain, the three Corrupted cases).
+- Blockers: none. Open questions: none.
+- Note: no independent code-reviewer pass this cycle (budget: test-writer + developer agents
+  cost ~$1.8 of $4); author read the diff against the ADR. Do the reviewer on item 4 if budget
+  allows. Tidy bans `catch unreachable`; use `catch |err| switch (err) { ... => unreachable }`
+  with a proof comment. Guard hook rejects `cd`/`;` chains in Bash; `git -C` works.
 
 ## Cycle 38 — 2026-10-08 — FEATURE
 - Done: plan 003 item 2 — ADR-0002 page format v1 (`docs/adr/0002-page-format.md`, drafted by the
@@ -40,42 +54,6 @@ rejected_plans: []
 - Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
 - Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
 - Note: the `gh pr checks --watch` call right after PR create may say "no checks reported"; rerun.
-
-## Cycle 35 — 2026-10-06 — FEATURE
-- Done: plan PR #28 still open (CI 7/7 green, no OWNER comment or review, no open issues), so one
-  `/stabilize --one`: `tools/tidy/checks_ban.zig` now has >= 2 assertions per function, `gpa:`
-  instead of `allocator:`, and one `assert` alias.
-- PRs: #32 merged (squash, CI 7/7, auto-merged).
-- Remaining audit sweeps: `allocator:` -> `gpa:` and `std.debug.assert` alias across the rest of
-  `tools/` (~60); assertion density elsewhere in `tools/` (tidy density gate covers `src/` only);
-  camelCase public API in `src/file/file.zig` (needs a plan).
-- Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
-- Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
-- Note: global `zig` is 0.15.2; run builds with `/Users/fn/.zr/toolchains/zig/0.16.0/zig`. Guard
-  hook rejects `sleep` chains; use `gh pr checks --watch`.
-
-## Cycle 34 — 2026-10-06 — FEATURE
-- Done: plan PR #28 still open (CI 7/7 green, no OWNER comment), so one `/stabilize --one`:
-  `tools/tidy/baseline.zig` assertion density + `assert` alias. Found a real data bug: a baseline
-  line like `:71` stored an empty key; `parse` now skips it (regression test crashed before fix).
-- PRs: #31 merged (squash, CI 7/7, auto-merged).
-- Remaining audit sweeps: assertion density in `tools/tidy/checks_ban.zig` (1.33); `allocator:` ->
-  `gpa:` and `std.debug.assert` alias across the rest of `tools/` (~75); camelCase public API in
-  `src/file/file.zig` (needs a plan). Note: tidy density gate covers `src/` only, not `tools/`.
-- Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
-- Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
-- Note: tidy line limit is 100 columns for comments too; baseline `deinit` now poisons `self`.
-
-## Cycle 33 — 2026-10-06 — FEATURE
-- Done: plan PR #28 still open (CI green, no new OWNER comment), so one `/stabilize --one`: `//!`
-  module header on `build.zig` (steps + allocation contract).
-- PRs: #30 merged (squash, CI 7/7, auto-merged).
-- Remaining audit sweeps, smallest first: assertion density in `tools/tidy/baseline.zig` (1.08) and
-  `checks_ban.zig` (1.33); `allocator:` -> `gpa:` and the `std.debug.assert` alias across `tools/`
-  (~88, tidy ban check does not flag it); camelCase public API in `src/file/file.zig` (needs a plan).
-- Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
-- Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
-- Note: guard hook rejects compound Bash (`;`, `&&`, `$VAR` paths); run one simple command per call.
 
 ## Cycle 32 — 2026-10-05 — FEATURE
 - Done: plan PR #28 still open (CI green, no new OWNER comment; only our own status note), so one
@@ -150,6 +128,9 @@ rejected_plans: []
   1<<40 sparse tests assume a sparse-file FS.
 
 ## History
+- Cycles 33-35 (2026-10-06, FEATURE, plan PR #28 open): one `/stabilize --one` each: `build.zig` `//!`
+  header (#30), tidy baseline assertion density + empty-key baseline-line bug fix (#31), tidy
+  checks_ban density + `gpa:` naming (#32). Lesson: tidy line limit is 100 cols for comments too.
 - Cycles 21–24 (2026-09-30..10-01, FEATURE): plan 002 approved by OWNER (merged PR #16); issue
   #17 opened. Item 1 `tools/tidy.zig` split into `tools/tidy/*.zig` (#18), `tools` in scan_roots;
   item 2 `codec/fixed`+`varint` (#19); item 3 `codec/crc32c` (#20, hw/sw by CPU feature set;
@@ -182,4 +163,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 approved; milestone issue #34. Items 1-2 done; implement item 3 (`page/header.zig`).
+Plan 003 approved; milestone issue #34. Items 1-3 done; implement item 4 (`page/freelist.zig`).
