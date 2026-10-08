@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-10-08T00:00:00Z
+last_seen_at: 2026-10-08T04:16:00Z
 rejected_plans: []
+
+## Cycle 41 — 2026-10-08 — FEATURE
+- Inbox: no OWNER activity; CI green on 9745baa; milestone #33 the only open issue; no plan PR.
+- Done: plan 003 item 2 via PR #35 (merged 463f252, CI green Linux+macOS+6 cross). `async` starts the
+  task at once: new `Sched.spawn_first` (task at ready-queue front; in a fiber the caller `yield`s,
+  off-fiber `run_loop` returns at the new fiber's first switch-out via `Sched.first`; the carrier
+  inside `run_loop` falls back to plain `spawn`). Gate 6 passes: 44 vs 1796 ns @1, 28 vs 615 ns
+  @1000. `groupAsync` members stay lazy.
+- Tests: lazy-start assumptions rewritten; tasks needing a cancel before their first check park on a
+  gate futex word (`gate_wait`/`gate_open`) and the test opens it before `cancel`. `scene.yield`
+  (async+await) still yields because the caller is re-queued at the tail.
+- Reviewer: 0 CRITICAL. Not done: sched-level unit tests (sched.zig is 803 lines), one shared gate
+  helper, direct hand-off instead of a full-queue yield (an in-fiber async costs a ready-queue lap).
+- Next: item 3 (`src/timer.zig` timing wheel); item 4 deletes the `Sched.timers` hook (frees lines).
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: a child `async` inside an eager task ends the outer `async` early (yield = switch-out);
+  tidy flags `//!` lines >100 in tests/; tidy passed with sched.zig at 803 lines.
 
 ## Cycle 40 — 2026-10-08 — FEATURE
 - Inbox: no OWNER comments; plan PR #31 (plan 003) was merged 10-07; no issues; CI green on c529058.
@@ -18,26 +35,10 @@ rejected_plans: []
   subprocess with timeout and `pkill -f .zig-cache` afterwards. Parity tests that need a parked
   fiber: use `scene.yield` x4 then act, `scene.run_modes(12, ...)`.
 
-## Cycle 39 — 2026-10-07 — FEATURE
-- Inbox: no OWNER activity (only comment on #31 is our own cycle-38 report); plan PR #31 (plan 003)
-  still open; no issues; CI green on c529058.
-- Done: one bounded `/stabilize --one`: build/test/fmt/tidy green; every declared error variant
-  (`InitError` x2, `SpawnError`) has a provoking test; README/zon/tag aligned at 0.3.0; no tracked
-  junk. Nothing to fix, no PRs. Remaining `assert(a or b)` (tools/tidy.zig x5, concurrency.zig:183)
-  are real set membership, left. Quiet cycle: no GitHub comment, no Discord heartbeat.
-- Next: if #31 merged, open its milestone issue and do item 1; else one bounded stabilization.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-
-## Cycle 38 — 2026-10-07 — FEATURE
-- Inbox: no OWNER activity; CI green on 1207f27; plan PR #31 (plan 003) still open; no issues.
-- Done: plan PR open, so one bounded `/stabilize --one`. build/test/fmt/tidy green; tidy-auditor
-  clean on every hard ban (0 panic/print/while(true)/catch unreachable, 0 fns >70, max file
-  sched.zig 757/800). Only finding: 9 disjunctive implication asserts. Fixed via PR #32 (merged
-  c529058, CI green): `if (a) assert(b);`. `concurrency.zig:183` is real set membership, left.
-- Known gap: `tools/tidy.zig` has no compound-assert check; sched.zig has 43 lines of headroom.
-- Next: if #31 merged, open its milestone issue and do item 1; else one bounded stabilization.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: python heredoc edits work in the repo; the sched.zig size cap is close.
+## History (cycles 38-39)
+Cycle 39 (10-07): quiet bounded stabilization, nothing to fix. Cycle 38 (10-07): PR #32 split nine
+disjunctive implication asserts into `if (a) assert(b);`; `concurrency.zig:183` is real set
+membership. Known gap: `tools/tidy.zig` has no compound-assert check.
 
 ## Cycle 37 — 2026-10-06 — FEATURE
 - Inbox: no OWNER activity; CI green on 4028871; milestone #18 the only open issue; no plan PR.
