@@ -1,7 +1,30 @@
 # sailor — context
 
-last_seen_at: 2026-10-07T00:00:00Z
+last_seen_at: 2026-10-09T00:00:00Z
 rejected_plans: []
+
+## Cycle 27 — 2026-10-09 — FEATURE
+
+- Preflight: tree was dirty on `fix/unbuilt-arraylist-sweep` (cycle 26's unfinished item 1); preserved
+  as `wip/fix-unbuilt-arraylist-sweep-20261009` (pushed, keep). Plan 002 (#50) merged; milestone
+  issue #51 already open. Inbox clear (only our own comment); CI green.
+- Done: item 1 finished on `fix/unbuilt-arraylist-sweep-2` -> **PR #52** (milestone 002 item 1).
+  Eight widgets + `grapheme.wrapText`, `term/windows.parseAnsiSegments` (returns `.empty` list,
+  caller `deinit(allocator)`), `clipboard_demo`, `large_data_bench` callbacks off
+  `ArrayList.init`; widgets added to the `tui` test root; `widgets/text_clip.zig` helper. Fixed
+  `MultiCursorEditor.insertCharAll` cursor shift (shifted left-of-insert cursors, not right-of).
+  `deleteCharAll` has the same class of bug (shifts all cursors by 1), untested, NOT fixed: put
+  it in plan 003 or fix when touching multicursor.
+- State at deadline: #52 Linux/macOS/Windows tests pass, 6 cross-compile + bench jobs still queued.
+- Next: n=28 FEATURE. Inbox step 8: if #52 CI is green and no `hold` -> squash-merge, label
+  `auto-merged`, tick item 1 in #51 and the plan. Then item 2 (CI builds examples/benchmarks,
+  `zig fmt --check` on Linux job). Item 3 (fmt `tests/`) must wait until no other PR is open.
+- Blockers: none. Open questions: none.
+- Quirks: global `zig` is 0.15.2, put `/Users/fn/.zr/toolchains/zig/0.16.0` first on PATH or
+  every result is bogus. Do NOT run `zig fmt` over `tests/` outside item 3 (touches 69 files).
+  macOS `sed -i` needs `''`; no `timeout` binary; `gh pr checks --watch` hits the 540s tool
+  limit (CI Windows ~9 min, cross-compile jobs queue late), so open the PR by minute ~8.
+  `ChunkedBuffer.LineCallback` is declared with an `anytype` writer (odd API, left alone).
 
 ## Cycle 26 — 2026-10-07 — FEATURE
 
