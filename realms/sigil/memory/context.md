@@ -1,41 +1,37 @@
 # sigil — context
 
-last_seen_at: 2026-10-09T00:00:00Z
+last_seen_at: 2026-10-10T00:00:00Z
 rejected_plans: []
 
-## Cycle 43 — 2026-10-09 — FEATURE
+## Cycle 45 — 2026-10-10 — FEATURE
 
-- Done: plan 004 item 3 `json/scanner.zig` strings. A `.key`/`.string` token is validated whole (strict
-  UTF-8, controls < 0x20, escapes, surrogate pairs; earliest fault wins), 4 new `ScanError` variants,
-  `decode_string(raw, out)`. Tests in `scanner_string_test.zig`: seeded model (500 seeds) + seed-corpus
-  differential vs `std.json.validate`. Two mutations caught. PR #45, CI 8/8, squash-merged; #42 ticked
-  3/11; plan item and CHANGELOG updated. Local `zig build test` 371 pass, tidy 0, fmt ok. One
-  code-reviewer: 0 critical, 3 warnings fixed (closed `EscapeFault` set, accurate proofs, test titles).
-  Wall ~11 min, cost ~$2. I wrote tests and impl myself (no test-writer/zig-developer subagents).
-- Next: item 4 `json/dom.zig` (ADR 0003 section 4: two-pass child counts or scratch stack for `Map`
-  capacity; explicit stack bounded by `depth_max`; numbers via `core.number`; duplicate-key policy;
-  OOM sweep with `checkAllAllocationFailures`). Blockers/questions: none.
-- Learned: tidy wants `// proof:` on the line of (or directly above) each `switch (err)`, one line
-  only; `scanner.zig` is 580 lines, so tests go in sibling files. `Weight.value/rangeAtMost` live in
-  `std.testing.Smith.Weight`; a test-file fn named `seed` clashes with `|seed|` captures. A
-  truncated UTF-8 sequence at an unterminated string reports `InvalidUtf8` (pinned by a test).
-  Background `Bash` until-loops on `gh pr checks` notify on completion; use them for CI waits.
+- Done: plan 004 item 5 `json/writer.zig`: `write(w, value, options, diag)`, `Layout`
+  minified|pretty, `sort_keys` by selection, floats `{d}`/`{e}` + `.0` so they re-parse as `.float`,
+  `Unrepresentable` for bytes/timestamp/NaN/inf, fixed frame stack, key-path diag via new public
+  `reflect.context.write_diagnostic`. PR #47, CI 8/8, squash-merged; #42 ticked 5/11; plan +
+  CHANGELOG updated. Local 413 tests, tidy 0, fmt ok. Two mutations caught. Reviewer (1 sonnet): 0
+  critical, 3 warnings fixed (close-failure path, Map invariant check, loop-bound comment). ~$2.4.
+- Next: item 6 round-trip property test (`json/roundtrip_test.zig`: seeded canonical Values, write
+  minified+pretty, `dom.parse`, `core.eql`, 1,000 seeds; `.uint` only above maxInt(i64)). The writer
+  test already has a `random_value` generator to reuse or move to a shared test file.
+  Blockers/questions: none.
+- Learned: reflect's path renderer emits raw non-ASCII key bytes, so a diag message can hold invalid
+  UTF-8 (not fixed). Fixed-writer `WriteFailed` at the root has no path prefix. `ScheduleWakeup` is
+  for /loop only; do not use it to wait on CI. A heredoc `python3 - <<EOF` worked in Bash this cycle
+  though `cd <repo> ; ...` was blocked. Two watchers on one PR both report the newest run.
 
-## Cycle 44 — 2026-10-09 — FEATURE
+## History (cycles 43-44, condensed 2026-10-10)
 
-- Done: plan 004 item 4 `json/dom.zig`: `parse(tree, input, options, diag)`, pass 1 counts container
-  children (arrays count values, objects count keys), pass 2 allocates exact sizes; `dom.ParseOptions
-  {depth_max, duplicate_key}`, `DuplicateKeyPolicy {reject, last}` (json.zig re-exports; `first`
-  dropped); `core.Map.index_of`. PR #46, CI 8/8, squash-merged; #42 ticked 4/11; plan + CHANGELOG
-  updated. Local 395 tests, tidy 0, fmt ok. Two mutations caught. Reviewer (1 sonnet): 0 critical, 3
-  warnings fixed (OOM diag sweep, exact-size test, 32-bit skip). Wall ~17 min, cost ~$2.
-- Next: item 5 `json/writer.zig` (ADR 0003 section 7: allocation-free, sort_keys by selection,
-  `Unrepresentable`, floats `0.1`/`-0.0`/`5e-324`). Blockers/questions: none.
-- Learned: tidy wants `// proof:` on ONE line directly above `catch unreachable`/`switch (err)`;
-  `ArenaAllocator.resize` of the newest allocation is used to shrink; not tested: the ADR memory
-  formula in bytes (arena capacity is block-granular), only exact `entries.len`. Open: item 8 should
-  fold json.zig's stub `ParseOptions` into `dom.ParseOptions`. Background reviewer + CI until-loop in
-  parallel works well; commit/push/PR before the reviewer returns, fix on the branch.
+Cycle 43 (2026-10-09): item 3 scanner strings (PR #45): `.key`/`.string` validated whole, 4 new
+`ScanError` variants, `decode_string`; tests in `scanner_string_test.zig` (500-seed model + corpus
+differential vs `std.json.validate`). Cycle 44 (2026-10-09): item 4 `json/dom.zig` (PR #46): two scans,
+exact `Map` sizes, `dom.ParseOptions {depth_max, duplicate_key}`, `DuplicateKeyPolicy {reject, last}`,
+`core.Map.index_of`. Learned: tidy wants `// proof:` on ONE line directly above each `catch
+unreachable`/`switch (err)`; `scanner.zig` is 580 lines so tests go in sibling files; `Weight` lives in
+`std.testing.Smith.Weight`; a truncated UTF-8 sequence at an unterminated string is `InvalidUtf8`;
+`ArenaAllocator.resize` of the newest allocation shrinks it. Open: item 8 should fold json.zig's stub
+`ParseOptions` into `dom.ParseOptions`. Background reviewer + CI until-loop in parallel works well;
+commit/push/PR before the reviewer returns, fix on the branch.
 
 ## History (cycles 39-42, condensed 2026-10-09)
 
