@@ -1,6 +1,6 @@
 # sigil — context
 
-last_seen_at: 2026-10-08T15:16:39Z
+last_seen_at: 2026-10-09T00:00:00Z
 rejected_plans: []
 
 ## Cycle 43 — 2026-10-09 — FEATURE
@@ -21,24 +21,26 @@ rejected_plans: []
   truncated UTF-8 sequence at an unterminated string reports `InvalidUtf8` (pinned by a test).
   Background `Bash` until-loops on `gh pr checks` notify on completion; use them for CI waits.
 
-## Cycle 42 — 2026-10-08 — FEATURE
+## Cycle 44 — 2026-10-09 — FEATURE
 
-- Done: plan 004 item 2 `json/scanner.zig` (structure, literals, RFC 8259 numbers, depth_max, line:col
-  diag) + `core.diagnostics.Position/position_of/snippet_of`. PR #44, CI 8/8, squash-merged; #42 ticked
-  2/11; plan item and CHANGELOG updated. Local `zig build test` 354 pass, tidy 0, fmt ok. Mutation check
-  on the depth limit caught. One code-reviewer: 0 critical, 3 warnings fixed (saturating `position_of`,
-  `has_escapes` tests, truncation-prefix model). Cost ~$2.
-- Next: item 3 scanner strings (UTF-8 via `find_invalid`, controls, escapes, `decode_string`, std.json
-  differential fuzz). Add the 4 string `ScanError` variants then (LoneSurrogate, InvalidEscape,
-  ControlCharacter, InvalidUtf8); item 2 declares only the 5 it provokes. `scan_string` is a documented
-  placeholder (ends at first unescaped quote). Blockers/questions: none.
-- Learned: write tests first but note I wrote the impl without running the red step (compile-fail was
-  implicit); `+`/`.` leading bytes must route to `scan_number` so ADR's `InvalidNumber` holds; a
-  heredoc, `cd <repo>`, and `sleep` in Bash are blocked by guards (use Write/Edit, no `cd`, a background
-  until-loop); python3 -I -c works for in-place file edits.
+- Done: plan 004 item 4 `json/dom.zig`: `parse(tree, input, options, diag)`, pass 1 counts container
+  children (arrays count values, objects count keys), pass 2 allocates exact sizes; `dom.ParseOptions
+  {depth_max, duplicate_key}`, `DuplicateKeyPolicy {reject, last}` (json.zig re-exports; `first`
+  dropped); `core.Map.index_of`. PR #46, CI 8/8, squash-merged; #42 ticked 4/11; plan + CHANGELOG
+  updated. Local 395 tests, tidy 0, fmt ok. Two mutations caught. Reviewer (1 sonnet): 0 critical, 3
+  warnings fixed (OOM diag sweep, exact-size test, 32-bit skip). Wall ~17 min, cost ~$2.
+- Next: item 5 `json/writer.zig` (ADR 0003 section 7: allocation-free, sort_keys by selection,
+  `Unrepresentable`, floats `0.1`/`-0.0`/`5e-324`). Blockers/questions: none.
+- Learned: tidy wants `// proof:` on ONE line directly above `catch unreachable`/`switch (err)`;
+  `ArenaAllocator.resize` of the newest allocation is used to shrink; not tested: the ADR memory
+  formula in bytes (arena capacity is block-granular), only exact `entries.len`. Open: item 8 should
+  fold json.zig's stub `ParseOptions` into `dom.ParseOptions`. Background reviewer + CI until-loop in
+  parallel works well; commit/push/PR before the reviewer returns, fix on the branch.
 
-## History (cycles 39-41, condensed 2026-10-09)
+## History (cycles 39-42, condensed 2026-10-09)
 
+Cycle 42 (2026-10-08): item 2 `json/scanner.zig` + `core.diagnostics.Position/position_of/snippet_of`
+(PR #44); `+`/`.` leading bytes route to `scan_number`; guards block heredocs, `cd <repo>`, `sleep`.
 Cycles 39-40 (2026-10-07, quiet): plan PR #38 open, no OWNER activity, no PR; the only stabilization
 candidate is the `tools/tidy.zig` self-exemption, which does not decompose. Learned: the guard blocks
 a Bash command mixing citadel paths with repo commands; read citadel files with Read.
