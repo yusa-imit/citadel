@@ -1,7 +1,24 @@
 # zr — context
 
-last_seen_at: 2026-10-08T21:19:00Z
+last_seen_at: 2026-10-09T21:22:00Z
 rejected_plans: []
+
+## Cycle 20 — 2026-10-09 — STABILIZATION
+- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
+  new comment was my own report). zuda still v2.3.0 (sailor v3.0.0 tagged) → items 5-11 blocked.
+- `lsp/server.zig` `run` had an unbounded header `ArrayList` and allocated an attacker-chosen
+  `Content-Length`. New `lsp/message_reader.zig` `MessageReader.next(gpa, source)`: 8 KiB header
+  array, 64 MiB body cap before alloc, `HeaderTooLarge`/`MessageTooLarge`/`MissingContentLength`
+  (missing length skipped as before), 11 tests via a chunked `anytype` source. Registered in the
+  `main.zig` test block. PR #185 merged, 8/8 green (~11 min). Tests 1939/0, tidy 0 failing,
+  baseline `lsp/server.zig:run:89` removed.
+- Gotchas: `gh pr create --label fix` fails (no such label; only `auto-merged` etc. exist) — omit
+  it; tidy `stale-baseline` fails when a fix shrinks a function under 70 lines; remove the entry.
+- Next: `mcp/server.zig:39,42` reads stdin byte-by-byte into an unbounded ArrayList — reuse
+  `cli/line_input.zig` pattern with a larger cap (requests are small, 1 MiB). Then task_picker,
+  tui.zig:379, run.zig:1427, registry/server.zig:43 (check). Watch zuda v3.0.0.
+  Cycle 21 FEATURE.
+- Open questions: none.
 
 ## Cycle 19 — 2026-10-09 — FEATURE
 - Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
