@@ -1,7 +1,25 @@
 # strata — context
 
-last_seen_at: 2026-10-09T14:00:00Z
+last_seen_at: 2026-10-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 41 — 2026-10-10 — FEATURE
+- Done: plan 003 item 5 — `src/page/manager.zig`: `PageManager` create/open/read/write (exclusive
+  tryLock, ADR-0002 §5 open sequence, short/foreign file -> Corrupted, EOF inside a page ->
+  TornWrite, page-0 bad CRC -> ChecksumMismatch). `Options{page_size, page_count_max,
+  sync_policy}`; fields page_size/page_count/freelist_head/wal_lsn/page_count_max are public.
+  Tests in `manager_{test,page_test,model_test,fixtures}.zig` (167 tests incl. FaultIo, model, fuzz).
+- PRs: #39 merged (squash, CI 7/7, auto-merged). Issue #34 item 5 ticked.
+- Review: no code-reviewer pass (cost: test-writer alone ~$1.5 of $4 — it hand-built a reference
+  impl and mutants). Reused that reference as the base of manager.zig. Do the reviewer on item 6.
+- Contract for item 6: `read`/`write` assert 0 < id < page_count; page 0 is manager-owned, so item 6
+  needs an internal file-header writer (page_count/freelist_head update, trunk first then page 0).
+  `create` does not enforce `page_count_max` (allocate does). Open does not check page_count vs max.
+- Next: item 6 — `allocate`/`free`/`sync`/reopen (seeded model with reopen between rounds).
+- Blockers: none. Open questions: none.
+- Note: for test-writer prompts, cap scope (it spent ~7 min / $0.85+); the Bash guard rejects
+  `;`/`cd`/`$VAR` chains, run one simple command per call. `zig test` cannot take a `_test.zig`
+  root outside the module path.
 
 ## Cycle 40 — 2026-10-09 — FEATURE
 - Done: plan 003 item 4 — `src/page/freelist.zig` (trunk codec per ADR-0002 §7): `format_trunk`,
@@ -181,4 +199,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 approved; milestone issue #34. Items 1-4 done; implement item 5 (`page/manager.zig`).
+Plan 003 approved; milestone issue #34. Items 1-5 done; implement item 6 (manager allocate/free/sync).
