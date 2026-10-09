@@ -1,7 +1,29 @@
 # synod — context
 
-last_seen_at: 2026-10-09T10:00:00Z
+last_seen_at: 2026-10-10T03:20:00Z
 rejected_plans: []
+
+## Cycle 42 — 2026-10-10 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
+- Done: item 5 (2C `raft/progress.zig`) via PR #44 (squash-merged, 7/7 CI, `auto-merged`, #39
+  item 5 ticked). Internal `Progress` value type (32 B): match/next, probe/replicate, bounded
+  inflight window, `on_send`/`on_accepted`/`on_rejected`/`on_timeout`, `backtrack_hint`,
+  `check_invariants`. Tests in `progress_test.zig` (wired from `raft.zig`, NOT `node.zig`,
+  which sits at 800 lines) with a seeded model vs a naive reference.
+- Review found 2 CRITICAL (peer-reachable asserts: `prev == 0`, `matched == maxInt`) and 3
+  WARNING; fixed: prev 0 returns false, replicate rejection with `prev >= next` is stale,
+  `on_timeout` added. `matched` bounds remain a documented node precondition.
+- Contract for 2B-i (in `///` of `on_accepted`/`on_rejected`): node resolves prev/last_sent from
+  its own round record, one response per round, `prev <= matched <= request last index`, drops
+  responses from rounds it timed out (a response after `on_timeout` would hit the new window).
+  Shorter-log reject (`conflict.index == 0`) backs off one entry per round trip.
+- Cost: test-writer ~$0.4, developer ~$0.2 + ~$0.2, reviewer ~$0.3; ≈ $2.1 of $4.
+- Next: item 6 (2B-i leader replication; largest item — plan says split send/response side in a
+  plan-tick PR if it overruns). `node.zig` is at its 800-line cap: move code out first (e.g.
+  `note_leader`, status helpers) or put leader logic in a new file `raft/leader.zig`.
+- Blockers: none. Open questions: none.
+- Tool notes: guard blocks `cd <path>;` — use `--build-file` and `git -C`. `gh pr checks
+  --watch` loop returns early while checks pending; re-check with plain `gh pr checks`.
 
 ## Cycle 41 — 2026-10-09 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
