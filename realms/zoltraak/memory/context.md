@@ -1,7 +1,25 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-09T00:00:00Z
+last_seen_at: 2026-10-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 22 — 2026-10-10 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on 57cacc9), no bugs, no plan PR, milestone #121 open, no
+  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
+- `/stabilize --one`: PR #146. Real bug: `CMS.INCRBY key item -9223372036854775808` trapped on
+  `-delta` (integer overflow) in `CountMinSketchValue.incrBy`; now `@abs`, returns
+  CounterUnderflow (regression test first). Stale overflow test fixed (counters are u64).
+  Wired cms, scripting, json_value, vector, defrag into the `src/main.zig` reachability test:
+  `zig build test` 1207 -> 1275, only the 2 known signal-4 crashers. CI green (4m22s / 47s),
+  merged, labeled auto-merged.
+- Probe results (`zig test src/storage/<f>.zig`): jsonpath has 1 stale failing test (parse
+  ".a.b" -> InvalidPathSyntax; decide test vs parser); bloom has a compile error
+  (LoadContext); aof/replication/persistence/eviction need module wiring (import outside
+  module path).
+- Not mine: `./zig-out/bin/zoltraak` pid 80225 still running; left alone.
+- Next: jsonpath/bloom repair then wire; commands/*.zig stale tests; stash triage
+  (stash@{0}); cycle 25 is forced STABILIZATION. Items 4-9, 12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 21 — 2026-10-09 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on 6e5a6e3), no bugs, no plan PR, milestone #121 open, no
