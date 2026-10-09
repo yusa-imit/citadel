@@ -15,9 +15,9 @@ rejected_plans: []
   `MultiCursorEditor.insertCharAll` cursor shift (shifted left-of-insert cursors, not right-of).
   `deleteCharAll` has the same class of bug (shifts all cursors by 1), untested, NOT fixed: put
   it in plan 003 or fix when touching multicursor.
-- State at deadline: #52 Linux/macOS/Windows tests pass, 6 cross-compile + bench jobs still queued.
-- Next: n=28 FEATURE. Inbox step 8: if #52 CI is green and no `hold` -> squash-merge, label
-  `auto-merged`, tick item 1 in #51 and the plan. Then item 2 (CI builds examples/benchmarks,
+- Update after the report: #52 CI went 10/10 green; squash-merged, labelled `auto-merged`, item 1
+  ticked in #51. The plan file's own checkbox for item 1 is still unticked: tick it in item 2's PR.
+- Next: n=28 FEATURE. Item 2 (CI builds examples/benchmarks,
   `zig fmt --check` on Linux job). Item 3 (fmt `tests/`) must wait until no other PR is open.
 - Blockers: none. Open questions: none.
 - Quirks: global `zig` is 0.15.2, put `/Users/fn/.zr/toolchains/zig/0.16.0` first on PATH or
