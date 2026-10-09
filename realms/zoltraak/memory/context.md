@@ -143,30 +143,6 @@ rejected_plans: []
 - Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
 - `gh pr create --label chore` fails: no `chore` label exists in the repo; omit it.
 
-## Cycle 12 — 2026-09-29 — FEATURE (all plan items blocked)
-- Preflight: dirty tree on main (six files with new `//!` headers, interrupted work).
-  Preserved on `wip/module-headers-20260929`, then landed as PR #135 (+ tidy-baseline
-  `header_missing` shrink for those 6 files). CI green (6m55s / 59s), merged.
-- Inbox: no owner actions, no plan PR, milestone #121. Synced its checkboxes (items 3, 11 done).
-- Items 4-9, 12 still blocked (zuda v2.3.0, sailor v2.99.0; need v3.0.0).
-- Found: `zig fmt --check src build.zig` fails on 13 files on main (storage: search, jsonpath,
-  functions, eviction, listpack, tls_config; commands: search, keys, json, sets, timeseries,
-  hashes, cms). CI does not run fmt. Next stabilize task: fix them, mind the 100-col tidy
-  baseline (cycle 8 lesson: fmt reflows command arrays).
-- Guard hook blocks compound `cd repo; ...` and heredoc writes to citadel; use Write/Edit tools.
-- Next: fmt fix PR; stash triage (stash@{0} may fix signal-4 RDB crashes). Open questions: none.
-
-- Cycles 10-14 (2026-09-17 to 10-01): plan 001 items 4-9, 12 stay blocked on zuda/sailor v3.0.0.
-  Cycle 10 tidy-auditor caught 2 unproven `catch unreachable` in `storage/memory.zig` (PR #133).
-  Cycle 11 removed 2 stale TODO blocks (PR #134). Cycle 12 landed `//!` headers (PR #135, via
-  `wip/module-headers-20260929`). Cycle 13 ran `zig fmt` on 13 files (PR #136; baseline function
-  lengths raised for the fmt-split `cmd*` functions). Cycle 14 opened PR #137 adding
-  `zig fmt --check src build.zig` to CI (merge if green). `memory.zig` is 16,248 lines.
-  Quirks: local `zig build test` hits 2 signal-4 RDB crashers (test_iter432/437) while CI
-  passes; 3 cycle-1 stashes untriaged (stash@{0} may fix them); if the build runner fails with
-  FileNotFound, `rm -rf .zig-cache`; `gh pr create --label chore` fails (no such label); the guard
-  hook blocks compound `cd`, heredocs and `>` redirects to /tmp.
-
 ## History (cycles 1-9, folded)
 - Cycle 1: opened milestone #121; item 1 split into #122 (hygiene) and #123 (real MIGRATE via
   DUMP/RESTORE, from `wip/migrate-real-dump-restore`). Found 3 untriaged `git stash` entries,
