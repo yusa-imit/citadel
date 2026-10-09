@@ -30,3 +30,13 @@ The only other non-main branch, `chore/kingdom-restructure`, already merged as P
 plan 001's base. Nothing to finish or close.
 **Consequences**: None — item 9 is closed as a no-op. Recorded here per the plan's own verify
 criterion (PR #10).
+
+## 2026-10-09 — timers: one wheel in `Sched`, futex expiry by callback (plan 003 item 4)
+
+**Decision**: the timing wheel lives in `Sched` (node = fiber index); `sleep.fire` fires it before
+every dispatch. A due sleeper is unparked by the scheduler; a due futex waiter goes to
+`Sched.Expiry.futex_timeout` because only the futex table can unlink under its lock. Wake and cancel
+leave the wheel node linked until the fiber runs and calls `sleep.disarm`, so `fire` may pop a node of
+a ready fiber: handlers must re-check the outcome before touching the fiber.
+**Consequences**: `Sched.timers` is gone; `Sched.init` needs `now_ns`; wall `sleep` is measured on
+`Clock.awake` (a wall-clock step does not move it); CPU clocks forward and still block the carrier.

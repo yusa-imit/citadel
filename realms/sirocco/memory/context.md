@@ -3,41 +3,42 @@
 last_seen_at: 2026-10-09T00:00:00Z
 rejected_plans: []
 
-## Cycle 42 — 2026-10-09 — FEATURE
-- Inbox: no OWNER activity (only own milestone comments); CI green on 463f252; milestone #33 the only
-  open issue; no plan PR.
-- Done: plan 003 item 3 implemented as PR #36 (`feat/timer-wheel`, label none yet): `src/timer.zig`,
-  4x64-slot hierarchical wheel + overflow list, 131 us tick, deadlines round up, wheel-owned node array
-  (plan text amended: not inside `Sched.Fiber`), `expire` jumps slot to slot, `pop_due`, clamps a
-  backwards clock, `next_deadline` = tick-rounded fire time. 10 tests incl. seeded 10k-op model.
-  Local build/test/tidy/fmt green; Linux CI green, macOS job still pending at the deadline.
-- Reviewer: 0 CRITICAL; all warnings applied (cost sketch for the overflow scan stays O(overflow)).
-- After report: macOS job on PR #36 ended `cancelled` after 15m (not a test failure; Linux green, local
-  green); re-ran the failed job once (attempt 1 of 2). If it cancels again, check whether the macOS runner
-  or the new timer tests hang (run `zig build test` locally under a python timeout) before retrying.
-- Next: FIRST merge PR #36 if macOS CI is green (squash, delete branch, label auto-merged, tick item 3
-  in #33; plan file and CHANGELOG already ticked on the branch); then item 4 (native sleep, delete
-  `Sched.timers`; sched.zig is 803 lines).
+## Cycle 43 — 2026-10-09 — FEATURE
+- Inbox: no OWNER activity; CI green on 463f252; PR #36 (timer wheel) had all 8 checks green, so
+  merged it (20ebf98, labelled auto-merged) and ticked item 3 in #33.
+- Done: plan 003 item 4 via PR #37 (merged 372b1c0, CI green Linux+macOS+6 cross). New
+  `src/sleep.zig`: native `sleep` parks the fiber on `Sched.wheel` (node = fiber index); `sleep.fire`
+  runs before every dispatch in `run_loop`, `idle_wait` uses the wheel's next deadline. Futex timeouts
+  use the same wheel; `Table` lost `timed`/`deadline_ns`; `Sched.timers` became `Sched.Expiry`
+  (`futex_timeout` per due futex waiter: only the table owner can unlink under its lock).
+  `Sched.init` takes `now_ns` and allocates a third block (wheel nodes); CPU clocks and off-fiber
+  calls forward. 16x50 ms sleeps overlap (< 400 ms). `sleep` is `native` in `slots.zig`.
+- Reviewer CRITICAL (fixed before merge): a woken/canceled futex waiter keeps its wheel node until it
+  runs, so `fire` pops nodes of READY fibers; the `state == .parked` assert belongs behind the
+  `outcome == .waiting` test under the table lock. Regression tests: wake and cancel, then the
+  carrier spins past the deadline (`tests/parity/futex.zig`).
+- Known gap: `src/sched.zig` is 823 lines (cap 800); split its test section in item 9. Not tested:
+  foreign-thread wake racing `fire`, CPU-clock and off-fiber sleep forwarding.
+- Next: item 5 (`bench/timer.zig`, `zig build bench-timer`, PRD gate 7 row), then 6 (in-fiber parity
+  mode), 7 (ADR 0002 + `src/offload.zig`), 8, 9 (docs, v0.4.0).
 - Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: tidy line limit also hits `//!` header wraps; `gh pr checks --watch` hit the 540s tool cap,
-  macOS runner can lag past 9 min.
+- Gotchas: an unset `$Z` in a compound Bash command hung the tool for 120 s; the guard blocks compound
+  commands that write files next to citadel paths (split `gh ... > file` from the edit, use Write);
+  `gh pr checks` right after a push says "no checks" for a few seconds (poll from python).
 
-## Cycle 41 — 2026-10-08 — FEATURE
-- Inbox: no OWNER activity; CI green on 9745baa; milestone #33 the only open issue; no plan PR.
-- Done: plan 003 item 2 via PR #35 (merged 463f252, CI green Linux+macOS+6 cross). `async` starts the
-  task at once: new `Sched.spawn_first` (task at ready-queue front; in a fiber the caller `yield`s,
-  off-fiber `run_loop` returns at the new fiber's first switch-out via `Sched.first`; the carrier
-  inside `run_loop` falls back to plain `spawn`). Gate 6 passes: 44 vs 1796 ns @1, 28 vs 615 ns
-  @1000. `groupAsync` members stay lazy.
-- Tests: lazy-start assumptions rewritten; tasks needing a cancel before their first check park on a
-  gate futex word (`gate_wait`/`gate_open`) and the test opens it before `cancel`. `scene.yield`
-  (async+await) still yields because the caller is re-queued at the tail.
-- Reviewer: 0 CRITICAL. Not done: sched-level unit tests (sched.zig is 803 lines), one shared gate
-  helper, direct hand-off instead of a full-queue yield (an in-fiber async costs a ready-queue lap).
-- Next: item 3 (`src/timer.zig` timing wheel); item 4 deletes the `Sched.timers` hook (frees lines).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: a child `async` inside an eager task ends the outer `async` early (yield = switch-out);
-  tidy flags `//!` lines >100 in tests/; tidy passed with sched.zig at 803 lines.
+## History (cycle 42, condensed 2026-10-09)
+
+Cycle 42: item 3 via PR #36, `src/timer.zig`: 4x64-slot hierarchical wheel + overflow list, 131 us
+tick, deadlines round up, wheel-owned node array, `expire` jumps slot to slot, clamps a backwards
+clock; its macOS job was `cancelled` once after 15 m (not a test failure, re-run went green).
+
+## History (cycle 41, condensed 2026-10-09)
+
+Cycle 41 (10-08): item 2 via PR #35: `async` starts the task at once (`Sched.spawn_first`; in a fiber
+the caller `yield`s, off-fiber `run_loop` returns at the new fiber's first switch-out via
+`Sched.first`); gate 6 passes (44 vs 1796 ns @1, 28 vs 615 ns @1000); `groupAsync` members stay
+lazy; tasks needing a cancel before their first check park on a gate futex word. Gotchas: a child
+`async` inside an eager task ends the outer `async` early; tidy flags `//!` lines > 100 in tests/.
 
 ## History (cycle 40, condensed 2026-10-09)
 
