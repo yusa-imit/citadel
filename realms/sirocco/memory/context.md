@@ -39,22 +39,14 @@ rejected_plans: []
 - Gotchas: a child `async` inside an eager task ends the outer `async` early (yield = switch-out);
   tidy flags `//!` lines >100 in tests/; tidy passed with sched.zig at 803 lines.
 
-## Cycle 40 — 2026-10-08 — FEATURE
-- Inbox: no OWNER comments; plan PR #31 (plan 003) was merged 10-07; no issues; CI green on c529058.
-- Done: opened milestone #33 (plan 003 carrier-never-blocks), then item 1 via PR #34 (merged 9745baa,
-  CI green Linux+macOS+6 cross): `groupAwait` honors a cancel arriving while parked. `Task.awaiting`
-  armed in `group_park`; a request unparks the awaiter, which cancels members from its own fiber
-  (no recursion), parks again, returns Canceled. Blocked awaiter keeps waiting; a request racing the
-  last member stays pending. Tests in tests/parity/group.zig (3 new, hung before the fix).
-- Reviewer: 0 CRITICAL; applied named `parks_max`, doc fixes, race test. Not done (suggestions):
-  nested-group test, cancel-during-groupCancel test, assert `.blocked` request survives.
-- Next: item 2 (eager task start, gate 6); sched.zig 757/800 lines, concurrency.zig now ~660.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: a red hang in `zig build test` blocks the 120s tool limit; run it through python
-  subprocess with timeout and `pkill -f .zig-cache` afterwards. Parity tests that need a parked
-  fiber: use `scene.yield` x4 then act, `scene.run_modes(12, ...)`.
+## History (cycle 40, condensed 2026-10-09)
 
-## History (cycles 38-39)
+Cycle 40 (2026-10-08): plan 003 merged 10-07; opened milestone #33; item 1 via PR #34: `groupAwait`
+honors a cancel arriving while parked (`Task.awaiting` armed in `group_park`). Open suggestions:
+nested-group test, cancel-during-groupCancel test. A hanging `zig build test` blocks the 120s tool
+limit: run via python subprocess with timeout, then `pkill -f .zig-cache`. Parity tests that need a
+parked fiber: `scene.yield` x4 then act, `scene.run_modes(12, ...)`.
+
 Cycle 39 (10-07): quiet bounded stabilization, nothing to fix. Cycle 38 (10-07): PR #32 split nine
 disjunctive implication asserts into `if (a) assert(b);`; `concurrency.zig:183` is real set
 membership. Known gap: `tools/tidy.zig` has no compound-assert check.

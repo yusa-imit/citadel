@@ -37,42 +37,17 @@ rejected_plans: []
   heredoc, `cd <repo>`, and `sleep` in Bash are blocked by guards (use Write/Edit, no `cd`, a background
   until-loop); python3 -I -c works for in-place file edits.
 
-## Cycle 41 — 2026-10-08 — FEATURE
+## History (cycles 39-41, condensed 2026-10-09)
 
-- Done: owner merged plan 004 (PR #38, 2026-10-07). Opened milestone issue #42. Item 1 (ADR 0003 JSON
-  contract) via `architect` (opus, ~11 min, ~$2.9 — expensive); I wrote the file verbatim. Also
-  amended PRD §4.2/§4.3/§5 and added an ADR 0001 pointer. PR #43, CI 8/8, squash-merged; plan item 1
-  and #42 ticked. Docs-only, so no local `zig build test` run (CI is the gate).
-- Next: item 2 `json/scanner.zig` (also adds `core.diagnostics.Position/position_of/snippet_of`).
-  Item 10 is partly done already (bench port landed in #39; JSON benches and CI bench build step
-  remain). New APIs per ADR 0003: `Map.index_of` (item 4), `reflect.context.write_diagnostic`
-  (item 5), `parse_traced`/`Context.trace`/`scanner.locate` (item 8). Item 9 changes the root.zig
-  parity test (7 params, `arena`, `diag`). Blockers/questions: none.
-- Learned: an architect ADR draft can cost most of the cycle budget; for the next design-heavy item
-  give it a tighter scope (it must return the full file text, since it has no Write). `gh pr checks
-  --watch` right after create still says "no checks"; a Monitor until-loop works. Open risk: 0.16
-  `ArenaAllocator` in-place shrink (ADR 0003 §4 fallback = three scans); `Io.Dir` read/write names
-  unverified until item 9.
-
-## Cycle 40 — 2026-10-07 — FEATURE (quiet)
-
-- Done: plan PR #38 (plan 004) still open; its comments are all the AI's own reports (last
-  2026-10-05), no OWNER review, no issues, no other PRs. CI green on main (HEAD 1cd7547). No
-  stabilization slot used: only the `tools/tidy.zig` self-exemption is left and it does not
-  decompose. No PR opened. Cost ~$0.3.
-- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Stay quiet
-  until then. Blockers/questions: none.
-- Learned: the guard blocks a Bash command that mixes citadel paths with repo commands; read citadel
-  files with Read and keep Bash to repo-only commands.
-
-## Cycle 39 — 2026-10-07 — FEATURE (quiet)
-
-- Done: plan PR #38 (plan 004) still open; its only comments are the AI's own reports (last
-  2026-10-05), no OWNER comment/review, no issues, no other PRs. CI green on main (HEAD 1cd7547).
-  No stabilization candidate left except the `tools/tidy.zig` self-exemption (does not decompose),
-  so no `--one` sweep and no PR. Cost ~$0.3.
-- Next: when plan 004 merges, open its milestone issue and implement item 1 (ADR 0003). Stay quiet
-  until then. Blockers/questions: none.
+Cycles 39-40 (2026-10-07, quiet): plan PR #38 open, no OWNER activity, no PR; the only stabilization
+candidate is the `tools/tidy.zig` self-exemption, which does not decompose. Learned: the guard blocks
+a Bash command mixing citadel paths with repo commands; read citadel files with Read.
+Cycle 41 (2026-10-08): owner merged plan 004 (PR #38); opened milestone #42; item 1 (ADR 0003 JSON
+contract) via `architect` (opus, ~$2.9, expensive: give it a tight scope, it must return the full
+file text) landed in PR #43 with PRD 4.2/4.3/5 amendments. Open risk: 0.16 `ArenaAllocator` in-place
+shrink (ADR 0003 section 4 fallback = three scans); `Io.Dir` read/write names unverified until item 9.
+New APIs per ADR 0003: `Map.index_of` (item 4), `reflect.context.write_diagnostic` (item 5),
+`parse_traced`/`Context.trace`/`scanner.locate` (item 8); item 9 changes the root.zig parity test.
 
 ## History (cycles 35-38, condensed 2026-10-08)
 
