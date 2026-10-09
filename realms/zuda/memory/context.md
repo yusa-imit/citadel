@@ -1,7 +1,26 @@
 # zuda — context
 
-last_seen_at: 2026-10-09T00:00:00Z
+last_seen_at: 2026-10-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 21 — 2026-10-10 — FEATURE
+- Done: inbox clean (CI green on 01a9b7c, no bugs, no plan PR, no OWNER comments; milestone #31).
+  Plan 001 item "compile-clean files outside test graph": ported `nfa`, `matrix_chain`,
+  `ford_fulkerson` to 0.16 and wired them into `root.zig`'s test block. Running them exposed real
+  bugs: `NFA.fromWildcard` marked every state accepting and built Kleene stars wrongly (rewritten;
+  `a*`, `.*`, `a.c` tests were red); OOM undefined-free + errdefer/defer double free in
+  `matrix_chain` and `ford_fulkerson` (new `alloc_table`/`residual_init` helpers); `maxInt` on f64
+  capacities. Each file has a `checkAllAllocationFailures` test. Local `zig build test` exit 0.
+- PRs: #65 open (`fix/compile-clean-nfa-matrix-chain-ford-fulkerson`), Build & Test green 6m27s,
+  cross-compile still pending at the 22-min deadline. NOT merged: next cycle's inbox merges it
+  once all 7 checks are green (no `hold`), then ticks the plan progress line (already edited in PR).
+- Next: FEATURE — remaining in that item: `bogosort` (seed shape per ADR 0001, no
+  `std.posix.getrandom`), `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne`, then a full `src/**` `zig test
+  <file>` sweep. Then Thread sync, harness, assertion baseline, v3.0.0. Stabilize leftovers:
+  `hamiltonian.zig` not OOM-audited; `dfa`, `dinic`, `edmonds_karp` not in test graph (unprobed).
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: BSD sed lacks `\n` in replacements, use perl/python; a python `str.replace` with an empty
+  slice corrupts the file (check `index()` ordering). `zig build test` ran ~9 min locally.
 
 ## Cycle 20 — 2026-10-09 — STABILIZATION
 - Done: periodic (n%5==0) and open OWNER bug #63. Fixed it in PR #64 (squash, 7/7 checks, Build &
