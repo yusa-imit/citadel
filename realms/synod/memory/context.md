@@ -1,7 +1,28 @@
 # synod — context
 
-last_seen_at: 2026-10-09T09:00:00Z
+last_seen_at: 2026-10-09T10:00:00Z
 rejected_plans: []
+
+## Cycle 41 — 2026-10-09 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
+- Done: item 4 (2A-iii PreVote) via PR #43 (squash-merged, 7/7 CI, `auto-merged`, #39 item 4
+  ticked). Timeout → `pre_candidate` (no term bump/persist), `pre_vote` at term+1, grant rule
+  (higher term, log ok, not leader, no leader heard in `election_ticks`), joint quorum →
+  `campaign()`. New `raft/node_prevote_test.zig`; `campaign()` test helper now feeds pre-vote
+  grants; `check_invariants_*` moved to `node_init.zig` (node.zig sits at exactly 800 lines —
+  the tidy cap — so the next item MUST move code out first). `note_leader` (voter-only, first
+  claim per term) added for `append_entries`; 2B must absorb it.
+- Review found 1 CRITICAL (a leader past `election_ticks` computed "leader silent" and tripped
+  an assert from a peer pre_vote) — fixed, regression test. Learner/dup-leader guards added.
+- Cost: test-writer ~$0.55, developer ~$0.5, reviewer ~$0.15, rest main session; ≈ $2.5 of $4.
+- Next: item 5 (2C `raft/progress.zig`, new file, so no node.zig pressure). Open suggestions:
+  unit tests for `election.pre_vote_grantable`/`is_voter`; `or` compound asserts (node.zig
+  role checks); `///` docs on `node_init.check_invariants_*`; `send_vote_request` `unreachable`
+  switch arm → assert; earlier: `request_vote` accepts learners, `votes_len` not cleared in
+  `term_adopt`, `assert_config` election_ticks bound.
+- Blockers: none. Open questions: none.
+- Tool notes: guard blocks `cd <path>;` — use `--build-file`/`--cache-dir` and `git -C`. Test
+  suite wrapper: `zig build test` exit 0 even with tidy-fixture stderr noise; check `$?`.
 
 ## Cycle 40 — 2026-10-09 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
