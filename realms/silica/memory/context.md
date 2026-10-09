@@ -1,7 +1,25 @@
 # silica — context
 
-last_seen_at: 2026-10-08T00:00:00Z
+last_seen_at: 2026-10-09T00:00:00Z
 rejected_plans: []
+
+## Cycle 27 — 2026-10-09 — FEATURE
+- Preflight: main clean (previous checkout was merged batch5 branch), CI green (46ffcdf), no bug/question
+  issues, no open PRs. Inbox: nothing new (only own comment on #137); zuda still v2.3.0.
+- Done: line-length batch 5b (PR #168, merged, `auto-merged`): catalog (118) + parser (207) wrapped;
+  `line_length:` baseline 6 -> 4 files (cli 262, engine 1186, executor 598, tui 117 remain). CI 7/7
+  green. serializeTableFull size calc extracted to `serializedTableSize` to avoid growing.
+- Preserved: cli.zig + tui.zig were also wrapped (0 long lines) but 20 baselined functions grew past
+  their `function_length:` baseline (main 233->299, handleDotCommand 495->536, saveDatabase 287->316,
+  dumpTable, printStmtInfo, ...; tui render* +3..+25) so tidy went red. Committed on
+  `wip/line-length-cli-tui-20261009` (468ee33, pushed, not test-run). Helpers already added there:
+  formatRows, logQuery, execErrorMessage, fillSunburstBuckets.
+- Next: finish the wip branch: extract helpers from each grown function (growth is ~5-66 lines each)
+  until every function is <= its baseline, then drop `line_length:` cli/tui entries; then engine and
+  executor (one cycle each, expect same function-growth problem: check baselined fns first).
+- Blockers: zuda v3.0.0. Open questions unchanged.
+- Tooling notes: agents' `zig build` default cache can FileNotFound when two build concurrently; use
+  separate `--cache-dir`. Tell wrapping agents up front that baselined functions may not grow.
 
 ## Cycle 26 — 2026-10-08 — FEATURE
 - Preflight: main clean, CI green (b65f3bd), no bug/question issues, no open PRs. Inbox: nothing new
@@ -36,25 +54,11 @@ rejected_plans: []
   within the 3-line window, trailing comments risk the line_length ratchet. Guard hook blocks
   compound Bash writes into citadel: use Write/Edit tools.
 
-## Cycle 24 — 2026-10-06 — FEATURE
-- Preflight: main clean, CI green (4064f5f), no bug/question issues, no open PRs. Inbox: only
-  #163 (sailor v3.0.0 pin bump, owner migration issue) — not actionable: zuda still v2.3.0.
-- Done: line-length batch 4 (PR #165, merged, `auto-merged`): wal_fuzz, tokenizer_fuzz, connection,
-  mvcc, gist_index, conformance_test, parser_fuzz, hash_index, pattern_match, wal, jepsen_test
-  wrapped; `line_length:` baseline 22 -> 11 files. CI 7/7 green (build-and-test 9m46s — slower
-  than before). One zig-developer subagent (~$1.1). pattern_match.zig gained three private helpers
-  (tryMatchAlternation, tryMatchConcatQuantified, filterEndpointsByMinCount) because wrapping
-  pushed functions past their length limit; moved verbatim, reviewed by diff.
-- Next: line-length batch 5, the last 11 files (engine 1186, executor 598, cli 262, parser 207,
-  analyzer 139, planner 136, catalog 118, tui 117, gin 94, btree 87, optimizer 69). The big ones
-  (engine, executor) may need splitting across two cycles. Migration (#163 + plan 001 rest) once
-  zuda v3.0.0 is tagged.
-- Tooling notes: guard hook rejects compound `cd; cmd` and env-assign lines — use one simple command
-  per Bash call; `gh pr checks --watch` exceeds 480s foreground timeout and backgrounds, re-run it.
-- Blockers: zuda v3.0.0. Open questions unchanged.
+## History (cycles 23-24, condensed 2026-10-09)
 
-## History (cycle 23, condensed 2026-10-09)
-
+Cycle 24 (2026-10-06): line-length batch 4 (PR #165): 11 files wrapped, baseline 22 -> 11;
+pattern_match.zig gained 3 private helpers because wrapping pushed functions past limits. Guard hook
+rejects compound `cd; cmd` and env-assign lines; `gh pr checks --watch` backgrounds past 480s.
 Cycle 23 (2026-10-05): line-length batch 3 (PR #164, auto-merged): 12 files wrapped, `line_length:`
 baseline 34 -> 22 files; two baselined functions (watchFileInotify, parseConfigFile) needed blank-line
 or comment trims to stay under function_length limits. Remaining 22 files (engine 1186, executor 598,
