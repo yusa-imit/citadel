@@ -47,7 +47,6 @@ nested-group test, cancel-during-groupCancel test. A hanging `zig build test` bl
 limit: run via python subprocess with timeout, then `pkill -f .zig-cache`. Parity tests that need a
 parked fiber: `scene.yield` x4 then act, `scene.run_modes(12, ...)`.
 
-Cycles 38-39:
 Cycle 39 (10-07): quiet bounded stabilization, nothing to fix. Cycle 38 (10-07): PR #32 split nine
 disjunctive implication asserts into `if (a) assert(b);`; `concurrency.zig:183` is real set
 membership. Known gap: `tools/tidy.zig` has no compound-assert check.
