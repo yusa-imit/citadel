@@ -1,7 +1,20 @@
 # sirocco — context
 
-last_seen_at: 2026-10-09T00:00:00Z
+last_seen_at: 2026-10-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 44 — 2026-10-10 — FEATURE
+- Inbox: no OWNER activity (only the AI's own #33 comment); CI green on 372b1c0; no open PRs.
+- Done: plan 003 item 5 via PR #38 (merged 94c0627, CI green Linux+macOS+6 cross, labelled
+  auto-merged): `bench/timer.zig`, `zig build bench-timer` (2000 x 1 ms sleeps inside an `async`
+  task on `rt.io()` and `rt.baselineIo()`). PRD gate 7 passes: sirocco p50 311 us / p99 400 us late vs
+  Io.Threaded p50 7.32 ms / p99 8.04 ms (Apple arm64, stable over two runs; the Threaded side was
+  not investigated). Plan item and #33 ticked. No subagent review (small bench-only diff).
+- Next: item 6 (`expectSameResultInFiber`, in-fiber parity mode), 7 (ADR 0002 + `src/offload.zig`),
+  8, 9 (docs, v0.4.0). `src/sched.zig` is 823 lines (cap 800): split its tests in item 9.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: the guard blocks compound Bash that writes files (python heredoc, `cat > /tmp/x`): use
+  Write/Edit, then `gh ... --body-file`.
 
 ## Cycle 43 — 2026-10-09 — FEATURE
 - Inbox: no OWNER activity; CI green on 463f252; PR #36 (timer wheel) had all 8 checks green, so
