@@ -1,7 +1,25 @@
 # strata — context
 
-last_seen_at: 2026-10-09T12:00:00Z
+last_seen_at: 2026-10-09T14:00:00Z
 rejected_plans: []
+
+## Cycle 40 — 2026-10-09 — FEATURE
+- Done: plan 003 item 4 — `src/page/freelist.zig` (trunk codec per ADR-0002 §7): `format_trunk`,
+  `decode_trunk`, `free(head, head_page, freed, freed_page, lsn) -> Release{head, written}`,
+  `allocate(head, head_page, lsn) -> Allocation{id, head, head_dirty}`, `trunk_capacity`. Tests in
+  `freelist_test.zig` (seeded 10k-op model at 512 B/4 KiB, 8-size matrix, every Corrupted case).
+- PRs: #38 merged (squash, CI 7/7, auto-merged). Issue #34 item 4 ticked.
+- Review: code-reviewer 0 critical, 5 warnings fixed (double-free assert before the full-head
+  branch, trunk listing itself rejected in decode, size matrix, untouched-page + lsn checks).
+  Tests were written alongside the implementation, not strictly red-first (cost control, ~$1.1).
+- Contract for item 5/6: the manager maps file-header 0 <-> null for `head`, range-checks ids
+  against `page_count`, rejects double free of non-head pages, writes trunk first then page 0.
+  Duplicate ids across trunks are NOT detected by decode; the manager's bounded walk owns it.
+- Next: item 5 — `page/manager.zig` create/open/read/write (`File`, io per call, tryLock on open,
+  `peek_page_size` then full decode; no new `File` methods, file.zig is 788/800 lines).
+- Blockers: none. Open questions: none.
+- Note: tidy density counts `assert(` per fn per file (>= 2), incl. test helpers; `mem.indexOf`
+  is banned (use `findScalar`); python3 heredoc edits work in strata (Bash guard only blocks citadel).
 
 ## Cycle 39 — 2026-10-09 — FEATURE
 - Done: plan 003 item 3 — `src/page/header.zig` (page header, file header, `peek_page_size`,
@@ -163,4 +181,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 approved; milestone issue #34. Items 1-3 done; implement item 4 (`page/freelist.zig`).
+Plan 003 approved; milestone issue #34. Items 1-4 done; implement item 5 (`page/manager.zig`).
