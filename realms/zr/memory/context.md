@@ -1,7 +1,26 @@
 # zr — context
 
-last_seen_at: 2026-10-09T21:22:00Z
+last_seen_at: 2026-10-10T21:21:00Z
 rejected_plans: []
+
+## Cycle 21 — 2026-10-11 — FEATURE
+- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
+  new comment was my own report). zuda still v2.3.0 (sailor v3.0.0) → items 5-11 blocked → one
+  `/stabilize --one`.
+- `mcp/server.zig` `serve` read stdin byte by byte into an unbounded `ArrayList`. Now uses shared
+  `cli/line_input.readLine` with one 1 MiB buffer allocated at start (new
+  `line_input.buffer_bytes_max`; `readLine` assert relaxed to it). New `next_request_line` helper
+  (`RequestLine` text/end/too_long), 5 tests. Over-long request is skipped and logged; an
+  unterminated final line at EOF is no longer processed (behavior note). PR #186 merged, 8/8
+  green (~13 min). Tests 1944/0, tidy 0 failing.
+- Gotchas: guard blocks `cd X; ...` chains and heredoc appends (use Edit, plain commands);
+  `gh pr create` has no `--json`; test sources passed to `readLine` need `pub fn read`; a hand-
+  rolled `until gh pr checks | grep -qv pending` loop exits early (any passed line matches) — use
+  `until ! ... | grep -q pending`. tidy line-length baseline counts debug-print lines > 100 cols.
+- Next: task_picker, tui.zig:379, run.zig:1427, registry/server.zig:43 (check each is an event
+  loop or EOF-bounded); `mcp/server.zig serve` baseline (90) can shrink. ~220 missing `//!`
+  headers. Watch zuda v3.0.0. Cycle 22 FEATURE; cycle 25 STABILIZATION.
+- Open questions: none.
 
 ## Cycle 20 — 2026-10-09 — STABILIZATION
 - Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
