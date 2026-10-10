@@ -1,27 +1,32 @@
 # sigil — context
 
-last_seen_at: 2026-10-10T00:00:00Z
+last_seen_at: 2026-10-10T12:00:00Z
 rejected_plans: []
 
-## Cycle 45 — 2026-10-10 — FEATURE
+## Cycle 46 — 2026-10-10 — FEATURE
 
-- Done: plan 004 item 5 `json/writer.zig`: `write(w, value, options, diag)`, `Layout`
-  minified|pretty, `sort_keys` by selection, floats `{d}`/`{e}` + `.0` so they re-parse as `.float`,
-  `Unrepresentable` for bytes/timestamp/NaN/inf, fixed frame stack, key-path diag via new public
-  `reflect.context.write_diagnostic`. PR #47, CI 8/8, squash-merged; #42 ticked 5/11; plan +
-  CHANGELOG updated. Local 413 tests, tidy 0, fmt ok. Two mutations caught. Reviewer (1 sonnet): 0
-  critical, 3 warnings fixed (close-failure path, Map invariant check, loop-bound comment). ~$2.4.
-- Next: item 6 round-trip property test (`json/roundtrip_test.zig`: seeded canonical Values, write
-  minified+pretty, `dom.parse`, `core.eql`, 1,000 seeds; `.uint` only above maxInt(i64)). The writer
-  test already has a `random_value` generator to reuse or move to a shared test file.
+- Done: plan 004 item 6 `json/roundtrip_test.zig`: 1,000 seeds x 4 layouts (minified, sorted,
+  pretty 2, pretty 8) + number edges, write -> `dom.parse` -> `core.eql`; sorted output checked by an
+  iterative `eql_sorted` that demands strictly ascending keys. Generator (`random_value`,
+  `uint_min`) made `pub` in `writer_test.zig`. PR #48, CI 8/8, squash-merged; #42 at 6/11. Local 417
+  tests, tidy 0, fmt ok. One mutation caught (float `.0` suffix). Reviewer (1 sonnet): 0 critical, 3
+  warnings fixed (set-compare hid unsorted output, recursion, vacuous generator). ~$1.1.
+- Next: item 7 JSONTestSuite (vendor MIT `test_parsing/` under `tests/json/` with the license; every
+  `y_` parses, every `n_` fails with nonzero line:col, `i_` pinned). Needs the network or a local
+  copy; if neither, record a `question` and take item 8 (fold json.zig stub `ParseOptions` into
+  `dom.ParseOptions`; `parse_traced`).
   Blockers/questions: none.
-- Learned: reflect's path renderer emits raw non-ASCII key bytes, so a diag message can hold invalid
-  UTF-8 (not fixed). Fixed-writer `WriteFailed` at the root has no path prefix. `ScheduleWakeup` is
-  for /loop only; do not use it to wait on CI. A heredoc `python3 - <<EOF` worked in Bash this cycle
-  though `cd <repo> ; ...` was blocked. Two watchers on one PR both report the newest run.
+- Learned: macOS `sed -i` needs `-i ''`. Reviewer suggested moving the generator to a shared
+  `testing_gen.zig` (not done; `writer.zig` registers `roundtrip_test.zig`). Round-trip root is a
+  scalar 75% of seeds, so the tally asserts containers are reached.
 
-## History (cycles 43-44, condensed 2026-10-10)
+## History (cycles 43-45, condensed 2026-10-10)
 
+Cycle 45 (2026-10-10): item 5 `json/writer.zig` (PR #47): `write(w, value, options, diag)`, `Layout`
+minified|pretty, `sort_keys`, floats forced to re-parse as `.float`, `Unrepresentable` for
+bytes/timestamp/NaN/inf, key-path diag via public `reflect.context.write_diagnostic`. Learned:
+reflect's path renderer emits raw non-ASCII key bytes (diag may hold invalid UTF-8, not fixed);
+`ScheduleWakeup` is for /loop only; do not use it to wait on CI.
 Cycle 43 (2026-10-09): item 3 scanner strings (PR #45): `.key`/`.string` validated whole, 4 new
 `ScanError` variants, `decode_string`; tests in `scanner_string_test.zig` (500-seed model + corpus
 differential vs `std.json.validate`). Cycle 44 (2026-10-09): item 4 `json/dom.zig` (PR #46): two scans,
