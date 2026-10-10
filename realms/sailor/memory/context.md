@@ -1,7 +1,26 @@
 # sailor — context
 
-last_seen_at: 2026-10-09T00:00:00Z
+last_seen_at: 2026-10-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 28 — 2026-10-10 — FEATURE
+
+- Preflight: tree clean on merged branch `fix/unbuilt-arraylist-sweep-2`; switched to main. CI green,
+  inbox clear (only milestone #51 open, no owner actions).
+- Done: plan 002 item 2 -> **PR #53** merged (CI 10/10, `auto-merged`). New `zig build build-all`
+  compiles every example (added `gallery`, `clipboard_demo` steps) and both benchmarks via
+  `add_benchmarks` helper in build.zig (keeps `build` fn and tidy baseline from growing); CI runs it
+  on all OSes plus `zig fmt --check src build.zig build_support examples benchmarks scripts` on
+  Linux. The new step proved `examples/clipboard_demo.zig` still did NOT build after item 1 (wrong
+  APIs: TerminalDetector, enableBracketedPaste, pollEvent); rewritten as a short non-interactive
+  demo. Plan checkboxes for items 1 and 2 ticked; #51 item 2 ticked.
+- Next: n=29 FEATURE. Item 3: `zig fmt` over `tests/` (69 files, whitespace only; no other PR is
+  open, so land it first thing) and add `tests` to the CI fmt command in ci.yml. Then items 4-7.
+- Blockers: none. Open questions: none.
+- Quirks: stale `.zig-cache` gave bogus `FileNotFound` test failures again; use
+  `--cache-dir /tmp/sailor-zig-cache`. tidy ratchet counts `build.zig` line_length/function_length:
+  new build code must go into helper fns and long lines get wrapped. `gh pr create` has no `--json`.
+  Elapsed ~15 min to merge (Windows CI 9 min); open the PR by minute ~8.
 
 ## Cycle 27 — 2026-10-09 — FEATURE
 
