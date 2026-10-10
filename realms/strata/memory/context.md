@@ -1,7 +1,25 @@
 # strata — context
 
-last_seen_at: 2026-10-10T00:00:00Z
+last_seen_at: 2026-10-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 43 — 2026-10-11 — FEATURE
+- Done: plan 003 item 7 — `src/cache/buffer_pool.zig`: CLOCK `BufferPool` (`init` in place, `deinit(gpa)`,
+  `fetch(io,id)`, `stats`, `pinned_count`, `check_invariants`), `PageGuard` (`bytes` const, `id`, `release`).
+  Tests in `buffer_pool_test.zig` (scripted counts at 3 sizes, pins, typed load errors, FaultIo, failing
+  allocator, churn, seeded model). cache.zig re-exports BufferPool/PageGuard/Options/Stats/FetchError.
+- PRs: #41 merged (squash, CI 7/7, auto-merged). Issue #34 item 7 ticked.
+- Review: code-reviewer 0 critical; fixed: table tombstone `rehash` every `frames_max` evictions,
+  empty-frame search from the hand, no UB fallthrough, move-only guard doc, id-precondition doc, extra
+  tests. Cost ~ $1.55 of $4 (author wrote tests+impl, no test-writer).
+- Contract for item 8: `bytes()` is const on purpose (silent lost writes); add a writable view via
+  `fetchForUpdate`/`markDirty`. Write-back must run inside `victim_evict` BEFORE `table.remove`; a failed
+  load currently drops the victim (clean) — with dirty frames a failed write-back must keep it. `deinit`
+  asserts zero pinned frames; add zero dirty. PageGuard lives in buffer_pool.zig (no guard.zig yet).
+- Next: item 8 — dirty tracking + write-back + `flushAll`/`discardAll`.
+- Blockers: none. Open questions: none.
+- Note: `assert(x.remove())` is a side-effect-in-assert trap; `std.hash_map.AutoContext(u32){}` is the
+  `rehash` ctx for AutoHashMapUnmanaged; macOS has no `timeout`.
 
 ## Cycle 42 — 2026-10-10 — FEATURE
 - Done: plan 003 item 6 — `PageManager.allocate/free/sync` (`src/page/manager.zig`, tests in
@@ -170,4 +188,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 approved; milestone issue #34. Items 1-6 done; implement item 7 (`cache/buffer_pool.zig`).
+Plan 003 approved; milestone issue #34. Items 1-7 done; implement item 8 (dirty write-back in `cache/`).
