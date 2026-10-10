@@ -1,24 +1,32 @@
 # sigil — context
 
-last_seen_at: 2026-10-10T12:00:00Z
+last_seen_at: 2026-10-11T12:00:00Z
 rejected_plans: []
 
-## Cycle 46 — 2026-10-10 — FEATURE
+## Cycle 47 — 2026-10-11 — FEATURE
 
-- Done: plan 004 item 6 `json/roundtrip_test.zig`: 1,000 seeds x 4 layouts (minified, sorted,
-  pretty 2, pretty 8) + number edges, write -> `dom.parse` -> `core.eql`; sorted output checked by an
-  iterative `eql_sorted` that demands strictly ascending keys. Generator (`random_value`,
-  `uint_min`) made `pub` in `writer_test.zig`. PR #48, CI 8/8, squash-merged; #42 at 6/11. Local 417
-  tests, tidy 0, fmt ok. One mutation caught (float `.0` suffix). Reviewer (1 sonnet): 0 critical, 3
-  warnings fixed (set-compare hid unsorted output, recursion, vacuous generator). ~$1.1.
-- Next: item 7 JSONTestSuite (vendor MIT `test_parsing/` under `tests/json/` with the license; every
-  `y_` parses, every `n_` fails with nonzero line:col, `i_` pinned). Needs the network or a local
-  copy; if neither, record a `question` and take item 8 (fold json.zig stub `ParseOptions` into
-  `dom.ParseOptions`; `parse_traced`).
+- Done: plan 004 item 7 JSONTestSuite: vendored `tests/json/test_parsing` (318 files, 354 KB) +
+  `LICENSE`; `src/json/suite_test.zig` reads it at run time via `std.testing.io` (95 `y_` parse under
+  `.last`, 188 `n_` fail with line/col >= 1 and a message, 35 `i_` pinned in `pinned_accepted` (2) /
+  `pinned_rejected` (33); counts asserted). `build.zig` `run_mod_tests.setCwd(b.path("."))`. PR #49,
+  CI 8/8, squash-merged; #42 at 7/11. Local 377+ tests, tidy 0, fmt ok. Mutation (`.last` -> `.reject`)
+  caught. Reviewer (1 sonnet): 0 critical, 3 warnings (2 fixed: weak dup-key checks; `else` prong proof
+  reworded; build cache does not track corpus files, accepted). ~$1.6.
+- Next: item 8 `json.parse(T)`/`json.stringify` (fold json.zig stub `ParseOptions` into
+  `dom.ParseOptions`; `parse_traced`, `Context.trace`, `scanner.locate` per ADR 0003), then item 9.
   Blockers/questions: none.
-- Learned: macOS `sed -i` needs `-i ''`. Reviewer suggested moving the generator to a shared
-  `testing_gen.zig` (not done; `writer.zig` registers `roundtrip_test.zig`). Round-trip root is a
-  scalar 75% of seeds, so the tally asserts containers are reached.
+- Learned: `.gitignore` has `test_*` which silently dropped `tests/json/test_parsing` (CI saw
+  FileNotFound while local passed): check `git ls-files` count after vendoring; fixed with
+  `!/tests/json/test_parsing/`. Strict parser rejects 33 of 35 `i_` (surrogates, bad UTF-8, BOM,
+  out-of-range numbers, depth 129). `Value` map variant is `.map` (not `.object`), `Map.count`.
+  The Bash guard blocks `sleep N` chained before a command; use Monitor.
+
+## History (cycle 46, 2026-10-10)
+
+Cycle 46: item 6 `json/roundtrip_test.zig` (PR #48): 1,000 seeds x 4 layouts + number edges, sorted
+output checked by iterative `eql_sorted`; generator `pub` in `writer_test.zig`; reviewer fixed 3
+warnings. macOS `sed -i` needs `-i ''`. Round-trip root is a scalar 75% of seeds (tally asserts
+containers are reached).
 
 ## History (cycles 43-45, condensed 2026-10-10)
 
@@ -92,41 +100,13 @@ slices (PR #33), then unions, `array_hash_map.String(V)` maps and `sigilParse` h
 `depth >= nesting_max` -> `TooDeep`; a hooked type skips `options.resolve` so `parse.has_hook` checks
 hook-vs-options; `String(V)` detected via `T.KV`. Bash guard blocks heredocs: use Write.
 
-Cycle 0 (2026-09-05, RESTRUCTURE): realm created; scaffold survey (285 LOC, all stub modules).
-Zig 0.16 probe found sigil nearly migration-ready. Plan 001 PR opened.
-
-Cycles 1-4 (2026-09-05 to 09-07, FEATURE): plan 001 merged (PR #2), tracking issue #3 opened.
-Item 1 hygiene leftovers (PR #4), item 2 branch decision — no `wip/*` needed (PR #5), item 3
-`tidy` build step vendored from `citadel/templates/tidy/` (PR #6). Tracking issue reached 3/11.
-
-Cycle 5 (2026-09-09, STABILIZATION, forced by counter%5==0): `tidy-auditor` found 9 real
-findings (item 4's known scope), fixed via PR #7, `test_step` now hard-depends on tidy. Found
-but didn't fix: `tools/tidy.zig` self-exempt from its own checks, unbounded dir-walk recursion,
-misplaced `tidy_baseline.txt`, 2 unproven `catch unreachable` — all tracked in `STATE.md`.
-
-Cycles 6-7 (2026-09-09, FEATURE): item 5 (0.16 main/args/allocators, `process.Init` rewrite,
-bundled `minimum_zig_version` bump) via PR #8; item 6 (0.16 library sweep — 9 new `tidy` ban
-rules, `error.Canceled` prong check) via PR #9. Both CI green, squash-merged. Issue #3 at 6/11.
-
-Cycle 8 (2026-09-10, FEATURE): item 7 (`io: Io` convention on the public API) — `architect`
-pinned `config.load(comptime T, io, arena, options)`, poll-based `Watcher`, `json.parseFile`/
-`stringifyFile` shape; `docs/adr/0001-io-convention.md`. PR #10.
-
-Cycle 9 (2026-09-11, FEATURE): item 9 (assertion baseline: real assertions in `main.zig`/
-`root.zig`, new `checkAssertionBaseline` tidy check). Background review caught 1 CRITICAL
-(argv upper-bound assert — shell data, not a caller contract) + 3 WARNING, all fixed with
-regression tests before PR #13.
-
-Cycle 10 (2026-09-12, STABILIZATION, forced by counter%5==0): merged PR #13, issue #3 to 9/11.
-Re-swept the repo — fresh checks all 0 (`src/` still stub-stage). Fixed smallest carried
-finding via PR #14 (`isWireFormatPath`'s 2nd `catch unreachable` needed its own proof comment).
-3 findings left: misplaced `tidy_baseline.txt`, tidy.zig's self-exemption, unbounded recursion.
-
-Cycles 11-12 (2026-09-12, FEATURE): item 10 (README reconciled with reality) via PR #15; item
-11 (CHANGELOG.md + version bump 0.1.0→0.2.0) via PR #16. Plan 001 closed at 11/11 (version
-impact `none`, no release). Opened plan 002 (Phase 1A: `core/value.zig`, `core/tree.zig`,
-`core/diagnostics.zig`, folded in `core/number.zig`) as PR #17, still awaiting human merge.
-Noted: local sandbox sometimes lacks the 0.16.0 toolchain — CI is the real gate.
+Cycles 0-12 (2026-09-05 to 09-12, condensed 2026-10-11): realm created (scaffold survey, 285 LOC
+stubs). Plan 001 (PR #2, issue #3) closed 11/11: hygiene, `tidy` build step vendored from citadel
+templates (PR #6), cycle 5 stabilization fixed 9 findings (PR #7), 0.16 main/args/allocators and library
+sweep (PRs #8-#9), ADR 0001 `io: Io` convention (PR #10), assertion baseline (PR #13; reviewer caught
+an argv assert that was shell data, not a caller contract), README/CHANGELOG, version 0.2.0 (no release).
+Cycle 10 fixed `isWireFormatPath`'s second `catch unreachable` (PR #14). Plan 002 opened as PR #17.
+Local sandbox sometimes lacks the 0.16.0 toolchain: CI is the real gate.
 
 Cycle 13 (2026-09-15, FEATURE): plan PR #17 open, no OWNER activity → one stabilization task:
 fixed carried finding 1/3 (moved `tidy_baseline.txt` from repo root to `tools/`, TDD'd via the

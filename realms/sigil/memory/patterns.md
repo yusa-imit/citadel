@@ -72,3 +72,8 @@ truly harmless). Same test applies to any tidy-style lint: prefer a postconditio
 something about *this function's* logic (e.g. `flush()` then `assert(writer.end == 0)`) over
 one that just restates a stdlib type's own invariant (`assert(end <= buffer.len)` on
 `std.Io.Writer` is always true by construction and catches nothing).
+
+Vendored fixtures: sigil's `.gitignore` has `test_*` (scratch), which silently ignores any vendored
+directory named `test_*` (JSONTestSuite's `test_parsing`). After `cp -R`, compare `git ls-files <dir> |
+wc -l` with the file count; a corpus read at run time passes locally and fails in CI with
+`FileNotFound` otherwise. Un-ignore with `!/tests/json/test_parsing/`.
