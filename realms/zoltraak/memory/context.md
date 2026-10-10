@@ -1,7 +1,23 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-10T00:00:00Z
+last_seen_at: 2026-10-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 23 — 2026-10-11 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on fe7633a), no bugs, no plan PR, milestone #121 open, no new
+  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
+- `/stabilize --one`: PR #147. Real bug: legacy JSON paths `.a.b` / `.*` / `.a` returned
+  InvalidPathSyntax (scan started past the root dot). New `scan_start` helper in
+  `storage/jsonpath.zig`; `.`, `..x`, `.[0]` unchanged (tests pin them). Wired jsonpath into the
+  `src/main.zig` reachability test: `zig build test` 1275 -> 1291, only the 2 known signal-4
+  crashers. CI green (6m48s / 49s), merged, labeled auto-merged.
+- Tidy: `parse` has a shrink-only baseline (91 lines); extracting the helper kept it there.
+- Lesson: `rm -rf .zig-cache` again fixed a `FileNotFound` build-runner error.
+- Not mine: `./zig-out/bin/zoltraak` pid 80225 still running; left alone.
+- Next: bloom compile error (LoadContext), then wire; aof/replication/persistence/eviction need
+  build-module wiring; commands/*.zig stale tests; stash triage (stash@{0}); cycle 25 is forced
+  STABILIZATION. Items 4-9, 12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 22 — 2026-10-10 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on 57cacc9), no bugs, no plan PR, milestone #121 open, no
