@@ -3,6 +3,22 @@
 last_seen_at: 2026-10-10T00:00:00Z
 rejected_plans: []
 
+## Cycle 42 — 2026-10-10 — FEATURE
+- Done: plan 003 item 6 — `PageManager.allocate/free/sync` (`src/page/manager.zig`, tests in
+  `manager_alloc_test.zig`: growth/limit, LIFO, trunk spill+drain at 512 B, reopen, corrupt head/
+  entry/next, seeded 600-step model with reopen + full freelist-chain partition check).
+- PRs: #40 merged (squash, CI 7/7, auto-merged). Issue #34 item 6 ticked.
+- Review: code-reviewer 0 critical, 5 warnings fixed (crash-order doc: write order only holds if
+  OS persists in order, WAL owns it; scratch reuse so free uses 128 KiB stack; head short read ->
+  Corrupted; double-free doc; CHANGELOG). Cost ~ $1.55 of $4 (tests + impl by author, no test-writer).
+- Contract for item 7+: `allocate` returns a reused page with stale bytes (trunk image) until written;
+  grown pages read `Unwritten`; deeper-trunk double free is the caller's problem; `free` uses
+  `wal_lsn` as page lsn. `page_count_max` bounds growth only.
+- Next: item 7 — `cache/buffer_pool.zig` CLOCK fetch + pin (all alloc in init, PoolExhausted, stats).
+- Blockers: none. Open questions: none.
+- Note: `fixtures.id_of` asserts raw < 64; larger tests need a local id helper. Tidy density is per
+  file incl. test helpers; Bash `sleep` loops of <=10 s work for waiting on a background agent.
+
 ## Cycle 41 — 2026-10-10 — FEATURE
 - Done: plan 003 item 5 — `src/page/manager.zig`: `PageManager` create/open/read/write (exclusive
   tryLock, ADR-0002 §5 open sequence, short/foreign file -> Corrupted, EOF inside a page ->
@@ -154,4 +170,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 approved; milestone issue #34. Items 1-5 done; implement item 6 (manager allocate/free/sync).
+Plan 003 approved; milestone issue #34. Items 1-6 done; implement item 7 (`cache/buffer_pool.zig`).
