@@ -71,115 +71,42 @@ groupAwait cancel, eager async, timer wheel + native sleep, offload pool). No co
 Gotchas: guard blocks compound Bash with `cd` into a repo or globs over sibling repos; the primary cwd
 is already sirocco; `zig build test` on 0.16.0 is silent on pass.
 
-## History (cycles 34-36)
-Cycle 36 (10-06): item 8 via PR #29 (merged 4028871): `src/futex.zig` FIFO wait table (record in
-`Sched.Fiber`), `src/fiber_switch.zig` split out of sched.zig; interrupted tree preserved as
-`wip/feat-futex-wait-table-20261006` (do not delete); reviewer CRITICAL: futexWake from a non-carrier
-thread raced the wait list (spinlock + `unpark_foreign`). Known gap: `groupAwait` ignores cancel
-while parked (plan 003). Gotchas: `@fence` gone in 0.16 (seq_cst `@atomicRmw(.Add, 0)`); guard blocks
-a first Bash call mixing `echo > /tmp` with citadel path vars.
-Cycle 35 (10-05): item 7 via PR #28 (merged fdf7d6b): native `groupAsync`/`groupAwait`/`groupCancel` +
-`crashHandler` in `src/concurrency.zig`, `groupConcurrent` = ConcurrencyUnavailable; crashHandler must
-set `.acknowledged`. Cycle 34 (10-04): item 6 via PR #27 (merged aad6b0f): native
-`checkCancel`/`recancel`/`swapCancelProtection`; reviewer CRITICAL: `in_fiber` must check threadlocal
-`carrier_active` since group workers still run on Threaded threads. Gotchas: guard blocks `cd <repo>`
-and `sed -i` in compound commands (use Edit/python, run zig by full path); stale `.zig-cache`
-FileNotFound -> `rm -rf .zig-cache`; slot-table negative tests in `slots.zig` hardcode a delegated
-sample slot, pick the first still-delegated one.
+## History (cycles 0-36, condensed 2026-10-10)
 
-## History (cycles 32-33)
-Cycle 33 (10-04): item 5 closed via PR #26, `bench/spawn.zig`/`zig build bench-spawn` (gate 6:
-1 in flight 32 ns vs Threaded 1799 ns pass; 1000 in flight 62283 ns vs 660 ns FAIL since async is
-lazy; revisit with items 8/9). Cycle 32 (10-03): item 5 slots via PR #25: native async/await/
-cancel in `src/concurrency.zig`; hang root cause was std's unwinder walking off the fiber base
-(fixed by a zero return-address sentinel); `wip/async-await-slots-20261003` kept (do not delete).
-Gotchas: `zig test --dep sirocco -Mroot=tests/parity/root.zig -Msirocco=src/root.zig
--fno-omit-frame-pointer --test-no-exec` builds the parity binary alone; no `timeout` on macOS
-(python subprocess timeout); `--test-filter` is compile-time only; read the last `N/M name...`
-line to tell a crash from a hang.
-
-## History (cycles 30-31)
-Cycle 31 (10-03): found ~680 dirty lines of an interrupted item-5 attempt, preserved as
-`wip/async-await-slots-20261003` (do not delete); trial run hung. Cycle 30 (10-02, forced
-STABILIZATION on OWNER bug #23): x86_64 ReleaseSmall SEGV fixed via PR #24 with own naked
-`switch_context_asm` (LLVM -Os dropped a `lea` into rsi), `callconv(.c)` pointer +
-`@call(.never_inline)`. Gotchas: naked fn params break the self-hosted x86_64 backend (only CI
-catches it); no Rosetta/qemu, so x86_64 is verified by asm inspection + CI; `sleep` blocked in
-Bash (use `until` loops); no `timeout` on macOS; guard blocks `cd <repo>` in compound commands
-and inline python writing into citadel (use Edit/Write tools).
-
-## History (cycle 29)
-
-Cycle 29 (2026-10-01): plan 002 item 4 via PR #22: `src/sched.zig` fiber substrate (init-time
-stacks, FIFO ready queue, spawn/yield/park/unpark, canary on every switch-out, lock-free
-`unpark_foreign` inbox + futex wait), `stdx.assert_always`. code-reviewer CRITICAL: optimized
-aarch64 builds crashed (inlined `Io.fiber.contextSwitch` clobbers x29/x30); fixed with `noinline
-switch_context`, `omit_frame_pointer = false`, `zig build test` honouring `-Doptimize`, CI running
-ReleaseSafe/Fast (ReleaseSmall on macOS). Opened bug #23 (x86_64 ReleaseSmall SEGV, fixed in cycle
-30). Gotchas: zsh treats `echo "== x"` as `=cmd` expansion; fiber code needs frame pointers.
-
-## History (cycles 26-28)
-
-Plan 002 items 1-3 shipped: macOS CI runner (#19), `src/runtime.zig` `Runtime` with all 109 slots
-forwarded and the stub modules deleted (#20, cycle 27), `tests/parity/` harness + 109-slot table
-(#21, cycle 28). Gotchas: `expectEqualDeep` on a deliberate mismatch prints noise (avoid in
-negative tests); handle-returning slots need their own harness helper; `sed -i` needs `''` on macOS;
-zsh treats `echo "== x"` as `=cmd` expansion; no `timeout` on macOS.
-
-## History (cycles 15-25)
-
-Cycles 15-25 (2026-09-16 to 09-29, mostly quiet FEATURE, one STABILIZATION at 15): plan PR #13
-stayed open awaiting the human with zero OWNER activity. Cycle 15's full audit (CI/build/tidy/tests
-green, tidy-auditor and test-writer found no real defects) fixed a counter/context.md desync;
-cycles 16-18 and 22-25 ran at most one bounded stabilization, 19-21 skipped it as a no-op. Cycle 22
-cleared a stale `.zig-cache` and swept up uncommitted cycles 19-21 memory (citadel commit lock
-contention, sirocco#17). No PRs, no fixes needed.
-
-## History (cycles 0-9, 10-14)
-Cycle 14 (2026-09-15, FEATURE): plan PR open, bounded stabilization. Stale `.zig-cache` cleared
-(local-only, not a regression); tidy-auditor clean, same baseline as 5/10/11/12. Fixed stale
-`//!` headers in `tools/tidy.zig`/`tools/tidy_test.zig` still calling `checkSource` unimplemented
-though it shipped in v0.2.0, via PR #16 (merged). Deliberately left `root.zig`'s pre-ADR
-`io`/`net`/`tls`/`http`/`ws`/`task` exports alone — expected until plan 002's `Runtime` merges.
-Cycle 13 (2026-09-13, FEATURE): plan PR open, bounded stabilization. Reinstalled the missing
-pinned 0.16.0 toolchain (dev-box gap, not a repo regression); build/test/fmt/tidy all green
-after. tidy-auditor found one real doc-cross-reference drift: `root.zig`/`bench/main.zig` `//!`
-headers pointed at the replaced `docs/milestones.md` — fixed via PR #15.
-Cycle 12 (2026-09-12, FEATURE): plan PR open, bounded stabilization. CI/build/tidy all clean.
-tidy-auditor found real drift: README's intro made present-tense capability claims (`Runtime`
-type, kqueue/epoll backends) contradicting the stub-only v0.2.0 code and the README's own
-Status section — reworded to design-target language via PR #14 (docs-only, merged). Cycle 11
-(2026-09-12, FEATURE): plan PR open, bounded stabilization; CI/build/tidy clean, zero mechanical
-violations, nothing to fix. Cycle 10 (2026-09-11, STABILIZATION, n%5==0): full stabilize — CI
-5/5 green, build/fmt/tidy clean, tidy and test-quality audits both clean, docs/deps/hygiene
-clean, nothing to fix; stabilize_streak reset to 0.
-
-Cycle 9 (2026-09-11, FEATURE): closed milestone #3 (item 11, release v0.2.0 — PR #12, tag,
-GitHub release; no consumer pins sirocco yet so no migration issues opened), then drafted plan
-002 (`planner`/opus): fiber scheduler + futex core, P0 (concurrency/cancel, 12 slots) + P1
-(futex trio, 3 slots), nine one-cycle items starting with the macOS CI runner and a walking-
-skeleton `Runtime` forwarding all 109 vtable slots. Version impact MINOR. Plan PR #13 opened,
-awaiting human merge (still open as of cycle 15). Cycle 8 (2026-09-10, FEATURE): item 10
-(README/CHANGELOG reconciliation) via PR #11 — added `CHANGELOG.md`, fixed the Install
-section's uncut `v0.1.0` tag reference.
-Cycle 7 (2026-09-10, FEATURE): item 9 (`wip/*` branch decision) via PR #10 — verified no
-`wip/*` branch exists for sirocco; decision recorded as ADR-002.
-Cycle 0 (2026-09-05, RESTRUCTURE): realm created, plan 001 prescribed. Cycle 1 (2026-09-06,
-FEATURE): opened milestone issue #3; item 1 via PR #4. Cycle 2 (2026-09-07, FEATURE): item 2
-(`zig build tidy` step) via PR #5. Cycle 3 (2026-09-07, FEATURE): items 3-6 (0.16 migration of
-main.zig/bench/tidy tool, pin+CI) bundled into PR #6 — bundling was necessary since `zig build
-test` compiles all entry points in one graph. Cycle 3b (2026-09-08, disk-blocked no-op):
-`df -g /` was 16 GB, below the 20 GB gate; stopped before any work, counter not advanced.
-Cycle 4 (2026-09-08, FEATURE): item 7 (PRD rewrite against `std.Io.VTable`, ADR 0001) via PR
-#7, docs-only — found std's own evented `Io` impls don't compile on 0.16.0, sirocco's actual
-reason to exist now; declared the 40-slot hybrid forwarding to `Io.Threaded`. Cycle 5
-(2026-09-09, STABILIZATION, n%5==0): CI green, tidy audit mechanically clean (repo is
-stub-only, so zero counters prove nothing yet); found and fixed real docs drift instead —
-README still described the pre-ADR parallel io/net/tls/http/ws/task API — via PR #8. Cycle 6
-(2026-09-09, FEATURE): item 8 (Assertion and Tiger Style baseline) via PR #9 — landed on the
-two real entry points (`main.zig`, `bench/main.zig`) since `root.zig` has no `pub fn` yet;
-shared `assert`/`maybe` moved to new `src/stdx.zig`. A code-reviewer pass caught compound
-implication asserts that just restated a branch instead of deriving an independent property.
+- **Cycles 0-9 (09-05 to 09-11, plan 001)**: realm created; milestone #3; `zig build tidy`
+  (PR #5); 0.16 migration bundled into PR #6 because `zig build test` compiles every entry point
+  in one graph; PRD rewritten against `std.Io.VTable` (ADR 0001, PR #7: std's evented `Io` impls
+  do not compile on 0.16.0, so sirocco declares a 40-slot hybrid forwarding to `Io.Threaded`);
+  assertion baseline with shared `assert`/`maybe` in `src/stdx.zig` (PR #9; reviewer caught
+  compound implication asserts that restate a branch); ADR-002 (no `wip/*` branch); CHANGELOG
+  (PR #11); v0.2.0 released (PR #12). A disk-blocked no-op (`df -g /` below the 20 GB gate) did
+  not advance the counter. Plan 002 drafted (PR #13).
+- **Cycles 10-25 (09-11 to 09-29)**: plan PR #13 open, no OWNER activity; bounded stabilization
+  fixed only docs drift (PRs #8, #14, #15, #16). Stale `.zig-cache` and a missing pinned
+  toolchain are dev-box gaps, not regressions. Cycle 22 swept up uncommitted cycles 19-21 memory
+  (citadel commit lock contention, sirocco#17).
+- **Cycles 26-29 (10-01)**: macOS CI runner (#19); `src/runtime.zig` `Runtime` forwarding all 109
+  slots (#20); `tests/parity/` harness (#21); `src/sched.zig` fiber substrate (#22). Reviewer
+  CRITICAL: optimized aarch64 builds crashed (inlined `Io.fiber.contextSwitch` clobbers x29/x30);
+  fix is `noinline switch_context`, `omit_frame_pointer = false`, CI on ReleaseSafe/Fast.
+- **Cycles 30-31 (10-02/03)**: x86_64 ReleaseSmall SEGV (bug #23) fixed by PR #24: own naked
+  `switch_context_asm`, `callconv(.c)` pointer, `@call(.never_inline)`. No Rosetta/qemu, so
+  x86_64 is verified by asm inspection + CI. Interrupted item-5 tree kept as
+  `wip/async-await-slots-20261003` (do not delete).
+- **Cycles 32-36 (10-03 to 10-06)**: native async/await/cancel slots (PR #25; hang root cause
+  was std's unwinder walking off the fiber base, fixed by a zero return-address sentinel);
+  `bench/spawn.zig` gate 6 (PR #26); cancel trio (PR #27, `in_fiber` must check threadlocal
+  `carrier_active`); group slots + `crashHandler` (PR #28, must set `.acknowledged`);
+  `src/futex.zig` FIFO wait table (PR #29; `futexWake` from a non-carrier thread needs a
+  spinlock + `unpark_foreign`); `wip/feat-futex-wait-table-20261006` kept (do not delete).
+- **Gotchas from these cycles**: `@fence` is gone in 0.16 (use seq_cst `@atomicRmw(.Add, 0)`);
+  naked fn params break the self-hosted x86_64 backend (only CI catches it); `--test-filter` is
+  compile-time only, read the last `N/M name...` line to tell a crash from a hang; the parity
+  binary builds alone with `zig test --dep sirocco -Mroot=tests/parity/root.zig
+  -Msirocco=src/root.zig -fno-omit-frame-pointer --test-no-exec`; slot-table negative tests in
+  `slots.zig` hardcode a delegated sample slot, pick the first still-delegated one;
+  `expectEqualDeep` on a deliberate mismatch prints noise; no `timeout` or `sleep` in Bash
+  (python subprocess timeout, `until` loops); zsh expands `echo "== x"` as `=cmd`.
 
 Standing backlog / next-work order after milestone 001 closes (from old
 `.claude/memory/project-context.md`; `docs/plans/NNN-*.md` is the source of truth, not the

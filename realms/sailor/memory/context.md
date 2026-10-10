@@ -115,104 +115,27 @@ Guard quirk: run `gh` without `cd`; memory writes via Write/Edit, not heredocs.
   signatures (item 12). v3.0.0 not tagged: needs items 11 (assertion baseline, 2/5) and 12.
 - Earlier run (2026-09-28): errors 696→207; mechanical renames, Io wave 1 sinks, started wave 2.
 
-## History (cycles 16-18, condensed 2026-10-04)
+## History (cycles 0-18, condensed 2026-10-10)
 
-Cycles 16-18 (2026-09-26 to 09-29, FEATURE): merged PR #36 and proof-commented
-`inspector.zig`'s 2 `catch unreachable` test-visitor sites (PR #37). Ticked the stale
-`wip/timeline-description-rendering` checkbox (branch stays, never delete `wip/*`). Item 11
-(assertion baseline) started: `term.zig` PR #38 (`getSizeWindows` returns
-`TerminalSizeUnavailable`), `arg.zig` PR #39 from the preserved
-`wip/arg-assertion-baseline-20260928` (`maybe` later moved to `src/stdx.zig`). The tidy ratchet
-bites when asserts grow a function over baseline: extract helpers to file scope. Reviewer caught
-`std.io.fixedBufferStream` in new tests (use `std.Io.Writer.fixed`) and tautological asserts.
-#34 got the OWNER's cron-exception reply; its window is ON (sailor-migration owned items 4/6-10).
-Open: `zig fmt --check src` flags 78 pre-existing files (CI does not run it).
-
-
-## History (cycles 13-15, condensed 2026-09-29)
-
-Cycle 15 (STABILIZATION, 2026-09-17): merged PR #35 (nested `ArrayList` `.empty` sweep).
-`tidy-auditor` found zero baseline drift. Proof-commented `src/arg.zig:590` as PR #36 (tidy
-baseline 359→358). Next provable candidates: `src/tui/inspector.zig:941,966` and
-`src/tui/async_loop.zig:563,685,733,792,887`. NOT provable, need typed-error redesign:
-`event_metrics.zig`/`render_metrics.zig` (4 sites), `bench.zig` (5, `Timer.start()` can fail),
-`smart_autocomplete.zig` (2).
-
-Cycle 14 (FEATURE, 2026-09-16): merged PR #33 (closes the `//!` header sweep). Re-probed
-milestone #19 items 4/6-10 with `zig test src/sailor.zig` on 0.16.0 (347 errors): no partial
-rename can land on the pinned 0.15.2 build. Filed question+needs-human issue #34 (long session
-vs multi-cycle `wip/*` migration branch). Found PR #28's `ArrayList` sweep missed 65 nested-field
-sites in 34 files (see [[patterns]] "Caution on done mechanical sweeps"); fixed as PR #35.
-
-Cycle 13 (FEATURE, 2026-09-15): merged PR #32; `//!` headers for `src/tui/widgets/` (38 files)
-as PR #33 (tidy baseline 397→359). Items 4/6/7 confirmed toolchain-blocked; do not re-check.
-Remaining tidy gaps then: 52 files >800 lines, `while (true)` loops, function length,
-`assert(` density.
-
-## History (cycles 0-10, condensed 2026-09-17)
-
-Cycle 12 (FEATURE, 2026-09-15): merged PR #31; `//!` header sweep of `src/tui/` core (35 files)
-as PR #32. #19 items 4/6/7 blocked (toolchain switch + `std.Io` rewrite); do not re-check.
-
-Cycle 11 (FEATURE, 2026-09-12): merged PR #30; added `//!` headers to 13 top-level `src/*.zig`
-files as PR #31 (tidy baseline 446→433, cross-checked with a second binary).
-
-
-Cycle 10 (STABILIZATION, 2026-09-12): merged PR #29. `tidy-auditor` found zero baseline drift.
-Proof-commented `pipeline.zig`'s 2 `catch_unreachable` sites (progress formatters) as PR #30.
-
-Cycle 9 (FEATURE, 2026-09-11): re-verified item 4's remainder still has no 0.15.2-compatible
-spelling (direct stdlib read, same conclusion as cycles 6-8). Fell back to stabilize: proof-
-commented `countdown_timer.zig`'s 3 `catch unreachable` sites as PR #29.
-
-Cycle 8 (FEATURE, 2026-09-11): checked item 5 (`ArrayList` literal sweep) the same way cycle 6
-found item 4's safe half — confirmed `.empty` is 0.15.2-compatible, mechanically replaced all 132
-`= .{}` sites across 34 files as PR #28 (merged). See [[patterns]] for the reusable
-"check for a 0.15.2-compatible spelling before assuming toolchain-blocked" pattern.
-
-Cycle 7 (FEATURE, 2026-09-10): merged PR #26 (safe-half renames). Confirmed item 4's remainder
-(`Io.Mutex`, env access, `posix.isatty`, `mem.indexOf*`→`find*`, ~500 sites) has zero
-0.15.2-compatible spelling, unsafe to land blind. Proof-commented `eventbus.zig`'s 3 test-only
-`catch unreachable` sites as PR #27.
-
-## History (cycles 0-6, condensed 2026-09-12)
-
-Cycle 6 (FEATURE, 2026-09-10): merged PR #25 (`crypto_random` tidy tracking). Read 0.15.2 and
-0.16.0 stdlib directly and found item 4's six renames split cleanly: `GeneralPurposeAllocator`→
-`DebugAllocator` and `linkLibC()`→`.link_libc = true` are safe under 0.15.2 now; `Io.Mutex`, env
-access, `posix.isatty`, `mem.indexOf*`→`find*` (478 sites) have no 0.15.2-compatible spelling and
-need the actual toolchain switch — this is the finding cycles 7/9/11 kept re-confirming. Landed
-the safe half as PR #26 (left open for cycle 7's inbox); item 4 left unticked.
-
-Cycle 5 (STABILIZATION, 2026-09-09): merged PR #24 (`@panic` tidy tracking, all 8 sites
-proof-commented). `tidy-auditor` found zero baseline drift; added a new `crypto_random` tidy
-check (mirroring `time_usage`) as PR #25, left open for next cycle.
-
-Cycle 4 (STABILIZATION, 2026-09-08): CI red on `main` (flaky `avg_ns` perf assertion) forced
-STABILIZATION; merged cycle 3's already-prepared fix PR #23, confirmed green. `tidy-auditor`
-found `zig build tidy` passing cleanly (447 entries); flagged `@panic` (8, 2 files) as next
-target.
-
-Cycle 3 (FEATURE, 2026-09-07): fixed a Windows-only CRLF bug in the tidy step's
-`countLongLines` (PR #21) — see [[debugging]] for the durable pattern. Rebased
-`wip/timeline-description-rendering` onto main as PR #22, merged.
-
-Cycle 2 (FEATURE, 2026-09-06): implemented plan 001 item 2, the `tidy` build step —
-`build_support/tidy.zig` (line/function length, missing `//!` header, unproven
-`catch unreachable`, `std.debug.print`/`std.time.*`, `usize` in wire formats; 30 TDD tests) plus
-`build_support/tidy_main.zig` CLI, wired into `zig build test`; generated `tidy_baseline.txt`
-(447 entries) as the starting ratchet. PR #21 opened (merged next cycle after a Windows-only
-CRLF fix — see [[debugging]]).
-
-Cycle 0 (RESTRUCTURE, 2026-09-05): realm created; memory migrated from the repo's former
-`.claude/memory/`; plan `001` prescribed (Zig 0.16 migration, MAJOR → v3.0.0, 368 probe errors +
-`linkLibC`). `wip/timeline-description-rendering` preserved mid-cycle TDD work (finished as PR
-#22 in cycle 3). Standing backlog carried forward, still partly open: the v2.100.0
-"Widget Doc-Comment Audit Round 3" milestone has `terminal.zig` (`AnsiParseState` wiring),
-`pager.zig` (soft-wrap), `metrics_dashboard.zig`/`richtext.zig` (scope decisions), and
-`paragraph.zig` (word/char wrap + RTL/bidi, architect pass, do last) still unaddressed —
-separate from plan `001`/milestone #19, not yet resumed. Repo hygiene backlog (stale
-`README.md`/`docs/PRD.md`, 52 files >800 lines) also still open, tracked in STATE.md.
-
-Cycle 1 (FEATURE, 2026-09-05): plan `001` merged as #18; opened tracking issue #19 (12-item
-checklist). Implemented item 1 (hygiene leftovers) as PR #20, merged.
+- **Cycles 0-2 (2026-09-05/06)**: realm created; plan `001` merged (#18, tracking issue #19);
+  hygiene PR #20; `tidy` build step (`build_support/tidy.zig`, 30 TDD tests, 447-entry
+  `tidy_baseline.txt` ratchet) wired into `zig build test`. `wip/timeline-description-rendering`
+  preserved, finished as PR #22 (never delete `wip/*`).
+- **Cycles 3-5 (09-07 to 09-09)**: Windows-only CRLF bug in `countLongLines` (PR #21, see
+  [[debugging]]); flaky `avg_ns` perf assertion fixed (PR #23); `@panic` sites proof-commented
+  (PR #24); `crypto_random` tidy check (PR #25).
+- **Cycles 6-9 (09-10/11)**: read both stdlibs and split item 4: `DebugAllocator` and
+  `.link_libc = true` landed early (PR #26); `Io.Mutex`, env access, `posix.isatty`, `find*`
+  renames had no 0.15.2 spelling and waited for the toolchain switch. `ArrayList` `.empty` sweep
+  (PR #28). See [[patterns]] "check for a 0.15.2-compatible spelling".
+- **Cycles 10-15 (09-12 to 09-17)**: `//!` header sweeps (top-level, `tui/`, `tui/widgets/`;
+  baseline 446→359); `catch unreachable` proof comments; nested `ArrayList` sweep missed 65
+  sites (PR #35, see [[patterns]] "Caution on done mechanical sweeps"); question issue #34
+  filed on the migration branch vs long session.
+- **Cycles 16-18 (09-26 to 09-29)**: item 11 assertion baseline started (`term.zig` #38,
+  `arg.zig` #39); #34 got the OWNER's cron-exception reply (migration window ON). Reviewer
+  lesson: use `std.Io.Writer.fixed`, not `std.io.fixedBufferStream`; no tautological asserts.
+- **Backlog carried since cycle 0, still open**: v2.100.0 "Widget Doc-Comment Audit Round 3"
+  (`terminal.zig` `AnsiParseState`, `pager.zig` soft-wrap, `metrics_dashboard.zig`/`richtext.zig`
+  scope decisions, `paragraph.zig` wrap + RTL last); stale-doc and 52-files->800-lines hygiene
+  tracked in STATE.md; `zig fmt --check src` flags 78 old files (CI does not run it).

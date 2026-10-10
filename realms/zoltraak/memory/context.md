@@ -86,80 +86,24 @@ rejected_plans: []
   Cycle 20 is forced STABILIZATION.
 - Blockers: zuda v3.0.0. Open questions: none.
 
-## Cycle 17 — 2026-10-05 — FEATURE (all plan items blocked)
-- Preflight: tree was dirty on `chore/std-log-main-prints` (main.zig std.log work). Preserved
-  on `wip/std-log-main-prints-20261005` (pushed), then landed as PR #140 from a fresh branch.
-  main CI green on 53e76c1, no bugs, no plan PR, milestone #121 open, no owner comments.
-- Items 4-9, 12 blocked (zuda v2.3.0, sailor v2.99.0; need v3.0.0).
-- `/stabilize --one`: PR #140 moved main.zig's 21 `std.debug.print` to `std.log`; usage text via
-  pure `usageText` (+2 tests). CI green, merged, labeled auto-merged. tidy `debug_print`
-  main.zig = 0. Remaining `debug.print`: cli.zig 45 only. Local `zig build test`: 1108/1108,
-  only the 2 known signal-4 RDB crashers (test_iter432/437).
-- `FileNotFound` build-runner error recurred on a stale `.zig-cache`; `rm -rf .zig-cache` fixed
-  it. Last cycle's hung local test did not recur.
-- Next: cli.zig 45 debug.print (CLI output is product, not diagnostics: needs a stdout writer
-  decision); stash triage (stash@{0} may fix the signal-4 crashers). Cycle 20 is forced
-  STABILIZATION.
-- Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
+## History (cycles 13-17, condensed 2026-10-10)
 
-## Cycle 16 — 2026-10-03 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on b866a4d), no bugs, no plan PR, milestone #121 open, no
-  owner comments since watermark. Items 4-9, 12 blocked (zuda v2.3.0, sailor v2.99.0).
-- `/stabilize --one`: PR #139 moved server.zig's 26 `std.debug.print` to `std.log`
-  (warn/info, ANSI banner dropped), tidy baseline server.zig debug_print = 0. CI green
-  (5m6s / 56s), merged, labeled auto-merged. Remaining `debug.print`: cli 45, main 21.
-- Local `zig build test` HUNG: a test binary sat at 0% CPU for 14+ min (a leaked binary from
-  `.zig-cache2` is hung 2 days too; pid 68879, not mine, left alone — kill it). Cause unknown;
-  not caused by #139 (CI passed). Triage next stabilize: find the hanging test.
-- README still says "Zig 0.15.0 or later"/"Planned Features"; rewrite is plan item 12.
-- Next: main.zig/cli.zig debug.print; stash triage; hung local test.
-- Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
-
-## Cycle 15 — 2026-10-02 — STABILIZATION (forced, n%5==0)
-- Preflight clean (main, CI green on 5338de8), no bugs, no plan PR, milestone #121 open, no
-  owner comments since watermark.
-- Merged #137 (CI runs `zig fmt --check src build.zig`; green 6m50s / 50s), labeled auto-merged.
-- Stabilize task: PR #138 moved 13 `std.debug.print` calls (storage, commands, scripting) to
-  `std.log.warn/info`; tidy baseline `debug_print` = 0 for those 7 files. CI green, merged.
-  Remaining `std.debug.print`: cli 45, server 26, main 21 (92 total). STATE.md updated.
-- Local `zig build test` fixed by `rm -rf .zig-cache` (cycle 14's FileNotFound): 1106/1106,
-  only the 2 known signal-4 RDB crashers (test_iter432/437) fail.
-- Next: items 4-9, 12 still blocked (zuda/sailor need v3.0.0). Standing backlog: stash triage
-  (stash@{0} may fix signal-4 crashers); debug.print in server.zig/main.zig/cli.zig.
-- Guard hook: compound `cd repo; ...` / `timeout` / chained `sleep` blocked; run plain commands.
-- Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
-
-## Cycle 14 — 2026-10-01 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on 5338de8), no bugs, no plan PR, milestone #121 open, no
-  owner actions (only comment since watermark was our own cycle-13 report). Items 4-9, 12
-  blocked (zuda v2.3.0, sailor v2.99.0; need v3.0.0).
-- Ran `/stabilize --one`: PR #137 (`ci/zig-fmt-check`) adds `zig fmt --check src build.zig` to
-  the Build & Test job. CI was still IN_PROGRESS at the deadline — NOT merged. Next cycle's
-  inbox step 8 must merge #137 if green (label auto-merged), else fix.
-- Local `zig build test` could not run: default cache failed "failed to spawn build runner
-  ... FileNotFound"; deleting that cache entry did not help; a fresh `--cache-dir` build did
-  not finish in 10 min. `zig fmt --check src build.zig` passed locally. Source tree identical
-  to green main; only ci.yml changed. Next cycle: if it recurs, `rm -rf .zig-cache` (ignored).
-- Standing backlog: stash triage (stash@{0} may fix signal-4 RDB crashes); 105
-  `std.debug.print` (cli 45, server 26, main 21). Cycle 15 is forced STABILIZATION.
-- Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
-
-## Cycle 13 — 2026-09-30 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on 165f481), no bugs, no plan PR, milestone #121 open, no
-  owner comments since watermark. Items 4-9, 12 blocked (zuda v2.3.0, sailor v2.99.0).
-- Ran `/stabilize --one`: PR #136 applied `zig fmt` to the 13 files that failed
-  `zig fmt --check` (no logic change). `zig fmt --check src build.zig` now clean on main.
-  eviction.zig WRITE_COMMANDS repacked 4/row (long_lines baseline 5 -> 2); baseline function
-  lengths raised for cmdFtSpellcheck 158, cmdObject 270, cmdHexpire 119, cmdHpexpire 115,
-  cmdHexpireat 112, cmdHpexpireat 110 (fmt split packed `a; b;` statements; no new code).
-  CI green (5m19s / 49s), merged, labeled auto-merged.
-- Local `zig build test` (0.15.2): 1106/1106 tests pass; only the 2 known signal-4 RDB
-  crashers (test_iter432/437) fail.
-- Next: fmt is still not a CI step — consider adding `zig fmt --check` to ci.yml (CI edit in
-  a realm pre-migration is allowed only as a targeted fix; keep separate PR). Triage the 3
-  cycle-1 stashes (stash@{0} may fix signal-4 crashes). Cycle 15 is forced STABILIZATION.
-- Blockers: plan 001 items 4-9, 12 need zuda/sailor v3.0.0. Open questions: none.
-- `gh pr create --label chore` fails: no `chore` label exists in the repo; omit it.
+All FEATURE/STABILIZATION cycles with plan 001 items 4-9, 12 blocked on zuda/sailor v3.0.0; each
+ran `/stabilize --one`:
+- **13 (09-30)**: PR #136 applied `zig fmt` to 13 files (no logic change); function-length
+  baselines raised for fmt-split `cmd*` functions. Local `zig build test`: 1106/1106 except the
+  2 known signal-4 RDB crashers (`test_iter432`/`437`).
+- **14 (10-01)**: PR #137 added `zig fmt --check src build.zig` to CI (merged next cycle).
+  Local build failed with `FileNotFound` build-runner error: `rm -rf .zig-cache` fixes it.
+- **15 (10-02)**: PR #138 moved 13 `std.debug.print` calls to `std.log` (storage, commands,
+  scripting).
+- **16 (10-03)**: PR #139 moved server.zig's 26 prints to `std.log`. A leaked hung test binary
+  (not ours, pid 68879) sat at 0% CPU for days; did not recur.
+- **17 (10-05)**: tree was dirty on `chore/std-log-main-prints`; preserved on
+  `wip/std-log-main-prints-20261005`, landed as PR #140 (main.zig 21 prints, pure `usageText`).
+  Remaining `debug.print`: cli.zig 45 (CLI output is product: needs a stdout-writer decision).
+- Lessons: `gh pr create --label chore` fails (no `chore` label in the repo); guard hook blocks
+  compound `cd repo; ...`, `timeout`, chained `sleep`: run plain commands.
 
 ## History (cycles 1-9, folded)
 - Cycle 1: opened milestone #121; item 1 split into #122 (hygiene) and #123 (real MIGRATE via
