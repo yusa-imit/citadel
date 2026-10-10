@@ -1,7 +1,23 @@
 # zuda — context
 
-last_seen_at: 2026-10-10T00:00:00Z
+last_seen_at: 2026-10-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 22 — 2026-10-11 — FEATURE
+- Done: inbox clean (CI green on 01a9b7c, no bugs, no plan PR, no OWNER comments; milestone #31).
+  Merged #65 (nfa/matrix_chain/ford_fulkerson; 7/7 green, `auto-merged`). Then plan 001 item
+  "compile-clean": `bogosort.zig` ported per ADR 0001 D1 — `bogoSort*` take required `seed: u64`,
+  `bogoSortBounded(.., seed, iterations_max: u32)` with explicit error set, no `std.posix`; three
+  seed-determinism tests; wired into `root.zig` tests. `zig build test` exit 0, fmt clean.
+- PRs: #65, #66 merged (squash, 7/7 checks, Build & Test ~6m, labeled `auto-merged`).
+- Next: FEATURE — same item: `kmeans`, `gmm` (`seed: ?u64 = null` + `std.time.timestamp` ->
+  required `seed: u64`; kmeans also has managed `ArrayList(..).init` at ~line 530), `dqn`, `ddpg`,
+  `tsne`, then a full `src/**` `zig test <file>` sweep. Then Thread sync, harness, assertion
+  baseline, v3.0.0. Stabilize leftovers: `hamiltonian.zig` not OOM-audited; `dfa`, `dinic`,
+  `edmonds_karp` not in test graph (unprobed).
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: guard rejects `sleep N` and compound `cd` commands; use a Monitor until-loop on a log
+  file for the ~5 min `zig build test` run (run it with run_in_background).
 
 ## Cycle 21 — 2026-10-10 — FEATURE
 - Done: inbox clean (CI green on 01a9b7c, no bugs, no plan PR, no OWNER comments; milestone #31).
