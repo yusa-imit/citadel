@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-10-10T00:00:00Z
+last_seen_at: 2026-10-10T12:00:00Z
 rejected_plans: []
+
+## Cycle 45 — 2026-10-10 — FEATURE
+- Inbox: no OWNER activity; CI green on 94c0627; no open PRs; milestone #33 open.
+- Done: plan 003 item 6 via PR #39 (merged 28ef526, CI green Linux+macOS+6 cross, auto-merged):
+  `harness.expectSameResultInFiber` runs the `rt.io()` side in an `async` task, baseline stays
+  off-fiber; tests prove the native side is in a fiber (`rt.sched.in_fiber()` counter) and that
+  mismatches are still caught; `dir`, `time`, `futex` tables run in both placements. Tick of plan
+  item 6 via docs PR #40 (b812d61); #33 ticked.
+- Next: item 7 (ADR 0002 + `src/offload.zig`), 8, 9 (docs, v0.4.0). `src/sched.zig` is 823 lines
+  (cap 800): split its tests in item 9.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: CI ignores `docs/**` and `*.md` (paths-ignore), so docs-only PRs have no checks; a poll
+  loop on `gh pr checks` spun until the 600 s tool limit. Tick plan items inside the
+  implementation PR itself to avoid a second PR. The guard also blocks compound Bash that writes
+  citadel files (python heredoc): use Write/Edit.
 
 ## Cycle 44 — 2026-10-10 — FEATURE
 - Inbox: no OWNER activity (only the AI's own #33 comment); CI green on 372b1c0; no open PRs.
