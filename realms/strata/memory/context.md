@@ -91,77 +91,32 @@ rejected_plans: []
 - Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
 - Note: the `gh pr checks --watch` call right after PR create may say "no checks reported"; rerun.
 
-## Cycle 32 — 2026-10-05 — FEATURE
-- Done: plan PR #28 still open (CI green, no new OWNER comment; only our own status note), so one
-  `/stabilize --one`: tidy-auditor re-audit of the v0.3.0 tree, STATE.md Tiger Style table
-  replaced (412 asserts / 197 fns = 2.09; 0 files > 800; 0 fns > 70; nothing banned in `src/`).
-- PRs: #29 merged (squash, CI 7/7, auto-merged): `src/main.zig` returns the stdout flush error
-  instead of `catch {}`, and aliases `assert` once.
-- Remaining audit sweeps, smallest first: `//!` header on `build.zig`; assertion density in
-  `tools/tidy/baseline.zig` (1.08) and `checks_ban.zig` (1.33); `allocator:` -> `gpa:` and the
-  `std.debug.assert` alias across `tools/` (~88, tidy ban check does not flag it); camelCase
-  public API in `src/file/file.zig` (needs a plan, it is public).
-- Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
-- Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
-- Note: the guard hook rejects compound Bash; run one simple command per call.
+## Cycles 25-32 (2026-10-01 to 10-05, condensed 2026-10-10)
 
-## Cycle 31 — 2026-10-05 — FEATURE
-- Done: plan 002 item 10 — PR #27 merged (docs, `NotImplemented` dropped from codec/file/testing,
-  README rows Landed, `strata.version` fixed 0.1.0→0.3.0, CHANGELOG + zon 0.3.0); tag v0.3.0 +
-  GitHub release created; milestone #17 closed. No consumers, no migration issues. STATE.md has
-  the v0.3.0 entry; its Tiger Style table is still the pre-Phase-1 audit (re-audit pending).
-- Plan 003 proposed (Phase 2 page + CLOCK buffer pool, ends v0.4.0), PR #28, awaiting merge.
-  Scope cut for the human: freelist is trunk-list only, bitmap deferred. Plan item 1 adds the
-  ADR-0001 tidy guards (never landed). `file.zig` is 788/800 lines: no new `File` methods.
-- Next: when #28 merges, open milestone issue "milestone: 003 ..." and start item 1.
-- Note: guard hook rejects compound Bash and `$VAR` paths into citadel; use simple commands.
-
-## Cycle 30 — 2026-10-04 — FEATURE
-- Done: plan 002 item 9 — `bench/main.zig` codec baseline: crc32c software + hardware (hardware
-  only when `hardware_available`, else a "skipped" line), xxhash64, varint encode/decode over a
-  seeded fixture (1 MiB buffer, 64 Ki values, 256 passes); prints GB/s, ops/s, ns/op. Kernels and
-  report formatting are unit-tested (`bench_tests` in build.zig) and the ReleaseFast bench exe is
-  compiled by `zig build test`. Figures on Apple aarch64 recorded in `docs/plans/000-inherited.md`
-  (crc hw 5.3 GB/s, sw 0.58, xxhash 26.2, varint enc 198 M/s, dec 151 M/s). code-reviewer: 0
-  critical, 6 warnings fixed pre-commit (decode hoisting guard, restore values[0], real
-  StreamLengthMismatch error instead of ReleaseFast-erased assert, overflow asserts, pinned
-  boundary values 0/127/128/maxInt, compile gate for bench exe).
-- PRs: #26 merged (squash, CI 7/7 green, labelled auto-merged). Issue #17 item 9 ticked.
-- Next: item 10 — docs, module status, release v0.3.0 (drop `NotImplemented` from codec.zig/file.zig,
-  README rows Planned→Landed, tick 1A/1B/1D in 000-inherited, re-audit STATE.md, CHANGELOG +
-  `.version = "0.3.0"`, tag). Then `/release strata minor` closes #17.
-- Blockers: none. Open questions: none.
-- Note: guard hook rejects compound Bash (`;`, `&&`-heavy, $VAR paths into citadel); run simple
-  commands. Waiting on a background agent works with a bounded `for … sleep 10` loop grepping
-  the output file for `"stop_reason":"end_turn"`.
-
-## Cycle 29 — 2026-10-04 — FEATURE
-- Done: plan 002 item 8 — `src/testing/truncation_matrix_test.zig`: CRC32C-framed record
-  `[u32 len][payload][u32 crc]`, every `.truncate`/`.torn` cut at all points for sizes 8..64 KiB;
-  each damaged prefix must be TornWrite or ChecksumMismatch; broken decoders fail the sweep.
-- PRs: #25 merged (CI 7/7). Note: a torn cut one byte past a sector boundary is a clean truncation.
-  Replace the fixed-frame test decoder with the real WAL/page frame decoder when those land.
-
-## Cycle 28 — 2026-10-03 — FEATURE
-- Done: fixed PR #24's Linux-red CI (`FaultIo` must forward `checkCancel`; Linux `sync_data`
-  calls it, macOS never does). Plan 002 item 7 (`testing/crash.zig` + `FaultIo`) done.
-- Note: counter had been stuck at 26 (cycle 27's report ran out of budget). Use
-  `/Users/fn/.zr/toolchains/zig/0.16.0/zig` (PATH zig is 0.15.2). Any new `Io` wrapper must forward
-  every slot `File`/`platform` reach; compile-check Linux with
-  `zig test src/root.zig -target x86_64-linux --test-no-exec`. Builds need `--cache-dir /tmp/strata-zc`.
-
-## Cycle 26 — 2026-10-02 — FEATURE
-- Done: plan 002 item 6 — `File.sync` (exhaustive on `SyncPolicy`), `preallocate`, `lock`/`tryLock`/
-  `unlock`; `src/file/platform.zig` is the only os-branching file. Reviewer CRITICAL fixed
-  (`sync_full` fallback only for OPNOTSUPP/NOTTY/INVAL/NODEV).
-- Note: `file.zig` is 788/800 lines — further `File` methods go in a new file. `sync_data` (linux)
-  and `reserve` bypass `Io` via raw syscalls. Windows locks are mandatory; lock tests skip there.
-
-## Cycle 25 — 2026-10-01 — FEATURE
-- Done: plan 002 item 5 — `src/file/file.zig` core (`File` leaf value, no cached io; open/close/
-  readAt/readAtAll/writeAt/writeAtAll/length/setLength; `SyncPolicy`, `OpenOptions`; `direct` =>
-  `UnsupportedDirectIo`). `PageSizeUnaligned` declared but unreturned until direct-IO.
-  1<<40 sparse tests assume a sparse-file FS.
+- **25-26**: plan 002 items 5-6: `src/file/file.zig` core (`File` leaf value, no cached io;
+  `direct` => `UnsupportedDirectIo`), `sync` (exhaustive on `SyncPolicy`; `sync_full` fallback
+  only for OPNOTSUPP/NOTTY/INVAL/NODEV), `preallocate`, `lock`/`tryLock`/`unlock`;
+  `src/file/platform.zig` is the only os-branching file. `file.zig` is 788/800 lines: new `File`
+  methods go in a new file. `sync_data` (linux) and `reserve` bypass `Io` via raw syscalls.
+- **28**: PR #24 Linux-red CI: `FaultIo` must forward `checkCancel` (Linux `sync_data` calls it,
+  macOS never does). Any new `Io` wrapper must forward every slot `File`/`platform` reach;
+  compile-check Linux with `zig test src/root.zig -target x86_64-linux --test-no-exec`. Use
+  `/Users/fn/.zr/toolchains/zig/0.16.0/zig` (PATH zig is 0.15.2) and `--cache-dir /tmp/strata-zc`.
+- **29**: `src/testing/truncation_matrix_test.zig` (CRC32C-framed records, every cut at 8..64 KiB;
+  replace the fixed-frame decoder with the real WAL/page frame decoder when those land). A torn
+  cut one byte past a sector boundary is a clean truncation.
+- **30**: `bench/main.zig` codec baseline (Apple aarch64: crc hw 5.3 GB/s, sw 0.58, xxhash 26.2,
+  varint enc 198 M/s, dec 151 M/s; recorded in `docs/plans/000-inherited.md`).
+- **31**: plan 002 item 10: v0.3.0 tagged, released, milestone #17 closed; no consumers. Plan 003
+  (Phase 2 page + CLOCK buffer pool, ends v0.4.0) proposed as PR #28: freelist is trunk-list
+  only, bitmap deferred; item 1 adds the ADR-0001 tidy guards.
+- **32**: `src/main.zig` returns the stdout flush error instead of `catch {}` (PR #29);
+  STATE.md Tiger Style table refreshed (412 asserts / 197 fns = 2.09).
+- Remaining audit sweeps: `std.debug.assert` alias across `tools/` (~65, tidy ban check does
+  not flag it); assertion density in `tools/` (tidy density gate covers `src/` only); camelCase
+  public API in `src/file/file.zig` (needs a plan).
+- Notes: the guard hook rejects compound Bash and `$VAR` paths into citadel (one simple command
+  per call); `gh pr checks --watch` right after PR create may say "no checks reported", rerun.
 
 ## History
 - Cycles 33-35 (2026-10-06, FEATURE, plan PR #28 open): one `/stabilize --one` each: `build.zig` `//!`
