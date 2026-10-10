@@ -1,7 +1,22 @@
 # silica — context
 
-last_seen_at: 2026-10-09T00:00:00Z
+last_seen_at: 2026-10-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 28 — 2026-10-10 — FEATURE
+- Preflight: main clean, CI green (c511e07), no bug/question issues, no open PRs. Inbox: nothing new
+  (only OWNER comment on #137 predates watermark); zuda still v2.3.0, so migration items stay blocked.
+- Done: line-length batch 5c (PR #169, merged, `auto-merged`, CI 7/7): finished the preserved wip
+  cli+tui work on `chore/line-length-cli-tui` (checked out cli.zig/tui.zig from the wip branch onto
+  fresh main, since wip was based before #168). Two zig-developer subagents (parallel, separate
+  cache dirs) extracted helpers so all 20 grown functions are back under baseline; showTableSchema
+  and dumpTable now share `printCreateTable`. `line_length:` baseline 4 -> 2 files (engine 1186,
+  executor 598). Local `zig build test` green (4772+500 passed), ~$1.2 spent.
+- Preserved: `wip/line-length-cli-tui-20261009` is now superseded by #169 but stays (never delete wip).
+- Next: engine.zig (1186 long lines) then executor.zig (598); check baselined functions first, tell
+  agents baselined functions may not grow; for engine consider splitting by line ranges over 2 cycles.
+- Blockers: zuda v3.0.0. Open questions unchanged.
+- Tooling notes: CI ~12 min; `gh pr checks --watch` timed out at 590s, poll with a loop instead.
 
 ## Cycle 27 — 2026-10-09 — FEATURE
 - Preflight: main clean (previous checkout was merged batch5 branch), CI green (46ffcdf), no bug/question
