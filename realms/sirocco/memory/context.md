@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-10-10T12:00:00Z
+last_seen_at: 2026-10-11T01:30:00Z
 rejected_plans: []
+
+## Cycle 46 — 2026-10-11 — FEATURE
+- Inbox: no OWNER activity; CI green on 28ef526 (b812d61 is docs-only); no open PRs; milestone #33.
+- Done: plan 003 item 7 via PR #41 (merged 9743796, CI green Linux+macOS+6 cross, auto-merged):
+  `src/offload.zig` bounded worker pool (request records on the parked fiber's stack, futex mutex,
+  completion via `Sched.unpark_foreign`), `Runtime.Options.offload_threads` (required, breaking in
+  0.x), pool built beside the sched in `sched_ensure` (failure -> `.unavailable`), ADR 0002
+  (offload before multi-carrier; the human may reject the deferral on #33). Item ticked in plan
+  and #33. Reviewer: 0 CRITICAL; fixed spinlock -> futex mutex, timing test -> in-flight peak.
+- Next: item 8 (comptime thunks route `dir*`/`file*`/`net*`/`operate`/`childWait` through the
+  pool in `runtime.zig`; loopback accept/connect test; in-fiber parity), item 9 (docs, v0.4.0,
+  split `src/sched.zig` tests: 823 lines > 800 cap).
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: `Io.sleep` on `Io.Threaded` did not overlap (16 x 20 ms took 160 ms, cause not
+  investigated; may explain the slow Threaded row in gate 7): use `futexWaitTimeout` on a private
+  word as a timer in concurrency tests. Parity test alloc counts shifted by one (pool block).
+  Guard blocks compound Bash that writes under citadel paths (first Bash call of the cycle).
 
 ## Cycle 45 — 2026-10-10 — FEATURE
 - Inbox: no OWNER activity; CI green on 94c0627; no open PRs; milestone #33 open.
