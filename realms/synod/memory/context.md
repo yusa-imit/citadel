@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-10-10T03:20:00Z
+last_seen_at: 2026-10-10T06:22:00Z
 rejected_plans: []
+
+## Cycle 43 — 2026-10-10 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
+- Done: item 6 (2B-i-a leader send side) via PR #46 (squash-merged, 7/7 CI, `auto-merged`, #39
+  item 6 ticked). New `raft/leader.zig` (Progress per peer on election, sends on
+  win/propose/heartbeat, round records id/prev/last_sent/tick, timeout after election_ticks);
+  `node.zig` 786 lines; 24 new tests in `node_leader_test.zig` (383 total).
+- Review: 0 CRITICAL, 3 WARNING fixed (corrupted `//!`, effects capacity is `peers_max + 3`,
+  tautology asserts). Cost: test-writer ~$1.25, developer ~$1.07, reviewer ~$0.25; ≈ $3.2 of $4.
+- Next: item 6b (2B-i-b response side). MUST also close the liveness gap: heartbeats are gated
+  by `Progress.can_send`, so a probing peer with one lost round hears nothing until the round
+  expires (> min follower timeout, so a spurious pre-vote). Keep `inflight_count` == live
+  records when removing a round; no `InvariantRoundRecord` variant exists (node_invariants_test
+  has an exhaustive switch). Open suggestions: restored entries not checked against
+  `entry_bytes_max`; earlier ones from cycles 40-42.
+- Blockers: none. Open questions: none.
+- Tool notes: guard blocks `cd <path>;` and heredocs into citadel (use Edit/Write). Test-writer
+  left /tmp/proto (scratch reference impl; ignore). Two subagent-heavy steps cost ~$2.3.
 
 ## Cycle 42 — 2026-10-10 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
