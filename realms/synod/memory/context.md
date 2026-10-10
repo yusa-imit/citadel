@@ -1,7 +1,27 @@
 # synod — context
 
-last_seen_at: 2026-10-10T06:22:00Z
+last_seen_at: 2026-10-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 45 — 2026-10-11 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (63c9be4), milestone #39 open.
+- Done: item 6b (2B-i-b leader response side) via PR #47 (squash-merged, 7/7 CI, `auto-merged`,
+  #39 6b ticked; plan 003 6a/6b boxes ticked too). `leader.zig`: `step_response` (slot_of,
+  live_record, remove_record), `Progress.on_stale_rejection`, probe-state round timeout is now
+  `heartbeat_ticks` (closes the liveness gap; documented RTT < heartbeat_ticks). 17+2 tests in
+  `node_leader_response_test.zig`; three old probe-timeout tests in `node_leader_test.zig`
+  updated. 404 tests. `node.zig` 793 lines (cap 800).
+- Review: 0 CRITICAL, 4 WARNING fixed (RTT doc, CHANGELOG, joint-config + stale-probe tests).
+  Cost ≈ $3.3 of $4 (test-writer ~$0.7, developer ~$0.8, tests fix ~$0.3, reviewer ~$0.3, 2nd
+  test-writer ~$0.4).
+- Next: item 7 (2B-ii follower log matching) — node.zig has ~7 lines left, so put follower
+  logic in a new file (e.g. `raft/follower.zig`). Open suggestions: clear a slot's records on
+  `on_timeout`/live reject and add invariants (tail empty, ids ascending); free older records
+  with `last_sent <= matched` (etcd FreeLE); seeded response model lacks rejected/tick ops and
+  node 3; restored entries not checked against `entry_bytes_max`; earlier ones from cycles 40-42.
+- Blockers: none. Open questions: none.
+- Tool notes: code-reviewer cannot run tests (global zig is 0.15.2). A guard-safe way to run
+  the suite: `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all` from the repo cwd.
 
 ## Cycle 44 — 2026-10-10 — FEATURE (no-op, budget)
 - Inbox: no OWNER comments (the only new comment was this realm's own), no bugs, CI green on
