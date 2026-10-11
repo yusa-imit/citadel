@@ -3,6 +3,12 @@
 last_seen_at: 2026-10-11T00:00:00Z
 rejected_plans: []
 
+## Cycle 47 — 2026-10-11 — FEATURE (no-op, budget)
+- Inbox: no OWNER comments, no bugs, CI green (d400895), no open PRs, milestone #39 open.
+  Only ~$0.69 of the $4 session budget left after cycle 46 in the same session; item 8 needs
+  ~$2+, so nothing was started. Run item 8 (as in cycle 46's Next) in a fresh session.
+- Blockers: none. Open questions: none.
+
 ## Cycle 46 — 2026-10-11 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (de4b7ab), milestone #39 open.
 - Done: item 7 (2B-ii follower log matching) via PR #48 (squash-merged, 7/7 CI, `auto-merged`,
