@@ -1,7 +1,26 @@
 # sirocco — context
 
-last_seen_at: 2026-10-11T01:30:00Z
+last_seen_at: 2026-10-11T04:25:00Z
 rejected_plans: []
+
+## Cycle 47 — 2026-10-11 — FEATURE
+- Inbox: no OWNER activity; CI green on 9743796; no open PRs; milestone #33.
+- Done: plan 003 item 8 via PR #42 (merged 2e7dff5, CI green Linux+macOS+6 cross, auto-merged):
+  `src/offload_slots.zig` comptime thunks (arity 2-6, built from each VTable field type) route the
+  blocking `dir*`/`file*`/`net*`/`operate`/`childWait` slots through the pool, `.forward` mode only
+  (the thunks call the baseline). Pending cancel delivered before submit. Loopback accept+connect
+  test (hung on v0.3.0), 1-worker sizing test, cancel/protection tests. Reviewer: 0 CRITICAL; 5
+  WARNINGs fixed: closes/`netShutdown`/seeks/`fileUnlock` kept on the carrier (must not queue behind
+  parked reads), memory-map create/resize/destroy kept (shared `gpa`), `netWriteFile` and
+  `netLookup` kept (std TODO panic; queue woken via baseline futex). `Runtime.init` gpa must be
+  thread-safe. Plan item and #33 ticked in the PR/issue.
+- Next: item 9 (README drop "stalls every fiber", CHANGELOG, PRD §4.1/§4.3/§5, v0.4.0 via
+  `/release`, split `src/sched.zig` tests: 823 lines > 800 cap). Then plan 003 is fully checked.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: `build test` printed exit 0 once with a line over 100 cols in src/ (tidy test stale
+  cache); run `zig build tidy` explicitly and `rm -rf .zig-cache` when in doubt. BSD `sed -i` needs
+  an empty suffix arg. `gh pr checks` right after a push still shows the previous run: poll
+  `gh run list` by headSha. Guard blocks any compound Bash mentioning citadel paths.
 
 ## Cycle 46 — 2026-10-11 — FEATURE
 - Inbox: no OWNER activity; CI green on 28ef526 (b812d61 is docs-only); no open PRs; milestone #33.
