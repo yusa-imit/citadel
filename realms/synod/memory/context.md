@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-10-11T00:00:00Z
+last_seen_at: 2026-10-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 48 — 2026-10-12 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (d400895), milestone #39 open.
+- Done: item 8 (2B-iii commit advancement and apply) via PR #49 (squash-merged, 7/7 CI,
+  `auto-merged`, #39 item 8 ticked, plan box ticked). New `raft/commit.zig`: `advance_leader`
+  (joint quorum of matches, current-term only, Figure 8), `advance_follower` (min(leader_commit,
+  prev+entries.len)), `apply_ready` (one apply effect per step, inserted before trailing
+  `leader_changed`; replays restored commit on first step). Effect slots now `peers_max + 7`
+  (ADR-007 amended). node.zig 789 lines (cap 800). 463 tests. follower tests' `append_msg` now
+  sends `leader_commit = 0` (commit has its own file `node_commit_test.zig`).
+- NO code-reviewer pass: budget. Cost ≈ $2.7 of $4 (test-writer ~$1.15, developer ~$1.5).
+  Next cycle: run `code-reviewer` on `commit.zig` + hooks (leader.zig/follower.zig/node.zig)
+  as a small fix PR before item 9; self-read found nothing. Unproven: `match_of` treats a voter
+  without Progress as 0; commit persisted after `leader.start` relies on lone-voter having no sends.
+- Next: review of item 8, then item 9 (model-based seeded cluster test, 3 and 5 nodes, 500 seeds).
+- Blockers: none. Open questions: none.
+- Tool notes: `timeout` command absent on this box; `gh pr checks --watch` worked fine (45s CI).
 
 ## Cycle 47 — 2026-10-11 — FEATURE (no-op, budget)
 - Inbox: no OWNER comments, no bugs, CI green (d400895), no open PRs, milestone #39 open.
