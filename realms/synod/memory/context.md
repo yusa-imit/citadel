@@ -113,38 +113,20 @@ rejected_plans: []
   fails `Message.validate` — keep log terms <= header term. python3 heredocs for multi-edit
   work in the guard.
 
-## Cycle 39 — 2026-10-08 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
-- Done: item 2 (2A-i) via PR #41 (squash-merged, 7/7 CI, `auto-merged`, #39 item 2 ticked):
-  tidy `is_core_purity_file` now also matches `src/raft/*.zig`; `src/raft/node.zig` skeleton
-  (init/deinit/step/status/entries/check_invariants, term rules, 261 tests). Tests via
-  test-writer (~$1.6 — expensive), impl via zig-developer (~$1.0). Code-reviewer SKIPPED for budget.
-- ADR-007 deviations: extra `RestoreInconsistent` shapes; init makes 4 allocations (members array);
-  stale-term requests get no reply yet (2A-ii/2B add rejects).
-- Next: item 3 (2A-ii Election). FIRST run `code-reviewer` on `src/raft/node.zig` (skipped now);
-  `step_propose` leader path and Invariant{ProgressOrder,InflightOverflow,EntryDataMisplaced}
-  are unprovoked — items 2B-i/2C must add tests. Budget: a test-writer+developer item costs
-  ~$2.6; tell test-writer to keep fixtures small and not exhaustive-seed everything.
-- Blockers: none. Open questions: none.
+## Cycles 38-39 (2026-10-08), folded
 
-## Cycle 38 — 2026-10-08 — FEATURE
-- Inbox: plan 003 PR #33 merged by OWNER 2026-10-07T10:16Z; no comments, no bugs, CI green.
-  Opened milestone issue #39 (12 items).
-- Done: item 1 ADR-007 (`docs/adr/0007-raft-node-contract.md`) via PR #40 — architect (opus,
-  ~$1.4 incl. context) returned the ADR text, the main session wrote the file (architect has no
-  Write). Docs-only; test/fmt green, 7/7 CI, squash-merged, `auto-merged`, #39 item 1 ticked.
-- Key ADR-007 decisions: one ordered init-sized `Effects` list (phase non-decreasing:
-  persist→send→apply→notify); `Input = message | tick | propose`, tick = logical count, Driver
-  turns `Clock` into ticks; node owns entry bytes (`log_bytes_max`); `Node.init` takes a `Restore`
-  struct (data, no LogStore); driver does persist → one `sync()` → send → apply, any Fault is
-  fail-stop; `src/raft/{node,progress}.zig`, progress internal.
-- Next: item 2 (2A-i): FIRST widen tidy `core_purity_files` to cover `src/raft/`, then
-  `src/raft/node.zig` skeleton (roles, term rules, `check_invariants`). Tests via test-writer,
-  impl via zig-developer; PRD §4.2 should be updated to point at ADR-007 in that PR.
-- Blockers: none. Open questions: none.
-- Tool notes: `rm -rf .zig-cache` fixes `build runner FileNotFound`. Poll CI with a `for` loop
-  around `gh pr checks <n> --watch`. Budget: architect ≈ $1.4 of $4; item 2 needs test-writer +
-  zig-developer + reviewer, so expect one subagent-heavy item per cycle.
+Plan 003 PR #33 merged by OWNER 2026-10-07; milestone #39 opened (12 items). Item 1: ADR-007
+(`docs/adr/0007-raft-node-contract.md`, PR #40; architect has no Write, the main session wrote
+the file). Decisions: one ordered init-sized `Effects` list (phase non-decreasing:
+persist -> send -> apply -> notify); `Input = message | tick | propose`, tick = logical count,
+the Driver turns `Clock` into ticks; node owns entry bytes (`log_bytes_max`); `Node.init` takes
+a `Restore` struct (data, no LogStore); driver does persist -> one `sync()` -> send -> apply,
+any Fault is fail-stop; `src/raft/{node,progress}.zig`, progress internal. Item 2 (2A-i, PR
+#41): tidy `is_core_purity_file` matches `src/raft/*.zig`; `src/raft/node.zig` skeleton
+(init/deinit/step/status/entries/check_invariants, term rules, 261 tests). ADR-007 deviations:
+extra `RestoreInconsistent` shapes; init makes 4 allocations; stale-term requests got no reply
+until 2A-ii/2B. Budget: a test-writer + developer item costs ~$2.6, architect ~$1.4; keep
+fixtures small. `rm -rf .zig-cache` fixes `build runner FileNotFound`.
 
 ## Cycles 24-37 (2026-10-01 to 10-07), folded
 - 24: camelCase renames in `log.zig`/`types.zig` (#30); item 11 release v0.3.0 (#31), milestone

@@ -127,41 +127,19 @@ rejected_plans: []
 - Quirk: bash guard rejects `cd <repo>; ...` compound commands and `timeout` does not exist on
   this box; run plain commands (cwd is already the repo) and use Edit for multi-line changes.
 
-## Cycle 15 — 2026-09-30 — STABILIZATION
-- Done: periodic (n%5==0); CI green, no bugs, no plan PR, no owner comments. Merged #50 (moved
-  `tidy_baseline.txt` under `tools/`; added milestone #31 ref to its body first). Tiger Style
-  class fixed: functions > 70 lines — PR #52 (dueling_dqn `xavier_fill`, aho_corasick
-  `failureTarget`, builder loops; 3 stale baseline entries dropped; tidy fn-length 5 -> 2).
-  Verifying #52 exposed that `deque.zig` tests (7/16 red) never run under `zig build test`
-  (#38 gap again): filed #51, fixed in #54 — `validate()` was wrong (empty needs head==tail; full
-  ring has head==tail), `shrinkToFit` left tail==capacity, stress test off by one; push/pop were
-  correct; wired into `root.zig` test block. Same probe found `AhoCorasickASCII.findFirst`
-  test red: filed #53 (not fixed).
-- PRs: #50, #52, #54 merged (all 7 checks green), labeled `auto-merged`. #51 closed.
-- Next: FEATURE — fix #53 first (open bug forces stabilization: regression test, then wire
-  `aho_corasick.zig` into `root.zig`). Then plan 001 `std.fs.cwd()` -> `Io.Dir` in `ndarray.zig`.
-  Leftover stabilize items: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73; its
-  tests do not compile on 0.15.2), 3 type-fn baseline entries that grew.
-- Lesson: files reachable only via `pub const` re-exports are untested; probe with a scratch
-  `src/scratch.zig` `test { _ = @import(...); }` (delete after) — likely more hidden reds.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file). Full `zig build test`
-  ran 2x this cycle (one over REALM.md's once-per-cycle guidance; CI covers it).
+## History cycles 14-15 (folded 2026-10-11)
 
-## Cycle 14 — 2026-09-28 — FEATURE
-- Done: inbox found nothing new (CI green, no bugs, no plan PR, no owner comments since
-  watermark) — tallied `plan_pr_open: no`, `plan_closed_unmerged: no`, `milestone_issue: 31`,
-  `owner_actions_found: no`. Ticked milestone #31's io/seed checkbox (line 6, noted overdue
-  since cycle 13). Picked the next unchecked plan 001 item: `std.time.*` → `Io.Clock` in
-  containers. Turned out already substantively done — the ADR 0001 seed-injection rollout
-  (cycles 8-11) had already removed every real call site from `src/containers/`; only a prose
-  comment in `bloom_filter.zig` still spelled out `std.time.Timer`, tripping the plan's literal
-  verify grep. Reworded the comment (no behavior change), confirmed grep clean, `zig fmt --check`
-  and `zig test` (16/16) pass. PR #49 merged (squash, all 7 checks green), ticked the plan file
-  and issue checklist.
-- PRs: #49 merged.
-- Next: `std.fs.cwd()` → `Io.Dir`/`Io.File` in `ndarray.zig` (14 sites, one file) — the next
-  unchecked plan 001 item.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+Cycle 14 (FEATURE): plan 001 `std.time.*` -> `Io.Clock` in containers was already done by the
+ADR 0001 seed-injection rollout (cycles 8-11); only a `bloom_filter.zig` prose comment tripped
+the plan's literal verify grep, reworded (PR #49). Cycle 15 (STABILIZATION): `tidy_baseline.txt`
+moved under `tools/` (#50); functions > 70 lines fixed (#52: dueling_dqn `xavier_fill`,
+aho_corasick `failureTarget`, builder loops). Verifying #52 exposed that `deque.zig` tests never
+ran under `zig build test` (#51 -> #54: `validate()` wrong for empty/full ring, `shrinkToFit`
+left tail==capacity, off-by-one stress test; wired into `root.zig`); the same probe found
+`AhoCorasickASCII.findFirst` red (#53). Lesson: files reachable only via `pub const`
+re-exports are untested; probe with a scratch `src/scratch.zig` `test { _ = @import(...); }`
+and delete it after. Leftovers: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73;
+its tests do not compile on 0.15.2).
 
 ## History cycles 10-13 (folded 2026-10-05)
 Cycle 10: tidy comment-aware fn scanner (PR #43); CuckooHashMap seed injection (#42). Cycle 11:
