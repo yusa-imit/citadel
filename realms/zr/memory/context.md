@@ -116,62 +116,6 @@ rejected_plans: []
   Cycle 17 FEATURE; cycle 20 STABILIZATION.
 - Open questions: none.
 
-## Cycle 15 — 2026-10-05 — STABILIZATION
-- Preflight: tree clean, CI green (5/5), inbox clear (only milestone #155); zuda v2.3.0 /
-  sailor v2.99.0 still the newest tags, so items 5-11 stay blocked.
-- Fixed `exec/process.zig` `streamReader`: per-line buffer was unbounded and `append catch {}`
-  dropped bytes silently. Extracted `emitLines` (1 MiB `line_bytes_max`, over-long line
-  delivered in pieces; on OOM the pending tail is delivered, pipe keeps draining), 4 tests.
-  Local: `zig build test` 1911/0, tidy 0 failing, fmt clean.
-- PR #177 OPEN, not merged: Build & Unit + Integration green, 6 cross-compile jobs pending at
-  the 22 min deadline (suite took ~6 min locally + ~8 min CI). NEXT CYCLE: first
-  `gh pr checks 177 -R yusa-imit/zr`; if green and no `hold`, merge (squash), label
-  `auto-merged`; if red, fix it.
-- Gotchas: stale `.zig-cache` again ("failed to spawn build runner") → `rm -rf .zig-cache`;
-  BSD sed has no `\n` in replacement (use Edit); `zig test src/root.zig` does not include
-  `exec/process.zig` tests, only `zig build test` runs them; the 100-col tidy line-length
-  baseline counts test names — keep test names short; FixedBufferAllocator makes a robust OOM
-  test (FailingAllocator indices were unpredictable with ArrayList growth/remap).
-- Next: remaining `while (true)` in cli/show.zig (159 follow loop, 441 tail), add*.zig,
-  template.zig, config_editor.zig; ~220 missing `//!` headers; process.zig still has
-  doc-header baseline entry. Watch zuda/sailor v3.0.0 tags.
-- Open questions: none.
-
-## Cycle 14 — 2026-10-04 — FEATURE
-- Preflight: tree clean on `main`; CI green (latest completed run on ea14a07). Disk 66GB free.
-  Inbox: no owner comments, no open PRs, only issue is milestone #155; zuda/sailor tags still
-  v2.3.0 / v2.99.0, so items 5-11 stay blocked → one `/stabilize --one`.
-- Fixed `exec/remote.zig`: `SSHExecutor.execute` and `captureOutput` read ssh stdout/stderr with
-  four unbounded `while (true)` loops. Extracted `collectPipes` + `readBounded` (16 MiB per
-  stream, bounded `for`, child killed on error, new `RemoteExecutorError.OutputTooLarge`; read
-  error now → `NetworkError` instead of propagating the raw error), 7 tests, `//!` header. PR
-  #176 merged, 8/8 green (~13 min). `zig build test` 1907/0, tidy 0 failing; baseline: dropped
-  remote.zig `doc-header`.
-- Gotchas: guard hook blocks `python3 - <<EOF` and compound `echo $(date)...; cd` commands —
-  use the Edit tool and plain commands. Foreground polling loops over 600s move to background
-  (fine; re-check with `gh pr checks 176 -R yusa-imit/zr`).
-- Next: remaining `while (true)`: cli/add*.zig, show.zig, template.zig, process.zig:367,
-  config_editor.zig (watch/*, mcp/lsp/jsonrpc/registry servers are likely event loops — check);
-  ~220 missing `//!` headers; zero-assert modules. Cycle 15 is STABILIZATION. Watch zuda/sailor
-  v3.0.0 tags.
-- Open questions: none.
-
-## Cycle 13 — 2026-10-03 — FEATURE
-- Tree clean, CI green, inbox clear; items 5-11 blocked → one `/stabilize --one`.
-- Fixed `plugin/builtin_git.zig`: four unbounded stdout read loops → `collectStdout` +
-  `readBounded` (16 MiB, child killed on overflow, `error.OutputTooLarge`), 8 tests. PR #175
-  merged, 8/8 green. Tests 1900/0, tidy 0 failing.
-- Gotchas: Bash `grep --include` fails under zsh glob; stopping a pipe read early without
-  killing the child deadlocks `wait()`, so kill on overflow.
-- Open questions: none.
-
-## Cycle 12 — 2026-10-02 — FEATURE
-- Fixed `plugin/install.zig`: unbounded per-file copy → `copyBounded` (64 MiB, new
-  `InstallError.FileTooLarge`), 6 tests. PR #174 merged. `cli/plugin.zig` falls into
-  `else => return err` for the new variant (no friendly message yet).
-- Gotchas: `for` over `bytes_max + 1` works for generic `anytype` source/sink helpers.
-- Open questions: none.
-
 ## History (cycles 0-11, 2026-09-05 to 2026-10-01)
 
 Realm created by citadel restructure (cycle 0); memory migrated from the repo's former
@@ -198,6 +142,18 @@ edge endpoints by slice — tests must pass long-lived names. `zig fmt --check s
 0.15.2 lists 57 files locally though main CI passes — pre-existing. Preserved dirty working trees
 to `wip/*` at least 3 times (resolved in `decisions.md`: retry-config landed via #167, PR #30
 closed as superseded).
+
+Cycles 12-15 (2026-10-02 to 2026-10-05): unbounded-IO sweep continued, one PR per file.
+`plugin/install.zig` `copyBounded` 64 MiB, `InstallError.FileTooLarge` (#174; `cli/plugin.zig`
+has no friendly message for it yet); `plugin/builtin_git.zig` `collectStdout` + `readBounded`
+16 MiB (#175); `exec/remote.zig` `collectPipes` + `readBounded`, `OutputTooLarge` (#176);
+`exec/process.zig` `emitLines` 1 MiB `line_bytes_max` (#177, left open at the deadline, merged
+next cycle). Lessons: stopping a pipe read early without killing the child deadlocks `wait()`,
+so kill on overflow; a `for` over `bytes_max + 1` works for generic `anytype` helpers;
+`FixedBufferAllocator` is a robust OOM test (FailingAllocator indices drift with ArrayList
+remap); `zig test src/root.zig` skips `exec/process.zig` tests, only `zig build test` runs
+them; tidy's 100-col baseline counts test names, keep them short; the guard hook blocks
+`python3 - <<EOF` and compound `cd` chains, use Edit and plain commands.
 
 ## Standing backlog
 
