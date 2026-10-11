@@ -1,7 +1,25 @@
 # zr — context
 
-last_seen_at: 2026-10-10T21:21:00Z
+last_seen_at: 2026-10-11T21:26:00Z
 rejected_plans: []
+
+## Cycle 22 — 2026-10-11 — FEATURE
+- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
+  comments were my own reports). zuda still v2.3.0 → items 5-11 blocked → one `/stabilize --one`.
+- Remaining `while (true)` re-checked: `registry/server.zig:43` is the top-level accept loop; the
+  rest (task_picker, tui, run.zig:1427, watch/*, show.zig:458) are event/tail loops. Unbounded-IO
+  class is done except add.zig/add_interactive prompt loops (need a source seam).
+- Switched to missing `//!` headers (217 before): 6 `src/template` files (types, registry,
+  builtin ci/release/deploy/lint) + 6 `doc-header` baseline entries removed. PR #187 merged, 8/8
+  green after rerunning a flaky `cache_test.test.690` (concurrent writes, expected 0 found 1;
+  docs-only diff, passed on rerun). Tests 1944/0, tidy 0 failing.
+- Gotchas: guard blocks `cd X; ...` chains (use plain commands); adding a header makes the file's
+  `doc-header` tidy baseline entry stale → delete it from `tidy_baseline.txt` in the same PR
+  (`sed -i '' 'Nd'` works).
+- Next: ~211 headers left (`template/builtin/{build,test}.zig`, `engine.zig`, `loader.zig`, then
+  small files by size: multirepo.zig, upgrade/types.zig, codeowners/types.zig, util/platform.zig).
+  Watch zuda v3.0.0. Cycle 23 FEATURE; cycle 25 STABILIZATION.
+- Open questions: none.
 
 ## Cycle 21 — 2026-10-11 — FEATURE
 - Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
