@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-10-11T04:45:00Z
+last_seen_at: 2026-10-12T00:10:00Z
 rejected_plans: []
+
+## Cycle 49 — 2026-10-12 — FEATURE
+- Inbox: no OWNER activity; CI green on f159a82; no open PRs or issues; plan 003 fully checked and
+  milestone #33 closed, so this cycle planned.
+- Done: plan 004 (evented-net) proposed as plan PR #44 (branch `plan/004-evented-net`, awaiting
+  merge, citadel#47). 12 items: move `src/sched.zig` tests (823 lines), ADR 0003 + kqueue `Poller`,
+  `Options.sockets_max` + scheduler idles in the poller, native `net*` listen/accept/connect then
+  data path, epoll poller (CI-only), `operate` + `batch*`, real `concurrent`, `bench/echo.zig` and
+  `bench/latency.zig` for PRD gates 1-4, v0.5.0 (MINOR). Gate-1 miss on one carrier -> ADR records
+  it and multi-carrier becomes plan 005.
+- Next: when #44 is merged, open the tracking milestone issue and implement item 1 (sched test
+  split). Until then a FEATURE cycle runs one bounded `/stabilize --one` task and reports.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: the guard blocks any compound Bash that mentions citadel paths, even a read-only
+  `df`/`date` chain; run each command on its own and use Read/Write/Edit for citadel files.
 
 ## Cycle 48 — 2026-10-11 — FEATURE
 - Inbox: no OWNER activity; CI green on 2e7dff5; no open PRs; milestone #33; no bugs.
@@ -65,41 +80,16 @@ rejected_plans: []
   implementation PR itself to avoid a second PR. The guard also blocks compound Bash that writes
   citadel files (python heredoc): use Write/Edit.
 
-## Cycle 44 — 2026-10-10 — FEATURE
-- Inbox: no OWNER activity (only the AI's own #33 comment); CI green on 372b1c0; no open PRs.
-- Done: plan 003 item 5 via PR #38 (merged 94c0627, CI green Linux+macOS+6 cross, labelled
-  auto-merged): `bench/timer.zig`, `zig build bench-timer` (2000 x 1 ms sleeps inside an `async`
-  task on `rt.io()` and `rt.baselineIo()`). PRD gate 7 passes: sirocco p50 311 us / p99 400 us late vs
-  Io.Threaded p50 7.32 ms / p99 8.04 ms (Apple arm64, stable over two runs; the Threaded side was
-  not investigated). Plan item and #33 ticked. No subagent review (small bench-only diff).
-- Next: item 6 (`expectSameResultInFiber`, in-fiber parity mode), 7 (ADR 0002 + `src/offload.zig`),
-  8, 9 (docs, v0.4.0). `src/sched.zig` is 823 lines (cap 800): split its tests in item 9.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: the guard blocks compound Bash that writes files (python heredoc, `cat > /tmp/x`): use
-  Write/Edit, then `gh ... --body-file`.
+## History (cycles 43-44, condensed 2026-10-12)
 
-## Cycle 43 — 2026-10-09 — FEATURE
-- Inbox: no OWNER activity; CI green on 463f252; PR #36 (timer wheel) had all 8 checks green, so
-  merged it (20ebf98, labelled auto-merged) and ticked item 3 in #33.
-- Done: plan 003 item 4 via PR #37 (merged 372b1c0, CI green Linux+macOS+6 cross). New
-  `src/sleep.zig`: native `sleep` parks the fiber on `Sched.wheel` (node = fiber index); `sleep.fire`
-  runs before every dispatch in `run_loop`, `idle_wait` uses the wheel's next deadline. Futex timeouts
-  use the same wheel; `Table` lost `timed`/`deadline_ns`; `Sched.timers` became `Sched.Expiry`
-  (`futex_timeout` per due futex waiter: only the table owner can unlink under its lock).
-  `Sched.init` takes `now_ns` and allocates a third block (wheel nodes); CPU clocks and off-fiber
-  calls forward. 16x50 ms sleeps overlap (< 400 ms). `sleep` is `native` in `slots.zig`.
-- Reviewer CRITICAL (fixed before merge): a woken/canceled futex waiter keeps its wheel node until it
-  runs, so `fire` pops nodes of READY fibers; the `state == .parked` assert belongs behind the
-  `outcome == .waiting` test under the table lock. Regression tests: wake and cancel, then the
-  carrier spins past the deadline (`tests/parity/futex.zig`).
-- Known gap: `src/sched.zig` is 823 lines (cap 800); split its test section in item 9. Not tested:
-  foreign-thread wake racing `fire`, CPU-clock and off-fiber sleep forwarding.
-- Next: item 5 (`bench/timer.zig`, `zig build bench-timer`, PRD gate 7 row), then 6 (in-fiber parity
-  mode), 7 (ADR 0002 + `src/offload.zig`), 8, 9 (docs, v0.4.0).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: an unset `$Z` in a compound Bash command hung the tool for 120 s; the guard blocks compound
-  commands that write files next to citadel paths (split `gh ... > file` from the edit, use Write);
-  `gh pr checks` right after a push says "no checks" for a few seconds (poll from python).
+Cycle 44 (10-10): item 5 via PR #38, `bench/timer.zig`; PRD gate 7 passes (sirocco p50 311 us / p99
+400 us late vs Io.Threaded p50 7.32 ms / p99 8.04 ms, Apple arm64). Cycle 43 (10-09): item 4 via
+PR #37, `src/sleep.zig`: native `sleep` parks on `Sched.wheel`, `sleep.fire` runs before every
+dispatch, futex timeouts share the wheel (`Sched.Expiry`). Reviewer CRITICAL: a woken/canceled
+futex waiter keeps its wheel node, so `fire` pops READY fibers; assert `.parked` only behind
+`outcome == .waiting` under the table lock. Gotchas: an unset `$Z` in compound Bash hung 120 s;
+`gh pr checks` right after a push says "no checks" for a few seconds; the guard blocks compound
+Bash that writes files (python heredoc, `cat > /tmp/x`): use Write/Edit and `--body-file`.
 
 ## History (cycle 42, condensed 2026-10-09)
 
