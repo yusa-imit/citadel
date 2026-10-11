@@ -1,7 +1,29 @@
 # zuda — context
 
-last_seen_at: 2026-10-11T00:00:00Z
+last_seen_at: 2026-10-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 23 — 2026-10-12 — FEATURE
+- Done: inbox clean (CI green on 2847a19, no bugs, no plan PR, no OWNER comments; milestone #31).
+  Plan 001 item "compile-clean": `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne` ported per ADR 0001 D1
+  (required `seed: u64` on `KMeansOptions`/`GMMOptions`/`TSNEOptions`/`DQN.Config`/`DDPG.Config`),
+  all wired into `root.zig`. Tests that never ran exposed real bugs: t-SNE symmetrized P in place,
+  left the P diagonal undefined, inverted the adaptive-gain sign (and 5 tests had n_samples /
+  n_features swapped); kmeans collapsed empty clusters to the origin and leaked on OOM; gmm
+  freed undefined rows on OOM (new `alloc_rows`/`free_rows`). Every file has a
+  `checkAllAllocationFailures` test. Local `zig build test` exit 0, fmt clean, reviewer 0 critical.
+- PRs: #67 (`fix/compile-clean-kmeans-gmm-rl-tsne`) open; Build & Test pending at report time (see
+  tracking issue for the outcome). If still open next cycle, inbox merges it once all checks are
+  green and no `hold` label is present.
+- Next: FEATURE — finish the "compile-clean" item with a full `src/**` `zig test <file>` sweep
+  (the plan's Verify line); then Thread sync, harness, assertion baseline, v3.0.0 (CHANGELOG must
+  mention the required `seed` on five more types). Stabilize leftovers: `hamiltonian.zig` not
+  OOM-audited; `dfa`, `dinic`, `edmonds_karp` not in test graph; `max_iterations == 0` and gmm
+  per-point E-step alloc (reviewer suggestions).
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: `read -t N </dev/zero` in a Monitor loop exits 1 (use `until ...; do :; done` or a
+  poll with a real wait); an earlier `zig build test` left a build-runner child alive after
+  `pkill` of the parent, kill it by pid before rerunning.
 
 ## Cycle 22 — 2026-10-11 — FEATURE
 - Done: inbox clean (CI green on 01a9b7c, no bugs, no plan PR, no OWNER comments; milestone #31).
