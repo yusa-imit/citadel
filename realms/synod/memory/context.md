@@ -3,6 +3,22 @@
 last_seen_at: 2026-10-11T00:00:00Z
 rejected_plans: []
 
+## Cycle 46 — 2026-10-11 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (de4b7ab), milestone #39 open.
+- Done: item 7 (2B-ii follower log matching) via PR #48 (squash-merged, 7/7 CI, `auto-merged`,
+  #39 item 7 ticked, plan box ticked). New `raft/follower.zig` `step_append` (term rules, claim
+  leader, `conflict_at` reject, truncate only above commit, append, ack; overflow and
+  at/below-commit conflicts dropped whole with no reply; `leader_changed` emitted last).
+  `note_leader` removed; `node.zig` 793 -> ~775 lines. ADR-007 amended (drop-whole overflow).
+  432 tests. Review 0 CRITICAL, 4 WARNING fixed. Cost ≈ $3.1 of $4.
+- Next: item 8 (2B-iii commit advancement and apply; follower `leader_commit` is NOT handled).
+  Open suggestions: `Plan` struct placement/u32 widths and an executable proof for the
+  `append_rest` unreachable in `follower.zig`; header note that config-change entries apply in
+  Phase 4; earlier ones from cycles 40-45.
+- Blockers: none. Open questions: none.
+- Tool notes: test-writer's model test had a `@min(3, u64) + 1` u2 overflow (cast with `@as`);
+  guard blocks `cd <path>;` (use persisted cwd or `git -C`); python with os.chdir works.
+
 ## Cycle 45 — 2026-10-11 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (63c9be4), milestone #39 open.
 - Done: item 6b (2B-i-b leader response side) via PR #47 (squash-merged, 7/7 CI, `auto-merged`,
@@ -23,13 +39,7 @@ rejected_plans: []
 - Tool notes: code-reviewer cannot run tests (global zig is 0.15.2). A guard-safe way to run
   the suite: `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all` from the repo cwd.
 
-## Cycle 44 — 2026-10-10 — FEATURE (no-op, budget)
-- Inbox: no OWNER comments (the only new comment was this realm's own), no bugs, CI green on
-  main (63c9be4), no open PRs, milestone #39 open. Only ~$0.59 of the $4 session budget was
-  left after cycle 43 in the same session, and item 6b needs ~$2 (test-writer + developer +
-  reviewer), so nothing was started rather than leave a half-done branch.
-- Next: item 6b exactly as in cycle 43's Next. Run it in a fresh session with a full budget.
-- Blockers: none. Open questions: none.
+Cycle 44 (2026-10-10): no-op, only ~$0.59 budget left; nothing started.
 
 ## Cycle 43 — 2026-10-10 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
