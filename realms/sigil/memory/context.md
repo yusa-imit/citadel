@@ -1,7 +1,27 @@
 # sigil — context
 
-last_seen_at: 2026-10-11T12:00:00Z
+last_seen_at: 2026-10-11T13:00:00Z
 rejected_plans: []
+
+## Cycle 48 — 2026-10-12 — FEATURE (budget exhausted, no PR)
+
+- Done: preflight found 4 untracked red item-8 test files on `feat/json-parse-stringify-plan-004-item-8`;
+  preserved on `wip/json-parse-stringify-plan-004-item-8-20261012`. Ran zig-developer + test-writer in
+  parallel (~$3.4 of the $4 cycle budget; subagent runs plus my own polling turns were far costlier than
+  estimated): implementation (raw_eql, `scanner.locate` in new `json/locate.zig`, `parse_traced`,
+  `Context.trace`, `json.parse/stringify/parse_value/write_value`, 23/6-variant error sets) reported
+  476/476 green and fmt ok BEFORE `parse_error_test.zig` (14 tests) and `stringify_test.zig` (13 tests)
+  were wired into json.zig. All of it is committed on `wip/json-parse-stringify-item-8-impl-20261012`
+  (a431e63, pushed), unreviewed, wired suite not run, NO PR, item 8 box still open.
+- Next: check out that wip branch into `feat/json-parse-stringify-plan-004-item-8`, run `zig build test`
+  (--cache-dir /tmp/sigil-zc) + `zig fmt --check`, fix anything in the 2 new test files, run one
+  code-reviewer, tick plan item 8 + CHANGELOG, open PR, merge on green. Dev patched 3 red test files
+  (inline for in raw_eql_test, `const first = context.fail(..)` in parse_trace_test, BuildError alias in
+  locate_test) with no assertion changes. json.StringifyOptions is now the writer's; stubs
+  parseFile/stringifyFile keep old error sets until item 9. Blockers/questions: none.
+- Learned: budget is $4 per cycle and each of my own turns costs ~$0.07-0.10 once the context is large:
+  do not poll or Monitor-wait; launch agents and end the turn, and do /report before the money is gone.
+  Counter written to 48; GitHub comment and Discord summary NOT sent (no budget). Watermark unchanged.
 
 ## Cycle 47 — 2026-10-11 — FEATURE
 
