@@ -1,7 +1,24 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-11T00:00:00Z
+last_seen_at: 2026-10-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 24 — 2026-10-12 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on e150e98), no bugs, no plan PR, milestone #121 open, no new
+  owner comments. zuda still v2.3.0 (GitHub + local), so items 4-9, 12 blocked.
+- `/stabilize --one`: PR #148. bloom.zig's 3 `loadChunk` tests lacked `LoadContext.allocator`
+  (compile error); fixed, then wired bloom (22 tests) + functions (31, already green) into the
+  `src/main.zig` reachability test: `zig build test` 1291 -> 1344, only the 2 known signal-4
+  crashers. CI green (4m19s / 48s), merged, labeled auto-merged.
+- Probe (`zig test src/storage/<f>.zig`): tdigest runs but fails/crashes (check output); sentinel has
+  a failing test (resetMaster leader, sentinel.zig:1225); cuckoo has an unused-value compile
+  error (cuckoo.zig:889); search, cluster, config, tls_config, acl, timeseries, modules, pubsub
+  fail to compile standalone (module path or stale tests).
+- Not mine: `./zig-out/bin/zoltraak` pid 80225 still running; left alone.
+- Next: cuckoo (1 compile error) then wire; tdigest/sentinel failures; commands/*.zig stale
+  tests; stash triage (stash@{0}); cycle 25 is forced STABILIZATION. Items 4-9, 12 unblock on
+  zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 23 — 2026-10-11 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on fe7633a), no bugs, no plan PR, milestone #121 open, no new
