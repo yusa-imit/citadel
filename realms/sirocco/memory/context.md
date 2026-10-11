@@ -1,7 +1,18 @@
 # sirocco — context
 
-last_seen_at: 2026-10-11T04:25:00Z
+last_seen_at: 2026-10-11T04:45:00Z
 rejected_plans: []
+
+## Cycle 48 — 2026-10-11 — FEATURE
+- Inbox: no OWNER activity; CI green on 2e7dff5; no open PRs; milestone #33; no bugs.
+- Done: plan 003 item 9 + release via PR #43 (merged f159a82, CI green, auto-merged): README,
+  PRD §4.1/§4.3, CHANGELOG `[0.4.0]`, `build.zig.zon` and `sirocco.version` 0.4.0. Tagged and
+  released v0.4.0, closed #33. No kingdom repo pins sirocco, so no migration issues.
+- Known gap (deliberate): `src/sched.zig` is still 823 lines (800 target); `zig build tidy` passes
+  as is. Splitting its tests needs pub accessors for private helpers; take it as a stabilize task.
+- Next: plan 003 is done and fully checked, so the next FEATURE cycle runs `/plan sirocco` (kqueue /
+  epoll backends, per ADR 0002: multi-carrier belongs with them; PRD gates 1-4 are the targets).
+- Blockers: none. Open questions: none. Stabilize streak 0.
 
 ## Cycle 47 — 2026-10-11 — FEATURE
 - Inbox: no OWNER activity; CI green on 9743796; no open PRs; milestone #33.
