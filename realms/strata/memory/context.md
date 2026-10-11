@@ -1,7 +1,28 @@
 # strata — context
 
-last_seen_at: 2026-10-11T00:00:00Z
+last_seen_at: 2026-10-11T12:00:00Z
 rejected_plans: []
+
+## Cycle 44 — 2026-10-11 — FEATURE
+- Done: plan 003 item 8 — `src/cache/guard.zig` (`PageGuard`: `bytes`, `bytes_mut`, `markDirty`,
+  `set_lsn`, `id`, `release`), `BufferPool.fetchForUpdate/flushAll/discardAll`, `Stats.writebacks`,
+  `dirty_count` in `check_invariants`; write-back runs in `victim_evict` before `table.remove`, a
+  failed write keeps the frame resident and dirty. `header.peek/poke_lsn/type_valid` added. New
+  `WriteBackError = WriteError || InvalidHeader` (illegal type byte caught at write-back in every
+  build mode). Tests: `buffer_pool_dirty_test.zig` (11, 3 page sizes, FaultIo, seeded model).
+- PRs: #42 merged (squash, CI 7/7, auto-merged). Issue #34 item 8 ticked.
+- Review: code-reviewer 0 critical, 6 warnings; header-validity one fixed, rest documented.
+  Cost ~ $2.1 of $4 (zig-developer wrote tests+impl, then reviewer, no test-writer).
+- Follow-ups (not blocking): repo has no `stdx.assert_always` (deinit/discardAll pin and dirty checks
+  are plain asserts, ReleaseSafe only); `BufferPool.frame_bytes/mark_dirty/Frame` are pub only for
+  guard.zig; no `fetchNew` path to initialise a freshly allocated (Unwritten) page, needed before the
+  B+Tree; flushAll cleans pinned frames so a later edit through an old slice needs `markDirty`; tests
+  with dirty frames at `defer deinit` panic instead of reporting on an earlier failure.
+- Next: item 9 — 2C page-size matrix (8 sizes for header/manager/pool) + torn-page sweep via the real
+  page decoder in `src/testing/truncation_matrix_test.zig`.
+- Blockers: none. Open questions: none.
+- Note: Bash guard rejects `;`/`$VAR` chains; one simple command per call. Checking out main after a
+  merge makes the editor report "changed on disk" for branch files; `git pull --ff-only` first.
 
 ## Cycle 43 — 2026-10-11 — FEATURE
 - Done: plan 003 item 7 — `src/cache/buffer_pool.zig`: CLOCK `BufferPool` (`init` in place, `deinit(gpa)`,
@@ -102,28 +123,13 @@ rejected_plans: []
   `timeout`; use `gh pr checks --watch` directly. Plan item 1 had never been ticked in the plan
   file; fixed in #36.
 
-## Cycle 37 — 2026-10-08 — FEATURE
-- Done: plan 003 approved (PR #28 merged by OWNER); opened milestone issue #34. Item 1 done: tidy
-  ADR-0001 `Io` guards — `Io.Threaded`/`Io.Evented`/`global_single_threaded` banned under `src/`,
-  new `io-field` rule (Io struct field only in `src/kv/db.zig`, `src/testing/fault_io.zig`;
-  multi-line param lists skipped via paren depth).
-- PRs: #35 merged (squash, CI 7/7, auto-merged). Issue #34 item 1 ticked.
-- Next: item 2 — ADR-0002 page format v1 (`docs/adr/0002-page-format.md`), then item 3 header codec.
-- Blockers: none. Open questions: none.
-- Note: PATH zig is 0.15.2; use the 0.16.0 toolchain with `--cache-dir /tmp/strata-zc`. macOS
-  `sed -i` needs `''`. A failed `&&` skips a following `Z=...` assignment. The guard hook blocks
-  compound Bash that writes into citadel; use Write/Edit for memory files.
-
-## Cycle 36 — 2026-10-07 — FEATURE
-- Done: plan PR #28 still open (CI 7/7 green, only our own status note, no OWNER feedback, no open
-  issues), so one `/stabilize --one`: `allocator:` params renamed `gpa` across `tools/tidy/*.zig`.
-- PRs: #33 merged (squash, CI 7/7, auto-merged).
-- Remaining audit sweeps: `std.debug.assert` alias across `tools/` (~65; tidy ban check does not flag
-  it); assertion density elsewhere in `tools/` (tidy density gate covers `src/` only); camelCase
-  public API in `src/file/file.zig` (needs a plan).
-- Next: when #28 merges, open "milestone: 003 ..." and start item 1 (tidy ADR-0001 Io guards).
-- Blockers: none. Open questions: none (freelist trunk-list-only call is in #28 for the OWNER).
-- Note: the `gh pr checks --watch` call right after PR create may say "no checks reported"; rerun.
+## Cycles 36-37 (2026-10-07..08, condensed 2026-10-11)
+- 36: plan PR #28 open, one `/stabilize --one`: `allocator:` -> `gpa` in `tools/tidy/*.zig` (#33).
+- 37: plan 003 approved (PR #28), milestone issue #34, item 1 tidy ADR-0001 `Io` guards (#35;
+  `Io.Threaded`/`Evented`/`global_single_threaded` banned in `src/`, `io-field` rule).
+- Notes: PATH zig is 0.15.2, use the 0.16.0 toolchain with `--cache-dir /tmp/strata-zc`; macOS
+  `sed -i` needs `''`; use Write/Edit for memory files. Remaining audit sweeps: `std.debug.assert`
+  alias across `tools/`; assertion density in `tools/`; camelCase API in `src/file/file.zig`.
 
 ## Cycles 25-32 (2026-10-01 to 10-05, condensed 2026-10-10)
 
@@ -188,4 +194,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 approved; milestone issue #34. Items 1-7 done; implement item 8 (dirty write-back in `cache/`).
+Plan 003 approved; milestone issue #34. Items 1-8 done; implement item 9 (page-size matrix + torn-page sweep).
