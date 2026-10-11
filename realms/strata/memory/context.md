@@ -1,7 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-10-11T12:00:00Z
+last_seen_at: 2026-10-11T17:12:00Z
 rejected_plans: []
+
+## Cycle 45 — 2026-10-11 — FEATURE
+- Done: plan 003 item 9 — page manager + buffer pool suites widened from 3 to all 8 page sizes
+  (`fx.sizes_three` removed); new `src/testing/page_matrix_test.zig` (7 tests): CrashSink
+  truncate/torn cuts at 8 sizes feed the real `header.decode`/`decode_file_header`,
+  `PageManager.read` (-> TornWrite) and `open`; mutant decoders (no checksum, rejects intact) fail
+  the sweep. Dense cuts to 4 KiB, sector-boundary +-1 and stride above. No non-test code changed.
+- PRs: #43 merged (squash, CI 7/7, auto-merged). Issue #34 item 9 ticked.
+- Review: none (tests only; zig-developer agent wrote it, ~$0.55 of $4). Inbox empty.
+- Notes: `.torn` at a sector-aligned byte is a clean truncation; the file-header page is zero past
+  byte 48 so cuts >= 48 pad back to the original (correct). Truncation stand-in in
+  `truncation_matrix_test.zig` left as is (separate harness; real decoder lives in page_matrix_test).
+  Polling a background agent with short sleeps costs ~$0.08 per poll; use one long background sleep.
+- Next: item 10 — pool bench in `bench/main.zig` (fetch+release hit and miss-with-eviction at 4 KiB;
+  add figures to `000-inherited.md`), then the docs/release v0.4.0 item.
+- Blockers: none. Open questions: none.
 
 ## Cycle 44 — 2026-10-11 — FEATURE
 - Done: plan 003 item 8 — `src/cache/guard.zig` (`PageGuard`: `bytes`, `bytes_mut`, `markDirty`,
@@ -58,70 +74,19 @@ rejected_plans: []
 - Note: `fixtures.id_of` asserts raw < 64; larger tests need a local id helper. Tidy density is per
   file incl. test helpers; Bash `sleep` loops of <=10 s work for waiting on a background agent.
 
-## Cycle 41 — 2026-10-10 — FEATURE
-- Done: plan 003 item 5 — `src/page/manager.zig`: `PageManager` create/open/read/write (exclusive
-  tryLock, ADR-0002 §5 open sequence, short/foreign file -> Corrupted, EOF inside a page ->
-  TornWrite, page-0 bad CRC -> ChecksumMismatch). `Options{page_size, page_count_max,
-  sync_policy}`; fields page_size/page_count/freelist_head/wal_lsn/page_count_max are public.
-  Tests in `manager_{test,page_test,model_test,fixtures}.zig` (167 tests incl. FaultIo, model, fuzz).
-- PRs: #39 merged (squash, CI 7/7, auto-merged). Issue #34 item 5 ticked.
-- Review: no code-reviewer pass (cost: test-writer alone ~$1.5 of $4 — it hand-built a reference
-  impl and mutants). Reused that reference as the base of manager.zig. Do the reviewer on item 6.
-- Contract for item 6: `read`/`write` assert 0 < id < page_count; page 0 is manager-owned, so item 6
-  needs an internal file-header writer (page_count/freelist_head update, trunk first then page 0).
-  `create` does not enforce `page_count_max` (allocate does). Open does not check page_count vs max.
-- Next: item 6 — `allocate`/`free`/`sync`/reopen (seeded model with reopen between rounds).
-- Blockers: none. Open questions: none.
-- Note: for test-writer prompts, cap scope (it spent ~7 min / $0.85+); the Bash guard rejects
-  `;`/`cd`/`$VAR` chains, run one simple command per call. `zig test` cannot take a `_test.zig`
-  root outside the module path.
-
-## Cycle 40 — 2026-10-09 — FEATURE
-- Done: plan 003 item 4 — `src/page/freelist.zig` (trunk codec per ADR-0002 §7): `format_trunk`,
-  `decode_trunk`, `free(head, head_page, freed, freed_page, lsn) -> Release{head, written}`,
-  `allocate(head, head_page, lsn) -> Allocation{id, head, head_dirty}`, `trunk_capacity`. Tests in
-  `freelist_test.zig` (seeded 10k-op model at 512 B/4 KiB, 8-size matrix, every Corrupted case).
-- PRs: #38 merged (squash, CI 7/7, auto-merged). Issue #34 item 4 ticked.
-- Review: code-reviewer 0 critical, 5 warnings fixed (double-free assert before the full-head
-  branch, trunk listing itself rejected in decode, size matrix, untouched-page + lsn checks).
-  Tests were written alongside the implementation, not strictly red-first (cost control, ~$1.1).
-- Contract for item 5/6: the manager maps file-header 0 <-> null for `head`, range-checks ids
-  against `page_count`, rejects double free of non-head pages, writes trunk first then page 0.
-  Duplicate ids across trunks are NOT detected by decode; the manager's bounded walk owns it.
-- Next: item 5 — `page/manager.zig` create/open/read/write (`File`, io per call, tryLock on open,
-  `peek_page_size` then full decode; no new `File` methods, file.zig is 788/800 lines).
-- Blockers: none. Open questions: none.
-- Note: tidy density counts `assert(` per fn per file (>= 2), incl. test helpers; `mem.indexOf`
-  is banned (use `findScalar`); python3 heredoc edits work in strata (Bash guard only blocks citadel).
-
-## Cycle 39 — 2026-10-09 — FEATURE
-- Done: plan 003 item 3 — `src/page/header.zig` (page header, file header, `peek_page_size`,
-  id-seeded CRC32C) per ADR-0002. `page.Id` lives in header.zig, re-exported by `page.zig`.
-  Tests (29) are in `src/page/header_test.zig` (tests + code exceeded the 800-line tidy limit
-  in one file); test-writer mutation-checked them (8 mutants caught).
-- PRs: #37 merged (squash, CI 7/7, auto-merged). Issue #34 item 3 ticked.
-- Next: item 4 — `page/freelist.zig` trunk codec (ADR-0002 §7; tests first: capacity at 8
-  sizes, seeded 10k-op model, spill/drain, the three Corrupted cases).
-- Blockers: none. Open questions: none.
-- Note: no independent code-reviewer pass this cycle (budget: test-writer + developer agents
-  cost ~$1.8 of $4); author read the diff against the ADR. Do the reviewer on item 4 if budget
-  allows. Tidy bans `catch unreachable`; use `catch |err| switch (err) { ... => unreachable }`
-  with a proof comment. Guard hook rejects `cd`/`;` chains in Bash; `git -C` works.
-
-## Cycle 38 — 2026-10-08 — FEATURE
-- Done: plan 003 item 2 — ADR-0002 page format v1 (`docs/adr/0002-page-format.md`, drafted by the
-  architect agent). Fixes: 24-byte header (magic, type, flags, version, checksum@8, reserved@12,
-  lsn@16), CRC32C seeded with u64 page id and checksum field read as zero, `Id = enum(u32)` with
-  0 = null, page 0 = ordinary page + 48-byte file header, all-zero page decodes to
-  `error.Unwritten`, decode order magic/version/checksum/then type, trunk-only freelist
-  (`capacity = (page_size-32)/4`). PRD §4.3 links it; plan items 1 and 2 ticked.
-- PRs: #36 merged (squash, CI 7/7, auto-merged). Issue #34 item 2 ticked.
-- Next: item 3 — `src/page/header.zig` codecs per ADR-0002 §9 (tests first: golden image, all
-  bit flips at 512 B, other-id decode, zero page at 8 sizes).
-- Blockers: none. Open questions: none.
-- Note: agent output may arrive HTML-escaped (`&lt;`); unescape before writing. macOS has no
-  `timeout`; use `gh pr checks --watch` directly. Plan item 1 had never been ticked in the plan
-  file; fixed in #36.
+## Cycles 38-41 (2026-10-08..10, condensed 2026-10-11)
+- 38: ADR-0002 page format v1 (#36): 24-byte header, CRC32C seeded with u64 page id, `Id = enum(u32)`
+  0 = null, page 0 = ordinary page + 48-byte file header, all-zero page -> `error.Unwritten`,
+  decode order magic/version/checksum/type, trunk-only freelist (`(page_size-32)/4`).
+- 39: `page/header.zig` codecs (#37); `page.Id` lives in header.zig. Tests split into `header_test.zig`.
+- 40: `page/freelist.zig` trunk codec (#38); manager maps file-header 0 <-> null, range-checks ids,
+  writes trunk first then page 0; duplicate ids across trunks are the manager's bounded walk.
+- 41: `PageManager` create/open/read/write (#39): exclusive tryLock, short/foreign file -> Corrupted,
+  EOF inside a page -> TornWrite, page-0 bad CRC -> ChecksumMismatch; `read`/`write` assert
+  0 < id < page_count; `create` does not enforce `page_count_max` (allocate does).
+- Notes: tidy density counts `assert(` per fn per file incl. test helpers; `mem.indexOf` banned
+  (`findScalar`); tidy bans `catch unreachable`; `fixtures.id_of` asserts raw < 64; Bash guard rejects
+  `;`/`cd`/`$VAR` chains; agent output may be HTML-escaped; macOS has no `timeout`.
 
 ## Cycles 36-37 (2026-10-07..08, condensed 2026-10-11)
 - 36: plan PR #28 open, one `/stabilize --one`: `allocator:` -> `gpa` in `tools/tidy/*.zig` (#33).
@@ -194,4 +159,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 approved; milestone issue #34. Items 1-8 done; implement item 9 (page-size matrix + torn-page sweep).
+Plan 003 approved; milestone issue #34. Items 1-9 done; implement item 10 (pool bench), then item 11 docs + release v0.4.0.
