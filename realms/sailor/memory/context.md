@@ -1,7 +1,19 @@
 # sailor — context
 
-last_seen_at: 2026-10-10T00:00:00Z
+last_seen_at: 2026-10-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 29 — 2026-10-11 — FEATURE
+
+- Preflight: tree clean on main, CI green, inbox clear (only our own comment on #51), no open PRs.
+- Done: plan 002 item 3 -> **PR #54** merged (CI 10/10, `auto-merged`). `zig fmt tests` touched 69
+  files (whitespace only); examples/benchmarks were already clean. CI Linux fmt command now covers
+  `tests`. Plan file box and #51 item 3 ticked. Whole cycle ~10 min (Linux CI 1.5 min, Windows 6).
+- Next: n=30 STABILIZATION (periodic, n % 5 == 0). Then item 4 (`terminal.zig` AnsiParseState
+  wiring), 5 pager soft-wrap, 6 metrics_dashboard/richtext scope, 7 typed errors, 8 release v3.1.0.
+- Blockers: none. Open questions: none.
+- Quirks: `sleep N; cmd` in one Bash call is blocked by the guard; poll `gh pr checks` in a
+  separate call. `gh pr checks` output is tab separated; grep for names.
 
 ## Cycle 28 — 2026-10-10 — FEATURE
 
