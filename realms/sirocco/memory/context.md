@@ -1,7 +1,21 @@
 # sirocco — context
 
-last_seen_at: 2026-10-12T00:10:00Z
+last_seen_at: 2026-10-12T01:00:00Z
 rejected_plans: []
+
+## Cycle 50 — 2026-10-12 — FEATURE
+- Inbox: no OWNER activity on plan PR #44 (only our own cycle-49 comment); CI green on f159a82; no
+  bugs, no other open PRs or issues.
+- Done: plan PR #44 still open, so one bounded `/stabilize --one` task: PR #45 (merged 5a926bb, CI
+  green, auto-merged) moved ten public-surface scheduler tests to `src/sched_test.zig` (253 lines,
+  wired in `src/root.zig`); `src/sched.zig` 823 -> 588 lines. The canary and `init_checked` tests
+  stay in `sched.zig` beside the private helpers. This closes the 800-line cap gap from cycle 48,
+  so plan 004 item 1 (sched test split) is already done: tick it when plan 004 is merged.
+- Next: when #44 is merged, open the milestone issue and start at plan 004 item 2 (ADR 0003 +
+  kqueue `Poller`). Until then FEATURE cycles run one `/stabilize --one` task and report.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: the `stabilize` label does not exist in the repo (only `auto-merged` etc.); do not pass
+  `--label stabilize` to `gh pr create`.
 
 ## Cycle 49 — 2026-10-12 — FEATURE
 - Inbox: no OWNER activity; CI green on f159a82; no open PRs or issues; plan 003 fully checked and
