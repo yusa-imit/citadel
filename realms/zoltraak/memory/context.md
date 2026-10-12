@@ -1,7 +1,20 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-12T00:00:00Z
+last_seen_at: 2026-10-13T00:00:00Z
 rejected_plans: []
+
+## Cycle 25 — 2026-10-13 — STABILIZATION (forced, n%5==0)
+- Preflight clean (main, CI green on 5f49090), no bugs, no plan PR, milestone #121 open, no
+  owner comments since watermark. zuda still v2.3.0, so items 4-9, 12 blocked.
+- PR #149: cuckoo.zig's "bucket contains" test ignored `insert`'s bool (compile error, so the
+  whole file's tests never ran). Asserted it and wired cuckoo into the `src/main.zig`
+  reachability test: `zig build test` 1344 -> 1377, only the 2 known signal-4 crashers.
+  CI green (4m11s / 1m2s), merged, labeled auto-merged.
+- Guard hook blocks compound `cd repo; a; b` commands again; run plain separate commands.
+- Not mine: `./zig-out/bin/zoltraak` pid 80225 still running; left alone.
+- Next: tdigest failures, sentinel failing test (sentinel.zig:1225), then wire; commands/*.zig
+  stale tests; stash triage (stash@{0}). Items 4-9, 12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 24 — 2026-10-12 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on e150e98), no bugs, no plan PR, milestone #121 open, no new
