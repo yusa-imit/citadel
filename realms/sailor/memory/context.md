@@ -1,7 +1,26 @@
 # sailor — context
 
-last_seen_at: 2026-10-11T00:00:00Z
+last_seen_at: 2026-10-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 30 — 2026-10-12 — STABILIZATION
+
+- Preflight: tree clean on main, CI green (b2aa25a), inbox clear (only our own comment on #51), no
+  open PRs. Tiger counts: 7 bare `catch unreachable`, 8 `@panic`, 35 debug.print, 13 `while (true)`,
+  53 files >800, 243 asserts; 1 weak `or` disjunction in tests, 0 `expect(true)`.
+- Done: **PR #55** metrics stats queries sort samples in place and `rebuildTypeStats` refills the
+  retained capacity (`appendAssumeCapacity` + assert), so `event_metrics`/`render_metrics` no longer
+  allocate after recording; 4 bare `catch unreachable` gone, no public signature change, regression
+  tests under `FailingAllocator`. **PR #56** `area_chart_test` fill_char assertion tightened. Both
+  CI 10/10, squash-merged, `auto-merged`. STATE.md refreshed.
+- Next: n=31 FEATURE. Plan 002 item 7 is half done (`smart_autocomplete` 41/43 and `editor` 97 are
+  `init` fns: need `!` signatures, check callers/tests; plan said that may escalate to owner). Item 4
+  (`terminal.zig` AnsiParseState wiring), 5 pager soft-wrap, 6 scope decisions, 8 release v3.1.0.
+  Tick nothing in #51 for item 7 until the remaining sites are done.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: guard blocks `cd <repo>; cat >> file <<EOF` (use Edit/Write). Single tests/ file probe:
+  `zig test --dep sailor -Mroot=tests/X_test.zig -Msailor=src/sailor.zig`. `gh pr checks --watch`
+  fits in one call (~8 min). zsh: `${PIPESTATUS[0]}` is empty, rerun to get the exit code.
 
 ## Cycle 29 — 2026-10-11 — FEATURE
 

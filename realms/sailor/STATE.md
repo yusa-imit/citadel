@@ -1,5 +1,13 @@
 # sailor — STATE
 
+**Update 2026-10-12 (cycle 30, stabilization):** main green (b2aa25a). Live `src/` counts: 18
+`catch unreachable` (7 bare), 8 `@panic`, 35 `std.debug.print`, 13 `while (true)`, 53 files >800
+lines, 243 asserts, tidy baseline 327 entries. `zig fmt --check` is clean over src, tests,
+examples, benchmarks and CI enforces it. Test audit: 0 `expect(true)`, 1 weak `or` disjunction
+(`area_chart_test` fill_char, PR #56). PR #55 removes 4 of the 7 bare `catch unreachable`
+(metrics stats and rebuilds no longer allocate); remaining: `smart_autocomplete` 41/43 and
+`editor` 97 (init functions, need `!` signatures; plan 002 item 7).
+
 **Update 2026-10-05 (cycle 24): v3.0.0 released** (Zig 0.16.0, milestone #19 closed). README,
 PRD header and `CHANGELOG.md` now match reality; the claimed-vs-present gap below is closed
 except `CLAUDE.md`-era notes. Migration issues: zr#178, silica#163, zoltraak#141. Assertion
