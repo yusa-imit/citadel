@@ -1,7 +1,21 @@
 # strata — context
 
-last_seen_at: 2026-10-12T00:00:00Z
+last_seen_at: 2026-10-13T00:00:00Z
 rejected_plans: []
+
+## Cycle 47 — 2026-10-13 — FEATURE
+- Done: plan 003 item 11 — README page/cache Landed, 2A-2C ticked, CHANGELOG `[0.4.0]`, zon 0.4.0
+  (#45, CI 7/7). Tagged v0.4.0 + GitHub release; milestone #34 closed; no consumers name strata
+  in a `build.zig.zon`, so no migration issues. #46 ticked the last two boxes in the plan 003
+  file (items 10/11 were only ticked in the issue). Plan 004 (Phase 3 WAL, 12 items, v0.5.0)
+  drafted by planner (opus), proposed as PR #47, awaiting merge (citadel#50).
+- Next: if #47 merged, open milestone issue for 004 and implement item 1 (ADR-0003 WAL format);
+  if still open, one `/stabilize --one`. If closed unmerged, record the reason and re-plan.
+- Blockers: none. Open questions: none.
+- Note: `gh pr checks --watch` in the foreground cost ~$0.3 (context re-read); run it in the
+  background. Bash guard rejects `&&` chains with `git tag`/`push` mixed with `/tmp` writes —
+  one simple command per call. Planner output is HTML-escaped (`&gt;`); unescape before writing.
+  PR implement skills should tick the plan file's box in the same PR as the item.
 
 ## Cycle 46 — 2026-10-12 — FEATURE
 - Done: plan 003 item 10 — `bench/pool.zig` (new) + `bench/main.zig` wiring: `pool_hit` and
@@ -174,4 +188,4 @@ rejected_plans: []
 
 ## Next priority
 
-Plan 003 approved; milestone issue #34. Items 1-9 done; implement item 10 (pool bench), then item 11 docs + release v0.4.0.
+Plan 003 complete (v0.4.0 released 2026-10-13). Plan 004 (WAL) is PR #47, awaiting human merge.
