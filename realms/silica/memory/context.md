@@ -1,7 +1,22 @@
 # silica — context
 
-last_seen_at: 2026-10-10T00:00:00Z
+last_seen_at: 2026-10-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 29 — 2026-10-12 — FEATURE
+- Preflight: repo was dirty on `chore/line-length-executor` (executor.zig fully wrapped, baseline entry
+  dropped, untested). Preserved as `wip/line-length-executor-20261012` (21244a4, pushed), then main
+  pulled; CI green (791eb3d), no bug/question issues, inbox nothing new (only own comments on #137).
+- Done: PR #170 (merged, `auto-merged`, CI 7/7): executor.zig 598 long lines wrapped. Local tidy +
+  `zig build test` (4272+500 passed) + fmt green before commit. No subagents, ~$0.5.
+  `line_length:` baseline now only engine.zig (1186).
+- Preserved: `wip/line-length-executor-20261012` is superseded by #170 but stays (never delete wip).
+- Next: engine.zig line-length (1186 long lines; baselined functions may not grow, expect helper
+  extraction; consider 2 cycles split by line range). That finishes the tidy part-2 item.
+- Blockers: zuda v3.0.0 (still v2.3.0); migration items blocked. Open questions unchanged.
+- Tooling: a stale local branch `chore/line-length-executor` (== main) existed; reused via checkout.
+  CI build-and-test ~10.5 min; a poll loop of `sleep 10` x40 stays under the 590s tool timeout.
+  Guard blocks `cd citadel/...; python heredoc` compound lines: use Write/Edit for memory files.
 
 ## Cycle 28 — 2026-10-10 — FEATURE
 - Preflight: main clean, CI green (c511e07), no bug/question issues, no open PRs. Inbox: nothing new
