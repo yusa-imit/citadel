@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-10-11T17:12:00Z
+last_seen_at: 2026-10-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 46 — 2026-10-12 — FEATURE
+- Done: plan 003 item 10 — `bench/pool.zig` (new) + `bench/main.zig` wiring: `pool_hit` and
+  `pool_miss_evict` (4 KiB, 256-frame pool over a 1024-page scratch file `strata-bench-<hex>.db`
+  in cwd, removed on exit; `Result` now pub). Apple aarch64 ReleaseFast: hit ~197 M ops/s (5 ns),
+  miss + clean eviction ~1.26 M ops/s (~795 ns, OS page cache). PRD §5 5M floor cleared ~40x.
+  Figures in `000-inherited.md`; CHANGELOG Unreleased line. 411 tests.
+- PRs: #44 merged (squash, CI 7/7, auto-merged). Issue #34 item 10 ticked.
+- Review: none (bench only; zig-developer agent wrote tests+impl, ~$1.75 of $4 incl. idle polling).
+- Next: item 11 — docs, module status, release v0.4.0: drop `NotImplemented` from `src/page.zig`/
+  `src/cache.zig`, README page/cache rows -> Landed, tick 2A-2C in `000-inherited.md`, CHANGELOG +
+  `.version = "0.4.0"` in one PR, then `/release strata minor`.
+- Blockers: none. Open questions: none.
+- Note: `ScheduleWakeup`/Workflow are not polling tools; wait for task notifications instead
+  (`gh pr checks --watch` in background works).
 
 ## Cycle 45 — 2026-10-11 — FEATURE
 - Done: plan 003 item 9 — page manager + buffer pool suites widened from 3 to all 8 page sizes
