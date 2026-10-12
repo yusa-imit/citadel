@@ -1,7 +1,21 @@
 # zr — context
 
-last_seen_at: 2026-10-11T21:26:00Z
+last_seen_at: 2026-10-12T21:19:00Z
 rejected_plans: []
+
+## Cycle 23 — 2026-10-12 — FEATURE
+- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
+  comment since watermark was my own report). zuda still v2.3.0 → items 5-11 blocked → one
+  `/stabilize --one`.
+- Added `//!` headers to `template/engine.zig`, `builtin/build.zig`, `builtin/test.zig`; deleted
+  dead `template/loader.zig` (no importers, 0.14 `ArrayList.init`, never compiled) and 5 tidy
+  baseline entries. PR #188 merged, 8/8 green (~14 min). Tests 1944/0, tidy 0 failing.
+- Gotchas: stale `.zig-cache` ("failed to spawn build runner") hit again → `rm -rf .zig-cache`;
+  `git rm` stages the delete, so do not list the removed path in a later `git add`.
+- Next: ~207 `//!` headers left (small files by size: multirepo.zig, upgrade/types.zig,
+  codeowners/types.zig, util/platform.zig). Watch zuda v3.0.0. Cycle 24 FEATURE; cycle 25
+  STABILIZATION.
+- Open questions: none.
 
 ## Cycle 22 — 2026-10-11 — FEATURE
 - Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
