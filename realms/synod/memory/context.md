@@ -64,87 +64,39 @@ rejected_plans: []
 
 Cycle 44 (2026-10-10): no-op, only ~$0.59 budget left; nothing started.
 
-## Cycle 43 — 2026-10-10 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
-- Done: item 6 (2B-i-a leader send side) via PR #46 (squash-merged, 7/7 CI, `auto-merged`, #39
-  item 6 ticked). New `raft/leader.zig` (Progress per peer on election, sends on
-  win/propose/heartbeat, round records id/prev/last_sent/tick, timeout after election_ticks);
-  `node.zig` 786 lines; 24 new tests in `node_leader_test.zig` (383 total).
-- Review: 0 CRITICAL, 3 WARNING fixed (corrupted `//!`, effects capacity is `peers_max + 3`,
-  tautology asserts). Cost: test-writer ~$1.25, developer ~$1.07, reviewer ~$0.25; ≈ $3.2 of $4.
-- Next: item 6b (2B-i-b response side). MUST also close the liveness gap: heartbeats are gated
-  by `Progress.can_send`, so a probing peer with one lost round hears nothing until the round
-  expires (> min follower timeout, so a spurious pre-vote). Keep `inflight_count` == live
-  records when removing a round; no `InvariantRoundRecord` variant exists (node_invariants_test
-  has an exhaustive switch). Open suggestions: restored entries not checked against
-  `entry_bytes_max`; earlier ones from cycles 40-42.
-- Blockers: none. Open questions: none.
-- Tool notes: guard blocks `cd <path>;` and heredocs into citadel (use Edit/Write). Test-writer
-  left /tmp/proto (scratch reference impl; ignore). Two subagent-heavy steps cost ~$2.3.
-
-## Cycle 42 — 2026-10-10 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
-- Done: item 5 (2C `raft/progress.zig`) via PR #44 (squash-merged, 7/7 CI, `auto-merged`, #39
-  item 5 ticked). Internal `Progress` value type (32 B): match/next, probe/replicate, bounded
-  inflight window, `on_send`/`on_accepted`/`on_rejected`/`on_timeout`, `backtrack_hint`,
-  `check_invariants`. Tests in `progress_test.zig` (wired from `raft.zig`, NOT `node.zig`,
-  which sits at 800 lines) with a seeded model vs a naive reference.
-- Review found 2 CRITICAL (peer-reachable asserts: `prev == 0`, `matched == maxInt`) and 3
-  WARNING; fixed: prev 0 returns false, replicate rejection with `prev >= next` is stale,
-  `on_timeout` added. `matched` bounds remain a documented node precondition.
-- Contract for 2B-i (in `///` of `on_accepted`/`on_rejected`): node resolves prev/last_sent from
-  its own round record, one response per round, `prev <= matched <= request last index`, drops
-  responses from rounds it timed out (a response after `on_timeout` would hit the new window).
-  Shorter-log reject (`conflict.index == 0`) backs off one entry per round trip.
-- Cost: test-writer ~$0.4, developer ~$0.2 + ~$0.2, reviewer ~$0.3; ≈ $2.1 of $4.
-- Next: item 6 (2B-i leader replication; largest item — plan says split send/response side in a
-  plan-tick PR if it overruns). `node.zig` is at its 800-line cap: move code out first (e.g.
-  `note_leader`, status helpers) or put leader logic in a new file `raft/leader.zig`.
-- Blockers: none. Open questions: none.
-- Tool notes: guard blocks `cd <path>;` — use `--build-file` and `git -C`. `gh pr checks
-  --watch` loop returns early while checks pending; re-check with plain `gh pr checks`.
-
-## Cycle 41 — 2026-10-09 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
-- Done: item 4 (2A-iii PreVote) via PR #43 (squash-merged, 7/7 CI, `auto-merged`, #39 item 4
-  ticked). Timeout → `pre_candidate` (no term bump/persist), `pre_vote` at term+1, grant rule
-  (higher term, log ok, not leader, no leader heard in `election_ticks`), joint quorum →
-  `campaign()`. New `raft/node_prevote_test.zig`; `campaign()` test helper now feeds pre-vote
-  grants; `check_invariants_*` moved to `node_init.zig` (node.zig sits at exactly 800 lines —
-  the tidy cap — so the next item MUST move code out first). `note_leader` (voter-only, first
-  claim per term) added for `append_entries`; 2B must absorb it.
-- Review found 1 CRITICAL (a leader past `election_ticks` computed "leader silent" and tripped
-  an assert from a peer pre_vote) — fixed, regression test. Learner/dup-leader guards added.
-- Cost: test-writer ~$0.55, developer ~$0.5, reviewer ~$0.15, rest main session; ≈ $2.5 of $4.
-- Next: item 5 (2C `raft/progress.zig`, new file, so no node.zig pressure). Open suggestions:
-  unit tests for `election.pre_vote_grantable`/`is_voter`; `or` compound asserts (node.zig
-  role checks); `///` docs on `node_init.check_invariants_*`; `send_vote_request` `unreachable`
-  switch arm → assert; earlier: `request_vote` accepts learners, `votes_len` not cleared in
-  `term_adopt`, `assert_config` election_ticks bound.
-- Blockers: none. Open questions: none.
-- Tool notes: guard blocks `cd <path>;` — use `--build-file`/`--cache-dir` and `git -C`. Test
-  suite wrapper: `zig build test` exit 0 even with tidy-fixture stderr noise; check `$?`.
-
-## Cycle 40 — 2026-10-09 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green, milestone #39 open.
-- Done: item 3 (2A-ii Election) via PR #42 (squash-merged, 7/7 CI, `auto-merged`, #39 item 3
-  ticked). Tick → campaign, request_vote grant/refuse (§5.4.1), joint-shaped quorum, winner
-  appends empty entry. New files `raft/election.zig` (pure helpers), `raft/node_init.zig`
-  (init helpers; node.zig hit 804 lines), `node_election_test.zig` (36+3 tests).
-- Review (also covered the skipped cycle-39 review of node.zig) found 2 CRITICAL, fixed: a
-  term-zero assert reachable from a stranger's message; term wrap at u64 max. Also fixed:
-  zero-term restore entry → `RestoreInconsistent`; `pre_vote*` now dropped (adopts no term).
-- Cost: test-writer ~$0.93, zig-developer ~$0.9, reviewer ~$0.4; total ≈ $3.4 of $4. One
-  test-writer+developer+reviewer item per cycle is the ceiling.
-- Next: item 4 (2A-iii PreVote). Open suggestions not done: `is_member` includes learners for
-  `request_vote` (should be voters only); `votes_len` not cleared in `term_adopt`;
-  `node.*` dangling after `RestoreLogFull`; `assert_config` lacks `election_ticks <= maxInt(u32)/2`;
-  `become_leader` swallowing `LogFull` has no test. Unprovoked invariants: ProgressOrder,
-  InflightOverflow, EntryDataMisplaced; leader propose path (items 2B-i/2C).
-- Blockers: none. Open questions: none.
-- Tool notes: test-writer's invalid fixture (vote_request_at with last_log_term > header term)
-  fails `Message.validate` — keep log terms <= header term. python3 heredocs for multi-edit
-  work in the guard.
+## Cycles 40-43 (2026-10-09 to 10-10), folded
+Each cycle: one plan 003 item via a squash-merged PR (7/7 CI, `auto-merged`, milestone #39
+ticked); one test-writer + developer + reviewer item costs ~$2-3.4 of $4, the per-cycle ceiling.
+- 40 (item 3, 2A-ii Election, PR #42): tick -> campaign, request_vote grant/refuse (§5.4.1),
+  joint-shaped quorum. New `raft/election.zig`, `raft/node_init.zig`, `node_election_test.zig`.
+  Review fixed a term-zero assert reachable from a stranger's message, term wrap at u64 max,
+  zero-term restore entry -> `RestoreInconsistent`, `pre_vote*` adopts no term.
+- 41 (item 4, 2A-iii PreVote, PR #43): timeout -> `pre_candidate` (no term bump/persist), grant
+  rule (higher term, log ok, not leader, no leader heard in `election_ticks`), joint quorum ->
+  `campaign()`. `note_leader` (voter-only, first claim per term) added; 2B must absorb it. Review
+  fixed a leader-past-`election_ticks` assert tripped by a peer pre_vote.
+- 42 (item 5, 2C `raft/progress.zig`, PR #44): internal 32 B `Progress` (match/next, probe/
+  replicate, bounded inflight window, `on_send`/`on_accepted`/`on_rejected`/`on_timeout`,
+  `backtrack_hint`); tests wired from `raft.zig`, not `node.zig`; seeded model vs naive reference.
+  Review fixed peer-reachable asserts (`prev == 0`, `matched == maxInt`). Contract: node resolves
+  prev/last_sent from its own round record, one response per round, drops responses from rounds it
+  timed out; shorter-log reject backs off one entry per round trip.
+- 43 (item 6, 2B-i-a leader send side, PR #46): new `raft/leader.zig` (Progress per peer, sends
+  on win/propose/heartbeat, round records id/prev/last_sent/tick, timeout after election_ticks);
+  `node.zig` 786 lines (cap 800); effects capacity is `peers_max + 3`. 24 tests in
+  `node_leader_test.zig`.
+- Standing todo for 2B-i-b: close the liveness gap (heartbeats gated by `Progress.can_send`, so a
+  probing peer with one lost round hears nothing until the round expires, a spurious pre-vote);
+  keep `inflight_count` == live records when removing a round; no `InvariantRoundRecord` variant
+  exists (`node_invariants_test` has an exhaustive switch).
+- Open suggestions: restored entries not checked against `entry_bytes_max`; `is_member` includes
+  learners for `request_vote`; `votes_len` not cleared in `term_adopt`; `node.*` dangling after
+  `RestoreLogFull`; `assert_config` lacks `election_ticks <= maxInt(u32)/2`; `become_leader`
+  swallowing `LogFull` untested; unit tests for `election.pre_vote_grantable`/`is_voter`.
+- Tool notes: guard blocks `cd <path>;` (use `--build-file`/`--cache-dir`, `git -C`); `gh pr
+  checks --watch` returns early while pending; `zig build test` exits 0 even with tidy-fixture
+  stderr noise (check `$?`); code-reviewer cannot run tests (global zig is 0.15.2) — use
+  `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all`.
 
 ## Cycles 38-39 (2026-10-08), folded
 
