@@ -76,78 +76,38 @@ rejected_plans: []
   every command (the 0.15 `zig build test` fails). The guard rejects `cd X; ...` and `for` loops
   mixing the repo path; run plain commands. zsh expands `==`, so avoid `echo == x`.
 
-## Cycle 19 — 2026-10-08 — FEATURE
-- Done: preflight found uncommitted backtracking work on `fix/backtracking-0.16-compile` (the
-  interrupted prior cycle); preserved it as `wip/fix-backtracking-0.16-compile-20261008` (the
-  `...20261007` wip is an older, smaller subset), then restored those files onto
-  `fix/compile-clean-outside-test-graph`, verified on 0.16 (`zig test` each file, `zig build
-  test` exit 0, fmt clean) and merged PR #62: all 9 `algorithms/backtracking/*` compile,
-  wired into `root.zig` tests; sudoku invalid-board hang + `isValidSudoku` OOB fixed; two wrong
-  `word_search` expectations (2 -> 4). Squash, 7/7 checks, labeled `auto-merged`.
-- Found: reviewer's OOM harness showed pre-existing alloc-failure leaks in palindrome_partition
-  (undefined free in `minCut`), knights_tour, combination_sum, permutations, n_queens, subsets.
-  Filed bug #63 (OWNER-account bug, forces STABILIZATION next cycle; fix with the word_search
-  pattern + `checkAllAllocationFailures` tests per file).
-- Next: fix #63, then finish plan item "compile-clean files outside test graph": `nfa`,
-  `matrix_chain`, `ford_fulkerson`, `bogosort`, `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne`, then a
-  full `src/**` `zig test <file>` sweep. Then Thread sync, harness, assertion baseline, v3.0.0.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: stale `.zig-cache` gave "failed to spawn build runner: FileNotFound"; use
-  `zig build test --cache-dir /tmp/zuda-zcache`. CI Build & Test now ~9.5 min. Shell writes
-  into citadel are blocked by the guard; use Write/Edit there. Main CI for 82fe3fc was still in
-  flight at preflight.
-
-## Cycle 18 — 2026-10-05 — FEATURE
-- Done: preflight found branch `chore/zig-0.16-flip` (PR #60, clean, pushed, 7/7 checks green,
-  no hold). Inbox merged #60 (squash, labeled `auto-merged`): flip to 0.16.0 plus ndarray
-  `Io.Dir`, Io.Mutex, PriorityQueue unmanaged, bench `Io`. #56 was closed by cycle 17. Main CI
-  on the merge commit: green. Then plan 001 item `mem.indexOf*` -> `find*`: 43 sites, 13 files,
-  PR #61 (`zig build`, `zig build test` exit 0 on 0.16; formatted 5 touched files that already
-  failed fmt). Ticked plan items done by #60 (indexOf/AutoArrayHashMap, ndarray fs, flip).
-- Found: many files outside `root.zig`'s test graph still fail on 0.16 (managed
-  `ArrayList(T).init`, `.writer()`, `std.time.timestamp`, `std.posix.getrandom` in bogosort,
-  kmeans/gmm/dqn/ddpg/tsne). Added a plan item for it. `zig fmt --check src` still fails on
-  `max_sum_rectangle.zig` and `target_sum.zig` (parse errors, `anytype`) and ~160 unformatted
-  files; CI has no fmt gate.
-- PRs: #60 merged. #61 open, Build & Test pending at the deadline; next inbox merges it.
-- Next: merge #61, then the new hidden-red 0.16 plan item; then `Thread` sync/bogosort,
-  harness `internal/testing.zig` (`std.time.milliTimestamp`), assertion baseline, v3.0.0.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: zsh has no PIPESTATUS (use `pipestatus`); `zig build test` prints a "failed command"
-  block from stderr-printing tests yet exits 0, trust the exit code and Build Summary.
-
-## Cycle 17 — 2026-10-03 — STABILIZATION
-- Done: forced by open bug #57 (CI green, n%5 != 0). Inbox merged #58 (ILU init double free +
-  sparse/preconditioner tests wired into `root.zig`, left open by the interrupted cycle 16
-  tail). Fixed #57 in #59: `iterative.zig` tests had stale gmres/bicgstab arity; once running,
-  8 were red from a REAL GMRES bug (lucky breakdown `h(j+1,j)~0` exited before rotating col j,
-  so exactly-solved systems never updated x, converged=false). Also CG read `norm2(r)` after
-  `free(r)`; zero pivot now `error.SingularMatrix`; ILU(0) asserts ascending CSR columns
-  (tests skipped `coo.sort()`; `CSR.fromCOO` requires sorted COO and does NOT sort).
-- PRs: #58, #59 merged (squash, 7/7 checks green), labeled `auto-merged`. #57 closed.
-- Next: FEATURE — plan 001 `std.fs.cwd()` -> `Io.Dir` in `ndarray.zig`, but it is 0.16-only and
-  CI is pinned 0.15.2: see question #56 (origin: ai, non-blocking, unanswered, filed 2026-10-01;
-  after two cycles with no answer, proceed with its option 1 = big-bang flip PR, cycle 19+).
-  Stabilize leftovers: `bagging.zig` fit (73 lines, tests don't compile), 3-4 type-fn tidy
-  baseline entries grew (Cuckoo/RobinHood/ConcurrentSkipList/ILUPreconditioner), more
-  hidden-red probes via scratch `src/scratch.zig` (works with `zig test`, delete after).
-- Blockers: none. Open questions: #56. stabilize_streak: 0 (no file).
-- Quirk: full `zig build test` took ~4 min locally this time; CI Build & Test 7 min.
-
-## Cycle 16 — 2026-10-01 — STABILIZATION
-- Done: forced by open bug #53 (n%5 != 0, CI green). Inbox found no new OWNER comments, no plan
-  PR; `milestone_issue: 31`. #53 root cause: the *test* was wrong, not `findFirst` — "or" ends
-  at 9, "world" at 11, and `findFirst` returns the first match to complete, so "or" (index 1,
-  pos 7) is right. Corrected the expectation and added `aho_corasick.zig` to `root.zig`'s test
-  block (39 filtered / whole suite `zig build test` exit 0, fmt clean).
-- PRs: #55 merged (squash, all 7 checks green), labeled `auto-merged`; #53 closed. No open bugs.
-- Next: FEATURE — plan 001 `std.fs.cwd()` -> `Io.Dir`/`Io.File` in `ndarray.zig` (14 sites).
-  Stabilize leftovers: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73; tests do not
-  compile on 0.15.2), 3 type-fn baseline entries that grew; probe for more hidden-red files
-  (scratch `src/scratch.zig` with `test { _ = @import(...); }`, delete after).
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: bash guard rejects `cd <repo>; ...` compound commands and `timeout` does not exist on
-  this box; run plain commands (cwd is already the repo) and use Edit for multi-line changes.
+## Cycles 16-19 (2026-10-01 to 10-08), folded
+All merged by squash with 7/7 checks, labeled `auto-merged`.
+- 16 (STABILIZATION, bug #53, PR #55): the *test* was wrong, not `findFirst` (it returns the first
+  match to complete); fixed the expectation, wired `aho_corasick.zig` into `root.zig` tests.
+- 17 (STABILIZATION, bug #57, PRs #58 #59): ILU init double free + sparse/preconditioner tests
+  wired in; `iterative.zig` tests had stale gmres/bicgstab arity, exposing a REAL GMRES bug (lucky
+  breakdown `h(j+1,j)~0` exited before rotating col j, so x never updated); CG read `norm2(r)`
+  after `free(r)`; zero pivot is `error.SingularMatrix`; ILU(0) asserts ascending CSR columns
+  (`CSR.fromCOO` requires sorted COO and does NOT sort). Question #56 (0.16 flip vs CI pinned
+  0.15.2) went unanswered; option 1 (big-bang flip) taken.
+- 18 (FEATURE): inbox merged PR #60 (flip to 0.16.0 + ndarray `Io.Dir`, Io.Mutex, PriorityQueue
+  unmanaged, bench `Io`); PR #61 `mem.indexOf*` -> `find*` (43 sites, 13 files). Found many files
+  outside `root.zig`'s test graph still red on 0.16 (managed `ArrayList(T).init`, `.writer()`,
+  `std.time.timestamp`, `std.posix.getrandom`; bogosort, kmeans, gmm, dqn, ddpg, tsne); added a
+  plan item. `zig fmt --check src` fails on `max_sum_rectangle.zig`, `target_sum.zig` (parse
+  errors) and ~160 unformatted files; CI has no fmt gate.
+- 19 (FEATURE, PR #62): preflight found uncommitted work from an interrupted cycle; preserved as
+  `wip/fix-backtracking-0.16-compile-20261008`, then merged all 9 `algorithms/backtracking/*`
+  compiling on 0.16 (sudoku invalid-board hang + `isValidSudoku` OOB fixed, two wrong
+  `word_search` expectations). Reviewer's OOM harness found alloc-failure leaks in
+  palindrome_partition (undefined free in `minCut`), knights_tour, combination_sum, permutations,
+  n_queens, subsets -> bug #63 (fix with `checkAllAllocationFailures` tests per file).
+- Remaining after 19: compile-clean files outside the test graph (`nfa`, `matrix_chain`,
+  `ford_fulkerson`, `bogosort`, `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne`), then a `src/**`
+  `zig test <file>` sweep, Thread sync, harness, assertion baseline, v3.0.0. Stabilize leftovers:
+  `bagging.zig` fit (73 lines, tests don't compile), 3-4 type-fn tidy baseline entries grew
+  (Cuckoo/RobinHood/ConcurrentSkipList/ILUPreconditioner); probe hidden-red files via a scratch
+  `src/scratch.zig` with `test { _ = @import(...); }` (delete after).
+- Quirks: stale `.zig-cache` gives "failed to spawn build runner: FileNotFound" (use `--cache-dir
+  /tmp/zuda-zcache`); `zig build test` prints "failed command" noise yet exits 0 (trust the exit
+  code); zsh has no PIPESTATUS (`pipestatus`); guard rejects `cd <repo>; ...` and shell writes
+  into citadel (use Write/Edit); no `timeout` binary; CI Build & Test 7-9.5 min.
 
 ## History cycles 14-15 (folded 2026-10-11)
 
