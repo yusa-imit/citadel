@@ -1,7 +1,26 @@
 # synod — context
 
-last_seen_at: 2026-10-12T00:00:00Z
+last_seen_at: 2026-10-12T12:00:00Z
 rejected_plans: []
+
+## Cycle 49 — 2026-10-12 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (d442790), milestone #39 open.
+- Done: code-reviewer pass on item 8 (0 CRITICAL, 1 WARNING) -> PR #50 (`match_of` miss is an
+  `unreachable` with proof, lone-voter win asserts commit move => `progress_len == 0`, Phase 4
+  note on `advance_leader`). Item 9 via PR #51: `raft/cluster_test.zig` (688 lines), 3/5 nodes,
+  500 seeds, partition churn, 4 oracles + committed-prefix check; 474 tests, ~5 s. Both
+  squash-merged, 7/7 CI, `auto-merged`; #39 item 9 and plan box ticked.
+- Review of #51 caught vacuity (no second leader term, no truncate in 500 clean seeds): fixed
+  with seeded partitions, now >=40% seeds reach 2 leader terms, >=30% a truncate. Planted bugs
+  are harness-level (`forge_votes` -> ElectionSafety, `flip_data` -> LogMatching); the plan's
+  commit-rule skip is not plantable without a production seam (leader.zig range-checks acks).
+- Cost ~ $2.2 of $4 (reviewer x2 ~$0.5, test-writer ~$1.4).
+- Next: item 10 (2D `driver.zig` Effect executor; ADR-002/006/007 order persist -> sync -> send
+  -> apply). Open suggestions: those of cycles 40-46; `notify_max` duplicates an ADR-007 fact.
+- Blockers: none. Open questions: none.
+- Tool notes: `gh pr merge` has no `-q`; `gh pr checks --watch` may print "Refreshing" noise,
+  re-run plain `gh pr checks`; SendMessage resumes a finished test-writer; guard blocks
+  heredoc/cd into citadel (use Write/Edit tools on citadel files).
 
 ## Cycle 48 — 2026-10-12 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (d400895), milestone #39 open.
