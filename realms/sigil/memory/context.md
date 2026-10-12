@@ -1,7 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-10-12T13:00:00Z
+last_seen_at: 2026-10-12T15:13:00Z
 rejected_plans: []
+
+## Cycle 50 — 2026-10-13 — FEATURE
+
+- Done: plan 004 item 9 `json.parseFile`/`stringifyFile` merged. New `src/json/file.zig` (re-exported by
+  `json.zig`; `Error` lost `NotImplemented`, `scratch_bytes_min` deleted); both take `arena` + final
+  `diag` (ADR 0003 section 9); `bytes_max` inclusive via `readFileAlloc(.limited64(bytes_max + 1))`;
+  std errors collapsed by `map_read_error`/`map_create_error`/`map_write_error` (`else` = ReadFailed/
+  WriteFailed). `ParseFileError` 27 variants, `StringifyFileError` 10. PR #51, CI 8/8, squash-merged;
+  518 tests, tidy 0; milestone #42 at 9/11. I wrote tests and impl myself (no subagents but one
+  sonnet code-reviewer: 0 critical, 5 warnings, all fixed: directory read/write gives ReadFailed/
+  WriteFailed end to end, OOM, writer-stage TooDeep, doc said 26). Cost ~$1.5.
+- Next: item 10 benchmarks (JSON benches in `bench/main.zig`, CI build step for `bench`, record MB/s in
+  `docs/plans/000-inherited.md`), then item 11 release v0.3.0 (`/release sigil minor`). Blockers: none.
+- Learned: writing tests+impl directly was far cheaper than test-writer + zig-developer (~$1.5 vs ~$3.4).
+  Only reflect errors precede the file open in `stringifyFile`; writer-stage errors (NaN, TooDeep)
+  truncate first, now documented. `testing.tmpDir` + `dir.createDir(io, "sub", .default_dir)` gives a
+  directory for IsDir cases. Open nit: `reflect.parse` lacks `errdefer assert(diag_written)`.
 
 ## Cycle 49 — 2026-10-12 — FEATURE
 
