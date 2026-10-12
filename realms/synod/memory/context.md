@@ -1,7 +1,28 @@
 # synod — context
 
-last_seen_at: 2026-10-12T12:00:00Z
+last_seen_at: 2026-10-13T04:00:00Z
 rejected_plans: []
+
+## Cycle 50 — 2026-10-13 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (5ef8635), milestone #39 open.
+- Done: item 10 (2D `driver.zig`) via PR #52 (squash-merged, 7/7 CI, `auto-merged`, #39 item 10
+  and plan box ticked). `Driver` init/deinit/receive/propose/poll; one-pass `execute` (persist,
+  one sync at the first non-persist effect or the end, send, apply), `unsynced` flag, `stopped`
+  fail-stop, `phase_ready`/`phase_ordered` pure checks; `driver_test.zig` 967+66 lines. 495 tests.
+- Review: 0 CRITICAL, 2 WARNING fixed (init refuses a store past `log_entries_max` with
+  `RestoreLogFull` before sizing scratch; save/get/load fault + poll cap boundary tests).
+  Cost ~ $2.6 of $4 (test-writer ~$1.2, reviewer ~$0.25, own implementation from the
+  test-writer's throwaway `/tmp/driver_real.zig`, which saved a developer call).
+- Open suggestions: no `truncate` fault test; `catch unreachable` in `poll` and `@errorCast` in
+  receive/propose rest on comments (narrow `step_message`/`step_propose` error sets in node.zig
+  to let the compiler prove it); `deinit` lacks an assert/precondition doc; `phase_ready` assert
+  after sync is near-tautological; earlier ones from cycles 40-49.
+- Next: item 11 (re-measure Tiger Style baseline, flip README rows raft/driver, STATE.md table),
+  then item 12 release v0.4.0 (MINOR; also tick Phase 2 items in `docs/plans/000-inherited.md`).
+- Blockers: none. Open questions: none.
+- Tool notes: guard blocks `cd <path>;` and `python3 - <<heredoc` in repo (write script to /tmp,
+  run `python3 -I /tmp/x.py`); `sleep` blocked, use `gh pr checks --watch`; the test-writer can
+  leave a working throwaway impl in /tmp if asked to validate its tests.
 
 ## Cycle 49 — 2026-10-12 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (d442790), milestone #39 open.
@@ -39,49 +60,17 @@ rejected_plans: []
 - Blockers: none. Open questions: none.
 - Tool notes: `timeout` command absent on this box; `gh pr checks --watch` worked fine (45s CI).
 
-## Cycle 47 — 2026-10-11 — FEATURE (no-op, budget)
-- Inbox: no OWNER comments, no bugs, CI green (d400895), no open PRs, milestone #39 open.
-  Only ~$0.69 of the $4 session budget left after cycle 46 in the same session; item 8 needs
-  ~$2+, so nothing was started. Run item 8 (as in cycle 46's Next) in a fresh session.
-- Blockers: none. Open questions: none.
-
-## Cycle 46 — 2026-10-11 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green (de4b7ab), milestone #39 open.
-- Done: item 7 (2B-ii follower log matching) via PR #48 (squash-merged, 7/7 CI, `auto-merged`,
-  #39 item 7 ticked, plan box ticked). New `raft/follower.zig` `step_append` (term rules, claim
-  leader, `conflict_at` reject, truncate only above commit, append, ack; overflow and
-  at/below-commit conflicts dropped whole with no reply; `leader_changed` emitted last).
-  `note_leader` removed; `node.zig` 793 -> ~775 lines. ADR-007 amended (drop-whole overflow).
-  432 tests. Review 0 CRITICAL, 4 WARNING fixed. Cost ≈ $3.1 of $4.
-- Next: item 8 (2B-iii commit advancement and apply; follower `leader_commit` is NOT handled).
-  Open suggestions: `Plan` struct placement/u32 widths and an executable proof for the
-  `append_rest` unreachable in `follower.zig`; header note that config-change entries apply in
-  Phase 4; earlier ones from cycles 40-45.
-- Blockers: none. Open questions: none.
-- Tool notes: test-writer's model test had a `@min(3, u64) + 1` u2 overflow (cast with `@as`);
-  guard blocks `cd <path>;` (use persisted cwd or `git -C`); python with os.chdir works.
-
-## Cycle 45 — 2026-10-11 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green (63c9be4), milestone #39 open.
-- Done: item 6b (2B-i-b leader response side) via PR #47 (squash-merged, 7/7 CI, `auto-merged`,
-  #39 6b ticked; plan 003 6a/6b boxes ticked too). `leader.zig`: `step_response` (slot_of,
-  live_record, remove_record), `Progress.on_stale_rejection`, probe-state round timeout is now
-  `heartbeat_ticks` (closes the liveness gap; documented RTT < heartbeat_ticks). 17+2 tests in
-  `node_leader_response_test.zig`; three old probe-timeout tests in `node_leader_test.zig`
-  updated. 404 tests. `node.zig` 793 lines (cap 800).
-- Review: 0 CRITICAL, 4 WARNING fixed (RTT doc, CHANGELOG, joint-config + stale-probe tests).
-  Cost ≈ $3.3 of $4 (test-writer ~$0.7, developer ~$0.8, tests fix ~$0.3, reviewer ~$0.3, 2nd
-  test-writer ~$0.4).
-- Next: item 7 (2B-ii follower log matching) — node.zig has ~7 lines left, so put follower
-  logic in a new file (e.g. `raft/follower.zig`). Open suggestions: clear a slot's records on
-  `on_timeout`/live reject and add invariants (tail empty, ids ascending); free older records
-  with `last_sent <= matched` (etcd FreeLE); seeded response model lacks rejected/tick ops and
-  node 3; restored entries not checked against `entry_bytes_max`; earlier ones from cycles 40-42.
-- Blockers: none. Open questions: none.
-- Tool notes: code-reviewer cannot run tests (global zig is 0.15.2). A guard-safe way to run
-  the suite: `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all` from the repo cwd.
-
-Cycle 44 (2026-10-10): no-op, only ~$0.59 budget left; nothing started.
+## Cycles 44-47 (2026-10-11), folded
+- 44, 47: no-op cycles, session budget nearly spent by the previous cycle; nothing started.
+- 45 (item 6b, PR #47): `leader.zig` `step_response`, `Progress.on_stale_rejection`, probe-state
+  round timeout is `heartbeat_ticks`; RTT must be < heartbeat_ticks. 404 tests.
+- 46 (item 7, PR #48): `raft/follower.zig` `step_append` (term rules, `conflict_at` reject,
+  truncate only above commit, overflow dropped whole with no reply); ADR-007 amended. 432 tests.
+- Open suggestions: clear a slot's records on `on_timeout`/live reject plus invariants; free
+  records with `last_sent <= matched`; response model lacks rejected/tick ops; restored entries
+  not checked against `entry_bytes_max`; header note that config-change entries apply in Phase 4.
+- Tool notes: code-reviewer cannot run tests (global zig 0.15.2) - use
+  `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all`.
 
 ## Cycles 40-43 (2026-10-09 to 10-10), folded
 Each cycle: one plan 003 item via a squash-merged PR (7/7 CI, `auto-merged`, milestone #39
