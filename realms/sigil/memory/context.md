@@ -1,7 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-10-11T13:00:00Z
+last_seen_at: 2026-10-12T13:00:00Z
 rejected_plans: []
+
+## Cycle 49 — 2026-10-12 — FEATURE
+
+- Done: plan 004 item 8 `json.parse(T)`/`json.stringify` merged. The cycle 48 wip work was branched to
+  `feat/json-parse-stringify-item-8`; `parse_error_test.zig` and `stringify_test.zig` had never been
+  wired into `json.zig` (added: 476 -> 503 tests, all green first time). One code-reviewer (sonnet): 0
+  critical, 3 warnings: locate cost doc said O(input) (really O(depth_max x input)) and the hook
+  obligation was unwritten (both doc-fixed); `reflect.parse` lacks the `errdefer assert(diag_written)`
+  that `parse_traced` has (skipped, outside item 8; candidate stabilization nit). PR #50, CI 8/8,
+  squash-merged; milestone #42 at 8/11. Cost ~$1.
+- Next: item 9 `parseFile`/`stringifyFile` (ADR 0001 shapes over item 8; `Io.Dir` read/write names
+  still unverified; changes the root.zig parity test and retires the stub error sets), then item 10
+  benchmarks, item 11 release v0.3.0. Blockers/questions: none.
+- Learned: check that every new `*_test.zig` is imported from its module's `test {}` block (tests
+  silently not running is how 27 tests sat unwired); `wip/json-parse-stringify-*` branches are
+  superseded by the merge but kept (never delete wip branches). The cycle ran on budget: launching
+  the reviewer and a CI Monitor then ending the turn worked well.
 
 ## Cycle 48 — 2026-10-12 — FEATURE (budget exhausted, no PR)
 
