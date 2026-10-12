@@ -1,4 +1,15 @@
-# sirocco — State Survey (2026-09-05, refreshed 2026-10-06)
+# sirocco — State Survey (2026-09-05, refreshed 2026-10-13)
+
+## Refresh 2026-10-13 (cycle 51, FEATURE — bounded stabilization while plan PR #44 awaits merge)
+
+- Release v0.4.0 (2026-10-11); main at 5a926bb, last 5 CI runs green; `zig build tidy` green.
+  No open issues; plan 004 PR #44 open, no OWNER feedback.
+- Tiger Style sweep over `src/`: `catch unreachable` 0, `@panic(` 0, `std.debug.print` 0,
+  `expect(true)`/FIXME 0. `while (true)`: 1 (`offload.zig` worker loop, annotated as the thread's
+  top-level loop, ends via `closed`). Largest file `concurrency.zig` 678 lines (cap 800);
+  `sched.zig` 588 after the PR #45 test split. Total `src/` 4064 lines.
+- Docs: README, `build.zig.zon`, `root.zig` all say 0.4.0; root files clean per DOCS.md.
+- No fixes needed. Benchmarks not run this cycle.
 
 ## Release 2026-10-06 (cycle 37) — v0.3.0
 

@@ -1,7 +1,21 @@
 # sirocco — context
 
-last_seen_at: 2026-10-12T01:00:00Z
+last_seen_at: 2026-10-13T00:00:00Z
 rejected_plans: []
+
+## Cycle 51 — 2026-10-13 — FEATURE
+- Inbox: no OWNER activity on plan PR #44 (only our own cycle-50 comment); CI green on 5a926bb; no
+  bugs, no other open PRs or issues.
+- Done: plan PR #44 still open, so one bounded `/stabilize --one` sweep: tidy green, `catch
+  unreachable`/`@panic`/`debug.print`/FIXME all 0, one annotated `while (true)` (offload worker
+  loop), largest file `concurrency.zig` 678 lines, docs at 0.4.0 agree. Nothing to fix, no PR.
+  STATE.md refreshed.
+- Next: when #44 is merged, open the milestone issue, tick plan 004 item 1 (already done by PR #45)
+  and start at item 2 (ADR 0003 + kqueue `Poller`). Until then FEATURE cycles run one bounded
+  stabilize task and report.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: a compound Bash starting with `cd <repo>;` was blocked by the guard again; the primary
+  cwd is already sirocco, run each command separately.
 
 ## Cycle 50 — 2026-10-12 — FEATURE
 - Inbox: no OWNER activity on plan PR #44 (only our own cycle-49 comment); CI green on f159a82; no
@@ -62,39 +76,14 @@ rejected_plans: []
   an empty suffix arg. `gh pr checks` right after a push still shows the previous run: poll
   `gh run list` by headSha. Guard blocks any compound Bash mentioning citadel paths.
 
-## Cycle 46 — 2026-10-11 — FEATURE
-- Inbox: no OWNER activity; CI green on 28ef526 (b812d61 is docs-only); no open PRs; milestone #33.
-- Done: plan 003 item 7 via PR #41 (merged 9743796, CI green Linux+macOS+6 cross, auto-merged):
-  `src/offload.zig` bounded worker pool (request records on the parked fiber's stack, futex mutex,
-  completion via `Sched.unpark_foreign`), `Runtime.Options.offload_threads` (required, breaking in
-  0.x), pool built beside the sched in `sched_ensure` (failure -> `.unavailable`), ADR 0002
-  (offload before multi-carrier; the human may reject the deferral on #33). Item ticked in plan
-  and #33. Reviewer: 0 CRITICAL; fixed spinlock -> futex mutex, timing test -> in-flight peak.
-- Next: item 8 (comptime thunks route `dir*`/`file*`/`net*`/`operate`/`childWait` through the
-  pool in `runtime.zig`; loopback accept/connect test; in-fiber parity), item 9 (docs, v0.4.0,
-  split `src/sched.zig` tests: 823 lines > 800 cap).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: `Io.sleep` on `Io.Threaded` did not overlap (16 x 20 ms took 160 ms, cause not
-  investigated; may explain the slow Threaded row in gate 7): use `futexWaitTimeout` on a private
-  word as a timer in concurrency tests. Parity test alloc counts shifted by one (pool block).
-  Guard blocks compound Bash that writes under citadel paths (first Bash call of the cycle).
+## History (cycles 43-46, condensed 2026-10-13)
 
-## Cycle 45 — 2026-10-10 — FEATURE
-- Inbox: no OWNER activity; CI green on 94c0627; no open PRs; milestone #33 open.
-- Done: plan 003 item 6 via PR #39 (merged 28ef526, CI green Linux+macOS+6 cross, auto-merged):
-  `harness.expectSameResultInFiber` runs the `rt.io()` side in an `async` task, baseline stays
-  off-fiber; tests prove the native side is in a fiber (`rt.sched.in_fiber()` counter) and that
-  mismatches are still caught; `dir`, `time`, `futex` tables run in both placements. Tick of plan
-  item 6 via docs PR #40 (b812d61); #33 ticked.
-- Next: item 7 (ADR 0002 + `src/offload.zig`), 8, 9 (docs, v0.4.0). `src/sched.zig` is 823 lines
-  (cap 800): split its tests in item 9.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: CI ignores `docs/**` and `*.md` (paths-ignore), so docs-only PRs have no checks; a poll
-  loop on `gh pr checks` spun until the 600 s tool limit. Tick plan items inside the
-  implementation PR itself to avoid a second PR. The guard also blocks compound Bash that writes
-  citadel files (python heredoc): use Write/Edit.
-
-## History (cycles 43-44, condensed 2026-10-12)
+Cycle 46 (10-11): item 7 via PR #41, `src/offload.zig` bounded worker pool (futex mutex, completion
+via `Sched.unpark_foreign`), `Options.offload_threads` required, ADR 0002 (offload before
+multi-carrier). `Io.sleep` on `Io.Threaded` did not overlap (use `futexWaitTimeout` as a timer in
+tests). Cycle 45 (10-10): item 6 via PR #39, `harness.expectSameResultInFiber`. CI ignores `docs/**`
+and `*.md`, so docs-only PRs have no checks (a `gh pr checks` poll spins): tick plan items inside the
+implementation PR. The guard blocks compound Bash that writes citadel files: use Write/Edit.
 
 Cycle 44 (10-10): item 5 via PR #38, `bench/timer.zig`; PRD gate 7 passes (sirocco p50 311 us / p99
 400 us late vs Io.Threaded p50 7.32 ms / p99 8.04 ms, Apple arm64). Cycle 43 (10-09): item 4 via
