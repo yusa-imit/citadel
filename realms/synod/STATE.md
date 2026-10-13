@@ -10,6 +10,10 @@ copy (no tracked files touched). See `REALM.md` for the durable realm summary th
   line — no library symbol moved, no prior tag existed, no consumer had pinned synod yet, so no
   migration issues were opened. Next: plan 002, Phase 1 real logic starting at `src/types.zig`.
 
+- **v0.4.0** (2026-10-14, cycle 52, PR #54, tag + GitHub release): closes milestone 003 (#39,
+  Phase 2 pure Raft core and driver). MINOR; no consumer pins synod, so no migration issues.
+  495 tests, tidy clean. Next: plan 004 (Phase 3 simulation harness), PR #56 awaiting merge.
+
 ## What exists vs. what is claimed
 
 - Claimed (README/PRD/old CLAUDE.md): a full I/O-free Raft core (PreVote election, log

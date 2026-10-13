@@ -5,7 +5,7 @@
 | Layer | foundation |
 | Path | `/Users/fn/codespace/synod` |
 | GitHub | `yusa-imit/synod` |
-| Version | 0.1.0 (`build.zig.zon`) · latest tag none yet |
+| Version | 0.4.0 (`build.zig.zon`) · latest tag v0.4.0 (2026-10-14, PR #54) |
 | Zig | 0.15.2 (migrating to 0.16.0 under plan 001) |
 | Depends on | none — Zig std only (ADR-001); kingdom integrations are opt-in adapters |
 | Consumers | silica (replication/failover), zoltraak (cluster/sentinel) |
