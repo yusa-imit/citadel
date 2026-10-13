@@ -1,7 +1,21 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-13T00:00:00Z
+last_seen_at: 2026-10-14T00:00:00Z
 rejected_plans: []
+
+## Cycle 26 — 2026-10-14 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on 33a24df), no bugs, no plan PR, milestone #121 open, no
+  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
+- `/stabilize --one`: PR #150. `TDigestValue.cdf` returned 1.0 for a lone value and 0.6 for the
+  median of five (counted `<=`, shortcut at max); now mid-point convention like Redis (rank
+  derives from it). Stale merge test contradicted documented replace semantics (command layer
+  rejects existing dest without OVERRIDE); test now pins replace. Wired tdigest into the
+  `src/main.zig` reachability test: `zig build test` 1377 -> 1443, only the 2 known signal-4
+  crashers. CI green (6m48s / 52s), merged, labeled auto-merged.
+- Not mine: `./zig-out/bin/zoltraak` pid 80225 may still run; left alone.
+- Next: sentinel failing test (sentinel.zig:1225, resetMaster leader), then wire; commands/*.zig
+  stale tests; stash triage (stash@{0}). Items 4-9, 12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 25 — 2026-10-13 — STABILIZATION (forced, n%5==0)
 - Preflight clean (main, CI green on 5f49090), no bugs, no plan PR, milestone #121 open, no
