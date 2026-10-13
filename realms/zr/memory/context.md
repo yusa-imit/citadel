@@ -89,64 +89,26 @@ rejected_plans: []
 - Next: watch zuda v3.0.0 tag. Cycle 20 STABILIZATION.
 - Open questions: none.
 
-## Cycle 18 — 2026-10-07 — FEATURE
-- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational).
-  sailor v3.0.0 tagged, zuda still v2.3.0 → items 5-11 blocked → one `/stabilize --one`.
-- Fixed `cli/template.zig` `applyTemplate`: two unbounded byte-by-byte stdin loops (param value,
-  confirm) → `readReply` helper over shared `line_input.readLine` (4096-byte buffer). Over-long
-  param → error, exit 1; over-long confirm → cancelled. 4 tests. PR #183 merged, 8/8 green
-  (~13 min). Tests 1928/0, tidy 0 failing, baseline `applyTemplate` 167→137.
-- Gotchas: guard hook blocks heredoc appends into the repo (`cat >> file <<EOF`) — use Edit;
-  a test-only `anytype` source struct used by `line_input.readLine` from another file needs
-  `pub fn read`; `zig test` on a single `src/cli/*.zig` fails (outside module path).
-- Next: `while (true)` left: cli/add.zig 275/379 (prompt loops, check bound), task_picker.zig,
-  tui.zig, run.zig:1427 (watch loop), process.zig:416 (EOF-bounded), server/watch event loops,
-  dead `jsonrpc/transport.zig` (delete vs fix). ~220 missing `//!` headers. Watch zuda
-  v3.0.0. Cycle 19 FEATURE; cycle 20 STABILIZATION.
-- Open questions: none.
+## History (cycles 16-18, folded 2026-10-13)
 
-## Cycle 17 — 2026-10-07 — FEATURE
-- Preflight: cwd was on `fix/bound-show-line-reader` (clean) → `main`; CI green; PR #181 8/8 green,
-  no `hold` → merged. Inbox clear (issue #178 `migration: sailor v3.0.0` is informational,
-  origin ai; no owner comments). sailor v3.0.0 tagged, zuda still v2.3.0 → items 5-11 blocked.
-- Stabilize --one: three copies of an unbounded byte-by-byte stdin loop (`cli/add.zig`,
-  `add_interactive.zig`, `config_editor.zig` x2) → shared `cli/line_input.zig` `readLine`
-  (4096-byte caller buffer, `error.LineTooLong`, tail discard ≤ 1 MiB, bounded `for`), 9 tests.
-  PR #182 merged, 8/8 green (~12 min CI). Tests 1924/0, tidy 0 failing, `config_editor run`
-  baseline 133→113. EOF at the editor confirm prompt still defaults to yes.
-- Found: `src/jsonrpc/transport.zig` is dead code (imported by `mcp/server.zig` but unused, uses
-  the 0.14 `ArrayList(u8).init` API, never compiled) — decide delete vs fix in a later cycle.
-- Gotchas: the fmt-on-save hook reformatted all of `src/main.zig` (+293/-269) on an Edit; undo
-  with `git checkout` and insert via `perl -0pi` instead. Only `zig fmt --check` on the files
-  you touched is meaningful (dir-wide lists 57 pre-existing).
-- Next: remaining `while (true)`: template.zig (245, 299), task_picker.zig, tui.zig,
-  run.zig:1427, registry/server.zig:43 (likely event loops — check); ~220 missing `//!` headers.
-  Watch zuda v3.0.0 tag. Cycle 18 FEATURE, cycle 20 STABILIZATION.
-- Open questions: none.
-
-## Cycle 16 — 2026-10-06 — FEATURE
-- Preflight: tree clean on PR #177's branch → `main`; CI green; inbox: only new issue #178
-  (`migration: sailor v3.0.0`, origin: ai). sailor v3.0.0 is tagged; zuda still v2.3.0, so
-  plan items 5-11 stay blocked (need BOTH tags).
-- Merged #177 (stream reader line cap, 8/8 green). Plan 001 items 3 and 4 were done but the
-  plan file still showed them unchecked (issue #155 had them ticked): docs PRs #179, #180
-  merged (docs-only PRs get no CI checks; mergeState CLEAN is enough). Item 4's `wip/*`
-  "no remote branch" verify can't be met (never delete wip/*); noted inline in the plan.
-- Stabilize --one: `cli/show.zig` `StreamingLineReader.next` had an unbounded per-line buffer →
-  1 MiB `line_bytes_max`, pieces for longer lines, bounded `for`. `followOutput` `while (true)`
-  is a tail -f event loop, left. PR #181 OPEN: Build & Unit green, Integration + cross-compile
-  pending at deadline. NEXT CYCLE: `gh pr checks 181 -R yusa-imit/zr`; green and no `hold` →
-  squash-merge, label `auto-merged`; red → fix. Tests 1914/0, tidy 0 failing; baseline
-  `cmdShow` 299→309 (zig fmt reflow of untouched printError calls).
-- Gotchas: guard hook blocks compound commands starting with variable assignments / `cd`
-  chains — use plain commands; `zig build test` has no `--test-filter` (full suite ~1 min
-  locally now, CI ~13 min); `gh pr view --json authorAssociation` is invalid, use
-  `gh api repos/.../issues/N --jq .author_association`.
-- Next: `while (true)` left in cli/add*.zig, template.zig, config_editor.zig, task_picker.zig,
-  tui.zig, run.zig:1427, jsonrpc/transport.zig:67, registry/server.zig:43, process.zig:416
-  (check which are event loops); ~220 missing `//!` headers. Watch zuda v3.0.0 tag.
-  Cycle 17 FEATURE; cycle 20 STABILIZATION.
-- Open questions: none.
+Cycles 16-18 (2026-10-06 to 10-07, FEATURE; sailor v3.0.0 tagged, zuda still v2.3.0 so plan items
+5-11 stayed blocked, one `/stabilize --one` each): #177 stream reader line cap merged; docs PRs #179,
+#180 ticked plan items 3 and 4 (docs-only PRs get no CI checks, mergeState CLEAN is enough; item 4's
+`wip/*` "no remote branch" verify can't be met, never delete `wip/*`). Cycle 16 `cli/show.zig`
+`StreamingLineReader.next` capped at 1 MiB `line_bytes_max` (#181). Cycle 17 three unbounded stdin
+loops (`add`, `add_interactive`, `config_editor` x2) -> shared `cli/line_input.zig` `readLine` (4096-byte
+buffer, `error.LineTooLong`, tail discard <= 1 MiB; #182). Cycle 18 `cli/template.zig` `applyTemplate`
+-> `readReply` over `readLine` (over-long param -> error, over-long confirm -> cancelled; #183).
+Found: `src/jsonrpc/transport.zig` is dead code (imported by `mcp/server.zig`, unused, 0.14
+`ArrayList(u8).init` API, never compiled): decide delete vs fix. EOF at the editor confirm prompt
+still defaults to yes. `while (true)` left to check (event loops?): cli/add.zig 275/379,
+task_picker.zig, tui.zig, run.zig:1427 (watch), process.zig:416 (EOF-bounded), server/watch loops,
+registry/server.zig:43; ~220 missing `//!` headers. Gotchas: the guard blocks heredoc appends and
+compound `cd`/assignment lines (use Edit); the fmt-on-save hook can reformat a whole file on Edit
+(undo with `git checkout`, insert via `perl -0pi`); only `zig fmt --check` on touched files is
+meaningful (57 pre-existing dir-wide); `zig build test` has no `--test-filter`, ~1 min locally, CI
+~13 min; `gh pr view --json authorAssociation` is invalid, use `gh api repos/.../issues/N --jq
+.author_association`; `zig test` on one `src/cli/*.zig` fails (outside module path).
 
 ## History (cycles 0-11, 2026-09-05 to 2026-10-01)
 
