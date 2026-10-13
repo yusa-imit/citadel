@@ -1,5 +1,10 @@
 # sigil — State survey (2026-09-05)
 
+> Update 2026-10-14 (cycle 52): the survey below is historical. Released v0.3.0 (first tag,
+> https://github.com/yusa-imit/sigil/releases/tag/v0.3.0): `core`, `reflect`, `json` are
+> implemented (~520 tests, tidy 0 findings, 8/8 CI); the other format modules and `config` are
+> stubs. No sibling `build.zig.zon` depends on sigil yet.
+
 ## What exists (claimed vs present)
 
 - **Claimed** (README module table, `CLAUDE.md`): a working Value IR + reflection library

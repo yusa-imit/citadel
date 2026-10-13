@@ -1,7 +1,20 @@
 # sigil — context
 
-last_seen_at: 2026-10-13T12:20:00Z
+last_seen_at: 2026-10-14T00:00:00Z
 rejected_plans: []
+
+## Cycle 52 — 2026-10-14 — FEATURE
+
+- Done: plan 004 item 11 release. PR #53 (`chore: release v0.3.0`): dropped `config.load`/`Watcher`
+  stubs (regression test in `root.zig` pins their absence), zon + `sigil.version` 0.3.0, CHANGELOG
+  `[0.3.0]`, README/plan checklists reconciled. CI 8/8, squash-merged; tagged v0.3.0, GitHub release
+  created, milestone #42 closed 11/11. No consumer pins sigil: no migration issues. REALM.md/STATE.md
+  updated. Wrote plan 005 (Phase 2E `path/`: Pointer, Merge Patch, Patch, JSONPath, corpus, bench,
+  v0.4.0) myself instead of via opus planner (budget): PR #54, awaiting merge (citadel#54).
+- Next: if plan 005 is merged, open its milestone issue and do item 1 (ADR 0004 via `architect`,
+  tight scope, ask for the file text; cost ~$3). Else one `/stabilize --one`. Blockers: none.
+- Learned: the whole release took ~$0.6; `Monitor` with a bounded until-loop works for CI; a second
+  throwaway Monitor was wasted money. First tag exists, so `sigil` is now fetchable by consumers.
 
 ## Cycle 51 — 2026-10-13 — FEATURE
 
@@ -52,45 +65,14 @@ rejected_plans: []
   superseded by the merge but kept (never delete wip branches). The cycle ran on budget: launching
   the reviewer and a CI Monitor then ending the turn worked well.
 
-## Cycle 48 — 2026-10-12 — FEATURE (budget exhausted, no PR)
+## History (cycles 46-48, condensed 2026-10-14)
 
-- Done: preflight found 4 untracked red item-8 test files on `feat/json-parse-stringify-plan-004-item-8`;
-  preserved on `wip/json-parse-stringify-plan-004-item-8-20261012`. Ran zig-developer + test-writer in
-  parallel (~$3.4 of the $4 cycle budget; subagent runs plus my own polling turns were far costlier than
-  estimated): implementation (raw_eql, `scanner.locate` in new `json/locate.zig`, `parse_traced`,
-  `Context.trace`, `json.parse/stringify/parse_value/write_value`, 23/6-variant error sets) reported
-  476/476 green and fmt ok BEFORE `parse_error_test.zig` (14 tests) and `stringify_test.zig` (13 tests)
-  were wired into json.zig. All of it is committed on `wip/json-parse-stringify-item-8-impl-20261012`
-  (a431e63, pushed), unreviewed, wired suite not run, NO PR, item 8 box still open.
-- Next: check out that wip branch into `feat/json-parse-stringify-plan-004-item-8`, run `zig build test`
-  (--cache-dir /tmp/sigil-zc) + `zig fmt --check`, fix anything in the 2 new test files, run one
-  code-reviewer, tick plan item 8 + CHANGELOG, open PR, merge on green. Dev patched 3 red test files
-  (inline for in raw_eql_test, `const first = context.fail(..)` in parse_trace_test, BuildError alias in
-  locate_test) with no assertion changes. json.StringifyOptions is now the writer's; stubs
-  parseFile/stringifyFile keep old error sets until item 9. Blockers/questions: none.
-- Learned: budget is $4 per cycle and each of my own turns costs ~$0.07-0.10 once the context is large:
-  do not poll or Monitor-wait; launch agents and end the turn, and do /report before the money is gone.
-  Counter written to 48; GitHub comment and Discord summary NOT sent (no budget). Watermark unchanged.
+Cycle 48 (2026-10-12, budget exhausted, no PR): subagents (zig-developer + test-writer) cost ~$3.4; work
+preserved on `wip/json-parse-stringify-*`, merged in cycle 49. Learned: do not poll; launch and end the turn.
+Cycle 47 (2026-10-11): item 7 JSONTestSuite vendored (PR #49); `.gitignore` `test_*` dropped the corpus
+(check `git ls-files`); strict parser rejects 33 of 35 `i_`; `Value` map variant is `.map`.
+Cycle 46 (2026-10-10): item 6 round-trip property (PR #48); macOS `sed -i` needs `-i ''`.
 
-## Cycle 47 — 2026-10-11 — FEATURE
-
-- Done: plan 004 item 7 JSONTestSuite: vendored `tests/json/test_parsing` (318 files, 354 KB) +
-  `LICENSE`; `src/json/suite_test.zig` reads it at run time via `std.testing.io` (95 `y_` parse under
-  `.last`, 188 `n_` fail with line/col >= 1 and a message, 35 `i_` pinned in `pinned_accepted` (2) /
-  `pinned_rejected` (33); counts asserted). `build.zig` `run_mod_tests.setCwd(b.path("."))`. PR #49,
-  CI 8/8, squash-merged; #42 at 7/11. Local 377+ tests, tidy 0, fmt ok. Mutation (`.last` -> `.reject`)
-  caught. Reviewer (1 sonnet): 0 critical, 3 warnings (2 fixed: weak dup-key checks; `else` prong proof
-  reworded; build cache does not track corpus files, accepted). ~$1.6.
-- Next: item 8 `json.parse(T)`/`json.stringify` (fold json.zig stub `ParseOptions` into
-  `dom.ParseOptions`; `parse_traced`, `Context.trace`, `scanner.locate` per ADR 0003), then item 9.
-  Blockers/questions: none.
-- Learned: `.gitignore` has `test_*` which silently dropped `tests/json/test_parsing` (CI saw
-  FileNotFound while local passed): check `git ls-files` count after vendoring; fixed with
-  `!/tests/json/test_parsing/`. Strict parser rejects 33 of 35 `i_` (surrogates, bad UTF-8, BOM,
-  out-of-range numbers, depth 129). `Value` map variant is `.map` (not `.object`), `Map.count`.
-  The Bash guard blocks `sleep N` chained before a command; use Monitor.
-
-## History (cycle 46, 2026-10-10)
 
 Cycle 46: item 6 `json/roundtrip_test.zig` (PR #48): 1,000 seeds x 4 layouts + number edges, sorted
 output checked by iterative `eql_sorted`; generator `pub` in `writer_test.zig`; reviewer fixed 3
@@ -181,8 +163,8 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 
 ## Standing backlog
 
-Plans 001-003 closed (issues #3, #20, #27); no tag yet (release quirk still applies).
-Plan 004 (Phase 2A-2C `json/{scanner,dom,writer}.zig`, first tag) merged (PR #38), milestone #42.
+Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
+Plan 005 (Phase 2E `path/`, v0.4.0) proposed as PR #54, awaiting human merge.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -197,6 +179,5 @@ Plan 004 (Phase 2A-2C `json/{scanner,dom,writer}.zig`, first tag) merged (PR #38
 
 ## Next priority
 
-Plan 004 (Phase 2A-2C JSON, first tag v0.3.0) is in progress on milestone #42; see the newest cycle
-block above for the next item.
+Plan 005 (Phase 2E path, v0.4.0) awaiting merge (PR #54); see the newest cycle block above.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.

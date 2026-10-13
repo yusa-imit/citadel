@@ -5,12 +5,11 @@
 | Layer | foundation |
 | Path | `/Users/fn/codespace/sigil` |
 | GitHub | `yusa-imit/sigil` |
-| Version | 0.2.0 (`build.zig.zon`) · latest tag — (no tags cut yet; release deferred until a |
-| | format module makes the library fetchable in practice — see "Release quirk" below) |
+| Version | 0.3.0 (`build.zig.zon`) · latest tag v0.3.0 (2026-10-14, cycle 52, PR #53; first tag, |
+| | plan 004 closed 11/11) |
 | Zig | 0.16.0 (`minimum_zig_version`, CI resolves from manifest since PR #8, cycle 6); |
-| | plan 001 closed 11/11 (cycle 12). Plan 002 closed 5/5 (cycle 24): `core/{value,tree, |
-| | diagnostics,number}.zig` landed. Plan 003 (Phase 1C/1D: `core/unicode.zig`, `reflect/`) |
-| | open as a plan PR, awaiting human merge. |
+| | plans 001-004 closed: `core/`, `reflect/`, `json/` (scanner, dom, writer, parse/stringify, |
+| | parseFile/stringifyFile) implemented. Plan 005 (Phase 2E `path/`) open as plan PR #54. |
 | Depends on | none — Zig std only (ADR-001); `build.zig.zon` `.dependencies = .{}` |
 | Consumers | zr, silica, zoltraak, synod — all planned/dotted in `KINGDOM.md`, no solid |
 | | dependency edge exists yet (nothing in sigil is implemented to depend on) |
@@ -72,9 +71,9 @@ These are sigil's own design rules (not already covered by `citadel/core/rules/`
   it exists): zr -> its local TOML/YAML readers; zoltraak -> its local JSON/JSONPath;
   silica -> its local JSON value types; synod -> its message encoding. None of these
   migrations can start before sigil ships a real JSON or TOML module.
-- **Release quirk**: `build.zig.zon` already declares `0.1.0` with nothing implemented —
-  do not tag or publish a release until Phase 1 (core + reflect) lands; a `zig fetch` today
-  would hand a consumer an empty library.
+- **Release quirk (satisfied)**: the first tag v0.3.0 shipped once `json` was real. No
+  tagged API may expose `error.NotImplemented` entry points (ADR 0001): the `config.load`/
+  `Watcher` stubs were dropped for it and return in Phase 5.
 
 ## Layout
 
