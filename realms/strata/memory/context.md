@@ -1,7 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-10-13T00:00:00Z
+last_seen_at: 2026-10-13T12:00:00Z
 rejected_plans: []
+
+## Cycle 48 — 2026-10-13 — FEATURE
+- Done: plan 004 approved (PR #47 merged); milestone issue #48 opened. Item 1 ADR-0003 WAL format v1
+  (`docs/adr/0003-wal-format.md`, #49 merged, CI 7/7); PRD §4.5 links it, plan box and #48 ticked.
+  Format: `wal-NNNNNNNN.log` (8 hex), 24 B segment header (`STWL`), 17 B frame `len|crc|lsn|type`,
+  CRC32C seeded with expected LSN, byte-position LSNs, torn tail = `TornWrite` only (look-ahead over
+  the rest of the newest segment), types record/page_image/checkpoint, golden bytes in §11 (CRCs
+  re-verified in python).
+- Review: skipped (docs only). Cost: architect (opus) ~ $2.3 of $4 — it ran ~10 min and a 475-line
+  ADR; next ADR-sized items should ask for a tighter output or use sonnet.
+- Next: item 2 `wal/frame.zig` per ADR §7/§13 (pin the golden frames; replace the stand-in decoder in
+  `truncation_matrix_test.zig`). Open questions in ADR §Open (page 0 repair, directory sync in
+  `file/platform.zig`) are for items 5/9.
+- Blockers: none. Open questions: none.
+- Note: `sleep N` foreground is blocked; use `run_in_background` sleeps and wait for the notification.
+  macOS sed has no `0,/re/` range; use `1s/...`.
 
 ## Cycle 47 — 2026-10-13 — FEATURE
 - Done: plan 003 item 11 — README page/cache Landed, 2A-2C ticked, CHANGELOG `[0.4.0]`, zon 0.4.0
