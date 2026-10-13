@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-10-13T12:00:00Z
+last_seen_at: 2026-10-13T17:17:00Z
 rejected_plans: []
+
+## Cycle 49 — 2026-10-14 — FEATURE
+- Done: plan 004 item 2 — `src/wal/frame.zig` (+ `frame_test.zig`, 17 tests): 17 B header, CRC32C seeded
+  with the expected LSN, `TornWrite`/`ChecksumMismatch`/`Corrupted`, `lsn_limit = 2^63`, golden frames
+  pinned; truncation matrix now runs the real decoder (no-CRC mutant rebuilt as len-only, still caught).
+  ADR-0003 §11 negative pin corrected (frame 1 under seed 2 = 0x2E5419B8, verified independently).
+- PRs: #50 merged (squash, CI 7/7, auto-merged). Issue #48 item 2 ticked.
+- Review: code-reviewer 0 critical, 2 warnings fixed (decode doc: reader must range-check first LSN
+  before deriving `lsn_expected` — decode asserts it; page_image test sizes 256/131072 added).
+  Cost ~ $1.5 of $4 (zig-developer wrote tests+impl ~$0.8, reviewer ~$0.3).
+- Next: item 3 `wal/segment.zig` (header codec over `file.File`, tryLock, `segments_max`). Reader (item 4)
+  must return `Corrupted` for a segment header whose first LSN is out of [1, 2^63) before calling decode.
+- Blockers: none. Open questions: none.
+- Note: a foreground `sleep 1` background task wastes a turn; use `until gh pr checks ... ; do sleep 20; done`
+  in one foreground call (timeout 480000) instead of `--watch` + idle polling.
 
 ## Cycle 48 — 2026-10-13 — FEATURE
 - Done: plan 004 approved (PR #47 merged); milestone issue #48 opened. Item 1 ADR-0003 WAL format v1
