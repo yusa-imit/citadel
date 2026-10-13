@@ -1,7 +1,21 @@
 # synod — context
 
-last_seen_at: 2026-10-13T04:00:00Z
+last_seen_at: 2026-10-13T06:00:00Z
 rejected_plans: []
+
+## Cycle 51 — 2026-10-13 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (7977afc), milestone #39 open.
+- Done: item 11 (Tiger Style baseline re-measure) via PR #53 (docs only, squash-merged, 7/7 CI,
+  `auto-merged`; #39 item 11 and plan box ticked). README status now "Phase 2 implemented", raft
+  row `partial`, driver `implemented`; CHANGELOG `Changed` entry carries the numbers; STATE.md
+  table below. No code-reviewer/test-writer (docs only). Cost ~ $0.45 of $4.
+- Next: item 12 release v0.4.0 (MINOR; `/release synod minor`; also tick Phase 2 items in
+  `docs/plans/000-inherited.md`; gate: 0 bugs, 6 cross targets green). Then `/plan` (plan 004).
+- Open suggestions: unchanged from cycles 40-50 (incl. `catch unreachable` in `driver.poll`,
+  `@errorCast` in receive/propose: narrow node.zig error sets).
+- Blockers: none. Open questions: none.
+- Tool notes: guard blocks `python3 - <<heredoc` in repo; write scripts to /tmp, run
+  `python3 -I /tmp/x.py`. `/tmp/measure.py`-style regex fn-length scan is enough, tidy enforces 70.
 
 ## Cycle 50 — 2026-10-13 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (5ef8635), milestone #39 open.

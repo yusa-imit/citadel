@@ -246,3 +246,21 @@ resolves. No kingdom repo names synod in `build.zig.zon` yet, so no migration is
 declared but never provoked; five tests now corrupt one field each and expect the named error.
 Tests 212/212, tidy and fmt clean. Remaining unprovoked variants: `types.Error`/`ConfError` and
 `log.InvariantError` not re-audited this cycle (log's three show hits in `log.zig`).
+
+**Superseded 2026-10-13 (cycle 51, plan 003 item 11)** — Phase 2 baseline (PR #53). `zig build
+tidy` clean, `zig build test` 495/495, no function over 70 lines, no `tidy_baseline.txt`.
+
+| Module | Lines | `assert` | Longest fn |
+|---|---|---|---|
+| `src/raft/node.zig` | 791 (cap 800) | 84 | 66 (`init`) |
+| `src/raft/leader.zig` | 382 | 50 | 32 |
+| `src/raft/node_init.zig` | 239 | 41 | 23 |
+| `src/raft/progress.zig` | 204 | 37 | 19 |
+| `src/raft/follower.zig` | 236 | 33 | 33 |
+| `src/raft/commit.zig` | 145 | 24 | 24 |
+| `src/raft/election.zig` | 111 | 18 | 8 |
+| `src/driver.zig` | 216 | 13 | 34 |
+
+No `@panic`, `std.debug.print`, `while (true)`. One `catch unreachable` and two `@errorCast` in
+`driver.zig`, each with a proof comment. README: raft `partial` (snapshot, joint consensus,
+ReadIndex are Phase 4), driver `implemented`.
