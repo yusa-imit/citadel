@@ -140,79 +140,34 @@ fails the test if a matrix branch is never generated). Learned: `std.log.err` re
 tests (tidy bans `std.debug.print`); `zig test --test-filter` on root.zig ran 1 test, use
 `zig build test`; back up files before `git checkout` during mutation checks.
 
-## History
+## History (cycles 0-32, condensed 2026-10-13)
 
-Cycle 32 (2026-10-03): plan 003 item 8 `reflect/stringify.zig` via PR #35; one reviewer, 5 warnings
-fixed. `Context` gained `fail_stringify`/`stringify_child`; `parse.has_hook/string_map_value/
-assert_supported` are `pub`; the `Value` deep copy is private to stringify.zig; declare test types
-at file scope (long `@typeName` truncates messages); tidy wants `// proof:` on `switch (err)` and 2
-asserts per `pub fn`, hooks in tests included.
-
-Cycles 30-31 (2026-10-02 to 10-03, FEATURE, plan 003 items 6-7): `reflect/parse.zig` structs, arrays,
-slices (PR #33), then unions, `array_hash_map.String(V)` maps and `sigilParse` hook (PR #34). Learned:
-`Pointer.alignment` is `?usize`; `assert_supported` must not recurse into fields; container entry
-`depth >= nesting_max` -> `TooDeep`; a hooked type skips `options.resolve` so `parse.has_hook` checks
-hook-vs-options; `String(V)` detected via `T.KV`. Bash guard blocks heredocs: use Write.
-
-Cycles 0-12 (2026-09-05 to 09-12, condensed 2026-10-11): realm created (scaffold survey, 285 LOC
-stubs). Plan 001 (PR #2, issue #3) closed 11/11: hygiene, `tidy` build step vendored from citadel
-templates (PR #6), cycle 5 stabilization fixed 9 findings (PR #7), 0.16 main/args/allocators and library
-sweep (PRs #8-#9), ADR 0001 `io: Io` convention (PR #10), assertion baseline (PR #13; reviewer caught
-an argv assert that was shell data, not a caller contract), README/CHANGELOG, version 0.2.0 (no release).
-Cycle 10 fixed `isWireFormatPath`'s second `catch unreachable` (PR #14). Plan 002 opened as PR #17.
-Local sandbox sometimes lacks the 0.16.0 toolchain: CI is the real gate.
-
-Cycle 13 (2026-09-15, FEATURE): plan PR #17 open, no OWNER activity → one stabilization task:
-fixed carried finding 1/3 (moved `tidy_baseline.txt` from repo root to `tools/`, TDD'd via the
-`parseArgs` pinning test). PR #18, CI green, squash-merged. 2 findings remain.
-
-Cycle 14 (2026-09-15, FEATURE): plan PR #17 still open → bounded recursion in
-`walkDir15`/`descendDir15`/`walkDir16`/`descendDir16` with `dir_depth_max=64`. Tried
-`std.Io.Dir.walkSelectively` first (std's own explicit stack) — reverted after it crashed
-Linux CI with a std 0.16.0 bug in deep directory iteration (`dirReadLinux` "BADF"), reproduced
-with plain `dir.iterate()` too; worth a Zig upstream issue if it recurs. Final fix: depth-bounded
-recursion (documented Tiger Style 1.8 trade-off); regression test skipped on Linux only. PR #19
-opened, merged in cycle 15 (fully green 8/8).
-
-Cycles 15-19 (2026-09-16 to 09-26, FEATURE): plan PR #17 still open each cycle, no OWNER
-activity → repeated `--one` stabilization slots all confirmed no finding smaller than the
-carried `tools/tidy.zig` self-exemption exists (1860 lines, ~61 undocumented functions, 15
-ban-list hits to triage). No PR opened across any of these cycles — diminishing value from
-identical repeated sweeps; quiet-cycle GitHub-comment carve-out used starting cycle 16.
-
-Cycles 20-25 (2026-09-27 to 09-29, FEATURE): plan 002 items 1-5 via PRs #21-#25 — `core/value.zig`
-(bounded `eql` returns `TooDeep`; `Map.get` is O(n), may need a hash index), `core/tree.zig`
-(`ValueTree` arena), `core/diagnostics.zig` (`DiagnosticsType(limits)`, inline generic self-ref
-cannot share the file-scope alias name), `core/number.zig` (prefer `.int`, widen to `.uint` past
-`maxInt(i64)`, typed overflow past `maxInt(u64)`), wiring + assertion baseline 23/23. Plan 002
-closed 5/5, no tag (release quirk). Plan 003 opened as PR #26 (ADR 0002 gate before reflect).
-Cycle 25 was quiet: test-quality audit of `core/*`, every error variant provoked. Hook notes: the
-guard blocks heredocs and Bash commands mixing citadel reads with a repo `cd`; use Read/Write.
-
-Cycle 26 (2026-09-30, FEATURE): plan 003 merged; items 1-2 via PRs #28-#29 (`core/unicode.zig`,
-`core/unicode_escape.zig`; escapes live apart because unicode.zig hit the 800-line limit). DEL
-(U+007F) is escaped as `\u007f`. `catch unreachable` needs a `// proof:` comment, <= 100 cols.
-Slip: implementation before tests for item 2; recovered by a mutation check. Red step first.
-`timeout` is absent on macOS; use `gh pr checks --watch`.
-
-Cycles 27-29 (2026-10-01 to 10-02, FEATURE, plan 003 items 3-5): item 3 ADR 0002 reflect
-contract (PR #30; hooks take `*reflect.Context`, errors split into `ParseError` 11 and
-`StringifyError` 4, `deny_unknown_fields` defaults true, unions externally tagged, path-only
-diagnostics use `core.diagnostics.position_none`). Item 4 `reflect/options.zig` (PR #31;
-`resolve(T)` comptime `Table`, 17 compile-error fixtures run as `b.addObject` + `expect_errors`
-steps from `build.zig`). Item 5 `reflect/parse.zig` scalars + `reflect/context.zig` (PR #32; 217
-tests). Learned: `expect_errors .contains` is really ends-with on one compiler output line, so
-the expected text is the tail of the `@compileError` message; `@Struct(.auto, null, names,
-types, attrs)` builds test structs in 0.16; a non-`pub` `sigil_options` is invisible to
-`@hasDecl`; tests live in sibling `*_test.zig` files for the 800-line limit. `Context.fail` has
-no double-write guard. Keep citadel reads to the Read tool (a Bash command mixing citadel paths
-with repo reads trips the guard).
+Cycles 0-12 (2026-09-05 to 09-12): realm created (285 LOC stubs). Plan 001 (PR #2, issue #3) closed
+11/11: hygiene, `tidy` build step from citadel templates (PR #6), 0.16 main/args/allocators sweep
+(PRs #8-#9), ADR 0001 `io: Io` (PR #10), assertion baseline (PR #13; an argv assert was shell data,
+not a caller contract), version 0.2.0 (no release). Plan 002 opened as PR #17.
+Cycles 13-19 (2026-09-15 to 09-26): plan PR #17 open, no OWNER activity; `tidy_baseline.txt` moved
+to `tools/` (PR #18); `walkDir*` recursion bounded by `dir_depth_max=64` (PR #19; `walkSelectively`
+crashed Linux CI with a std 0.16.0 `dirReadLinux` BADF bug, worth an upstream issue if it recurs).
+Repeated sweeps found nothing smaller than the carried `tools/tidy.zig` finding (see backlog).
+Cycles 20-26 (2026-09-27 to 09-30): plan 002 items 1-5 (PRs #21-#25): `core/value.zig` (bounded
+`eql` -> `TooDeep`), `core/tree.zig`, `core/diagnostics.zig`, `core/number.zig` (prefer `.int`,
+widen to `.uint`, typed overflow); plan 002 closed 5/5, no tag. Plan 003 items 1-2 (PRs #28-#29):
+`core/unicode.zig`, `core/unicode_escape.zig` (DEL escaped as `\u007f`).
+Cycles 27-32 (2026-10-01 to 10-03): plan 003 items 3-8 (PRs #30-#35): ADR 0002 reflect contract,
+`reflect/options.zig` (17 compile-error fixtures via `b.addObject` + `expect_errors`; `.contains`
+is really ends-with on one compiler line), `reflect/{context,parse,stringify}.zig`. Learned:
+`catch unreachable`/`switch (err)` need a one-line `// proof:`; `@Struct(.auto, null, names, types,
+attrs)` builds test structs in 0.16; non-`pub` `sigil_options` is invisible to `@hasDecl`;
+`Pointer.alignment` is `?usize`; declare test types at file scope; tests go in sibling `*_test.zig`
+files for the 800-line limit. Guard: read citadel files with Read, never mix with repo `cd`;
+heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watch`.
 
 
 ## Standing backlog
 
 Plans 001-003 closed (issues #3, #20, #27); no tag yet (release quirk still applies).
-Plan 004 (Phase 2A-2C `json/{scanner,dom,writer}.zig`, first tag) is PR #38.
+Plan 004 (Phase 2A-2C `json/{scanner,dom,writer}.zig`, first tag) merged (PR #38), milestone #42.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -227,6 +182,6 @@ Plan 004 (Phase 2A-2C `json/{scanner,dom,writer}.zig`, first tag) is PR #38.
 
 ## Next priority
 
-Plan 003 closed 10/10 (issue #27). Plan 004 (Phase 2A-2C JSON, first tag v0.3.0) is PR #38 awaiting
-human merge; on merge open its milestone issue and `/implement` item 1 (ADR 0003).
+Plan 004 (Phase 2A-2C JSON, first tag v0.3.0) is in progress on milestone #42; see the newest cycle
+block above for the next item.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.

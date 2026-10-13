@@ -108,107 +108,35 @@ Cycle 19 (2026-10-01): plan 001 tidy part 2, PR #159: `line_too_long` ratchets p
 a dependency of `test_step`. Guard hook blocks Bash lines that touch other repos or mix writes;
 BSD `sed -i` misparsed, use python. Rest of plan 001 blocked_by zuda/sailor v3.0.0.
 
-## History (cycle 18 and earlier, folded)
+## History (cycle 18 and earlier, folded 2026-10-13)
 
-- **Cycles 17-18** (2026-09-29..30): tidy ban-list batches 3-4 (#157 catch_unreachable_no_safety, #158 std_time_in_lib; ban list complete; fixed planner.zig:resolveExprType ratchet regression). Tooling: `zig build tidy` may need `--cache-dir /tmp/silica-zc-tidy`; CI ~15 min total.
-- **Cycles 15-17** (2026-09-26..29): C15 stabilization — merged #153, fmt pass #154. C16/17 tidy ban-list batches 1-3 (#155-#157: debug_print_in_lib, usize_in_disk_format, catch_unreachable_no_safety).
-- **Cycle 14** (2026-09-17, FEATURE): finished interrupted `feat/zig-build-tidy-step` in place; PR #153 (`zig build tidy` part 1: function-length ≤70 + `//!` header checks, shrink-only `tidy_baseline.txt`; line-length checked but ungated, 3,521 violations). Known: function-length brace scan not string/comment-aware.
-- **Cycle 13** (2026-09-16, FEATURE): merged #151 (batch 10). Implemented batch 11 (final):
-  819 scratch-DB occurrences in `sql/engine.zig` across 6 variant shapes, completing the
-  entire scratch-DB-to-tmp-dir sub-item (11 batches total). Opened #152.
-- **Cycle 12** (2026-09-15, FEATURE): recovered an interrupted `chore/scratch-db-tmpdir-batch10`
-  diff in place (`src/cli.zig`, 105 scratch-DB paths), opened #151. Only `sql/engine.zig` (819
-  sites) remains in plan 001 item 2 part 2. Found `zig fmt --check` failing on 18 files on main
-  (pre-existing; see standing backlog).
-- **Cycle 11** (2026-09-12, FEATURE): inbox merged #149 (batch 8). Implemented batch 9:
-  `sql/catalog.zig`'s 152 scratch-DB paths via the shared `TestCatalog` helper. Opened #150,
-  left pending for cycle 12.
-- **Cycle 10** (2026-09-11, STABILIZATION, forced n%5==0): inbox merged #147 (batch 7).
-  Tidy-auditor refresh found 22 flagged `catch unreachable` in `executor.zig`, 20 false
-  positives (already covered by PR #143), fixed the 2 genuine ones (`toCharNumber`, PR #148).
-  Refreshed STATE.md's Tiger Style gap table (assert=19, catch unreachable=213, functions>70=161,
-  worst `evalFunctionCall` ~3758 lines by the tidy-auditor's own count — see cycle 14's tidy.zig
-  finding of 31,568 by the mechanical scan, a known simplification, not a contradiction).
-- **Cycle 9** (2026-09-10, FEATURE): inbox merged #146 (batch 6). Implemented batch 7 (110
-  occurrences: `storage/btree.zig` 45 uniform, `sql/executor.zig` 65 across four path-count
-  variants). Opened #147, left pending for cycle 10.
-- **Cycle 8** (2026-09-09, FEATURE): inbox merged #145 (batch 5). Implemented batch 6 (71
-  occurrences: `storage/buffer_pool.zig` 33 uniform, `tx/wal.zig` 38 across four shapes
-  including comptime-concat `wal_path` sites converted to runtime `bufPrint`). Backfilled a
-  missed batch-5 CHANGELOG entry. Opened #146, left pending for cycle 9.
-- **Cycle 7** (2026-09-09, FEATURE): inbox merged #144 (batch 4). Implemented batch 5 (54
-  occurrences: `gin_index.zig` 33 uniform, `wal_fuzz.zig` 21 deferred paired-path variant —
-  `wal_path = path ++ "-wal"` comptime concat became runtime `bufPrint`; dropped 6 now-dead
-  `wal_path` locals). Opened #145, left pending for cycle 8.
-- **Cycle 6** (2026-09-09, FEATURE): inbox merged #143 (26 SAFETY comments on unjustified
-  `catch unreachable`, stabilization cycle 5). Implemented batch 4 (54 occurrences:
-  `hash_index.zig`, `conformance_test.zig`). `wal_fuzz.zig` (21) deferred to batch 5 — needs
-  tmp-dir treatment on a second derived `wal_path`. Opened #144, left pending for cycle 7.
-- **Cycle 5** (2026-09-08, STABILIZATION, forced n%5==0): inbox merged #142 (batch 3). Tidy
-  audit (tidy-auditor): assert(=19, catch unreachable=212 (26 unjustified), @panic=7 (test-only),
-  debug print=16, while(true)=104 (2 unguarded page-chain loops:
-  `storage/hash_index.zig:275`, `storage/gin_index.zig:1284` — next stabilization candidate),
-  files>800=40, functions>70=150, missing `//!` header=17/61 files. Fixed smallest class: SAFETY
-  comments on the 26 unjustified `catch unreachable` sites (PR #143, comment-only). STATE.md
-  Tiger Style table still needs updating with these fresh counts (not done yet).
-- **Cycle 4** (2026-09-07, FEATURE): inbox merged #141 (batch 2). Implemented
-  batch 3 (44 occurrences: page.zig, overflow.zig, fuzz.zig). Opened #142,
-  left pending for next cycle.
-- **Cycle 3** (2026-09-07, FEATURE): inbox merged #140 (batch 1: gist_index,
-  integration_test, tui, receiver — 9 occurrences). Implemented batch 2 (30
-  occurrences: fsm.zig, vacuum.zig, server.zig). Confirmed jepsen_test.zig
-  needs no change. Opened #141, left pending for next cycle.
-- **Cycle 2** (2026-09-06, FEATURE): inbox merged #139 (hygiene part 1 —
-  dropped `src/query/`, packaged README/LICENSE/docs into `build.zig.zon`
-  .paths), ticked milestone #137's part-1 item. Implemented item 2 part 2
-  batch 1: 9 scratch-DB occurrences across 4 files through `tmpDir`. Split
-  off a part-2 sub-checklist tracking remaining files by size.
-- **Cycle 1** (2026-09-06, FEATURE): inbox merged #138 (WAL checkpoint
-  retention callback, plan 001 item 1; root-cause was a test bug plus a real
-  truncate-before-durable-header-write ordering fix), ticked milestone #137
-  item 1. Implemented plan 001 item 2 part 1 (deleted empty `src/query/`,
-  added README/LICENSE/docs to `build.zig.zon` .paths) as PR #139. Found and
-  split off the scratch-DB-to-tmp-dir part (1,350+ literal `"test_*.db"`
-  paths across 23 files) into its own checklist item, done in batches
-  starting cycle 2, completed at cycle 13 (batch 11, `sql/engine.zig`).
-- Realm created by citadel restructure. Memory migrated from the repo's
-  former `.claude/memory/` (project-context.md, architecture.md,
-  decisions.md, debugging.md, patterns.md, MEMORY.md). First plan `001`
-  (Zig 0.16 migration) prescribed by `citadel/docs/ROADMAP.md`.
-- Preserved WIP: branch `wip/wal-checkpoint-retention-phase2` (uncommitted
-  Phase 2/3 WAL-retention work, one failing test — see STATE.md). Fix or
-  continue it before anything else in this realm; do not discard.
+- **Cycles 1-13** (2026-09-06 to 09-16): hygiene part 1 (#138 WAL checkpoint retention callback with a
+  truncate-before-durable-header ordering fix; #139 dropped `src/query/`, packaged README/LICENSE/docs
+  into `build.zig.zon` .paths). Scratch-DB-to-tmp-dir sweep (1,350+ literal `"test_*.db"` paths in 23
+  files) done in 11 batches (#140-#152), ending with `sql/engine.zig` (819 sites). `wal_path = path ++
+  "-wal"` comptime concat became runtime `bufPrint`. Stabilization cycles 5 and 10 (forced n%5==0):
+  26 SAFETY comments on unjustified `catch unreachable` (#143), `toCharNumber` fix (#148); tidy-auditor
+  counts then: assert(=19, catch unreachable=213, functions>70=161, files>800=40, `//!` missing 17/61.
+- **Cycle 14** (2026-09-17): `zig build tidy` part 1 (#153): function-length <=70 + `//!` header checks,
+  shrink-only `tidy_baseline.txt`; function-length brace scan is not string/comment-aware.
+- **Cycles 15-18** (2026-09-26 to 09-30): fmt pass #154; tidy ban-list batches 1-4 (#155-#158:
+  debug_print_in_lib, usize_in_disk_format, catch_unreachable_no_safety, std_time_in_lib; ban list
+  complete). `zig build tidy` may need `--cache-dir /tmp/silica-zc-tidy`; CI ~15 min total.
+- Realm created by the citadel restructure; memory migrated from the repo's former `.claude/memory/`.
+  Branch `wip/wal-checkpoint-retention-phase2` preserves uncommitted Phase 2/3 WAL-retention work with
+  one failing test (see STATE.md): fix or continue it before discarding.
 - Open questions:
-  - The repo's own memory contradicts itself on whether the buffer pool's
-    LRU eviction was migrated to `zuda.containers.cache.LRUCache`
-    (`decisions.md` says no, keep custom, session 27; `architecture.md`
-    session 46 note says yes, migrated, all tests green). Not resolved yet —
-    read `src/storage/buffer_pool.zig` to settle it before touching
-    buffer-pool code.
-  - Whether the session-40 "no concurrent connections" finding (separate
-    WAL/buffer-pool instances per `Database.open()`, unsynchronized writes
-    to the same WAL file) is still true given replication and MVCC work
-    landed since — not reconfirmed by this survey.
+  - The repo's old memory contradicts itself on whether buffer-pool LRU eviction moved to
+    `zuda.containers.cache.LRUCache` (`decisions.md` no; `architecture.md` session 46 yes). Read
+    `src/storage/buffer_pool.zig` to settle it before touching buffer-pool code.
+  - Whether the session-40 "no concurrent connections" finding (separate WAL/buffer-pool per
+    `Database.open()`, unsynchronized writes to one WAL file) still holds after replication and MVCC
+    work is not reconfirmed.
 
 ## Standing backlog (carried over from the old `project-context.md` log)
 
-Last 2 logged sessions before this restructure (durable facts only):
-- **Session 498** (2026-08-24, FEATURE): issue #125's physical-undo-log fix,
-  step 3/8 — wired DELETE to `Database.recordUndo(table, key, before, null)`
-  before the physical `tree.delete()`; required keeping pre-delete row bytes
-  alive through the whole cursor loop (`DeleteEntry.raw_value`). Commit
-  `c26d340`. Tests 4524/4546, 22 skipped, 0 failed.
-- **Session 497** (2026-08-24, FEATURE): issue #125 step 2/8 — wired plain
-  INSERT to `recordUndo()`; added `via_on_conflict_update` guard so ON
-  CONFLICT DO UPDATE gets its own undo wiring later. Found and filed
-  **issue #126**: column-level `UNIQUE` is parsed but never enforced
-  (`Catalog.createTableFromAst` only indexes `PRIMARY KEY`, not `UNIQUE`).
-  Commit `8a437b1`. Tests 4521/4543, 22 skipped, 0 failed.
-  (Both #125 and #126 were later closed — commits `ca74a32`, `d24bb5e`,
-  per `MEMORY.md`'s session-507 note — so this is historical, not open.)
+Pre-restructure sessions 497-498 (issues #125, #126) are closed history, dropped.
 
-Standing "next priority" (superseded by, but consistent with, STATE.md's
-Next work candidates — kept here for the pre-restructure framing):
-project was in "maintenance mode" post-v1.0.1; v2.0-scope candidates were
-MVCC multi-version storage (replace delete+insert UPDATE) and config-file
-hot-reload with real test coverage. Both are still open — see STATE.md.
+Standing "next priority": project was in "maintenance mode" post-v1.0.1; v2.0-scope candidates are
+MVCC multi-version storage (replace delete+insert UPDATE) and config-file hot-reload with real test
+coverage. Both are still open, see STATE.md.
