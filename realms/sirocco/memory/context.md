@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-10-13T12:00:00Z
+last_seen_at: 2026-10-14T01:20:00Z
 rejected_plans: []
+
+## Cycle 53 — 2026-10-14 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments; CI green on a9e42bd; no bugs, no other PRs.
+- Done: plan 004 item 3 via PR #48 (merged 1f197af, CI green macOS + ubuntu + 6 cross, auto-merged):
+  `Options.sockets_max` required; `.auto` -> `.kqueue` on Darwin (`.threaded` elsewhere, `.kqueue`
+  refused off Darwin); `Sched.Options.idle` (`.futex`|`.poller`), `idle_wait_poller` blocks in
+  `Poller.wait`, `unpark_foreign` calls `Poller.wake`; parity suite compiled once per backend via a
+  `parity_config` module. Fixed `sleep.fire` trap when every deadline came due in one pass (loop
+  bound `fibers.len + 1`). Gate 7 on kqueue: p50 0.31 ms / p99 0.39 ms (no regression). Reviewer: 0
+  CRITICAL, 1 WARNING (CHANGELOG entry) fixed. Items 1-3 ticked on #46 and in plan 004.
+- Next: item 4 (`src/backend/sys.zig` + native listen/accept/connect). `idle_wait_poller` asserts
+  zero events and the ADR's fairness `wait(0)` per `fibers_max` dispatches is deferred: item 4 must
+  replace both with event dispatch. Poller-create failure at first `io()` leaves the runtime
+  `.unavailable` (hides EMFILE).
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: item 3 cost ~$1.9 (one sonnet zig-developer ~$1.3 + reviewer ~$0.2); the 22 min deadline
+  is tight with a 10-min implementation plus a 5-min CI; start the PR before the reviewer.
 
 ## Cycle 52 — 2026-10-13 — FEATURE
 - Inbox: OWNER merged plan PR #44 (plan 004 evented-net, 12 items); CI green; no bugs, no issues.
