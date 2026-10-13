@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-10-12T15:13:00Z
+last_seen_at: 2026-10-13T12:20:00Z
 rejected_plans: []
+
+## Cycle 51 — 2026-10-13 — FEATURE
+
+- Done: plan 004 item 10 benchmarks merged. `bench/main.zig` (harness was already 0.16) now generates
+  a seeded ~1 MiB document and times `json.dom.parse` (~145-175 MB/s), `json.write.minified`
+  (~480-490), `json.parse(T)` (~165); arena 5.67 B/input B. Warm-up pass each; CI gained a `Bench`
+  step (`zig build bench`); numbers in `docs/plans/000-inherited.md` (PRD 5 targets unmet, measure-only
+  plan). PR #52, CI 8/8, squash-merged; milestone #42 at 10/11. One sonnet code-reviewer: 0 critical,
+  4 warnings fixed (writer warm-up, named PRNG draws, error-name logs, doc claim). Cost ~$1.
+- Next: item 11 release v0.3.0 (`/release sigil minor`): drop `config.load`/`Watcher` stubs, tick
+  2A-2C in 000-inherited + plan 003 item 4, CHANGELOG [0.3.0], zon 0.2.0 -> 0.3.0, tag, gh release.
+  Blockers/questions: none.
+- Learned: first bench in a run is up to ~20% slower (cold); a stale `.zig-cache` gave FileNotFound
+  for the reviewer, use `--cache-dir /tmp/sigil-zc`. The Bash guard blocks one command mixing citadel
+  paths with repo commands. Do not use ScheduleWakeup (I armed one by mistake; ignore it if it fires).
 
 ## Cycle 50 — 2026-10-13 — FEATURE
 
