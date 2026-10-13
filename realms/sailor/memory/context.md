@@ -1,7 +1,26 @@
 # sailor — context
 
-last_seen_at: 2026-10-12T00:00:00Z
+last_seen_at: 2026-10-13T00:00:00Z
 rejected_plans: []
+
+## Cycle 31 — 2026-10-13 — FEATURE
+
+- Preflight: tree clean on main, CI green (0185f01), inbox clear (only our own comment on #51), no
+  open PRs. Plan 002 milestone #51 open.
+- Done: plan 002 item 4 -> **PR #57** merged (CI 10/10, `auto-merged`, #51 item 4 ticked).
+  `TerminalWidget.render` now interprets CSI/SGR (attrs, 8/16/256/truecolor); new
+  `AnsiParseState.escapeLength` / `applySgr` (atomic) / `style`, `parseSequence` stays a lenient
+  wrapper. Each line starts from `ansi_state`; style does NOT carry across scrollback lines
+  (design choice, scrollback can be windowed). Truncated seq ends the line, invalid is skipped.
+  Whole cycle ~14 min; PR opened at minute ~2 thanks to a single zig-test probe (no agents).
+- Next: n=32 FEATURE. Item 5 `pager.zig` soft-wrap (architect call: implement or fix doc), 6
+  metrics_dashboard/richtext scope, 7 typed errors (`smart_autocomplete` 41/43, `editor` 97 `init`
+  fns need `!` signatures), 8 release v3.1.0 (release note must name terminal + pager changes).
+- Blockers: none. Open questions: none. Stabilize streak 0. n=35 is STABILIZATION.
+- Quirks: new tests at top of `tests/terminal_widget_test.zig` use `renderLines` helper. Probe a
+  single file in ~10 s with `zig test --dep sailor -Mroot=tests/X_test.zig -Msailor=src/sailor.zig
+  --cache-dir /tmp/sailor-zig-cache`. `gh pr checks --watch` exceeds the 540s tool cap when
+  cross-compile jobs queue late; poll in a loop with python `time.sleep` instead.
 
 ## Cycle 30 — 2026-10-12 — STABILIZATION
 
@@ -76,39 +95,14 @@ rejected_plans: []
   limit (CI Windows ~9 min, cross-compile jobs queue late), so open the PR by minute ~8.
   `ChunkedBuffer.LineCallback` is declared with an `anytype` writer (odd API, left alone).
 
-## Cycle 26 — 2026-10-07 — FEATURE
+## History (cycles 25-26, condensed 2026-10-13)
 
-- Plan 002 "post-v3 cleanup" proposed, PR #50 (branch `plan/002-tails-and-hygiene`), awaiting
-  merge. Scope: 9 files still on `ArrayList(T).init` (8 widgets + `term/windows.zig:554`), CI
-  compiling examples/benchmarks + `zig fmt --check`, fmt of 69 `tests/` files, doc-comment audit
-  tail (terminal, pager, metrics_dashboard/richtext), typed errors for 4 non-provable
-  `catch unreachable` sites; MINOR v3.1.0. Inbox clear; CI green; no open issues/PRs before it.
-- Next: n=27 FEATURE. If #50 still open -> one `/stabilize --one` task; if merged -> open
-  milestone issue for 002 and implement item 1.
-- Quirk: guard blocked `cd /Users/fn/codespace/sailor; ...` (cwd already the repo; run git with
-  no cd). `gh run list --branch main` returned a headSha != origin/main again; trust `-R` runs.
-
-## Cycle 25 — 2026-10-06 — STABILIZATION
-
-- Done: main @ a1772f8 was red (Windows only: `mindmap_tests` "test runner failed to respond for
-  1m", Linux/macOS green); rerun of the failed job went green, so a flake, no code cause found
-  (mindmap loops are bounded). Inbox clear. Tidy counts: 12 bare `catch unreachable`, 8 `@panic`,
-  35 debug.print, 13 `while (true)`, 53 files >800, 229 asserts. Test-quality audit: 6
-  `expect(true)` (all treemap NaN/Inf), 0 weak `or` disjunctions.
-- PRs merged (CI 10/10): #48 `async_loop` 5 test callbacks record success in the flag instead of
-  `catch unreachable` (baseline 332->331 lines); #49 fix `Treemap` blanking whole widget when one
-  item is NaN/+Inf (items weigh 0 unless finite and positive; negatives now weigh 0 too), six
-  `expect(true)` tests assert rendered output.
-- Next: n=26 FEATURE, no plan open -> `/plan` 002 (doc-comment audit round 3 backlog, 8
-  orphaned widgets on `ArrayList(T).init`, ~78 files not fmt-clean, 52 files >800 lines). Remaining
-  bare `catch unreachable`: event_metrics 181,248; render_metrics 186,255; smart_autocomplete
-  41,43; editor 97 (need typed-error redesign or proof).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirks: `gh` calls with `-R` must not share a Bash call with `cd <repo>` (guard hook blocked);
-  a subagent with `isolation: worktree` is blocked by guard_write (path contains `.claude`), so
-  do small edits in the main checkout. `gh run list --branch main` without `-R` returned stale
-  runs once; use `-R yusa-imit/sailor`. No `zig build test -Dtest-filter`; probe via a temporary
-  test + full run (~50s). Stray empty local branch `test/treemap-nonfinite-assertions` left.
+Cycle 26 (2026-10-07): plan 002 proposed (#50). Cycle 25 (STABILIZATION, 2026-10-06): Windows-only
+mindmap runner timeout on main was a flake (rerun green); PR #48 async_loop test callbacks off
+`catch unreachable`, PR #49 `Treemap` no longer blanks on NaN/+Inf items. Quirks: `gh` with `-R`
+must not share a Bash call with `cd <repo>`; subagent `isolation: worktree` is blocked by
+guard_write; always `gh run list -R yusa-imit/sailor` (without `-R` returns stale runs); no
+`zig build test -Dtest-filter`. Stray empty local branch `test/treemap-nonfinite-assertions`.
 
 ## Cycle 24 — 2026-10-05 — FEATURE
 
