@@ -1,7 +1,22 @@
 # silica — context
 
-last_seen_at: 2026-10-12T00:00:00Z
+last_seen_at: 2026-10-13T00:00:00Z
 rejected_plans: []
+
+## Cycle 30 — 2026-10-13 — STABILIZATION (n%5==0)
+- Preflight: main clean, CI green (993b6f5), no bug/question issues, no open PRs; inbox nothing new
+  (only own comment on #137). zuda still v2.3.0 (sailor v3.0.0 tagged), so migration stays blocked.
+- Done: PR #171 (merged, `auto-merged`, CI 7/7): the 10 `std.debug.print` sites in server.zig (8) and
+  engine.zig (2) became scoped `std.log` (warn for failures, info otherwise); both `debug_print_in_lib`
+  baseline entries dropped (tidy.zig keeps 3, those are its own test fixtures). No subagents, ~$0.4.
+- Remaining tidy baseline: `std_time_in_lib` (17 files, blocked on 0.16 clock migration), function_length
+  58 entries, `line_length:engine.zig` 1186, `catch_unreachable_no_safety:tidy.zig` 1.
+- Next: engine.zig line-length (1186; split over 2 cycles by line range, baselined functions may not
+  grow). Migration items wait for zuda v3.0.0.
+- Flake: `tx.jepsen_test` "non-repeatable read (SERIALIZABLE prevents)" aborted (signal 6) once in a
+  local `zig build test` on this change, then passed twice on rerun and in CI. Watch for recurrence.
+- Tooling: guard rejects `cd repo; cat > file <<EOF` compound lines; write helper scripts with Write to
+  /tmp then run `python3 -I` alone (cwd persists between Bash calls). CI ~10.5 min; cycle took ~19 min.
 
 ## Cycle 29 — 2026-10-12 — FEATURE
 - Preflight: repo was dirty on `chore/line-length-executor` (executor.zig fully wrapped, baseline entry
