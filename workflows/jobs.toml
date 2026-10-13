@@ -13,13 +13,15 @@ timeoutMs = 120000
 allowedTools = []
 sessionLimitThreshold = 90
 
+# Re-enabled 2026-10-13 for powehi's CLI-first Phase 7 (powehi PR #9, ADR-0006): odd hours KST,
+# PR-per-cycle prompt. powehi is standalone; citadel only schedules it.
 [jobs.powehi-dev-v1]
-enabled = false
-expression = "45 1,4,7,10,13,16,19,22 * * *"
+enabled = true
+expression = "45 1,3,5,7,9,11,13,15,17,19,21,23 * * *"
 cwd = "/Users/fn/codespace/powehi"
 model = "sonnet"
 permissionMode = "bypassPermissions"
-timeoutMs = 1800000
+timeoutMs = 3600000
 allowedTools = []
 sessionLimitThreshold = 90
 
