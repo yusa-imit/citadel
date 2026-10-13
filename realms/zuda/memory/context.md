@@ -1,7 +1,31 @@
 # zuda — context
 
-last_seen_at: 2026-10-12T00:00:00Z
+last_seen_at: 2026-10-14T00:00:00Z
 rejected_plans: []
+
+## Cycle 24 — 2026-10-14 — FEATURE
+- Done: inbox clean (CI green on 7feb1c1, no bugs, no plan PR, no OWNER comments; milestone #31).
+  Preflight found uncommitted work from an interrupted cycle: preserved as
+  `wip/compile-clean-greedy-automata-approx-20261014`, then re-verified it. Plan 001
+  "compile-clean": `approximation/*`, `greedy/*`, `automata/dfa`, `graph_coloring/*` (13 files)
+  ported to unmanaged ArrayList and wired into `root.zig`. `greedy_coloring` was only half
+  ported; `backtracking_coloring` (subagent) had wrong `exactKColoring` and a propagation bug.
+  Reviewer found a REAL `dsatur` infinite loop on isolated vertices (strict `>` with 0
+  thresholds); fixed with optional next_vertex, deterministic scan, regression tests.
+- PRs: #68 (`fix/compile-clean-greedy-automata-approx-2`) open; Build & Test green 6m36s,
+  cross-compile pending at the deadline. Next cycle's inbox merges it once all 7 checks are green
+  and no `hold` label is present.
+- Next: FEATURE — rest of the "compile-clean" item: full `src/**` `zig test <file>` sweep (not
+  done yet; many files still unprobed). Review follow-ups: user-data `assert`s in knapsack
+  (negative weight/NaN capacity), bin_packing (negative/NaN capacity), vertex_cover (edge
+  endpoints) should be typed errors; `greedy_coloring` Tiger cleanup (long lines, `while` loops,
+  per-vertex hash maps); `backtracking_coloring` contract docs; DFA stores an allocator (note an
+  exception); huffman code stack depth assert. Then Thread sync, harness, assertion baseline,
+  v3.0.0 (CHANGELOG already lists the `deinit(gpa)` breaks).
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: `zig fmt --check src` prints ~160 pre-existing unformatted files (check only touched
+  paths); a `perl -pi` that strips `defer {\n` per line deletes the line, use `-0pi`; the guard
+  rejects a Bash command that mentions the citadel path with a redirect (use plain commands).
 
 ## Cycle 23 — 2026-10-12 — FEATURE
 - Done: inbox clean (CI green on 2847a19, no bugs, no plan PR, no OWNER comments; milestone #31).
