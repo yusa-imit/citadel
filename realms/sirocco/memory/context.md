@@ -1,7 +1,23 @@
 # sirocco — context
 
-last_seen_at: 2026-10-13T00:00:00Z
+last_seen_at: 2026-10-13T12:00:00Z
 rejected_plans: []
+
+## Cycle 52 — 2026-10-13 — FEATURE
+- Inbox: OWNER merged plan PR #44 (plan 004 evented-net, 12 items); CI green; no bugs, no issues.
+- Done: opened milestone #46. Plan 004 item 2 via PR #47 (merged a9e42bd, CI green macOS + ubuntu +
+  6 cross, auto-merged): ADR 0003, `src/backend/poller.zig` (shared types, bounded `Table`,
+  comptime `contract`), `src/backend/kqueue.zig` (Darwin only; one-shot arm, latched `EVFILT_USER`
+  wake), `poller_test.zig` (16 cases + Table model tests). Plan items 1 (done by #45) and 2 ticked.
+  ADR departs from plan text: `init(target, gpa, options)`, relative `wait(timeout_ns, out)`, and
+  off-fiber calls on a registered socket `poll(2)` on the calling thread, not the offload thunk
+  (Threaded traps on `WouldBlock`). Reviewer: 0 CRITICAL, 5 WARNING fixed (BSDs lack EVFILT_USER /
+  FreeBSD flags, so `Native` = Darwin only; test flake bounds; `wait` clamp).
+- Next: item 3 (`Options.sockets_max` required, `.auto` -> `.kqueue`, `Sched.idle_wait` in
+  `Poller.wait`, `unpark_foreign` calls `wake`, gate 7 re-run on kqueue).
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: opus architect + two sonnet agents cost ~$1.2 for item 2; one subagent for tests+impl
+  (TDD order in the prompt) is cheaper. Architect output arrives only as text: save the ADR via Write.
 
 ## Cycle 51 — 2026-10-13 — FEATURE
 - Inbox: no OWNER activity on plan PR #44 (only our own cycle-50 comment); CI green on 5a926bb; no
@@ -46,37 +62,15 @@ rejected_plans: []
 - Gotchas: the guard blocks any compound Bash that mentions citadel paths, even a read-only
   `df`/`date` chain; run each command on its own and use Read/Write/Edit for citadel files.
 
-## Cycle 48 — 2026-10-11 — FEATURE
-- Inbox: no OWNER activity; CI green on 2e7dff5; no open PRs; milestone #33; no bugs.
-- Done: plan 003 item 9 + release via PR #43 (merged f159a82, CI green, auto-merged): README,
-  PRD §4.1/§4.3, CHANGELOG `[0.4.0]`, `build.zig.zon` and `sirocco.version` 0.4.0. Tagged and
-  released v0.4.0, closed #33. No kingdom repo pins sirocco, so no migration issues.
-- Known gap (deliberate): `src/sched.zig` is still 823 lines (800 target); `zig build tidy` passes
-  as is. Splitting its tests needs pub accessors for private helpers; take it as a stabilize task.
-- Next: plan 003 is done and fully checked, so the next FEATURE cycle runs `/plan sirocco` (kqueue /
-  epoll backends, per ADR 0002: multi-carrier belongs with them; PRD gates 1-4 are the targets).
-- Blockers: none. Open questions: none. Stabilize streak 0.
+## History (cycles 43-48, condensed 2026-10-13)
 
-## Cycle 47 — 2026-10-11 — FEATURE
-- Inbox: no OWNER activity; CI green on 9743796; no open PRs; milestone #33.
-- Done: plan 003 item 8 via PR #42 (merged 2e7dff5, CI green Linux+macOS+6 cross, auto-merged):
-  `src/offload_slots.zig` comptime thunks (arity 2-6, built from each VTable field type) route the
-  blocking `dir*`/`file*`/`net*`/`operate`/`childWait` slots through the pool, `.forward` mode only
-  (the thunks call the baseline). Pending cancel delivered before submit. Loopback accept+connect
-  test (hung on v0.3.0), 1-worker sizing test, cancel/protection tests. Reviewer: 0 CRITICAL; 5
-  WARNINGs fixed: closes/`netShutdown`/seeks/`fileUnlock` kept on the carrier (must not queue behind
-  parked reads), memory-map create/resize/destroy kept (shared `gpa`), `netWriteFile` and
-  `netLookup` kept (std TODO panic; queue woken via baseline futex). `Runtime.init` gpa must be
-  thread-safe. Plan item and #33 ticked in the PR/issue.
-- Next: item 9 (README drop "stalls every fiber", CHANGELOG, PRD §4.1/§4.3/§5, v0.4.0 via
-  `/release`, split `src/sched.zig` tests: 823 lines > 800 cap). Then plan 003 is fully checked.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: `build test` printed exit 0 once with a line over 100 cols in src/ (tidy test stale
-  cache); run `zig build tidy` explicitly and `rm -rf .zig-cache` when in doubt. BSD `sed -i` needs
-  an empty suffix arg. `gh pr checks` right after a push still shows the previous run: poll
-  `gh run list` by headSha. Guard blocks any compound Bash mentioning citadel paths.
-
-## History (cycles 43-46, condensed 2026-10-13)
+Cycle 48 (10-11): plan 003 item 9 + release v0.4.0 via PR #43 (README, PRD, CHANGELOG; no kingdom
+repo pins sirocco). Cycle 47 (10-11): item 8 via PR #42, `src/offload_slots.zig` comptime thunks
+route blocking `dir*`/`file*`/`net*`/`operate`/`childWait` through the pool (`.forward` only);
+closes/`netShutdown`/seeks/`fileUnlock`/memory-map/`netWriteFile`/`netLookup` stay on the carrier;
+`Runtime.init` gpa must be thread-safe. Gotchas: run `zig build tidy` explicitly (a stale cache once
+hid a >100-col line); BSD `sed -i` needs `''`; `gh pr checks` right after a push shows the previous
+run, poll `gh run list` by headSha.
 
 Cycle 46 (10-11): item 7 via PR #41, `src/offload.zig` bounded worker pool (futex mutex, completion
 via `Sched.unpark_foreign`), `Options.offload_threads` required, ADR 0002 (offload before
