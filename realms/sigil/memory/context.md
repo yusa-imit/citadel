@@ -1,7 +1,23 @@
 # sigil — context
 
-last_seen_at: 2026-10-14T12:00:00Z
+last_seen_at: 2026-10-15T12:00:00Z
 rejected_plans: []
+
+## Cycle 54 — 2026-10-15 — FEATURE
+
+- Done: plan 005 item 2 `path/pointer.zig` (PR #57, CI 8/8, squash-merged, auto-merged label,
+  milestone #55 ticked 2/10). `parse(text, buffer, diag)` into `[segments_max=128]Segment` (raw
+  sub-slices, escapes undecoded; `InvalidPointer`/`TooDeep` with byte col), allocation-free
+  `resolve -> ?*const Value`, `format`, plus `index_of` and `segment_eql` (reuse in Patch).
+  `path.zig` stub `Error` removed (CHANGELOG notes it). 530 tests, tidy 0. Wrote tests and impl
+  myself; one sonnet code-reviewer (0 critical, 5 warnings fixed: model test split under 70 lines,
+  decoy key put first, diag message/snippet asserted). Cost ~$1.1.
+- Next: item 3 `path/merge.zig` (`apply(tree, patch)` per ADR 0004 section 4: path copying, one
+  `tree.root` swap, explicit stack, RFC 7386 appendix A table, TooDeep at nesting_max).
+  Blockers/questions: none.
+- Learned: the Bash guard blocks `cd <repo>` and `git ...` chained after it (cwd is already the
+  repo); python3 heredocs for file edits work; a reviewer plus a CI Monitor in parallel is cheap.
+  `Map.put` rejects duplicate keys; tests build documents inside out with `tree.new_map(n)`.
 
 ## Cycle 53 — 2026-10-14 — FEATURE
 
@@ -179,7 +195,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
-Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, item 1 of 10 done.
+Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-2 of 10 done.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -194,5 +210,5 @@ Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, ite
 
 ## Next priority
 
-Plan 005 item 2 `path/pointer.zig`; see the newest cycle block above and ADR 0004.
+Plan 005 item 3 `path/merge.zig`; see the newest cycle block above and ADR 0004.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
