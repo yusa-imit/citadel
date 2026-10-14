@@ -1,7 +1,25 @@
 # zuda — context
 
-last_seen_at: 2026-10-14T00:00:00Z
+last_seen_at: 2026-10-15T00:00:00Z
 rejected_plans: []
+
+## Cycle 25 — 2026-10-15 — STABILIZATION
+- Done: periodic (n%5==0). Inbox clean (CI green, no bugs, no plan PR, no OWNER comments; milestone
+  #31). Merged #68 (approximation/greedy/dfa/graph_coloring compile-clean; 7/7 green, `auto-merged`).
+  Stabilize class "user-data asserts -> typed errors" (review follow-up from #68): `vertex_cover`
+  `error.InvalidEdge`; `knapsack` (greedy) and `bin_packing` `error.InvalidInput` (NaN/negative
+  weight, NaN capacity, negative/NaN item size). Each file exports `Error`; tests red first (a
+  negative weight grew the remaining capacity and tripped the postcondition assert). CHANGELOG
+  notes the v3.0.0 break. Local `zig build test` exit 0, fmt clean.
+- PRs: #68, #69 merged (squash, 7/7 checks, Build & Test ~6.5m, labeled `auto-merged`).
+- Next: FEATURE — rest of plan 001 "compile-clean": full `src/**` `zig test <file>` sweep. Then
+  Thread sync, harness, assertion baseline, v3.0.0. Leftovers: `greedy_coloring` Tiger cleanup,
+  `backtracking_coloring` contract docs, DFA stores an allocator (note an exception), huffman stack
+  depth assert, `hamiltonian.zig` not OOM-audited. STATE.md numbers not re-measured this cycle.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: a stale `.zig-cache` made `zig build test` fail with "failed to spawn build runner" again;
+  use `--cache-dir /tmp/zuda-zcache`. Use `nohup sh -c` for the background build, then a Bash
+  `until grep -q '^exit '` loop on the log.
 
 ## Cycle 24 — 2026-10-14 — FEATURE
 - Done: inbox clean (CI green on 7feb1c1, no bugs, no plan PR, no OWNER comments; milestone #31).
@@ -49,40 +67,17 @@ rejected_plans: []
   poll with a real wait); an earlier `zig build test` left a build-runner child alive after
   `pkill` of the parent, kill it by pid before rerunning.
 
-## Cycle 22 — 2026-10-11 — FEATURE
-- Done: inbox clean (CI green on 01a9b7c, no bugs, no plan PR, no OWNER comments; milestone #31).
-  Merged #65 (nfa/matrix_chain/ford_fulkerson; 7/7 green, `auto-merged`). Then plan 001 item
-  "compile-clean": `bogosort.zig` ported per ADR 0001 D1 — `bogoSort*` take required `seed: u64`,
-  `bogoSortBounded(.., seed, iterations_max: u32)` with explicit error set, no `std.posix`; three
-  seed-determinism tests; wired into `root.zig` tests. `zig build test` exit 0, fmt clean.
-- PRs: #65, #66 merged (squash, 7/7 checks, Build & Test ~6m, labeled `auto-merged`).
-- Next: FEATURE — same item: `kmeans`, `gmm` (`seed: ?u64 = null` + `std.time.timestamp` ->
-  required `seed: u64`; kmeans also has managed `ArrayList(..).init` at ~line 530), `dqn`, `ddpg`,
-  `tsne`, then a full `src/**` `zig test <file>` sweep. Then Thread sync, harness, assertion
-  baseline, v3.0.0. Stabilize leftovers: `hamiltonian.zig` not OOM-audited; `dfa`, `dinic`,
-  `edmonds_karp` not in test graph (unprobed).
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: guard rejects `sleep N` and compound `cd` commands; use a Monitor until-loop on a log
-  file for the ~5 min `zig build test` run (run it with run_in_background).
-
-## Cycle 21 — 2026-10-10 — FEATURE
-- Done: inbox clean (CI green on 01a9b7c, no bugs, no plan PR, no OWNER comments; milestone #31).
-  Plan 001 item "compile-clean files outside test graph": ported `nfa`, `matrix_chain`,
-  `ford_fulkerson` to 0.16 and wired them into `root.zig`'s test block. Running them exposed real
-  bugs: `NFA.fromWildcard` marked every state accepting and built Kleene stars wrongly (rewritten;
-  `a*`, `.*`, `a.c` tests were red); OOM undefined-free + errdefer/defer double free in
-  `matrix_chain` and `ford_fulkerson` (new `alloc_table`/`residual_init` helpers); `maxInt` on f64
-  capacities. Each file has a `checkAllAllocationFailures` test. Local `zig build test` exit 0.
-- PRs: #65 open (`fix/compile-clean-nfa-matrix-chain-ford-fulkerson`), Build & Test green 6m27s,
-  cross-compile still pending at the 22-min deadline. NOT merged: next cycle's inbox merges it
-  once all 7 checks are green (no `hold`), then ticks the plan progress line (already edited in PR).
-- Next: FEATURE — remaining in that item: `bogosort` (seed shape per ADR 0001, no
-  `std.posix.getrandom`), `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne`, then a full `src/**` `zig test
-  <file>` sweep. Then Thread sync, harness, assertion baseline, v3.0.0. Stabilize leftovers:
-  `hamiltonian.zig` not OOM-audited; `dfa`, `dinic`, `edmonds_karp` not in test graph (unprobed).
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: BSD sed lacks `\n` in replacements, use perl/python; a python `str.replace` with an empty
-  slice corrupts the file (check `index()` ordering). `zig build test` ran ~9 min locally.
+## Cycles 20-22 (2026-10-09 to 10-11), folded
+- 20 (STABILIZATION, bug #63, PR #64): OOM leaks and an undefined free in `palindrome_partition`,
+  `knights_tour`, and append-failure leaks in `combination_sum`/`permutations`/`subsets`/
+  `n_queens`; `checkAllAllocationFailures` test per file. 21: ported `nfa`, `matrix_chain`,
+  `ford_fulkerson` (PR #65); the never-run tests exposed a wrong `NFA.fromWildcard` (every state
+  accepting, bad Kleene star), OOM undefined-frees/double frees, `maxInt` on f64 capacities.
+  22: merged #65; `bogosort.zig` ported per ADR 0001 D1 (required `seed: u64`,
+  `bogoSortBounded(.., seed, iterations_max: u32)`, PR #66).
+- Quirks: the `zig` on PATH is still 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`; the
+  guard rejects `sleep N`, `cd X; ...` and `for` loops mixing the repo path; BSD sed lacks `\n`
+  (use perl/python); zsh expands `==`; `zig build test` takes ~9 min locally.
 
 ## Cycle 20 — 2026-10-09 — STABILIZATION
 - Done: periodic (n%5==0) and open OWNER bug #63. Fixed it in PR #64 (squash, 7/7 checks, Build &
