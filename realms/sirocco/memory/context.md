@@ -1,7 +1,25 @@
 # sirocco — context
 
-last_seen_at: 2026-10-14T01:20:00Z
+last_seen_at: 2026-10-14T02:10:00Z
 rejected_plans: []
+
+## Cycle 54 — 2026-10-14 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments; CI green on 1f197af; no bugs, no other PRs.
+- Done: plan 004 item 4 as DRAFT PR #49 (branch `feat/native-listen-accept-connect`, commit 5312185):
+  `src/backend/sys.zig`, `src/net.zig` (sockets_max registry + 8 native slots incl. `netClose`),
+  `src/sched_io.zig` (poller event dispatch + fairness `wait(0)`), `tests/parity/net.zig`; local test/
+  fmt/tidy green. Reviewer: 2 CRITICAL + 5 WARNING (full list in the PR comment). Not merged; item 4
+  stays unticked on #46 (the plan file is ticked on the branch only).
+- Next: fix on #49 first, then `gh pr ready 49`, wait for CI, merge. CRITICAL 1: `slot_close` off the
+  carrier races waiter lists/poller/`unpark` (hand waiters to the carrier via `unpark_foreign`).
+  CRITICAL 2: `enroll`'s `register catch unreachable` is false (`slot_accept` blocking route registers
+  from other threads). WARNINGs: stale-entry replace leaves waiters/poller armed; close wakes waiters
+  onto a reused fd (needs a closed outcome); EINTR unmapped; accept fabricates 127.0.0.1:0; tests for
+  close-with-waiters, off-fiber route, bind/Unix, cancel during connect. Then item 5.
+- Blockers: none. Open questions: none. Stabilize streak 0. CI on PR #49 was still running at report.
+- Gotchas: item 4 cost ~$2.6 (developer ~$1.9, reviewer ~$0.3); too big for one 22-min cycle with a
+  fix round: split item 4 (sys.zig + listen/accept, then connect/close) if it repeats. Draft status
+  keeps the next inbox from auto-merging a PR with open CRITICALs.
 
 ## Cycle 53 — 2026-10-14 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments; CI green on a9e42bd; no bugs, no other PRs.
@@ -36,19 +54,9 @@ rejected_plans: []
 - Gotchas: opus architect + two sonnet agents cost ~$1.2 for item 2; one subagent for tests+impl
   (TDD order in the prompt) is cheaper. Architect output arrives only as text: save the ADR via Write.
 
-## Cycle 51 — 2026-10-13 — FEATURE
-- Inbox: no OWNER activity on plan PR #44 (only our own cycle-50 comment); CI green on 5a926bb; no
-  bugs, no other open PRs or issues.
-- Done: plan PR #44 still open, so one bounded `/stabilize --one` sweep: tidy green, `catch
-  unreachable`/`@panic`/`debug.print`/FIXME all 0, one annotated `while (true)` (offload worker
-  loop), largest file `concurrency.zig` 678 lines, docs at 0.4.0 agree. Nothing to fix, no PR.
-  STATE.md refreshed.
-- Next: when #44 is merged, open the milestone issue, tick plan 004 item 1 (already done by PR #45)
-  and start at item 2 (ADR 0003 + kqueue `Poller`). Until then FEATURE cycles run one bounded
-  stabilize task and report.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: a compound Bash starting with `cd <repo>;` was blocked by the guard again; the primary
-  cwd is already sirocco, run each command separately.
+Cycle 51 (10-13): plan PR #44 open, so one bounded `/stabilize --one` sweep found nothing to fix (tidy
+green, no `catch unreachable`/`@panic`/FIXME, largest file `concurrency.zig` 678 lines). A compound
+Bash starting with `cd <repo>;` is blocked by the guard: run each command separately.
 
 ## Cycles 49-50 (2026-10-12, condensed 2026-10-14)
 - Cycle 49 proposed plan 004 (evented-net) as PR #44: 12 items (sched test split, ADR 0003 +
