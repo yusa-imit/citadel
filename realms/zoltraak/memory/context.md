@@ -63,38 +63,18 @@ rejected_plans: []
   STABILIZATION. Items 4-9, 12 unblock on zuda v3.0.0.
 - Blockers: zuda v3.0.0. Open questions: none.
 
-## Cycle 22 — 2026-10-10 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on 57cacc9), no bugs, no plan PR, milestone #121 open, no
-  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
-- `/stabilize --one`: PR #146. Real bug: `CMS.INCRBY key item -9223372036854775808` trapped on
-  `-delta` (integer overflow) in `CountMinSketchValue.incrBy`; now `@abs`, returns
-  CounterUnderflow (regression test first). Stale overflow test fixed (counters are u64).
-  Wired cms, scripting, json_value, vector, defrag into the `src/main.zig` reachability test:
-  `zig build test` 1207 -> 1275, only the 2 known signal-4 crashers. CI green (4m22s / 47s),
-  merged, labeled auto-merged.
-- Probe results (`zig test src/storage/<f>.zig`): jsonpath has 1 stale failing test (parse
-  ".a.b" -> InvalidPathSyntax; decide test vs parser); bloom has a compile error
-  (LoadContext); aof/replication/persistence/eviction need module wiring (import outside
-  module path).
-- Not mine: `./zig-out/bin/zoltraak` pid 80225 still running; left alone.
-- Next: jsonpath/bloom repair then wire; commands/*.zig stale tests; stash triage
-  (stash@{0}); cycle 25 is forced STABILIZATION. Items 4-9, 12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 21 — 2026-10-09 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on 6e5a6e3), no bugs, no plan PR, milestone #121 open, no
-  owner comments. zuda still v2.3.0 (GitHub + local), so items 4-9, 12 blocked.
-- Inbox: merged #144 (CI had passed; labeled auto-merged) — topk/heavykeeper tests now run.
-- `/stabilize --one`: PR #145 added encodings, listpack, memory_tracker, slowlog, intset,
-  latency to the `src/main.zig` reachability test: `zig build test` 1160 -> 1207, all pass,
-  only the 2 known signal-4 crashers locally. CI green (6m52s / 1m28s), merged, labeled.
+## Cycles 21-22 (2026-10-09..10, condensed 2026-10-14)
+- Both FEATURE cycles had every plan item blocked (zuda still v2.3.0, items 4-9, 12), so each ran
+  one `/stabilize --one`: #145 wired encodings, listpack, memory_tracker, slowlog, intset, latency
+  into the `src/main.zig` reachability test (`zig build test` 1160 -> 1207); #146 fixed a real bug
+  (`CMS.INCRBY key item -9223372036854775808` trapped on `-delta`, now `@abs` and returns
+  CounterUnderflow, regression test first) and wired cms, scripting, json_value, vector, defrag
+  (1207 -> 1275). Only the 2 known signal-4 crashers fail locally. #144 (topk/heavykeeper) merged.
 - Probe trick: `zig test src/<f>.zig` standalone shows whether a file's tests compile; blocking,
-  lazyfree, notifications fail there (import outside module path / `zuda`) so they need
-  build-module wiring, not a bare import-test.
-- Not mine: `./zig-out/bin/zoltraak` pid 80225 running 3 days; left alone.
-- Next: wire further files one at a time (commands/*.zig stale tests need repair); stash triage
-  (stash@{0}); cycle 25 is forced STABILIZATION. Items 4-9, 12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
+  lazyfree, notifications, aof, replication, persistence, eviction fail there (import outside
+  module path / `zuda`) and need build-module wiring, not a bare import-test.
+- Not mine: `./zig-out/bin/zoltraak` pid 80225 running for days; left alone.
+- Next: stash triage (stash@{0}); commands/*.zig stale tests. Blockers: zuda v3.0.0.
 
 ## Cycle 20 — 2026-10-08 — STABILIZATION (forced, n%5==0)
 - Preflight clean (main, CI green on 6e5a6e3), no bugs, no plan PR, milestone #121 open, no

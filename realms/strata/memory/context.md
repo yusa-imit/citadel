@@ -79,60 +79,22 @@ rejected_plans: []
   add figures to `000-inherited.md`), then the docs/release v0.4.0 item.
 - Blockers: none. Open questions: none.
 
-## Cycle 44 — 2026-10-11 — FEATURE
-- Done: plan 003 item 8 — `src/cache/guard.zig` (`PageGuard`: `bytes`, `bytes_mut`, `markDirty`,
-  `set_lsn`, `id`, `release`), `BufferPool.fetchForUpdate/flushAll/discardAll`, `Stats.writebacks`,
-  `dirty_count` in `check_invariants`; write-back runs in `victim_evict` before `table.remove`, a
-  failed write keeps the frame resident and dirty. `header.peek/poke_lsn/type_valid` added. New
-  `WriteBackError = WriteError || InvalidHeader` (illegal type byte caught at write-back in every
-  build mode). Tests: `buffer_pool_dirty_test.zig` (11, 3 page sizes, FaultIo, seeded model).
-- PRs: #42 merged (squash, CI 7/7, auto-merged). Issue #34 item 8 ticked.
-- Review: code-reviewer 0 critical, 6 warnings; header-validity one fixed, rest documented.
-  Cost ~ $2.1 of $4 (zig-developer wrote tests+impl, then reviewer, no test-writer).
-- Follow-ups (not blocking): repo has no `stdx.assert_always` (deinit/discardAll pin and dirty checks
-  are plain asserts, ReleaseSafe only); `BufferPool.frame_bytes/mark_dirty/Frame` are pub only for
-  guard.zig; no `fetchNew` path to initialise a freshly allocated (Unwritten) page, needed before the
-  B+Tree; flushAll cleans pinned frames so a later edit through an old slice needs `markDirty`; tests
-  with dirty frames at `defer deinit` panic instead of reporting on an earlier failure.
-- Next: item 9 — 2C page-size matrix (8 sizes for header/manager/pool) + torn-page sweep via the real
-  page decoder in `src/testing/truncation_matrix_test.zig`.
-- Blockers: none. Open questions: none.
-- Note: Bash guard rejects `;`/`$VAR` chains; one simple command per call. Checking out main after a
-  merge makes the editor report "changed on disk" for branch files; `git pull --ff-only` first.
-
-## Cycle 43 — 2026-10-11 — FEATURE
-- Done: plan 003 item 7 — `src/cache/buffer_pool.zig`: CLOCK `BufferPool` (`init` in place, `deinit(gpa)`,
-  `fetch(io,id)`, `stats`, `pinned_count`, `check_invariants`), `PageGuard` (`bytes` const, `id`, `release`).
-  Tests in `buffer_pool_test.zig` (scripted counts at 3 sizes, pins, typed load errors, FaultIo, failing
-  allocator, churn, seeded model). cache.zig re-exports BufferPool/PageGuard/Options/Stats/FetchError.
-- PRs: #41 merged (squash, CI 7/7, auto-merged). Issue #34 item 7 ticked.
-- Review: code-reviewer 0 critical; fixed: table tombstone `rehash` every `frames_max` evictions,
-  empty-frame search from the hand, no UB fallthrough, move-only guard doc, id-precondition doc, extra
-  tests. Cost ~ $1.55 of $4 (author wrote tests+impl, no test-writer).
-- Contract for item 8: `bytes()` is const on purpose (silent lost writes); add a writable view via
-  `fetchForUpdate`/`markDirty`. Write-back must run inside `victim_evict` BEFORE `table.remove`; a failed
-  load currently drops the victim (clean) — with dirty frames a failed write-back must keep it. `deinit`
-  asserts zero pinned frames; add zero dirty. PageGuard lives in buffer_pool.zig (no guard.zig yet).
-- Next: item 8 — dirty tracking + write-back + `flushAll`/`discardAll`.
-- Blockers: none. Open questions: none.
-- Note: `assert(x.remove())` is a side-effect-in-assert trap; `std.hash_map.AutoContext(u32){}` is the
-  `rehash` ctx for AutoHashMapUnmanaged; macOS has no `timeout`.
-
-## Cycle 42 — 2026-10-10 — FEATURE
-- Done: plan 003 item 6 — `PageManager.allocate/free/sync` (`src/page/manager.zig`, tests in
-  `manager_alloc_test.zig`: growth/limit, LIFO, trunk spill+drain at 512 B, reopen, corrupt head/
-  entry/next, seeded 600-step model with reopen + full freelist-chain partition check).
-- PRs: #40 merged (squash, CI 7/7, auto-merged). Issue #34 item 6 ticked.
-- Review: code-reviewer 0 critical, 5 warnings fixed (crash-order doc: write order only holds if
-  OS persists in order, WAL owns it; scratch reuse so free uses 128 KiB stack; head short read ->
-  Corrupted; double-free doc; CHANGELOG). Cost ~ $1.55 of $4 (tests + impl by author, no test-writer).
-- Contract for item 7+: `allocate` returns a reused page with stale bytes (trunk image) until written;
-  grown pages read `Unwritten`; deeper-trunk double free is the caller's problem; `free` uses
-  `wal_lsn` as page lsn. `page_count_max` bounds growth only.
-- Next: item 7 — `cache/buffer_pool.zig` CLOCK fetch + pin (all alloc in init, PoolExhausted, stats).
-- Blockers: none. Open questions: none.
-- Note: `fixtures.id_of` asserts raw < 64; larger tests need a local id helper. Tidy density is per
-  file incl. test helpers; Bash `sleep` loops of <=10 s work for waiting on a background agent.
+## Cycles 42-44 (2026-10-10..11, condensed 2026-10-14)
+- Plan 003 items 6-8 merged (#40, #41, #42; CI 7/7, auto-merged, reviewer 0 critical each).
+  Item 6 `PageManager.allocate/free/sync` (`page/manager.zig`): `allocate` returns a reused page
+  with stale bytes until written, grown pages read `Unwritten`, `free` uses `wal_lsn` as page lsn,
+  deeper-trunk double free is the caller's problem, `page_count_max` bounds growth only.
+  Item 7 CLOCK `BufferPool` (`cache/buffer_pool.zig`): all allocation in `init`, `PoolExhausted`,
+  table tombstone `rehash` every `frames_max` evictions. Item 8 `cache/guard.zig` `PageGuard`,
+  `fetchForUpdate/flushAll/discardAll`, `Stats.writebacks`, `WriteBackError`; write-back runs in
+  `victim_evict` before `table.remove`, a failed write keeps the frame resident and dirty.
+- Follow-ups not blocking: no `stdx.assert_always` (plain asserts are ReleaseSafe only);
+  `BufferPool.frame_bytes/mark_dirty/Frame` are pub only for guard.zig; no `fetchNew` for a
+  freshly allocated page (needed before the B+Tree); `flushAll` cleans pinned frames, so a later
+  edit through an old slice needs `markDirty`.
+- Gotchas: `fixtures.id_of` asserts raw < 64; tidy density counts test helpers; `assert(x.remove())`
+  is a side-effect-in-assert trap; Bash guard rejects `;`/`$VAR` chains, one command per call;
+  `git pull --ff-only` after checking out main to avoid editor "changed on disk".
 
 ## Cycles 38-41 (2026-10-08..10, condensed 2026-10-11)
 - 38: ADR-0002 page format v1 (#36): 24-byte header, CRC32C seeded with u64 page id, `Id = enum(u32)`
