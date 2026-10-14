@@ -1,7 +1,23 @@
 # silica — context
 
-last_seen_at: 2026-10-13T00:00:00Z
+last_seen_at: 2026-10-14T00:00:00Z
 rejected_plans: []
+
+## Cycle 31 — 2026-10-14 — FEATURE
+- Preflight: main clean, CI green (9c457f8), no bug/question issues, no open PRs, inbox nothing new
+  (only own comments on #137). zuda still v2.3.0, so migration items stay blocked.
+- Done: PR #172 (merged, `auto-merged`, CI 7/7): all 1,184 long lines in engine.zig wrapped; last
+  `line_length:` baseline entry dropped (baseline has none left); plan 001 tidy part 2 ticked.
+  Local tidy + fmt + `zig build test` (4772+500 passed) green. No subagents, ~$1.1.
+- Method (reusable): /tmp python splitter (not committed): break depth-0 call/struct-brace pairs one
+  arg per line, `++` string splits, `=>`/`=`/catch/orelse/and/or breaks, comment re-wrap; then
+  `zig fmt`; ~200 leftovers via an exact-line table. Only zero-indented non-test `fn` count for
+  function_length, so wrapping inside `Database` methods and tests is free. `zig fmt` re-joins
+  `X =>\n expr` when it fits; use `error.Name` instead of long qualified error names.
+- Next: zuda v3.0.0 not tagged, so migration items remain blocked. Fillers: shrink `function_length`
+  baseline (58 entries), `std_time_in_lib` waits on 0.16 clock. Consider ticking nothing else.
+- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
+- Tooling: CI 10.6 min, cycle took ~21 min; poll loops with `sleep 10` x24 stay under tool timeout.
 
 ## Cycle 30 — 2026-10-13 — STABILIZATION (n%5==0)
 - Preflight: main clean, CI green (993b6f5), no bug/question issues, no open PRs; inbox nothing new
