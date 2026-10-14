@@ -48,7 +48,7 @@ Drift found, not missing functionality:
 | Functions > 70 lines | 72 | Worst: `parseToml` 5123 lines (has assertion baseline; structural, out of scope). |
 | Files > 800 lines | 25 | Worst: `config/parser.zig` 9076, `exec/scheduler.zig` 3802. |
 | `usize` in wire/serialized structs | 0 | Checked lock.zig, cache stats, JSON-RPC modules — clean. |
-| Missing `//!` module headers | 223 / 228 | Unchanged — bulk sweep, not yet started. |
+| Missing `//!` module headers | 199 / 228 | Sweep in progress (cycle 25): `doc-header` baseline entries 203 -> 199 after #190; next smallest: jsonrpc/types, graph/cycle_detect, jsonrpc/writer, output/color. |
 | Modules with zero `assert(` | 21 / 27 | `cli/` largest gap (424 fns, 0 asserts). |
 
 None of this was audited to "clean" — it is what a grep-level pass found, not a proof of absence

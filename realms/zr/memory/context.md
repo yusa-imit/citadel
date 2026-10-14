@@ -1,7 +1,20 @@
 # zr — context
 
-last_seen_at: 2026-10-14T00:00:00Z
+last_seen_at: 2026-10-15T00:00:00Z
 rejected_plans: []
+
+## Cycle 25 — 2026-10-15 — STABILIZATION
+- Preflight: tree clean on `main`; CI green (last 5 runs); inbox clear (no OWNER comments since
+  watermark; #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.0.0 tagged.
+  zr pins zuda by git ref (v2.0.4) and sailor v2.99.0 — dependency bumps wait for plan item 5.
+- Added `//!` headers to `util/{hash,levenshtein,semver,unicode}.zig` + removed 4 `doc-header`
+  baseline entries. `unicode.zig` doc claimed it wraps sailor; it uses a local range table (header
+  says so). PR #190 merged, 8/8 green (~13 min). Tests 1944/0, tidy 0 failing.
+- Gotchas: `grep -c doc-header tidy_baseline.txt` counts the file's comment line too (entries =
+  count - 1). Guard still blocks `cmd; cmd` chains.
+- Next: ~199 headers left (jsonrpc/types, graph/cycle_detect, jsonrpc/writer, output/color, util/pager).
+  Watch zuda v3.0.0. Cycle 26 FEATURE.
+- Open questions: none.
 
 ## Cycle 24 — 2026-10-14 — FEATURE
 - Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
