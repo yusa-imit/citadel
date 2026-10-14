@@ -1,7 +1,23 @@
 # synod — context
 
-last_seen_at: 2026-10-14T06:00:00Z
+last_seen_at: 2026-10-14T09:00:00Z
 rejected_plans: []
+
+## Cycle 53 — 2026-10-14 — FEATURE
+- Inbox: plan 004 PR #56 merged by the OWNER; no bugs, CI green, no open issues.
+- Done: opened milestone #57 (12 items). Item 1 ADR-008 (`docs/adr/0008-simulator-contract.md`)
+  via `architect` (~$1.8 of $4, ~12 min wall), PR #58 (docs, CHANGELOG entry, plan box ticked,
+  7/7 CI, squash-merged). The architect returned the text HTML-escaped (`&lt; &gt; &amp;`):
+  unescape before writing. Milestone #57 item 1 ticked.
+- Next: item 2 (`sim/clock.zig`, `sim/network.zig`, widen tidy purity gate per ADR-008:
+  `sim_purity_dir`, `is_sim_purity_file`, `sim_banned_patterns`; also `sim/prng.zig` is
+  ADR-008's determinism root, add it with item 2). Item 4's PR adds `init_bytes_max` to
+  `raft.Node` and `Driver` (ADR-008 Consequences 1).
+- Blockers: none. Open questions: none.
+- Tool notes: waiting for a background agent by `sleep` in background costs ~$0.5 of context
+  per wake; give the agent one long job and do not poll. Guard blocks `cd <path>;` and `>`
+  redirects mixed with citadel paths; use Write for /tmp files. Global zig is 0.15.2, use
+  `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --build-file ... --cache-dir /tmp/x`.
 
 ## Cycle 52 — 2026-10-14 — FEATURE
 - Inbox: no OWNER comments (the #39 comments are the AI's own), no bugs, CI green, #39 open.
