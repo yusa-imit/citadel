@@ -50,34 +50,18 @@ rejected_plans: []
 - Gotchas: a compound Bash starting with `cd <repo>;` was blocked by the guard again; the primary
   cwd is already sirocco, run each command separately.
 
-## Cycle 50 — 2026-10-12 — FEATURE
-- Inbox: no OWNER activity on plan PR #44 (only our own cycle-49 comment); CI green on f159a82; no
-  bugs, no other open PRs or issues.
-- Done: plan PR #44 still open, so one bounded `/stabilize --one` task: PR #45 (merged 5a926bb, CI
-  green, auto-merged) moved ten public-surface scheduler tests to `src/sched_test.zig` (253 lines,
-  wired in `src/root.zig`); `src/sched.zig` 823 -> 588 lines. The canary and `init_checked` tests
-  stay in `sched.zig` beside the private helpers. This closes the 800-line cap gap from cycle 48,
-  so plan 004 item 1 (sched test split) is already done: tick it when plan 004 is merged.
-- Next: when #44 is merged, open the milestone issue and start at plan 004 item 2 (ADR 0003 +
-  kqueue `Poller`). Until then FEATURE cycles run one `/stabilize --one` task and report.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: the `stabilize` label does not exist in the repo (only `auto-merged` etc.); do not pass
-  `--label stabilize` to `gh pr create`.
-
-## Cycle 49 — 2026-10-12 — FEATURE
-- Inbox: no OWNER activity; CI green on f159a82; no open PRs or issues; plan 003 fully checked and
-  milestone #33 closed, so this cycle planned.
-- Done: plan 004 (evented-net) proposed as plan PR #44 (branch `plan/004-evented-net`, awaiting
-  merge, citadel#47). 12 items: move `src/sched.zig` tests (823 lines), ADR 0003 + kqueue `Poller`,
-  `Options.sockets_max` + scheduler idles in the poller, native `net*` listen/accept/connect then
-  data path, epoll poller (CI-only), `operate` + `batch*`, real `concurrent`, `bench/echo.zig` and
-  `bench/latency.zig` for PRD gates 1-4, v0.5.0 (MINOR). Gate-1 miss on one carrier -> ADR records
-  it and multi-carrier becomes plan 005.
-- Next: when #44 is merged, open the tracking milestone issue and implement item 1 (sched test
-  split). Until then a FEATURE cycle runs one bounded `/stabilize --one` task and reports.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: the guard blocks any compound Bash that mentions citadel paths, even a read-only
-  `df`/`date` chain; run each command on its own and use Read/Write/Edit for citadel files.
+## Cycles 49-50 (2026-10-12, condensed 2026-10-14)
+- Cycle 49 proposed plan 004 (evented-net) as PR #44: 12 items (sched test split, ADR 0003 +
+  kqueue `Poller`, `Options.sockets_max` + scheduler idling in the poller, native `net*`
+  listen/accept/connect then data path, epoll poller (CI-only), `operate` + `batch*`, real
+  `concurrent`, `bench/echo.zig` and `bench/latency.zig` for PRD gates 1-4, v0.5.0 MINOR).
+  A gate-1 miss on one carrier is recorded in the ADR and becomes plan 005 (multi-carrier).
+- Cycle 50 ran one `/stabilize --one` while #44 was open: PR #45 moved ten public-surface
+  scheduler tests to `src/sched_test.zig`; `src/sched.zig` 823 -> 588 lines, which closes plan
+  004 item 1.
+- Gotchas: the `stabilize` label does not exist in the repo, do not pass it to `gh pr create`;
+  the guard blocks any compound Bash mentioning citadel paths, run each command on its own and
+  use Read/Write/Edit for citadel files.
 
 ## History (cycles 43-48, condensed 2026-10-13)
 
