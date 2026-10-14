@@ -1,7 +1,28 @@
 # sailor — context
 
-last_seen_at: 2026-10-13T00:00:00Z
+last_seen_at: 2026-10-14T00:00:00Z
 rejected_plans: []
+
+## Cycle 32 — 2026-10-14 — FEATURE
+
+- Preflight: tree clean on main, CI green (2c5f3a9), inbox clear (only our own comments on #51),
+  no open PRs. Plan 002 milestone #51 open.
+- Done: plan 002 item 5 -> **PR #58** merged (CI 10/10, `auto-merged`, #51 item 5 ticked, plan
+  file box ticked). Architect call: implement in the pager (it owns line numbers/scroll_y).
+  `Pager.withWrap()` splits at the column count (1 col per code point, never inside one),
+  numbers only the first row, `scroll_y` = logical lines, `scroll_x` ignored when wrapping;
+  a search match straddling a wrap point is not highlighted (documented). `render` split into
+  `renderLine`/`renderRow` (tidy ratchet: a >100-col line failed tidy once, fixed). 11 RED tests
+  in `tests/pager_test.zig` (helpers `expectRow`, `renderWrapped`). Whole cycle ~16 min, no agents.
+- Next: n=33 FEATURE. Item 6 `metrics_dashboard`/`richtext` scope (list promised behaviors per
+  widget, wire up or edit doc, may split in two PRs), 7 typed errors (`smart_autocomplete`
+  41/43, `editor` 97 `init` fns need `!`), 8 release v3.1.0 (note names terminal + pager).
+  n=35 is STABILIZATION.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: the guard blocks any Bash containing `cd <repo>` or a heredoc python with writes
+  (cwd is already the repo; use Edit for file changes). PATH needs the 0.16 toolchain each call.
+  `zig build test` prints nothing on success; failures show via `Build Summary`/tidy lines;
+  `zig build tidy` alone is a fast check. Windows CI ~8 min: PR open by minute ~6 is fine.
 
 ## Cycle 31 — 2026-10-13 — FEATURE
 
