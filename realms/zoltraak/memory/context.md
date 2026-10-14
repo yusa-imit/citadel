@@ -1,7 +1,24 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-14T00:00:00Z
+last_seen_at: 2026-10-15T08:18:25Z
 rejected_plans: []
+
+## Cycle 27 — 2026-10-15 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on 70d0e53), no bugs, no plan PR, milestone #121 open, no
+  owner comments. zuda still v2.3.0 (GitHub tags), so items 4-9, 12 blocked.
+- `/stabilize --one`: PR #151. Real leak: `SentinelState.resetMaster` freed each sentinel's ip
+  but not its id (`clearAndFree` frees map storage, not key bytes; the old comment was wrong),
+  so every SENTINEL RESET leaked. Now `SentinelInfo.deinit`. Sentinel tests had never run: the
+  unit-test root lacked a `zuda` import (added in build.zig) and nothing referenced the file
+  (wired in `src/main.zig`). `zig build test` 1443 -> 1506, only the 2 known signal-4
+  crashers. CI green (6m54s / 59s), merged, labeled auto-merged.
+- Lesson: a bare `zig test src/storage/<f>.zig` fails on `zuda` only because the module is not
+  attached; the build's unit-test root now has it, so wiring via `src/main.zig` works for any
+  file that imports zuda (aof/replication/persistence/eviction/blocking: try next).
+- Guard hook blocks python heredocs containing `rm -rf`; use the Edit tool for memory files.
+- Next: wire more storage files; commands/*.zig stale tests; stash triage (stash@{0}).
+  Items 4-9, 12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 26 — 2026-10-14 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on 33a24df), no bugs, no plan PR, milestone #121 open, no
@@ -30,38 +47,15 @@ rejected_plans: []
   stale tests; stash triage (stash@{0}). Items 4-9, 12 unblock on zuda v3.0.0.
 - Blockers: zuda v3.0.0. Open questions: none.
 
-## Cycle 24 — 2026-10-12 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on e150e98), no bugs, no plan PR, milestone #121 open, no new
-  owner comments. zuda still v2.3.0 (GitHub + local), so items 4-9, 12 blocked.
-- `/stabilize --one`: PR #148. bloom.zig's 3 `loadChunk` tests lacked `LoadContext.allocator`
-  (compile error); fixed, then wired bloom (22 tests) + functions (31, already green) into the
-  `src/main.zig` reachability test: `zig build test` 1291 -> 1344, only the 2 known signal-4
-  crashers. CI green (4m19s / 48s), merged, labeled auto-merged.
-- Probe (`zig test src/storage/<f>.zig`): tdigest runs but fails/crashes (check output); sentinel has
-  a failing test (resetMaster leader, sentinel.zig:1225); cuckoo has an unused-value compile
-  error (cuckoo.zig:889); search, cluster, config, tls_config, acl, timeseries, modules, pubsub
-  fail to compile standalone (module path or stale tests).
-- Not mine: `./zig-out/bin/zoltraak` pid 80225 still running; left alone.
-- Next: cuckoo (1 compile error) then wire; tdigest/sentinel failures; commands/*.zig stale
-  tests; stash triage (stash@{0}); cycle 25 is forced STABILIZATION. Items 4-9, 12 unblock on
-  zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 23 — 2026-10-11 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on fe7633a), no bugs, no plan PR, milestone #121 open, no new
-  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
-- `/stabilize --one`: PR #147. Real bug: legacy JSON paths `.a.b` / `.*` / `.a` returned
-  InvalidPathSyntax (scan started past the root dot). New `scan_start` helper in
-  `storage/jsonpath.zig`; `.`, `..x`, `.[0]` unchanged (tests pin them). Wired jsonpath into the
-  `src/main.zig` reachability test: `zig build test` 1275 -> 1291, only the 2 known signal-4
-  crashers. CI green (6m48s / 49s), merged, labeled auto-merged.
-- Tidy: `parse` has a shrink-only baseline (91 lines); extracting the helper kept it there.
-- Lesson: `rm -rf .zig-cache` again fixed a `FileNotFound` build-runner error.
-- Not mine: `./zig-out/bin/zoltraak` pid 80225 still running; left alone.
-- Next: bloom compile error (LoadContext), then wire; aof/replication/persistence/eviction need
-  build-module wiring; commands/*.zig stale tests; stash triage (stash@{0}); cycle 25 is forced
-  STABILIZATION. Items 4-9, 12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
+## Cycles 23-24 (2026-10-11..12, condensed 2026-10-15)
+- Both FEATURE, all plan items blocked; each ran `/stabilize --one`: #147 fixed legacy JSON
+  paths (`.a.b` returned InvalidPathSyntax; `scan_start` helper in `storage/jsonpath.zig`;
+  `parse` keeps its 91-line tidy baseline) and wired jsonpath; #148 fixed bloom `LoadContext`
+  tests and wired bloom + functions.
+- Probe (`zig test src/storage/<f>.zig`) found cuckoo/tdigest/sentinel issues (done in 25-27);
+  search, cluster, config, tls_config, acl, timeseries, modules, pubsub do not compile
+  standalone (module path or stale tests). Deleting `.zig-cache` fixes the `FileNotFound`
+  build-runner error.
 
 ## Cycles 21-22 (2026-10-09..10, condensed 2026-10-14)
 - Both FEATURE cycles had every plan item blocked (zuda still v2.3.0, items 4-9, 12), so each ran
