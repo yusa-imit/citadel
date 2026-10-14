@@ -1,7 +1,26 @@
 # strata — context
 
-last_seen_at: 2026-10-14T05:20:00Z
+last_seen_at: 2026-10-14T17:25:00Z
 rejected_plans: []
+
+## Cycle 51 — 2026-10-14 — FEATURE
+- Done: plan 004 item 4 — `src/wal/reader.zig` (+ `reader_fixtures`, `reader_test`, `reader_tail_test`,
+  33 tests; 505 total): `Reader.open(target, io, gpa, dir, segment.Options)` (dir needs `.iterate`),
+  `next(io)` (null = sticky clean EOF), `position()`, `deinit`, `check_invariants`. Index + strictly
+  increasing first-LSN at open, exact `first_lsn == end LSN` when `next` crosses; Unwritten/torn tail
+  legal only in the newest segment (a torn/absent newest header is treated as absent); LSN >= 2^63 ->
+  Corrupted before decode; short read -> Corrupted. No `from_lsn` seek yet (recovery, item 7).
+- PRs: #52 merged (squash, CI 7/7). Issue #48 item 4 ticked.
+- Review (code-reviewer): 0 critical, 3 warnings NOT yet fixed (deadline): (1) `read_frame` (reader.zig
+  ~369) reads min(remaining, frame_bytes_max) per frame -> read 17 B header then 17+len; (2) lock doc
+  claims writer exclusion but lock is per-segment and dropped between segments in `cross` (open next
+  before closing current; reword doc); (3) errdefer `.failed` leaves `current` open (close it or reword).
+  Suggestions: skip non-file entries in `list_segments`; `Segment.open` is read_write (read-only dirs).
+- Next: small fix PR for warnings 1-3 first, then item 5 `wal/writer.zig`. Writer must close the
+  torn-header-on-newest case (recovery inspects that file itself).
+- Blockers: none. Open questions: none.
+- Note: cost ~ $2.6 of $4; zig-developer took 14 min. Each idle wakeup re-reads context (~$0.3): use ONE
+  long foreground wait. `gh pr merge` has no `-q`; run merge and `gh pr edit --add-label` separately.
 
 ## Cycle 50 — 2026-10-14 — FEATURE
 - Done: plan 004 item 3 — `src/wal/segment.zig` (+ `segment_test.zig`, `segment_file_test.zig`,
