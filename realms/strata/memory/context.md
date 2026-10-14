@@ -1,7 +1,26 @@
 # strata — context
 
-last_seen_at: 2026-10-13T17:17:00Z
+last_seen_at: 2026-10-14T05:20:00Z
 rejected_plans: []
+
+## Cycle 50 — 2026-10-14 — FEATURE
+- Done: plan 004 item 3 — `src/wal/segment.zig` (+ `segment_test.zig`, `segment_file_test.zig`,
+  `segment_fixtures.zig`, 40 tests): `format_name`/`parse_name` (`error{Corrupted}!?u32`, index 0 =
+  Corrupted), 24 B header codec, `Segment{file,index,first_lsn}` create/open/append/length/sync/close,
+  exclusive `tryLock`, `index_next`/`live_count_check` -> `SegmentLimit`/`SegmentIndexExhausted`.
+  `open` scans an all-zero file (Unwritten) in 64 KiB chunks. ADR §13 signatures updated.
+- PRs: #51 merged (squash, CI 7/7, auto-merged). Issue #48 item 3 ticked.
+- Review: code-reviewer 0 critical, 4 warnings: fixed chunk size (4->64 KiB), unused import, ADR §13,
+  create WouldBlock doc. Left: `read_exact` has `else => |other| return other` (pass-through of
+  the std set); `FaultIo` cannot fail sync so `create`'s sync-fail cleanup is unproven (add a sync
+  fault when the writer needs it, item 5). Cost ~ $2.55 of $4 (zig-developer 10 min ~ $1.6).
+- Next: item 4 `wal/reader.zig` (list segments bounded by `segments_max`, `live_count_check`,
+  index + first-LSN continuity -> Corrupted; Unwritten/TornWrite only legal in the newest segment;
+  segment header first_lsn out of [1,2^63) -> Corrupted before `frame.decode`). Directory sync after
+  `Segment.create` is still the writer's job (ADR open question 4).
+- Blockers: none. Open questions: none.
+- Note: brief the zig-developer for ONE item with tests+impl, it takes ~10 min; run
+  `until gh pr checks N | grep -qv pending...` foreground for CI.
 
 ## Cycle 49 — 2026-10-14 — FEATURE
 - Done: plan 004 item 2 — `src/wal/frame.zig` (+ `frame_test.zig`, 17 tests): 17 B header, CRC32C seeded
