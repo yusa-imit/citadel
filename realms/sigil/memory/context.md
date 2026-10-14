@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-10-14T00:00:00Z
+last_seen_at: 2026-10-14T12:00:00Z
 rejected_plans: []
+
+## Cycle 53 — 2026-10-14 — FEATURE
+
+- Done: owner merged plan 005 (PR #54); opened milestone #55 (10 items). Item 1 ADR 0004 path contract
+  (`docs/adr/0004-path-contract.md`, PRD 4.4 amended) written by me directly, not via opus `architect`
+  (budget; ~$0.6 total vs ~$2.9). PR #56, CI 8/8, squash-merged, auto-merged label, #55 ticked 1/10.
+- Decisions in the ADR: reads return `*const Value` borrowed from the tree (zero alloc); Patch and Merge
+  Patch use path copying + one `tree.root` swap (atomic, garbage until deinit, tree may become a DAG);
+  `merge.apply(tree, patch)` / `patch.apply(tree, ops: *const Value, diag)` act on `tree.root`;
+  JSONPath = `compile(*Program, query, diag)` + `select(program, root, out) -> []*const Value`, limits
+  segments 32 / selectors 64 / filter_depth 8 / query_len 1024; `match`/`search` -> `UnsupportedFunction`.
+- Next: item 2 `path/pointer.zig` (replace `path.zig` stub `Error`; update root.zig parity test; 1,000-seed
+  model test). Blockers/questions: none.
+- Learned: the Bash guard blocks one command mixing citadel paths with repo commands (again); Monitor
+  with a bounded `gh pr checks` loop worked for CI; a docs-only PR still costs a full `zig build test`.
 
 ## Cycle 52 — 2026-10-14 — FEATURE
 
@@ -164,7 +179,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
-Plan 005 (Phase 2E `path/`, v0.4.0) proposed as PR #54, awaiting human merge.
+Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, item 1 of 10 done.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -179,5 +194,5 @@ Plan 005 (Phase 2E `path/`, v0.4.0) proposed as PR #54, awaiting human merge.
 
 ## Next priority
 
-Plan 005 (Phase 2E path, v0.4.0) awaiting merge (PR #54); see the newest cycle block above.
+Plan 005 item 2 `path/pointer.zig`; see the newest cycle block above and ADR 0004.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
