@@ -1,7 +1,27 @@
 # synod — context
 
-last_seen_at: 2026-10-14T09:00:00Z
+last_seen_at: 2026-10-15T03:30:00Z
 rejected_plans: []
+
+## Cycle 54 — 2026-10-15 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green, no open PRs; milestone #57 open.
+- Preflight: found the previous cycle's interrupted item 2 work (tests written, impl stubs) on
+  `feat/sim-clock-network`; preserved to `wip/feat-sim-clock-network-20261015` (pushed), then
+  restored onto the feat branch from it. Do not delete the wip branch.
+- Done: item 2 (3A-i) via PR #59 (squash-merged, 7/7 CI, `auto-merged`): `sim/prng.zig`
+  (SplitMix64, `derive_seed`), `sim/clock.zig` (`VirtualClock`), `sim/network.zig` (bounded,
+  loss/delay/dup/partition/planted faults, conservation identity), tidy sim purity gate
+  (`is_sim_purity_file`, `sim_banned_patterns`, `sim_banned_tokens`, comment lines skipped),
+  ADR-008 amended (`Network.slot_meta_bytes = 24`, `check_invariants`). 594 tests. Reviewer
+  warnings fixed (u64 due-time overflow, `messages_max+1` u32, `set_partition` validates before
+  mutating, tautological asserts). Cost ~ $2.1 of $4. Milestone #57 item 2 ticked.
+- Next: item 3 (`sim/invariants.zig`, five safety properties), then item 4 (`simulation.zig`,
+  adds `init_bytes_max` to `raft.Node`/`Driver`). `network_test.zig` is 906 lines (tidy does not
+  flag it; split if tidy starts to). Suggestion left: `std.hash.Wyhash` in `trace_hash` is not
+  pinned across Zig releases (fine until traces are persisted).
+- Blockers: none. Open questions: none.
+- Tool notes: in a new cycle the working tree may hold WIP from a killed run: check `git status`
+  first. Developer agent resumed with SendMessage for review fixes kept context cheap (~$0.5).
 
 ## Cycle 53 — 2026-10-14 — FEATURE
 - Inbox: plan 004 PR #56 merged by the OWNER; no bugs, CI green, no open issues.
@@ -64,22 +84,12 @@ rejected_plans: []
   `python3 -I /tmp/x.py`) and heredocs into citadel (use Write/Edit); `sleep` blocked, use
   `gh pr checks --watch`; `gh pr merge` has no `-q`; SendMessage resumes a finished test-writer.
 
-## Cycle 48 — 2026-10-12, folded
-Item 8 (2B-iii) via PR #49: new `raft/commit.zig` (`advance_leader` joint quorum, current-term
-only, Figure 8; `advance_follower`; `apply_ready`, one apply effect per step). Effect slots
-`peers_max + 7` (ADR-007 amended). 463 tests. Reviewed in cycle 49 (#50).
-
-## Cycles 44-47 (2026-10-11), folded
-- 44, 47: no-op cycles, session budget nearly spent by the previous cycle; nothing started.
-- 45 (item 6b, PR #47): `leader.zig` `step_response`, `Progress.on_stale_rejection`, probe-state
-  round timeout is `heartbeat_ticks`; RTT must be < heartbeat_ticks. 404 tests.
-- 46 (item 7, PR #48): `raft/follower.zig` `step_append` (term rules, `conflict_at` reject,
-  truncate only above commit, overflow dropped whole with no reply); ADR-007 amended. 432 tests.
-- Open suggestions: clear a slot's records on `on_timeout`/live reject plus invariants; free
-  records with `last_sent <= matched`; response model lacks rejected/tick ops; restored entries
-  not checked against `entry_bytes_max`; header note that config-change entries apply in Phase 4.
-- Tool notes: code-reviewer cannot run tests (global zig 0.15.2) - use
-  `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all`.
+## Cycles 44-48 (2026-10-11..12), folded
+- 44, 47: no-op cycles. 45 (item 6b, #47): `leader.zig` `step_response`, probe round timeout is
+  `heartbeat_ticks`. 46 (item 7, #48): `raft/follower.zig` `step_append`. 48 (item 8, #49):
+  `raft/commit.zig`, effect slots `peers_max + 7` (ADR-007 amended); reviewed in cycle 49 (#50).
+- Open suggestions: clear a slot's records on `on_timeout`; restored entries not checked against
+  `entry_bytes_max`; header note that config-change entries apply in Phase 4.
 
 ## Cycles 40-43 (2026-10-09 to 10-10), folded
 Each cycle: one plan 003 item via a squash-merged PR (7/7 CI, `auto-merged`, milestone #39
