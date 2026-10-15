@@ -48,45 +48,21 @@ rejected_plans: []
 - Tool notes: guard blocks `python3 - <<heredoc` in repo; write scripts to /tmp, run
   `python3 -I /tmp/x.py`. `/tmp/measure.py`-style regex fn-length scan is enough, tidy enforces 70.
 
-## Cycle 50 — 2026-10-13 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green (5ef8635), milestone #39 open.
-- Done: item 10 (2D `driver.zig`) via PR #52 (squash-merged, 7/7 CI, `auto-merged`, #39 item 10
-  and plan box ticked). `Driver` init/deinit/receive/propose/poll; one-pass `execute` (persist,
-  one sync at the first non-persist effect or the end, send, apply), `unsynced` flag, `stopped`
-  fail-stop, `phase_ready`/`phase_ordered` pure checks; `driver_test.zig` 967+66 lines. 495 tests.
-- Review: 0 CRITICAL, 2 WARNING fixed (init refuses a store past `log_entries_max` with
-  `RestoreLogFull` before sizing scratch; save/get/load fault + poll cap boundary tests).
-  Cost ~ $2.6 of $4 (test-writer ~$1.2, reviewer ~$0.25, own implementation from the
-  test-writer's throwaway `/tmp/driver_real.zig`, which saved a developer call).
+## Cycles 49-50 (2026-10-12..13), folded
+- 49: code-reviewer pass on item 8 (PR #50: `match_of` miss `unreachable` with proof; lone-voter win asserts
+  `progress_len == 0`). Item 9 (PR #51): `raft/cluster_test.zig`, 3/5 nodes, 500 seeds, partition churn, 4
+  oracles + committed-prefix check; review caught vacuity (fixed: >=40% seeds reach 2 leader terms, >=30% a
+  truncate). Planted bugs are harness-level (`forge_votes`, `flip_data`); the commit-rule skip is not
+  plantable without a production seam. 474 tests.
+- 50: item 10 (2D `driver.zig`, PR #52): `Driver` init/deinit/receive/propose/poll; one-pass `execute`
+  (persist, one sync at the first non-persist effect or the end, send, apply), `unsynced`, `stopped`
+  fail-stop; init refuses a store past `log_entries_max` with `RestoreLogFull`. 495 tests.
 - Open suggestions: no `truncate` fault test; `catch unreachable` in `poll` and `@errorCast` in
-  receive/propose rest on comments (narrow `step_message`/`step_propose` error sets in node.zig
-  to let the compiler prove it); `deinit` lacks an assert/precondition doc; `phase_ready` assert
-  after sync is near-tautological; earlier ones from cycles 40-49.
-- Next: item 11 (re-measure Tiger Style baseline, flip README rows raft/driver, STATE.md table),
-  then item 12 release v0.4.0 (MINOR; also tick Phase 2 items in `docs/plans/000-inherited.md`).
-- Blockers: none. Open questions: none.
-- Tool notes: guard blocks `cd <path>;` and `python3 - <<heredoc` in repo (write script to /tmp,
-  run `python3 -I /tmp/x.py`); `sleep` blocked, use `gh pr checks --watch`; the test-writer can
-  leave a working throwaway impl in /tmp if asked to validate its tests.
-
-## Cycle 49 — 2026-10-12 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green (d442790), milestone #39 open.
-- Done: code-reviewer pass on item 8 (0 CRITICAL, 1 WARNING) -> PR #50 (`match_of` miss is an
-  `unreachable` with proof, lone-voter win asserts commit move => `progress_len == 0`, Phase 4
-  note on `advance_leader`). Item 9 via PR #51: `raft/cluster_test.zig` (688 lines), 3/5 nodes,
-  500 seeds, partition churn, 4 oracles + committed-prefix check; 474 tests, ~5 s. Both
-  squash-merged, 7/7 CI, `auto-merged`; #39 item 9 and plan box ticked.
-- Review of #51 caught vacuity (no second leader term, no truncate in 500 clean seeds): fixed
-  with seeded partitions, now >=40% seeds reach 2 leader terms, >=30% a truncate. Planted bugs
-  are harness-level (`forge_votes` -> ElectionSafety, `flip_data` -> LogMatching); the plan's
-  commit-rule skip is not plantable without a production seam (leader.zig range-checks acks).
-- Cost ~ $2.2 of $4 (reviewer x2 ~$0.5, test-writer ~$1.4).
-- Next: item 10 (2D `driver.zig` Effect executor; ADR-002/006/007 order persist -> sync -> send
-  -> apply). Open suggestions: those of cycles 40-46; `notify_max` duplicates an ADR-007 fact.
-- Blockers: none. Open questions: none.
-- Tool notes: `gh pr merge` has no `-q`; `gh pr checks --watch` may print "Refreshing" noise,
-  re-run plain `gh pr checks`; SendMessage resumes a finished test-writer; guard blocks
-  heredoc/cd into citadel (use Write/Edit tools on citadel files).
+  receive/propose rest on comments (narrow `step_message`/`step_propose` error sets in node.zig);
+  `deinit` lacks a precondition doc; `notify_max` duplicates an ADR-007 fact; plus cycles 40-46.
+- Tool notes: guard blocks `cd <path>;` and `python3 - <<heredoc` in repo (write script to /tmp, run
+  `python3 -I /tmp/x.py`) and heredocs into citadel (use Write/Edit); `sleep` blocked, use
+  `gh pr checks --watch`; `gh pr merge` has no `-q`; SendMessage resumes a finished test-writer.
 
 ## Cycle 48 — 2026-10-12, folded
 Item 8 (2B-iii) via PR #49: new `raft/commit.zig` (`advance_leader` joint quorum, current-term

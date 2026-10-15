@@ -47,54 +47,19 @@ rejected_plans: []
 - Learned: the whole release took ~$0.6; `Monitor` with a bounded until-loop works for CI; a second
   throwaway Monitor was wasted money. First tag exists, so `sigil` is now fetchable by consumers.
 
-## Cycle 51 — 2026-10-13 — FEATURE
-
-- Done: plan 004 item 10 benchmarks merged. `bench/main.zig` (harness was already 0.16) now generates
-  a seeded ~1 MiB document and times `json.dom.parse` (~145-175 MB/s), `json.write.minified`
-  (~480-490), `json.parse(T)` (~165); arena 5.67 B/input B. Warm-up pass each; CI gained a `Bench`
-  step (`zig build bench`); numbers in `docs/plans/000-inherited.md` (PRD 5 targets unmet, measure-only
-  plan). PR #52, CI 8/8, squash-merged; milestone #42 at 10/11. One sonnet code-reviewer: 0 critical,
-  4 warnings fixed (writer warm-up, named PRNG draws, error-name logs, doc claim). Cost ~$1.
-- Next: item 11 release v0.3.0 (`/release sigil minor`): drop `config.load`/`Watcher` stubs, tick
-  2A-2C in 000-inherited + plan 003 item 4, CHANGELOG [0.3.0], zon 0.2.0 -> 0.3.0, tag, gh release.
-  Blockers/questions: none.
-- Learned: first bench in a run is up to ~20% slower (cold); a stale `.zig-cache` gave FileNotFound
-  for the reviewer, use `--cache-dir /tmp/sigil-zc`. The Bash guard blocks one command mixing citadel
-  paths with repo commands. Do not use ScheduleWakeup (I armed one by mistake; ignore it if it fires).
-
-## Cycle 50 — 2026-10-13 — FEATURE
-
-- Done: plan 004 item 9 `json.parseFile`/`stringifyFile` merged. New `src/json/file.zig` (re-exported by
-  `json.zig`; `Error` lost `NotImplemented`, `scratch_bytes_min` deleted); both take `arena` + final
-  `diag` (ADR 0003 section 9); `bytes_max` inclusive via `readFileAlloc(.limited64(bytes_max + 1))`;
-  std errors collapsed by `map_read_error`/`map_create_error`/`map_write_error` (`else` = ReadFailed/
-  WriteFailed). `ParseFileError` 27 variants, `StringifyFileError` 10. PR #51, CI 8/8, squash-merged;
-  518 tests, tidy 0; milestone #42 at 9/11. I wrote tests and impl myself (no subagents but one
-  sonnet code-reviewer: 0 critical, 5 warnings, all fixed: directory read/write gives ReadFailed/
-  WriteFailed end to end, OOM, writer-stage TooDeep, doc said 26). Cost ~$1.5.
-- Next: item 10 benchmarks (JSON benches in `bench/main.zig`, CI build step for `bench`, record MB/s in
-  `docs/plans/000-inherited.md`), then item 11 release v0.3.0 (`/release sigil minor`). Blockers: none.
-- Learned: writing tests+impl directly was far cheaper than test-writer + zig-developer (~$1.5 vs ~$3.4).
-  Only reflect errors precede the file open in `stringifyFile`; writer-stage errors (NaN, TooDeep)
-  truncate first, now documented. `testing.tmpDir` + `dir.createDir(io, "sub", .default_dir)` gives a
-  directory for IsDir cases. Open nit: `reflect.parse` lacks `errdefer assert(diag_written)`.
-
-## Cycle 49 — 2026-10-12 — FEATURE
-
-- Done: plan 004 item 8 `json.parse(T)`/`json.stringify` merged. The cycle 48 wip work was branched to
-  `feat/json-parse-stringify-item-8`; `parse_error_test.zig` and `stringify_test.zig` had never been
-  wired into `json.zig` (added: 476 -> 503 tests, all green first time). One code-reviewer (sonnet): 0
-  critical, 3 warnings: locate cost doc said O(input) (really O(depth_max x input)) and the hook
-  obligation was unwritten (both doc-fixed); `reflect.parse` lacks the `errdefer assert(diag_written)`
-  that `parse_traced` has (skipped, outside item 8; candidate stabilization nit). PR #50, CI 8/8,
-  squash-merged; milestone #42 at 8/11. Cost ~$1.
-- Next: item 9 `parseFile`/`stringifyFile` (ADR 0001 shapes over item 8; `Io.Dir` read/write names
-  still unverified; changes the root.zig parity test and retires the stub error sets), then item 10
-  benchmarks, item 11 release v0.3.0. Blockers/questions: none.
-- Learned: check that every new `*_test.zig` is imported from its module's `test {}` block (tests
-  silently not running is how 27 tests sat unwired); `wip/json-parse-stringify-*` branches are
-  superseded by the merge but kept (never delete wip branches). The cycle ran on budget: launching
-  the reviewer and a CI Monitor then ending the turn worked well.
+## History (cycles 49-51, condensed 2026-10-15)
+- 49: plan 004 item 8 `json.parse(T)`/`json.stringify` (PR #50); `parse_error_test.zig` and `stringify_test.zig`
+  had never been wired into `json.zig` (476 -> 503 tests). Open nit: `reflect.parse` lacks the
+  `errdefer assert(diag_written)` that `parse_traced` has.
+- 50: item 9 `json.parseFile`/`stringifyFile` (PR #51, `src/json/file.zig`): `arena` + final `diag`, `bytes_max`
+  inclusive via `readFileAlloc(.limited64(bytes_max + 1))`, std errors collapsed by `map_*_error`;
+  `ParseFileError` 27 variants, `StringifyFileError` 10; 518 tests.
+- 51: item 10 benchmarks (PR #52): seeded ~1 MiB doc; `json.dom.parse` ~145-175 MB/s, `write.minified`
+  ~480-490, `json.parse(T)` ~165; CI `Bench` step (`zig build bench`); numbers in `000-inherited.md`.
+- Lessons: every new `*_test.zig` must be imported from its module's `test {}` block; writing tests+impl
+  directly cost ~$1.5 vs ~$3.4 with test-writer + zig-developer; first bench in a run is ~20% slower; use
+  `--cache-dir /tmp/sigil-zc` if `.zig-cache` is stale; the Bash guard blocks one command mixing citadel
+  paths with repo commands; `wip/*` branches are kept; do not use ScheduleWakeup.
 
 ## History (cycles 46-48, condensed 2026-10-14)
 
