@@ -62,59 +62,19 @@ rejected_plans: []
   `zig test --dep sailor -Mroot=tests/X_test.zig -Msailor=src/sailor.zig`. `gh pr checks --watch`
   fits in one call (~8 min). zsh: `${PIPESTATUS[0]}` is empty, rerun to get the exit code.
 
-## Cycle 29 — 2026-10-11 — FEATURE
-
-- Preflight: tree clean on main, CI green, inbox clear (only our own comment on #51), no open PRs.
-- Done: plan 002 item 3 -> **PR #54** merged (CI 10/10, `auto-merged`). `zig fmt tests` touched 69
-  files (whitespace only); examples/benchmarks were already clean. CI Linux fmt command now covers
-  `tests`. Plan file box and #51 item 3 ticked. Whole cycle ~10 min (Linux CI 1.5 min, Windows 6).
-- Next: n=30 STABILIZATION (periodic, n % 5 == 0). Then item 4 (`terminal.zig` AnsiParseState
-  wiring), 5 pager soft-wrap, 6 metrics_dashboard/richtext scope, 7 typed errors, 8 release v3.1.0.
-- Blockers: none. Open questions: none.
-- Quirks: `sleep N; cmd` in one Bash call is blocked by the guard; poll `gh pr checks` in a
-  separate call. `gh pr checks` output is tab separated; grep for names.
-
-## Cycle 28 — 2026-10-10 — FEATURE
-
-- Preflight: tree clean on merged branch `fix/unbuilt-arraylist-sweep-2`; switched to main. CI green,
-  inbox clear (only milestone #51 open, no owner actions).
-- Done: plan 002 item 2 -> **PR #53** merged (CI 10/10, `auto-merged`). New `zig build build-all`
-  compiles every example (added `gallery`, `clipboard_demo` steps) and both benchmarks via
-  `add_benchmarks` helper in build.zig (keeps `build` fn and tidy baseline from growing); CI runs it
-  on all OSes plus `zig fmt --check src build.zig build_support examples benchmarks scripts` on
-  Linux. The new step proved `examples/clipboard_demo.zig` still did NOT build after item 1 (wrong
-  APIs: TerminalDetector, enableBracketedPaste, pollEvent); rewritten as a short non-interactive
-  demo. Plan checkboxes for items 1 and 2 ticked; #51 item 2 ticked.
-- Next: n=29 FEATURE. Item 3: `zig fmt` over `tests/` (69 files, whitespace only; no other PR is
-  open, so land it first thing) and add `tests` to the CI fmt command in ci.yml. Then items 4-7.
-- Blockers: none. Open questions: none.
-- Quirks: stale `.zig-cache` gave bogus `FileNotFound` test failures again; use
-  `--cache-dir /tmp/sailor-zig-cache`. tidy ratchet counts `build.zig` line_length/function_length:
-  new build code must go into helper fns and long lines get wrapped. `gh pr create` has no `--json`.
-  Elapsed ~15 min to merge (Windows CI 9 min); open the PR by minute ~8.
-
-## Cycle 27 — 2026-10-09 — FEATURE
-
-- Preflight: tree was dirty on `fix/unbuilt-arraylist-sweep` (cycle 26's unfinished item 1); preserved
-  as `wip/fix-unbuilt-arraylist-sweep-20261009` (pushed, keep). Plan 002 (#50) merged; milestone
-  issue #51 already open. Inbox clear (only our own comment); CI green.
-- Done: item 1 finished on `fix/unbuilt-arraylist-sweep-2` -> **PR #52** (milestone 002 item 1).
-  Eight widgets + `grapheme.wrapText`, `term/windows.parseAnsiSegments` (returns `.empty` list,
-  caller `deinit(allocator)`), `clipboard_demo`, `large_data_bench` callbacks off
-  `ArrayList.init`; widgets added to the `tui` test root; `widgets/text_clip.zig` helper. Fixed
-  `MultiCursorEditor.insertCharAll` cursor shift (shifted left-of-insert cursors, not right-of).
-  `deleteCharAll` has the same class of bug (shifts all cursors by 1), untested, NOT fixed: put
-  it in plan 003 or fix when touching multicursor.
-- Update after the report: #52 CI went 10/10 green; squash-merged, labelled `auto-merged`, item 1
-  ticked in #51. The plan file's own checkbox for item 1 is still unticked: tick it in item 2's PR.
-- Next: n=28 FEATURE. Item 2 (CI builds examples/benchmarks,
-  `zig fmt --check` on Linux job). Item 3 (fmt `tests/`) must wait until no other PR is open.
-- Blockers: none. Open questions: none.
-- Quirks: global `zig` is 0.15.2, put `/Users/fn/.zr/toolchains/zig/0.16.0` first on PATH or
-  every result is bogus. Do NOT run `zig fmt` over `tests/` outside item 3 (touches 69 files).
-  macOS `sed -i` needs `''`; no `timeout` binary; `gh pr checks --watch` hits the 540s tool
-  limit (CI Windows ~9 min, cross-compile jobs queue late), so open the PR by minute ~8.
-  `ChunkedBuffer.LineCallback` is declared with an `anytype` writer (odd API, left alone).
+## History (cycles 27-29, condensed 2026-10-15)
+- 27: plan 002 item 1 (PR #52): eight widgets + `grapheme.wrapText`, `term/windows.parseAnsiSegments`,
+  `clipboard_demo`, `large_data_bench` moved off `ArrayList.init`; wip branch
+  `wip/fix-unbuilt-arraylist-sweep-20261009` kept. Fixed `MultiCursorEditor.insertCharAll`; `deleteCharAll`
+  has the same class of bug (shifts all cursors by 1), untested, NOT fixed.
+- 28: item 2 (PR #53): `zig build build-all` compiles every example and benchmark; CI runs it on all OSes
+  plus `zig fmt --check` on Linux. `examples/clipboard_demo.zig` rewritten.
+- 29: item 3 (PR #54): `zig fmt tests` touched 69 files (whitespace only); CI fmt covers `tests`.
+- Quirks: global `zig` is 0.15.2, put `/Users/fn/.zr/toolchains/zig/0.16.0` first on PATH; stale
+  `.zig-cache` gives bogus `FileNotFound` (use `--cache-dir /tmp/sailor-zig-cache`); tidy ratchet counts
+  `build.zig` line/function length, so new build code goes into helper fns; `sleep N; cmd` blocked by the
+  guard; `gh pr checks --watch` hits the 540s tool limit (Windows CI ~9 min), open the PR by minute ~8;
+  macOS `sed -i` needs `''`; no `timeout` binary; `gh pr create` has no `--json`.
 
 ## History (cycles 25-26, condensed 2026-10-13)
 

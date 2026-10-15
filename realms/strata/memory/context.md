@@ -56,66 +56,21 @@ rejected_plans: []
 - Note: a foreground `sleep 1` background task wastes a turn; use `until gh pr checks ... ; do sleep 20; done`
   in one foreground call (timeout 480000) instead of `--watch` + idle polling.
 
-## Cycle 48 — 2026-10-13 — FEATURE
-- Done: plan 004 approved (PR #47 merged); milestone issue #48 opened. Item 1 ADR-0003 WAL format v1
-  (`docs/adr/0003-wal-format.md`, #49 merged, CI 7/7); PRD §4.5 links it, plan box and #48 ticked.
-  Format: `wal-NNNNNNNN.log` (8 hex), 24 B segment header (`STWL`), 17 B frame `len|crc|lsn|type`,
-  CRC32C seeded with expected LSN, byte-position LSNs, torn tail = `TornWrite` only (look-ahead over
-  the rest of the newest segment), types record/page_image/checkpoint, golden bytes in §11 (CRCs
-  re-verified in python).
-- Review: skipped (docs only). Cost: architect (opus) ~ $2.3 of $4 — it ran ~10 min and a 475-line
-  ADR; next ADR-sized items should ask for a tighter output or use sonnet.
-- Next: item 2 `wal/frame.zig` per ADR §7/§13 (pin the golden frames; replace the stand-in decoder in
-  `truncation_matrix_test.zig`). Open questions in ADR §Open (page 0 repair, directory sync in
-  `file/platform.zig`) are for items 5/9.
-- Blockers: none. Open questions: none.
-- Note: `sleep N` foreground is blocked; use `run_in_background` sleeps and wait for the notification.
-  macOS sed has no `0,/re/` range; use `1s/...`.
+## Cycles 45-48 (2026-10-11..13, condensed 2026-10-15)
+- 45: page manager + buffer pool suites widened to all 8 page sizes; `src/testing/page_matrix_test.zig`
+  (7 tests) feeds CrashSink truncate/torn cuts to the real `header.decode`, `PageManager.read`, `open`.
+- 46: `bench/pool.zig` (`pool_hit` ~197 M ops/s, `pool_miss_evict` ~1.26 M ops/s, 4 KiB, 256 frames);
+  figures in `000-inherited.md`; PRD §5 5M floor cleared ~40x.
+- 47: plan 003 item 11 — README, CHANGELOG `[0.4.0]`, zon 0.4.0, tag v0.4.0, milestone #34 closed; plan 004
+  (Phase 3 WAL, 12 items, v0.5.0) proposed as PR #47. No consumer pins strata.
+- 48: plan 004 approved; milestone #48 opened; item 1 ADR-0003 WAL format v1 (#49): `wal-NNNNNNNN.log`,
+  24 B segment header (`STWL`), 17 B frame `len|crc|lsn|type`, CRC32C seeded with expected LSN, byte-position
+  LSNs, torn tail = `TornWrite` only, golden bytes in §11. Open questions in ADR §Open (page 0 repair,
+  directory sync) are for items 5/9.
+- Lessons: run `gh pr checks --watch` in the background, never foreground (~$0.3); foreground `sleep` is
+  blocked; one long background sleep beats short polls (~$0.08 each); tick the plan file's box in the same
+  PR as the item; ask architect for a tight ADR (opus ADR cost ~$2.3); macOS sed has no `0,/re/`.
 
-## Cycle 47 — 2026-10-13 — FEATURE
-- Done: plan 003 item 11 — README page/cache Landed, 2A-2C ticked, CHANGELOG `[0.4.0]`, zon 0.4.0
-  (#45, CI 7/7). Tagged v0.4.0 + GitHub release; milestone #34 closed; no consumers name strata
-  in a `build.zig.zon`, so no migration issues. #46 ticked the last two boxes in the plan 003
-  file (items 10/11 were only ticked in the issue). Plan 004 (Phase 3 WAL, 12 items, v0.5.0)
-  drafted by planner (opus), proposed as PR #47, awaiting merge (citadel#50).
-- Next: if #47 merged, open milestone issue for 004 and implement item 1 (ADR-0003 WAL format);
-  if still open, one `/stabilize --one`. If closed unmerged, record the reason and re-plan.
-- Blockers: none. Open questions: none.
-- Note: `gh pr checks --watch` in the foreground cost ~$0.3 (context re-read); run it in the
-  background. Bash guard rejects `&&` chains with `git tag`/`push` mixed with `/tmp` writes —
-  one simple command per call. Planner output is HTML-escaped (`&gt;`); unescape before writing.
-  PR implement skills should tick the plan file's box in the same PR as the item.
-
-## Cycle 46 — 2026-10-12 — FEATURE
-- Done: plan 003 item 10 — `bench/pool.zig` (new) + `bench/main.zig` wiring: `pool_hit` and
-  `pool_miss_evict` (4 KiB, 256-frame pool over a 1024-page scratch file `strata-bench-<hex>.db`
-  in cwd, removed on exit; `Result` now pub). Apple aarch64 ReleaseFast: hit ~197 M ops/s (5 ns),
-  miss + clean eviction ~1.26 M ops/s (~795 ns, OS page cache). PRD §5 5M floor cleared ~40x.
-  Figures in `000-inherited.md`; CHANGELOG Unreleased line. 411 tests.
-- PRs: #44 merged (squash, CI 7/7, auto-merged). Issue #34 item 10 ticked.
-- Review: none (bench only; zig-developer agent wrote tests+impl, ~$1.75 of $4 incl. idle polling).
-- Next: item 11 — docs, module status, release v0.4.0: drop `NotImplemented` from `src/page.zig`/
-  `src/cache.zig`, README page/cache rows -> Landed, tick 2A-2C in `000-inherited.md`, CHANGELOG +
-  `.version = "0.4.0"` in one PR, then `/release strata minor`.
-- Blockers: none. Open questions: none.
-- Note: `ScheduleWakeup`/Workflow are not polling tools; wait for task notifications instead
-  (`gh pr checks --watch` in background works).
-
-## Cycle 45 — 2026-10-11 — FEATURE
-- Done: plan 003 item 9 — page manager + buffer pool suites widened from 3 to all 8 page sizes
-  (`fx.sizes_three` removed); new `src/testing/page_matrix_test.zig` (7 tests): CrashSink
-  truncate/torn cuts at 8 sizes feed the real `header.decode`/`decode_file_header`,
-  `PageManager.read` (-> TornWrite) and `open`; mutant decoders (no checksum, rejects intact) fail
-  the sweep. Dense cuts to 4 KiB, sector-boundary +-1 and stride above. No non-test code changed.
-- PRs: #43 merged (squash, CI 7/7, auto-merged). Issue #34 item 9 ticked.
-- Review: none (tests only; zig-developer agent wrote it, ~$0.55 of $4). Inbox empty.
-- Notes: `.torn` at a sector-aligned byte is a clean truncation; the file-header page is zero past
-  byte 48 so cuts >= 48 pad back to the original (correct). Truncation stand-in in
-  `truncation_matrix_test.zig` left as is (separate harness; real decoder lives in page_matrix_test).
-  Polling a background agent with short sleeps costs ~$0.08 per poll; use one long background sleep.
-- Next: item 10 — pool bench in `bench/main.zig` (fetch+release hit and miss-with-eviction at 4 KiB;
-  add figures to `000-inherited.md`), then the docs/release v0.4.0 item.
-- Blockers: none. Open questions: none.
 
 ## Cycles 42-44 (2026-10-10..11, condensed 2026-10-14)
 - Plan 003 items 6-8 merged (#40, #41, #42; CI 7/7, auto-merged, reviewer 0 critical each).
