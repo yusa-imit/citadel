@@ -1,7 +1,20 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-15T08:18:25Z
+last_seen_at: 2026-10-15T23:14:36Z
 rejected_plans: []
+
+## Cycle 28 — 2026-10-15 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on 32635cb), no bugs, no plan PR, milestone #121 open, no
+  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
+- `/stabilize --one`: PR #152. `LFUCounter` seeded its PRNG from the wall clock and its basic-ops
+  test expected 100 default-factor increments to raise the counter (p = 1/1025), so it could not
+  pass. Added `initWithSeed`, deterministic tests (log-factor 0 plus a test pinning the default
+  factor), wired `storage/eviction.zig` into `src/main.zig`: `zig build test` 1506 -> 1519, only
+  the 2 known signal-4 crashers. CI green (4m0s / 58s), merged, labeled auto-merged.
+- Wiring a file by appending one `_ = @import` and running `zig build test` worked at once for
+  eviction; persistence/aof/replication/blocking/lazyfree/notifications are next to try.
+- Next: wire those; commands/*.zig stale tests; stash triage (stash@{0}).
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 27 — 2026-10-15 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on 70d0e53), no bugs, no plan PR, milestone #121 open, no
