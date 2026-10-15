@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-10-14T17:25:00Z
+last_seen_at: 2026-10-15T08:50:00Z
 rejected_plans: []
+
+## Cycle 52 — 2026-10-15 — FEATURE
+- Done: the 3 cycle-51 reader warnings fixed in PR #53 (merged, squash, CI 7/7, 509 tests): `read_frame`
+  reads the 17 B header then exactly the frame (irregular header -> old full window); `enter` opens
+  the next segment before closing the previous (lock handoff, `cross` no longer closes first);
+  `fail()` closes `current` on any `next` error, `check_invariants` requires `current == null` in
+  `.failed`. Reviewer: 0 critical. Left: (W) no test for `Segment.open`/`length` failing mid-crossing
+  while the old segment is held (hold seg 2 with a second open -> WouldBlock, check seg 1 released);
+  CHANGELOG Unreleased `wal.reader` entry lacks the locking/handoff note.
+- Next: item 5 `wal/writer.zig` (append, sync, rotate); do it in a fresh cycle with >= 15 min left.
+  Torn/absent newest header case is the writer's to close; dir sync after `Segment.create` (ADR Q4).
+- Blockers: none. Open questions: none.
+- Note: cost ~ $1.1 of $4; zig-developer for a 3-fix brief took 3.5 min. Guard blocks compound Bash
+  and `$VAR`/`date` chains in the first call; use `until ...; do sleep 20; done` foreground, once.
+  `chore` label does not exist in strata (gh pr create --label fails); skip labels except auto-merged.
 
 ## Cycle 51 — 2026-10-14 — FEATURE
 - Done: plan 004 item 4 — `src/wal/reader.zig` (+ `reader_fixtures`, `reader_test`, `reader_tail_test`,
