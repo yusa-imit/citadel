@@ -1,7 +1,25 @@
 # strata — context
 
-last_seen_at: 2026-10-15T08:50:00Z
+last_seen_at: 2026-10-16T08:30:00Z
 rejected_plans: []
+
+## Cycle 53 — 2026-10-16 — FEATURE
+- Done: plan 004 item 5 — `src/wal/writer.zig` (+ fixtures, `writer_test`, `writer_tail_test`,
+  `writer_fault_test`; 545 tests, tidy 0): init via reader, torn tail -> `RecoveryRequired`, one
+  `frame_bytes_max` batch buffer, `durable_lsn` advances only after sync, failure latch, rotate syncs
+  old segment + `platform.sync_dir` (ADR Q4 resolved), `FaultIo` `sync_fail_after` + `dirRead`.
+  Reviewer: critical (offset assert on reopen with smaller segment limit) and warning (init syncs a
+  non-empty tail so durable_lsn is true) fixed in 351bba5.
+- PRs: #54 OPEN, CI not yet seen (deadline hit). Item 5 box ticked in the plan file on the branch, NOT
+  yet in issue #48. Next cycle: `gh pr checks 54`, merge if green (squash, label auto-merged), tick #48.
+- Left (non-blocking): `sync_dir` ignores full-sync variant on darwin (fix doc/ADR or route through
+  sync_full); rotation-fault test lacks `durable_lsn` check at create/dir-sync step; stale sentence in
+  `segment.zig` header about directory sync; `live_count` needs a reclaim hook for item 10.
+- Next: merge #54, then item 6 group commit (`Writer.commit`; batch buffer grows there).
+- Blockers: none. Open questions: none.
+- Note: cost ~ $3.4 of $4; zig-developer 13.5 min for writer + 4.7 min for fixes, review 1.3 min. Spawn
+  the reviewer BEFORE waiting on anything and start work earlier: the 22-min budget fits only one agent
+  round plus one fix round; for big items brief the agent to stop at 10 min.
 
 ## Cycle 52 — 2026-10-15 — FEATURE
 - Done: the 3 cycle-51 reader warnings fixed in PR #53 (merged, squash, CI 7/7, 509 tests): `read_frame`
