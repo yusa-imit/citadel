@@ -1,7 +1,31 @@
 # zuda — context
 
-last_seen_at: 2026-10-15T00:00:00Z
+last_seen_at: 2026-10-16T00:00:00Z
 rejected_plans: []
+
+## Cycle 26 — 2026-10-16 — FEATURE
+- Done: inbox clean (CI green on 4586eb8, no bugs, no plan PR, no OWNER comments; milestone #31).
+  Plan 001 item "Thread sync" first slice. `WorkStealingDeque` tests did not compile on 0.16 and
+  were outside the test graph: fixed `var cap: usize`, a phantom item after resize (push used a
+  `bottom` loaded before `resize` reset the counters; resize now keeps counters), and
+  non-wrapping `t < b` checks in pop/steal (wrapping distance now). `parallel_sort.zig` ported:
+  merge sort corrupted data for 100+ elements (outer full-buffer memcpy), quick sort partition
+  OOB; rewritten (stable merge, OOM-atomic, explicit-stack three-way quick sort). `prefix_sum`
+  `parallelScan` Blelloch was wrong for non-power-of-two n (now zero-padded). All wired into
+  `root.zig` tests. Reviewer: 0 critical, 7 warnings, all addressed. Local test exit 0, fmt clean.
+- PRs: #70 (`fix/work-stealing-resize-parallel-sort`) open; Build & Test green 9m24s, 6
+  cross-compile checks still pending at the deadline. Next cycle's inbox merges it at 7/7 green
+  with no `hold` label.
+- Next: FEATURE — `map_reduce.zig` needs an API redesign (mapper returns an anonymous struct
+  slice that cannot be instantiated; `wordCountMapper` returns a dangling stack pointer; slice
+  keys break `asc`/`std.meta.eql`) -> ask `architect`; `concurrent_skip_list` `Thread.yield`;
+  `error.Canceled` prongs; full `src/**` `zig test <file>` sweep; then harness, assertion
+  baseline, v3.0.0. Deque is still unsafe for resize concurrent with steal (steal reads `items`
+  without the mutex; pre-existing, noted in its header).
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: `zig build test` with a warm cache took ~2 min locally; CI Build & Test 9.4 min and
+  cross-compile jobs queued late. The guard rejects shell redirects in a command that mentions
+  the citadel path; read the counter with a plain `cat`.
 
 ## Cycle 25 — 2026-10-15 — STABILIZATION
 - Done: periodic (n%5==0). Inbox clean (CI green, no bugs, no plan PR, no OWNER comments; milestone
@@ -30,42 +54,20 @@ rejected_plans: []
   ported; `backtracking_coloring` (subagent) had wrong `exactKColoring` and a propagation bug.
   Reviewer found a REAL `dsatur` infinite loop on isolated vertices (strict `>` with 0
   thresholds); fixed with optional next_vertex, deterministic scan, regression tests.
-- PRs: #68 (`fix/compile-clean-greedy-automata-approx-2`) open; Build & Test green 6m36s,
-  cross-compile pending at the deadline. Next cycle's inbox merges it once all 7 checks are green
-  and no `hold` label is present.
-- Next: FEATURE — rest of the "compile-clean" item: full `src/**` `zig test <file>` sweep (not
-  done yet; many files still unprobed). Review follow-ups: user-data `assert`s in knapsack
-  (negative weight/NaN capacity), bin_packing (negative/NaN capacity), vertex_cover (edge
-  endpoints) should be typed errors; `greedy_coloring` Tiger cleanup (long lines, `while` loops,
-  per-vertex hash maps); `backtracking_coloring` contract docs; DFA stores an allocator (note an
-  exception); huffman code stack depth assert. Then Thread sync, harness, assertion baseline,
-  v3.0.0 (CHANGELOG already lists the `deinit(gpa)` breaks).
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- PRs: #68 merged in cycle 25 (user-data asserts became typed errors in #69).
+- Leftovers: `greedy_coloring` Tiger cleanup (long lines, `while` loops, per-vertex hash maps);
+  `backtracking_coloring` contract docs; DFA stores an allocator (note an exception); huffman
+  code stack depth assert.
 - Quirk: `zig fmt --check src` prints ~160 pre-existing unformatted files (check only touched
-  paths); a `perl -pi` that strips `defer {\n` per line deletes the line, use `-0pi`; the guard
-  rejects a Bash command that mentions the citadel path with a redirect (use plain commands).
+  paths); `perl -pi` that strips `defer {\n` per line deletes the line, use `-0pi`.
 
-## Cycle 23 — 2026-10-12 — FEATURE
-- Done: inbox clean (CI green on 2847a19, no bugs, no plan PR, no OWNER comments; milestone #31).
-  Plan 001 item "compile-clean": `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne` ported per ADR 0001 D1
-  (required `seed: u64` on `KMeansOptions`/`GMMOptions`/`TSNEOptions`/`DQN.Config`/`DDPG.Config`),
-  all wired into `root.zig`. Tests that never ran exposed real bugs: t-SNE symmetrized P in place,
-  left the P diagonal undefined, inverted the adaptive-gain sign (and 5 tests had n_samples /
-  n_features swapped); kmeans collapsed empty clusters to the origin and leaked on OOM; gmm
-  freed undefined rows on OOM (new `alloc_rows`/`free_rows`). Every file has a
-  `checkAllAllocationFailures` test. Local `zig build test` exit 0, fmt clean, reviewer 0 critical.
-- PRs: #67 (`fix/compile-clean-kmeans-gmm-rl-tsne`) open; Build & Test pending at report time (see
-  tracking issue for the outcome). If still open next cycle, inbox merges it once all checks are
-  green and no `hold` label is present.
-- Next: FEATURE — finish the "compile-clean" item with a full `src/**` `zig test <file>` sweep
-  (the plan's Verify line); then Thread sync, harness, assertion baseline, v3.0.0 (CHANGELOG must
-  mention the required `seed` on five more types). Stabilize leftovers: `hamiltonian.zig` not
-  OOM-audited; `dfa`, `dinic`, `edmonds_karp` not in test graph; `max_iterations == 0` and gmm
-  per-point E-step alloc (reviewer suggestions).
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: `read -t N </dev/zero` in a Monitor loop exits 1 (use `until ...; do :; done` or a
-  poll with a real wait); an earlier `zig build test` left a build-runner child alive after
-  `pkill` of the parent, kill it by pid before rerunning.
+## Cycle 23 — 2026-10-12 — FEATURE (folded)
+- `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne` ported per ADR 0001 D1 (required `seed: u64`), PR #67.
+  Never-run tests exposed t-SNE (in-place P symmetrize, inverted gain sign), kmeans (empty
+  clusters, OOM leak) and gmm (undefined free on OOM) bugs. Leftovers: `hamiltonian.zig` not
+  OOM-audited; `dinic`, `edmonds_karp` not in test graph; gmm per-point E-step alloc.
+- Quirk: a Monitor loop with `read -t N </dev/zero` exits 1; a build-runner child can outlive
+  `pkill` of its parent, kill by pid before rerunning.
 
 ## Cycles 20-22 (2026-10-09 to 10-11), folded
 - 20 (STABILIZATION, bug #63, PR #64): OOM leaks and an undefined free in `palindrome_partition`,
