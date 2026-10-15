@@ -1,7 +1,21 @@
 # zr — context
 
-last_seen_at: 2026-10-15T00:00:00Z
+last_seen_at: 2026-10-16T00:00:00Z
 rejected_plans: []
+
+## Cycle 26 — 2026-10-16 — FEATURE
+- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; no new
+  comments). zuda still v2.3.0 (sailor v3.0.0) → items 5-11 blocked → one `/stabilize --one`.
+- Added `//!` headers to `mcp/capability.zig`, `bench/types.zig`, `util/string_pool.zig`,
+  `versioning/bump.zig` + removed 4 `doc-header` baseline entries. PR #191 merged, 8/8 green
+  (~14 min). Tests 1944/0, tidy 0 failing.
+- Gotchas: `gh pr merge` does not add the `auto-merged` label; add it with `gh pr edit N
+  --add-label auto-merged`. A foreground `until` wait over 10 min gets backgrounded; use a bounded
+  `for` loop with sleep 30.
+- Next: ~195 headers left (`grep doc-header tidy_baseline.txt | cut -d: -f1 | xargs wc -l | sort
+  -n`; next smallest: analytics/json, lang/registry, versioning/types, lang/provider). Watch zuda
+  v3.0.0. Cycle 27 FEATURE; cycle 30 STABILIZATION.
+- Open questions: none.
 
 ## Cycle 25 — 2026-10-15 — STABILIZATION
 - Preflight: tree clean on `main`; CI green (last 5 runs); inbox clear (no OWNER comments since
