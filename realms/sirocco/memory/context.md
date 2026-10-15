@@ -62,22 +62,10 @@ Cycle 52 (10-13): plan 004 merged, milestone #46 opened; item 2 via PR #47 (ADR 
 off-fiber calls on a registered socket `poll(2)` on the calling thread). One subagent for tests+impl
 (TDD order in the prompt) is cheaper than architect + two agents; architect output is text only.
 
-Cycle 51 (10-13): plan PR #44 open, so one bounded `/stabilize --one` sweep found nothing to fix (tidy
-green, no `catch unreachable`/`@panic`/FIXME, largest file `concurrency.zig` 678 lines). A compound
-Bash starting with `cd <repo>;` is blocked by the guard: run each command separately.
-
-## Cycles 49-50 (2026-10-12, condensed 2026-10-14)
-- Cycle 49 proposed plan 004 (evented-net) as PR #44: 12 items (sched test split, ADR 0003 +
-  kqueue `Poller`, `Options.sockets_max` + scheduler idling in the poller, native `net*`
-  listen/accept/connect then data path, epoll poller (CI-only), `operate` + `batch*`, real
-  `concurrent`, `bench/echo.zig` and `bench/latency.zig` for PRD gates 1-4, v0.5.0 MINOR).
-  A gate-1 miss on one carrier is recorded in the ADR and becomes plan 005 (multi-carrier).
-- Cycle 50 ran one `/stabilize --one` while #44 was open: PR #45 moved ten public-surface
-  scheduler tests to `src/sched_test.zig`; `src/sched.zig` 823 -> 588 lines, which closes plan
-  004 item 1.
-- Gotchas: the `stabilize` label does not exist in the repo, do not pass it to `gh pr create`;
-  the guard blocks any compound Bash mentioning citadel paths, run each command on its own and
-  use Read/Write/Edit for citadel files.
+Cycles 49-51 (10-12/13): plan 004 proposed as PR #44 (12 items, v0.5.0 MINOR; a gate-1 miss on one
+carrier becomes plan 005); PR #45 split `src/sched.zig` tests (823 -> 588 lines); cycle 51 sweep found
+nothing. Gotchas: no `stabilize` label in the repo; the guard blocks compound Bash (`cd <repo>;`, citadel
+paths): run each command alone and use Read/Write/Edit for citadel files.
 
 ## History (cycles 43-48, condensed 2026-10-13)
 
