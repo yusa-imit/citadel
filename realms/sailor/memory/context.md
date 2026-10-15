@@ -1,7 +1,27 @@
 # sailor — context
 
-last_seen_at: 2026-10-14T00:00:00Z
+last_seen_at: 2026-10-15T00:00:00Z
 rejected_plans: []
+
+## Cycle 33 — 2026-10-15 — FEATURE
+
+- Preflight: tree clean on main, CI green (26a8bdc), inbox clear (only our own comment on #51),
+  no open PRs. Plan 002 milestone #51 open.
+- Done: plan 002 item 6 -> **PR #59** (`metrics_dashboard`: real bug, render+memory sections
+  called `getTypeStats("")` so they always said "No data"; now aggregate all types, memory peak =
+  sum of per-type peaks; doc fixed for graphs/`update_interval_ms`/grid; 5 assertion-free tests
+  replaced by 7 content tests) and **PR #60** (`richtext` preview renders `~~strike~~` and
+  `<u>underline</u>` via a marker-toggle scanner; doc: no emoji search, no key handling). Both CI
+  10/10, `auto-merged`. #51 item 6 ticked. ~15 min, no agents.
+- **Plan file box for item 6 is NOT ticked** (no time for a third CI run): tick it in the item 7
+  PR, along with 7.
+- Next: n=34 FEATURE: item 7 typed errors (`smart_autocomplete` 41/43, `editor` 97: `init` fns
+  need `!`; check callers, tests, tidy baseline), then item 8 release v3.1.0 (note names
+  terminal, pager, metrics_dashboard fix, richtext preview). n=35 is STABILIZATION.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: `zig build test` ~4 min wall when CI is also running; Windows CI 6-10 min. Python
+  heredoc edits of repo files are allowed (only `cd <repo>` and citadel writes are blocked).
+  `@FieldType` exists in 0.16. Tidy ratchet counts lines >100 in src: wrap new long lines.
 
 ## Cycle 32 — 2026-10-14 — FEATURE
 
