@@ -1,7 +1,25 @@
 # sigil — context
 
-last_seen_at: 2026-10-15T12:00:00Z
+last_seen_at: 2026-10-15T13:00:00Z
 rejected_plans: []
+
+## Cycle 55 — 2026-10-15 — FEATURE
+
+- Done: plan 005 item 3 `path/merge.zig` (PR #58, CI 8/8 on both commits, squash-merged,
+  auto-merged label, milestone #55 ticked 3/10). `apply(tree, patch)`: path copying, one
+  `tree.root` swap, explicit `[nesting_max]Frame` stack, target order kept then new keys appended,
+  `null` deletes, patch deep-copied via new internal `path/clone.zig` (`clone.deep(tree, value,
+  level)`, reuse in `patch.zig`). 545 tests, tidy 0. Tests+impl written myself; one sonnet
+  reviewer (0 critical, 4 warnings: asserts added, pointer-disjointness clone test, plan text).
+  Cost ~$1.9.
+- Next: item 4 `path/patch.zig` (`apply(tree, ops, diag)`, ADR 0004 section 3/4; RFC 6902 appendix
+  A incl. failing A.12-A.16; `move` into own child = InvalidMove; reuse `pointer.index_of`,
+  `segment_eql`, `clone.deep`). Blockers/questions: none.
+- Learned: `node = .{ .map = try f(node) }` aliases the result location and corrupts `node` (use a
+  temp); merge tests import `json.dom` for RFC fixtures (test-only, noted in `path.zig`); TooDeep in
+  merge is only reachable from a hand-built >128-deep patch (merge preserves levels); arena batches
+  child allocs so a FailingAllocator sweep sees only ~2 failure points; `sed -i ''` on macOS;
+  a trailing `Monitor sleep` placeholder is wasted money.
 
 ## Cycle 54 — 2026-10-15 — FEATURE
 
@@ -160,7 +178,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
-Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-2 of 10 done.
+Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-3 of 10 done.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -175,5 +193,5 @@ Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, ite
 
 ## Next priority
 
-Plan 005 item 3 `path/merge.zig`; see the newest cycle block above and ADR 0004.
+Plan 005 item 4 `path/patch.zig`; see the newest cycle block above and ADR 0004.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
