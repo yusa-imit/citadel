@@ -1,7 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-10-15T13:00:00Z
+last_seen_at: 2026-10-15T15:18:47Z
 rejected_plans: []
+
+## Cycle 56 — 2026-10-16 — FEATURE
+
+- Done: plan 005 item 4 `path/patch.zig` (PR #59, CI 8/8 on both commits, squash-merged,
+  auto-merged label, milestone #55 ticked 4/10). `apply(tree, ops, diag)`: per-op spine rebuild,
+  one `tree.root` assignment at the end, `op <i>: <reason>` diagnostics (`position_none`).
+  `copy`/`move` deep-copy via `clone.deep` (ADR 0004 amended: a shared subtree makes a DAG whose
+  depth walk is exponential under doubling copies). Index past the end is `IndexOutOfRange` at any
+  step; `-`/malformed index `PathNotFound`; `remove ""` is `InvalidPatch`; `move` onto itself is
+  a no-op, into its child `InvalidMove`. 557 tests, tidy 0. Tests+impl by me; one sonnet reviewer
+  (0 critical, 3 warnings: OOM sweep content check, diag shape asserts, extra boundary test). ~$2.1.
+- Next: item 5 `path/jsonpath.zig` parse (`compile(*Program, query, diag)`, ADR 0004 section 6;
+  limits segments 32/selectors 64/filter depth 8/query 1024). Blockers/questions: none.
+- Learned: guard blocks any `cd <repo>` (cwd is the repo; use Edit/python3 with absolute paths);
+  `gh pr checks` right after push says "no checks" for ~1 min, loop with `until ! ... grep -q
+  pending`; `**` and `++` share precedence in Zig, parenthesize `("/a" ** n)`; arena-backed
+  FailingAllocator sweeps hit only a few chunk allocations, so assert content not counts.
 
 ## Cycle 55 — 2026-10-15 — FEATURE
 
@@ -37,33 +54,13 @@ rejected_plans: []
   repo); python3 heredocs for file edits work; a reviewer plus a CI Monitor in parallel is cheap.
   `Map.put` rejects duplicate keys; tests build documents inside out with `tree.new_map(n)`.
 
-## Cycle 53 — 2026-10-14 — FEATURE
+## History (cycles 52-53, condensed 2026-10-16)
 
-- Done: owner merged plan 005 (PR #54); opened milestone #55 (10 items). Item 1 ADR 0004 path contract
-  (`docs/adr/0004-path-contract.md`, PRD 4.4 amended) written by me directly, not via opus `architect`
-  (budget; ~$0.6 total vs ~$2.9). PR #56, CI 8/8, squash-merged, auto-merged label, #55 ticked 1/10.
-- Decisions in the ADR: reads return `*const Value` borrowed from the tree (zero alloc); Patch and Merge
-  Patch use path copying + one `tree.root` swap (atomic, garbage until deinit, tree may become a DAG);
-  `merge.apply(tree, patch)` / `patch.apply(tree, ops: *const Value, diag)` act on `tree.root`;
-  JSONPath = `compile(*Program, query, diag)` + `select(program, root, out) -> []*const Value`, limits
-  segments 32 / selectors 64 / filter_depth 8 / query_len 1024; `match`/`search` -> `UnsupportedFunction`.
-- Next: item 2 `path/pointer.zig` (replace `path.zig` stub `Error`; update root.zig parity test; 1,000-seed
-  model test). Blockers/questions: none.
-- Learned: the Bash guard blocks one command mixing citadel paths with repo commands (again); Monitor
-  with a bounded `gh pr checks` loop worked for CI; a docs-only PR still costs a full `zig build test`.
-
-## Cycle 52 — 2026-10-14 — FEATURE
-
-- Done: plan 004 item 11 release. PR #53 (`chore: release v0.3.0`): dropped `config.load`/`Watcher`
-  stubs (regression test in `root.zig` pins their absence), zon + `sigil.version` 0.3.0, CHANGELOG
-  `[0.3.0]`, README/plan checklists reconciled. CI 8/8, squash-merged; tagged v0.3.0, GitHub release
-  created, milestone #42 closed 11/11. No consumer pins sigil: no migration issues. REALM.md/STATE.md
-  updated. Wrote plan 005 (Phase 2E `path/`: Pointer, Merge Patch, Patch, JSONPath, corpus, bench,
-  v0.4.0) myself instead of via opus planner (budget): PR #54, awaiting merge (citadel#54).
-- Next: if plan 005 is merged, open its milestone issue and do item 1 (ADR 0004 via `architect`,
-  tight scope, ask for the file text; cost ~$3). Else one `/stabilize --one`. Blockers: none.
-- Learned: the whole release took ~$0.6; `Monitor` with a bounded until-loop works for CI; a second
-  throwaway Monitor was wasted money. First tag exists, so `sigil` is now fetchable by consumers.
+Cycle 52 (2026-10-14): plan 004 item 11, release PR #53, v0.3.0 tagged (first tag), milestone #42
+closed 11/11, no consumer pins sigil. Cycle 53: owner merged plan 005 (PR #54), milestone #55 opened;
+item 1 ADR 0004 (PR #56): reads borrow `*const Value`, Patch/Merge use path copying + one
+`tree.root` swap, JSONPath = `compile(*Program)` + `select(program, root, out)` with fixed limits
+(segments 32, selectors 64, filter depth 8, query 1024), `match`/`search` pinned unsupported.
 
 ## History (cycles 49-51, condensed 2026-10-15)
 - 49: plan 004 item 8 `json.parse(T)`/`json.stringify` (PR #50); `parse_error_test.zig` and `stringify_test.zig`
@@ -178,7 +175,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
-Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-3 of 10 done.
+Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-4 of 10 done.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -193,5 +190,5 @@ Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, ite
 
 ## Next priority
 
-Plan 005 item 4 `path/patch.zig`; see the newest cycle block above and ADR 0004.
+Plan 005 item 5 `path/jsonpath.zig` parse; see the newest cycle block above and ADR 0004.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
