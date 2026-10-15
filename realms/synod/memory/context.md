@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-10-15T03:30:00Z
+last_seen_at: 2026-10-15T18:22:00Z
 rejected_plans: []
+
+## Cycle 55 — 2026-10-15 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (60e8664), milestone #57 open, no open PRs.
+- Done: item 3 (3B) via PR #60 (squash-merged, 7/7 CI, `auto-merged`): `sim/invariants.zig`
+  (`Checker`: election safety, leader append-only, log matching, leader completeness, state
+  machine safety; fingerprints, latched violations, allocates only in `init`);
+  `raft/cluster_test.zig` ported onto it (688 -> ~500 lines, private Oracle deleted). 636 tests.
+  Flow: test-writer ($0.7) -> developer ($0.6) -> reviewer (0 CRITICAL, 5 WARNING fixed via
+  SendMessage resume, $0.2). Cost ~ $2.4 of $4. Milestone #57 item 3 ticked.
+- Next: item 4 (`sim/simulation.zig` event loop; adds `init_bytes_max` to `raft.Node`/`Driver`).
+- Open suggestions: `chosen_terms` records the first observer's term (sound but weak: record the
+  minimum, run all `commit_node` before any `leader_complete`); assertion density < 2 in a few
+  small helpers; `cluster_test.enqueue` has an `assert(a and b)`; ADR-008 memory formula omits
+  the per-node `NodeMemory` slice; `restarted` keeps the leader-per-term table (pinned by a test).
+- Blockers: none. Open questions: none.
+- Tool notes: `timeout` is not on this macOS shell; use `gh pr checks --watch` with the Bash tool
+  timeout. Deadline was tight (~22 min): start the test-writer within 5 min of preflight.
 
 ## Cycle 54 — 2026-10-15 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green, no open PRs; milestone #57 open.
