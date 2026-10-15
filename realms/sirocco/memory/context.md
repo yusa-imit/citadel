@@ -1,7 +1,26 @@
 # sirocco — context
 
-last_seen_at: 2026-10-14T02:10:00Z
+last_seen_at: 2026-10-15T04:25:00Z
 rejected_plans: []
+
+## Cycle 55 — 2026-10-15 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments; CI green on 1f197af; no bugs. PR #49 had been fixed
+  and marked ready between cycles (3 fix commits, CI green) without a memory entry.
+- Done: re-reviewed #49 (sonnet code-reviewer, ~$0.5): the 7 first-review items were fixed; 1 new
+  CRITICAL = a cancel arriving after a readiness wake (fiber `.woken`) was lost and the retry parked
+  forever. Fix 3f9f122: `park` calls `task_acknowledge_cancel` first (regression test in
+  `tests/parity/net_close.zig` hangs without it); `close_on_carrier` returns bool, a second close of a
+  closing slot is a no-op. Merged #49 (30ea8af, CI green macOS + ubuntu + 6 cross, `auto-merged`);
+  item 4 ticked on #46 (plan file already ticked on the branch).
+- Next: item 5 (data-path slots). Fold in the deferred #49 follow-ups: `.blocking` accept polls with
+  infinite timeout and never rechecks `still_open` (foreign close cannot wake it); registry spin lock
+  aborts after 2^28 spins while held across kevent calls; assertion density in `src/net.zig` < 2/fn;
+  `catch unreachable` at `net_registry.zig:160`; errno gaps (`EPROTO`, `EPERM`, `EINVAL` on
+  bind/connect), unchecked `SO_ERROR` cast; cancel-during-connect test can skip.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: wake order is most-recent-joiner first (list head); a hanging `zig build test` needs a
+  python subprocess timeout then `pkill -f .zig-cache`; to run one test temporarily add `.filters` to
+  the parity `addTest` in build.zig (restore it before committing).
 
 ## Cycle 54 — 2026-10-14 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments; CI green on 1f197af; no bugs, no other PRs.
@@ -38,21 +57,10 @@ rejected_plans: []
 - Gotchas: item 3 cost ~$1.9 (one sonnet zig-developer ~$1.3 + reviewer ~$0.2); the 22 min deadline
   is tight with a 10-min implementation plus a 5-min CI; start the PR before the reviewer.
 
-## Cycle 52 — 2026-10-13 — FEATURE
-- Inbox: OWNER merged plan PR #44 (plan 004 evented-net, 12 items); CI green; no bugs, no issues.
-- Done: opened milestone #46. Plan 004 item 2 via PR #47 (merged a9e42bd, CI green macOS + ubuntu +
-  6 cross, auto-merged): ADR 0003, `src/backend/poller.zig` (shared types, bounded `Table`,
-  comptime `contract`), `src/backend/kqueue.zig` (Darwin only; one-shot arm, latched `EVFILT_USER`
-  wake), `poller_test.zig` (16 cases + Table model tests). Plan items 1 (done by #45) and 2 ticked.
-  ADR departs from plan text: `init(target, gpa, options)`, relative `wait(timeout_ns, out)`, and
-  off-fiber calls on a registered socket `poll(2)` on the calling thread, not the offload thunk
-  (Threaded traps on `WouldBlock`). Reviewer: 0 CRITICAL, 5 WARNING fixed (BSDs lack EVFILT_USER /
-  FreeBSD flags, so `Native` = Darwin only; test flake bounds; `wait` clamp).
-- Next: item 3 (`Options.sockets_max` required, `.auto` -> `.kqueue`, `Sched.idle_wait` in
-  `Poller.wait`, `unpark_foreign` calls `wake`, gate 7 re-run on kqueue).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: opus architect + two sonnet agents cost ~$1.2 for item 2; one subagent for tests+impl
-  (TDD order in the prompt) is cheaper. Architect output arrives only as text: save the ADR via Write.
+Cycle 52 (10-13): plan 004 merged, milestone #46 opened; item 2 via PR #47 (ADR 0003, `poller.zig`,
+`kqueue.zig`, Darwin-only `Native`; `init(target, gpa, options)`, relative `wait(timeout_ns, out)`,
+off-fiber calls on a registered socket `poll(2)` on the calling thread). One subagent for tests+impl
+(TDD order in the prompt) is cheaper than architect + two agents; architect output is text only.
 
 Cycle 51 (10-13): plan PR #44 open, so one bounded `/stabilize --one` sweep found nothing to fix (tidy
 green, no `catch unreachable`/`@panic`/FIXME, largest file `concurrency.zig` 678 lines). A compound
