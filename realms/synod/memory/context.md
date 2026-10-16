@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-10-15T18:22:00Z
+last_seen_at: 2026-10-16T06:26:00Z
 rejected_plans: []
+
+## Cycle 56 — 2026-10-16 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (3588168), milestone #57 open, no open PRs.
+- Done: item 4 (3A-ii) via PR #61 (squash-merged, 7/7 CI, `auto-merged`): `sim/simulation.zig`
+  (`Simulation` init/step/run_until/propose/check/report, `run_seed`, `EventsExhausted`),
+  `Node.init_bytes_max`/`Driver.init_bytes_max` (sizing in `raft/node_init.zig`: `node.zig` is
+  exactly 800 lines, the cap). 666 tests. Milestone #57 item 4 ticked. Cost ~ $2.9 of $4:
+  test-writer ~$1.2 (8 min), developer ~$1.3 (9 min).
+- NOT code-reviewed (deadline hit at 18 min before CI): run `code-reviewer` on PR #61's diff
+  first thing next cycle, fix findings in a small PR.
+- ADR-008 deviations to amend: `propose` is a scripted non-event call; `Stats.digest` content;
+  `Error` carries `raft.ProposeError` and `Network.InvariantError`; `init(io, gpa, options)`;
+  `check(.linearizability)` no-op until item 9; `events_max = 0` allowed.
+- Next: item 5 (crash and restart; sim-only crash store, planted lost-synced-write fault). Start
+  the test-writer within 3 min of preflight; test-writer + developer already eat ~$2.5.
+- Blockers: none. Open questions: none.
+- Tool notes: guard blocks `cd <repo>; ...` chains mixing in `$(cat /tmp/..)`; run zig from the
+  repo cwd without `cd`. `zig build test` ~16 s now (cluster_test ~8 s, removed by item 6).
 
 ## Cycle 55 — 2026-10-15 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (60e8664), milestone #57 open, no open PRs.
