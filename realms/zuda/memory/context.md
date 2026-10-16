@@ -1,7 +1,27 @@
 # zuda — context
 
-last_seen_at: 2026-10-16T00:00:00Z
+last_seen_at: 2026-10-17T00:00:00Z
 rejected_plans: []
+
+## Cycle 27 — 2026-10-17 — FEATURE
+- Done: inbox clean (CI green on d88ca14, #70 already merged, no bugs, no plan PR, no OWNER
+  comments; milestone #31). Plan 001 "Thread sync" item finished. `map_reduce.zig` redesigned:
+  mapper emits into a bounded `EmitterType` (`pairs_max`, `error.PairsLimitExceeded`, pre-reserved
+  so `emit` never allocates), comptime `key_order` comparator (slice keys work), stable
+  `std.sort.block`, `groupBy`/`mapReduce`/`partition` results without a stored allocator
+  (`deinit(gpa)`), `GroupByResult` keeps its `flat` buffer. 16 tests (OOM, seeded model, stability
+  at 600 elements, case-folded equal keys); wired into `root.zig`. `concurrent_skip_list`
+  (`Thread.yield`) already compiled, 24/24 pass; no `error.Canceled` switches exist in these
+  modules. Reviewer: 1 critical (CHANGELOG, fixed), 6 warnings addressed. Plan item ticked in PR.
+- PRs: #71 (`fix/map-reduce-api-zig-016`) open; Build & Test green 8m32s, 6 cross-compile checks
+  pending at the deadline (same as cycle 26). Next inbox merges it at 7/7 green, no `hold`, then
+  adds the `auto-merged` label (I removed it early) and ticks the "Thread sync" box on issue #31.
+- Next: FEATURE — Test/bench harness item (`internal/testing.zig`, `internal/bench.zig`,
+  `utils/perf.zig` fixedBufferStream, Smith fuzz); full `src/**` `zig test <file>` sweep; assertion
+  baseline; v3.0.0. Deque resize concurrent with steal still unsafe (documented in header).
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: `gh pr checks` waiting loop in the foreground hit the 600s tool cap; cross-compile jobs
+  queue late (>15 min). Plan the cycle so the PR is open by minute ~8.
 
 ## Cycle 26 — 2026-10-16 — FEATURE
 - Done: inbox clean (CI green on 4586eb8, no bugs, no plan PR, no OWNER comments; milestone #31).
