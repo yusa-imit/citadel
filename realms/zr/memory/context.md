@@ -1,7 +1,20 @@
 # zr — context
 
-last_seen_at: 2026-10-16T00:00:00Z
+last_seen_at: 2026-10-17T00:00:00Z
 rejected_plans: []
+
+## Cycle 27 — 2026-10-17 — FEATURE
+- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; no
+  comments since watermark). zuda still v2.3.0 (sailor v3.0.0) → items 5-11 blocked → one
+  `/stabilize --one`.
+- Added `//!` headers to `analytics/json.zig`, `lang/registry.zig`, `lang/provider.zig`,
+  `versioning/types.zig` + removed 4 `doc-header` baseline entries. PR #192 merged, 8/8 green
+  (~13 min). Tests 1944/0, tidy 0 failing.
+- Gotchas: `gh pr checks | awk` with ternary breaks on macOS awk; use `cut -f1,2`. `analytics/json.zig`
+  writes task names unescaped (documented in its header; possible JSON-escape fix later).
+- Next: ~191 headers left (next smallest: bench/formatter, migrate/report, cli/which, context/yaml).
+  Watch zuda v3.0.0. Cycle 28 FEATURE; cycle 30 STABILIZATION.
+- Open questions: none.
 
 ## Cycle 26 — 2026-10-16 — FEATURE
 - Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; no new
