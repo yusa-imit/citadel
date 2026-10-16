@@ -1,7 +1,25 @@
 # sailor — context
 
-last_seen_at: 2026-10-15T00:00:00Z
+last_seen_at: 2026-10-16T00:00:00Z
 rejected_plans: []
+
+## Cycle 34 — 2026-10-16 — FEATURE
+
+- Preflight: tree clean on main, CI green (3622eec), inbox clear (only our own comments on #51), no
+  open PRs. Plan 002 milestone #51 open.
+- Done: plan 002 item 7 -> **PR #61** merged (CI 10/10, `auto-merged`, #51 item 7 ticked, plan file
+  boxes 6 and 7 ticked). `Editor.init`, `MultiCursorEditor.init` (propagates), `LocalSource.init` now
+  `error{OutOfMemory}!T`; `LocalSource.init` frees partial copies. Failing-allocator tests for each
+  allocation index. API change needs a line in the v3.1.0 notes (callers need `try`; no consumer uses
+  these widgets). `catch unreachable` count in src is now 0 outside tests/proof-commented sites.
+  ~13 min, no agents; release item 8 did not fit (CI ~8-10 min).
+- Next: n=35 STABILIZATION. Then item 8 release v3.1.0 (notes: terminal ANSI, pager soft-wrap,
+  metrics_dashboard fix, richtext strike/underline, init `try` API change; MINOR bump to 3.1.0 in
+  `build.zig.zon`, CHANGELOG, tag, GitHub release, migration issues in zr/silica/zoltraak).
+  Open the release PR early (minute ~8) so CI finishes before the deadline.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: `grep Editor.init` missed `multicursor.zig` (wraps `Editor`); compile errors found it. After
+  changing a signature, `zig build test` shows the missing caller in ~1 min.
 
 ## Cycle 33 — 2026-10-15 — FEATURE
 
@@ -44,43 +62,16 @@ rejected_plans: []
   `zig build test` prints nothing on success; failures show via `Build Summary`/tidy lines;
   `zig build tidy` alone is a fast check. Windows CI ~8 min: PR open by minute ~6 is fine.
 
-## Cycle 31 — 2026-10-13 — FEATURE
-
-- Preflight: tree clean on main, CI green (0185f01), inbox clear (only our own comment on #51), no
-  open PRs. Plan 002 milestone #51 open.
-- Done: plan 002 item 4 -> **PR #57** merged (CI 10/10, `auto-merged`, #51 item 4 ticked).
-  `TerminalWidget.render` now interprets CSI/SGR (attrs, 8/16/256/truecolor); new
-  `AnsiParseState.escapeLength` / `applySgr` (atomic) / `style`, `parseSequence` stays a lenient
-  wrapper. Each line starts from `ansi_state`; style does NOT carry across scrollback lines
-  (design choice, scrollback can be windowed). Truncated seq ends the line, invalid is skipped.
-  Whole cycle ~14 min; PR opened at minute ~2 thanks to a single zig-test probe (no agents).
-- Next: n=32 FEATURE. Item 5 `pager.zig` soft-wrap (architect call: implement or fix doc), 6
-  metrics_dashboard/richtext scope, 7 typed errors (`smart_autocomplete` 41/43, `editor` 97 `init`
-  fns need `!` signatures), 8 release v3.1.0 (release note must name terminal + pager changes).
-- Blockers: none. Open questions: none. Stabilize streak 0. n=35 is STABILIZATION.
-- Quirks: new tests at top of `tests/terminal_widget_test.zig` use `renderLines` helper. Probe a
-  single file in ~10 s with `zig test --dep sailor -Mroot=tests/X_test.zig -Msailor=src/sailor.zig
-  --cache-dir /tmp/sailor-zig-cache`. `gh pr checks --watch` exceeds the 540s tool cap when
-  cross-compile jobs queue late; poll in a loop with python `time.sleep` instead.
-
-## Cycle 30 — 2026-10-12 — STABILIZATION
-
-- Preflight: tree clean on main, CI green (b2aa25a), inbox clear (only our own comment on #51), no
-  open PRs. Tiger counts: 7 bare `catch unreachable`, 8 `@panic`, 35 debug.print, 13 `while (true)`,
-  53 files >800, 243 asserts; 1 weak `or` disjunction in tests, 0 `expect(true)`.
-- Done: **PR #55** metrics stats queries sort samples in place and `rebuildTypeStats` refills the
-  retained capacity (`appendAssumeCapacity` + assert), so `event_metrics`/`render_metrics` no longer
-  allocate after recording; 4 bare `catch unreachable` gone, no public signature change, regression
-  tests under `FailingAllocator`. **PR #56** `area_chart_test` fill_char assertion tightened. Both
-  CI 10/10, squash-merged, `auto-merged`. STATE.md refreshed.
-- Next: n=31 FEATURE. Plan 002 item 7 is half done (`smart_autocomplete` 41/43 and `editor` 97 are
-  `init` fns: need `!` signatures, check callers/tests; plan said that may escalate to owner). Item 4
-  (`terminal.zig` AnsiParseState wiring), 5 pager soft-wrap, 6 scope decisions, 8 release v3.1.0.
-  Tick nothing in #51 for item 7 until the remaining sites are done.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirks: guard blocks `cd <repo>; cat >> file <<EOF` (use Edit/Write). Single tests/ file probe:
-  `zig test --dep sailor -Mroot=tests/X_test.zig -Msailor=src/sailor.zig`. `gh pr checks --watch`
-  fits in one call (~8 min). zsh: `${PIPESTATUS[0]}` is empty, rerun to get the exit code.
+## History (cycles 30-31, condensed 2026-10-16)
+- 30 (STABILIZATION): PR #55 metrics stats queries sort in place and `rebuildTypeStats` refills retained
+  capacity (4 `catch unreachable` gone, no API change); PR #56 `area_chart_test` fill_char tightened.
+  Tiger counts then: 7 bare `catch unreachable`, 8 `@panic`, 35 debug.print, 13 `while (true)`, 53 files
+  >800, 243 asserts.
+- 31: item 4 PR #57, `TerminalWidget.render` interprets CSI/SGR via `AnsiParseState.escapeLength`/
+  `applySgr`/`style`; style does not carry across scrollback lines; truncated seq ends the line.
+- Quirks: probe one tests/ file in ~10 s with `zig test --dep sailor -Mroot=tests/X_test.zig
+  -Msailor=src/sailor.zig --cache-dir /tmp/sailor-zig-cache`; `gh pr checks --watch` can exceed the 540 s
+  tool cap, poll with python `time.sleep`; guard blocks `cat >> file <<EOF` (use Edit/Write).
 
 ## History (cycles 27-29, condensed 2026-10-15)
 - 27: plan 002 item 1 (PR #52): eight widgets + `grapheme.wrapText`, `term/windows.parseAnsiSegments`,
