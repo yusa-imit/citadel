@@ -1,7 +1,26 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-15T23:14:36Z
+last_seen_at: 2026-10-16T23:27:27Z
 rejected_plans: []
+
+## Cycle 29 — 2026-10-16 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on b8d35e1), no bugs, no plan PR, milestone #121 open, no
+  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
+- `/stabilize --one`: PR #153. notifications.zig tests passed `PubSub` by value (compile error,
+  never ran) and asserted nothing; now real subscribers + exact RESP2 frame comparison + a
+  no-flags negative case, wired into the `src/main.zig` reachability test. Only the 2 known
+  signal-4 crashers fail locally. First CI run died on a DNS flake fetching deps
+  (TemporaryNameServerFailure); `gh run rerun --failed` went green (6m54s / 57s), merged.
+- Finding: wiring lazyfree.zig or blocking.zig fails, not by their own tests: any wired file that
+  `@import`s `storage/memory.zig` drags in memory.zig's stale test suite (66 errors) plus
+  search (110), config (59), modules (41), acl (30), cluster (39). Those suites must be repaired
+  first (a big task: one file at a time, memory.zig first). persistence/aof/replication not tried;
+  check their imports for memory.zig before wiring.
+- Careful: `sed '/storage\/blocking.zig/d'` also deleted the real `pub const blocking` line in
+  main.zig; use anchored patterns.
+- Next: try aof/replication/persistence (if they avoid memory.zig); commands/*.zig stale tests;
+  stash triage (stash@{0}). Items 4-9, 12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 28 — 2026-10-15 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on 32635cb), no bugs, no plan PR, milestone #121 open, no
