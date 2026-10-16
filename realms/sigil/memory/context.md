@@ -1,7 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-10-16T03:16:09Z
+last_seen_at: 2026-10-17T05:00:00Z
 rejected_plans: []
+
+## Cycle 58 — 2026-10-17 — FEATURE
+
+- Done: plan 005 item 6 `path/select.zig` (PR #61, CI 8/8 on both commits, squash-merged, auto-merged label,
+  milestone #55 ticked 6/10). `jsonpath.select(program, root, out)` re-exported from `jsonpath.zig`; explicit
+  `[nesting_max]Frame` stack (one frame per container, scalars never framed), descendant = selectors on node
+  then recurse into container children, so DFS order equals the RFC nodelist order. `TooDeep` only when a
+  frame push is needed. 584 tests (+45), tidy 0. Tests+impl by me, one sonnet reviewer (0 critical, 3
+  warnings fixed: assert density, exact-order `$..*` test, mid-query TooDeep). Mutation-checked. ~$1.7.
+- Next: item 7 filters (`?` is InvalidSyntax now; adds FilterTooDeep/UnsupportedFunction/UnknownFunction to
+  `QueryError`, filter stack `filter_depth_max` 8, number comparison per `core.number`). jsonpath.zig is ~470
+  lines: put filter code in a sibling file. Blockers/questions: none.
+- Learned: slice `position` goes negative with negative steps (no `>= 0` assert for slices); a model test
+  whose `out` always fits proves nothing about OutOfSpace (alternate out sizes by seed); a stale error-return
+  trace hides the real cause, print counts/seeds with `std.debug.print` temporarily; `zig test
+  --test-filter` on root.zig does not reach path tests, use `zig build test`; guard blocks python heredocs
+  that touch citadel paths, use Read/Edit there.
 
 ## Cycle 57 — 2026-10-16 — FEATURE
 
@@ -19,24 +36,13 @@ rejected_plans: []
   `switch (err)` without `error.Canceled` unless proof-commented; lines >100 cols fail tidy even in tests;
   my own generator bug (unquoted `\u0061`) surfaced as a model-test failure, check generators first.
 
-## Cycle 56 — 2026-10-16 — FEATURE
+## History (cycles 54-56, condensed 2026-10-17)
 
-- Done: plan 005 item 4 `path/patch.zig` (PR #59, CI 8/8 on both commits, squash-merged,
-  auto-merged label, milestone #55 ticked 4/10). `apply(tree, ops, diag)`: per-op spine rebuild,
-  one `tree.root` assignment at the end, `op <i>: <reason>` diagnostics (`position_none`).
-  `copy`/`move` deep-copy via `clone.deep` (ADR 0004 amended: a shared subtree makes a DAG whose
-  depth walk is exponential under doubling copies). Index past the end is `IndexOutOfRange` at any
-  step; `-`/malformed index `PathNotFound`; `remove ""` is `InvalidPatch`; `move` onto itself is
-  a no-op, into its child `InvalidMove`. 557 tests, tidy 0. Tests+impl by me; one sonnet reviewer
-  (0 critical, 3 warnings: OOM sweep content check, diag shape asserts, extra boundary test). ~$2.1.
-- Next: item 5 `path/jsonpath.zig` parse (`compile(*Program, query, diag)`, ADR 0004 section 6;
-  limits segments 32/selectors 64/filter depth 8/query 1024). Blockers/questions: none.
-- Learned: guard blocks any `cd <repo>` (cwd is the repo; use Edit/python3 with absolute paths);
-  `gh pr checks` right after push says "no checks" for ~1 min, loop with `until ! ... grep -q
-  pending`; `**` and `++` share precedence in Zig, parenthesize `("/a" ** n)`; arena-backed
-  FailingAllocator sweeps hit only a few chunk allocations, so assert content not counts.
-
-## History (cycles 54-55, condensed 2026-10-16)
+Cycle 56: item 4 `path/patch.zig` (PR #59): `apply(tree, ops, diag)` per-op spine rebuild, one `tree.root`
+assignment, `op <i>: <reason>` diags; `copy`/`move` deep-copy via `clone.deep` (a shared subtree makes a DAG
+with exponential depth walk); index past end is `IndexOutOfRange`, `-` is `PathNotFound`. Learned: guard
+blocks `cd <repo>`; `gh pr checks` right after push says "no checks" ~1 min (until-loop); `**` and `++`
+share precedence, parenthesize; arena-backed FailingAllocator sweeps hit few allocations, assert content.
 
 Cycle 54: item 2 `path/pointer.zig` (PR #57; `parse` into `[128]Segment`, `resolve`, `format`, `index_of`,
 `segment_eql`). Cycle 55: item 3 `path/merge.zig` (PR #58; path copying, one `tree.root` swap, internal
@@ -166,7 +172,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
-Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-5 of 10 done.
+Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-6 of 10 done.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -181,5 +187,5 @@ Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, ite
 
 ## Next priority
 
-Plan 005 item 6 `path/jsonpath.zig` select; see the newest cycle block above and ADR 0004.
+Plan 005 item 7 JSONPath filters; see the newest cycle block above and ADR 0004 section 6.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
