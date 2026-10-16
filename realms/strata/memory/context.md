@@ -1,7 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-10-16T10:00:00Z
+last_seen_at: 2026-10-17T10:00:00Z
 rejected_plans: []
+
+## Cycle 55 — 2026-10-17 — FEATURE
+- Done: plan 004 item 7 — `src/wal/recovery.zig` (+ fixtures, `recovery_test`; ~586 tests) merged as #56
+  (squash, CI 7/7, auto-merged), issue #48 ticked. `Recovery.replay(io, gpa, dir, target: Apply, options)
+  -> {last_lsn}`; `Apply` = ptr + vtable (`ApplyError{Failed,Corrupted}`); seek = read-and-skip frames below
+  `from_lsn` (frame must start exactly at it; TornWrite before target -> Corrupted); repairs run only
+  after the whole log was read (torn frame: setLength+sync; torn newest header: delete+sync_dir); Torn
+  carries segment length, re-checked under lock. ADR-0003 Open question 5: damage before the checkpoint
+  blocks recovery (read-and-skip is O(bytes)).
+- Review: 0 critical, 6 warnings + suggestions all fixed pre-merge (second commit via SendMessage).
+- Left: no FaultIo crash inside setLength/delete (goes to 3E tests); checkpoint-frame validation at
+  `wal_lsn` + `redo_lsn` derivation is item 10's / the caller's job.
+- Next: item 8 pool WAL-before-data gate (`set_durable_lsn`, src/cache/).
+- Blockers: none. Open questions: none.
+- Note: cost ~ $2.0 of $4 in ~15 min; zig-developer 4.3 min impl + 2.3 min fixes, reviewer 3.4 min in
+  parallel with CI. A brief that lists the ADR sections and says "stop at 11 min" worked well.
 
 ## Cycle 54 — 2026-10-16 — FEATURE
 - Done: plan 004 item 5 closed out (#54 merged, ticked in #48); item 6 group commit (#55 merged, squash,
