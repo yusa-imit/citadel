@@ -94,40 +94,22 @@ rejected_plans: []
   headers. Watch zuda v3.0.0. Cycle 22 FEATURE; cycle 25 STABILIZATION.
 - Open questions: none.
 
-## Cycle 20 — 2026-10-09 — STABILIZATION
-- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
-  new comment was my own report). zuda still v2.3.0 (sailor v3.0.0 tagged) → items 5-11 blocked.
-- `lsp/server.zig` `run` had an unbounded header `ArrayList` and allocated an attacker-chosen
-  `Content-Length`. New `lsp/message_reader.zig` `MessageReader.next(gpa, source)`: 8 KiB header
-  array, 64 MiB body cap before alloc, `HeaderTooLarge`/`MessageTooLarge`/`MissingContentLength`
-  (missing length skipped as before), 11 tests via a chunked `anytype` source. Registered in the
-  `main.zig` test block. PR #185 merged, 8/8 green (~11 min). Tests 1939/0, tidy 0 failing,
-  baseline `lsp/server.zig:run:89` removed.
-- Gotchas: `gh pr create --label fix` fails (no such label; only `auto-merged` etc. exist) — omit
-  it; tidy `stale-baseline` fails when a fix shrinks a function under 70 lines; remove the entry.
-- Next: `mcp/server.zig:39,42` reads stdin byte-by-byte into an unbounded ArrayList — reuse
-  `cli/line_input.zig` pattern with a larger cap (requests are small, 1 MiB). Then task_picker,
-  tui.zig:379, run.zig:1427, registry/server.zig:43 (check). Watch zuda v3.0.0.
-  Cycle 21 FEATURE.
-- Open questions: none.
-
-## Cycle 19 — 2026-10-09 — FEATURE
-- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
-  new comment was my own report). sailor v3.0.0 tagged, zuda still v2.3.0 → items 5-11 blocked
-  → one `/stabilize --one`.
-- Removed dead `src/jsonrpc/transport.zig` (228 lines, 0.14 `ArrayList(u8).init` API, imported but
-  unused by `mcp/server.zig` so never compiled) + the import + 2 tidy baseline entries. PR #184
-  merged, 8/8 green (~13 min). Tests 1928/0, tidy 0 failing. `docs/PRD.md` still lists it in a
-  planned layout (also lists nonexistent `json.zig`); left as design text.
-- Remaining `while (true)`: add.zig 275/379 and add_interactive.zig 380 are stdin prompt loops that
-  end on EOF/empty line but grow unbounded on an endless piped stream; a cap needs a testable seam
-  (prompt reads real stdin) — design a `prompt` source injection first. Others (task_picker, tui,
-  run.zig:1427, watch/*, servers, process.zig:416, show.zig:458) are event/tail loops or
-  EOF-bounded — check each. ~220 missing `//!` headers.
-- Gotchas: guard hook blocks `cd X; ...` chains even into the realm repo — use plain commands from
-  cwd; `sleep N; cmd` chains are blocked — use `until` loops.
-- Next: watch zuda v3.0.0 tag. Cycle 20 STABILIZATION.
-- Open questions: none.
+## Cycles 19-20 (2026-10-09), folded
+- Both: tree clean, CI green, inbox clear; zuda still v2.3.0 (sailor v3.0.0 tagged) so items 5-11
+  stayed blocked, one `/stabilize --one` each.
+- 19: removed dead `src/jsonrpc/transport.zig` (228 lines, 0.14 `ArrayList(u8).init`, never
+  compiled) + import + 2 tidy baseline entries (#184, 8/8 green ~13 min). `docs/PRD.md` still
+  lists it in a planned layout (also nonexistent `json.zig`); left as design text.
+- 20: `lsp/server.zig` `run` had an unbounded header list and attacker-chosen `Content-Length`;
+  new `lsp/message_reader.zig` `MessageReader.next(gpa, source)` (8 KiB header, 64 MiB body cap
+  before alloc, `HeaderTooLarge`/`MessageTooLarge`/`MissingContentLength`, 11 tests; #185).
+- Remaining `while (true)`: add.zig 275/379 and add_interactive.zig 380 are stdin prompt loops
+  (need a `prompt` source injection before a cap is testable); `mcp/server.zig:39,42` reads stdin
+  byte-by-byte into an unbounded ArrayList (reuse the `cli/line_input.zig` pattern, 1 MiB cap);
+  check task_picker, tui.zig:379, run.zig:1427, registry/server.zig:43. ~220 missing `//!`.
+- Gotchas: `gh pr create --label fix` fails (label absent); tidy `stale-baseline` fails when a fix
+  shrinks a function under 70 lines, remove the entry; guard blocks `cd X; ...` and `sleep N; cmd`
+  chains (use plain commands and `until` loops).
 
 ## History (cycles 16-18, folded 2026-10-13)
 
