@@ -1,7 +1,26 @@
 # strata — context
 
-last_seen_at: 2026-10-16T08:30:00Z
+last_seen_at: 2026-10-16T10:00:00Z
 rejected_plans: []
+
+## Cycle 54 — 2026-10-16 — FEATURE
+- Done: plan 004 item 5 closed out (#54 merged, ticked in #48); item 6 group commit (#55 merged, squash,
+  CI 7/7, 554 tests): `src/wal/group_commit.zig` (`Group.enter/finish`, Io.Mutex/Condition),
+  `Writer.commit(io, upto)`, `Stats{syncs,commits}`, Options `group_commit_window`/`_bytes_max`
+  (defaulted, less explicit than Tiger Style wants), `FaultIo` forwards futexWait/Wake + sleep.
+  Reviewer 0 critical; warnings fixed pre-merge (Canceled sync -> `.abandoned` not latch, assert after
+  lock, `unreachable` -> `error.Failed`, batch_error cleared in `Writer.sync`).
+- Left (non-blocking): no canceled-sync / canceled-follower test (FaultIo `Plan` cannot inject
+  Canceled); no deterministic blocked-follower test (8-committer test is order-free, first leader's
+  sync already covers all LSNs); `append`/`sync`/`deinit` must be serialized against `commit` by the
+  caller (documented); window does not wake early when pending grows; `Options` defaults.
+  Older leftovers (cycle 53 below) still open.
+- Next: item 7 `wal/recovery.zig` (Recovery.replay, truncate torn tail, Apply vtable); consider adding
+  FaultIo cancel injection first. Zig is 0.16.0 now (build.zig.zon) — use the 0.16 toolchain with
+  `--cache-dir /tmp/strata-cache` if `.zig-cache` fails to spawn the build runner.
+- Blockers: none. Open questions: none.
+- Note: cost ~ $1.4 of $4 in ~15 min: zig-developer 8.7 min for impl + tests, 0.8 min fix round via
+  SendMessage (cheap: resume the same agent for review fixes). Reviewer ran in parallel with CI.
 
 ## Cycle 53 — 2026-10-16 — FEATURE
 - Done: plan 004 item 5 — `src/wal/writer.zig` (+ fixtures, `writer_test`, `writer_tail_test`,
