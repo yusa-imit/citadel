@@ -22,62 +22,18 @@ rejected_plans: []
   stash triage (stash@{0}). Items 4-9, 12 unblock on zuda v3.0.0.
 - Blockers: zuda v3.0.0. Open questions: none.
 
-## Cycle 28 — 2026-10-15 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on 32635cb), no bugs, no plan PR, milestone #121 open, no
-  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
-- `/stabilize --one`: PR #152. `LFUCounter` seeded its PRNG from the wall clock and its basic-ops
-  test expected 100 default-factor increments to raise the counter (p = 1/1025), so it could not
-  pass. Added `initWithSeed`, deterministic tests (log-factor 0 plus a test pinning the default
-  factor), wired `storage/eviction.zig` into `src/main.zig`: `zig build test` 1506 -> 1519, only
-  the 2 known signal-4 crashers. CI green (4m0s / 58s), merged, labeled auto-merged.
-- Wiring a file by appending one `_ = @import` and running `zig build test` worked at once for
-  eviction; persistence/aof/replication/blocking/lazyfree/notifications are next to try.
-- Next: wire those; commands/*.zig stale tests; stash triage (stash@{0}).
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 27 — 2026-10-15 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on 70d0e53), no bugs, no plan PR, milestone #121 open, no
-  owner comments. zuda still v2.3.0 (GitHub tags), so items 4-9, 12 blocked.
-- `/stabilize --one`: PR #151. Real leak: `SentinelState.resetMaster` freed each sentinel's ip
-  but not its id (`clearAndFree` frees map storage, not key bytes; the old comment was wrong),
-  so every SENTINEL RESET leaked. Now `SentinelInfo.deinit`. Sentinel tests had never run: the
-  unit-test root lacked a `zuda` import (added in build.zig) and nothing referenced the file
-  (wired in `src/main.zig`). `zig build test` 1443 -> 1506, only the 2 known signal-4
-  crashers. CI green (6m54s / 59s), merged, labeled auto-merged.
-- Lesson: a bare `zig test src/storage/<f>.zig` fails on `zuda` only because the module is not
-  attached; the build's unit-test root now has it, so wiring via `src/main.zig` works for any
-  file that imports zuda (aof/replication/persistence/eviction/blocking: try next).
-- Guard hook blocks python heredocs containing `rm -rf`; use the Edit tool for memory files.
-- Next: wire more storage files; commands/*.zig stale tests; stash triage (stash@{0}).
-  Items 4-9, 12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 26 — 2026-10-14 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on 33a24df), no bugs, no plan PR, milestone #121 open, no
-  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
-- `/stabilize --one`: PR #150. `TDigestValue.cdf` returned 1.0 for a lone value and 0.6 for the
-  median of five (counted `<=`, shortcut at max); now mid-point convention like Redis (rank
-  derives from it). Stale merge test contradicted documented replace semantics (command layer
-  rejects existing dest without OVERRIDE); test now pins replace. Wired tdigest into the
-  `src/main.zig` reachability test: `zig build test` 1377 -> 1443, only the 2 known signal-4
-  crashers. CI green (6m48s / 52s), merged, labeled auto-merged.
-- Not mine: `./zig-out/bin/zoltraak` pid 80225 may still run; left alone.
-- Next: sentinel failing test (sentinel.zig:1225, resetMaster leader), then wire; commands/*.zig
-  stale tests; stash triage (stash@{0}). Items 4-9, 12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 25 — 2026-10-13 — STABILIZATION (forced, n%5==0)
-- Preflight clean (main, CI green on 5f49090), no bugs, no plan PR, milestone #121 open, no
-  owner comments since watermark. zuda still v2.3.0, so items 4-9, 12 blocked.
-- PR #149: cuckoo.zig's "bucket contains" test ignored `insert`'s bool (compile error, so the
-  whole file's tests never ran). Asserted it and wired cuckoo into the `src/main.zig`
-  reachability test: `zig build test` 1344 -> 1377, only the 2 known signal-4 crashers.
-  CI green (4m11s / 1m2s), merged, labeled auto-merged.
-- Guard hook blocks compound `cd repo; a; b` commands again; run plain separate commands.
-- Not mine: `./zig-out/bin/zoltraak` pid 80225 still running; left alone.
-- Next: tdigest failures, sentinel failing test (sentinel.zig:1225), then wire; commands/*.zig
-  stale tests; stash triage (stash@{0}). Items 4-9, 12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
+## Cycles 25-28 (2026-10-13..15, condensed 2026-10-17)
+- All `/stabilize --one`, zuda still v2.3.0 (items 4-9, 12 blocked). Each wired a file into the
+  `src/main.zig` reachability test after fixing it; `zig build test` 1344 -> 1519, only the 2 known
+  signal-4 crashers fail. #149 cuckoo (test ignored `insert`'s bool, compile error); #150 tdigest
+  (`cdf` mid-point convention like Redis; stale merge test pinned replace semantics); #151 real
+  leak in `SentinelState.resetMaster` (ids never freed, now `SentinelInfo.deinit`; `zuda` import
+  added to the unit-test root in build.zig); #152 `LFUCounter` seeded from the wall clock, now
+  `initWithSeed` + deterministic tests, eviction wired.
+- Lessons: wire by appending one `_ = @import` and running `zig build test`; use anchored sed
+  patterns (an unanchored delete removed the real `pub const blocking` line in main.zig); the
+  guard blocks python heredocs containing `rm -rf` and compound `cd repo; ...` (plain commands);
+  `./zig-out/bin/zoltraak` pid 80225 is not ours, left alone.
 
 ## Cycles 23-24 (2026-10-11..12, condensed 2026-10-15)
 - Both FEATURE, all plan items blocked; each ran `/stabilize --one`: #147 fixed legacy JSON
@@ -102,55 +58,19 @@ rejected_plans: []
 - Not mine: `./zig-out/bin/zoltraak` pid 80225 running for days; left alone.
 - Next: stash triage (stash@{0}); commands/*.zig stale tests. Blockers: zuda v3.0.0.
 
-## Cycle 20 — 2026-10-08 — STABILIZATION (forced, n%5==0)
-- Preflight clean (main, CI green on 6e5a6e3), no bugs, no plan PR, milestone #121 open, no
-  owner comments. zuda still v2.3.0 (sailor v3.0.0 tagged, #141 open), items 4-9, 12 blocked.
-- Finding: Zig runs `test` blocks only for files something analyzes. `src/` has 2659 `test`
-  blocks but `zig build test` runs 1114. Referencing storage/topk.zig + heavykeeper.zig from a
-  `src/main.zig` test block gave 1160/1160 (+45; includes #143's heap-order tests).
-- PR #144 (`test/unit-test-reachability`) does exactly that. Local green (1160/1160, only the 2
-  known signal-4 crashers); CI was still pending at the deadline — NOT merged. Next cycle's
-  inbox step 8 must merge it if green, else fix.
-- Bulk-referencing all 84 other src files does NOT compile: stale tests (commands/acl.zig:
-  arity, `**Storage`, const-ptr, plus a 32-arg format limit error). Wire one file at a time and
-  repair its tests; a full-tree `zig build test` error dump took >10 min, so grep one file.
-- Guard hook blocks compound `cd repo; ...`; `gh pr create` hit a transient GraphQL error, retry.
-- Next: merge #144; wire next file (smallest test counts first); stash triage (stash@{0}).
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 19 — 2026-10-07 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on b49036f), no bugs, no plan PR, milestone #121 open, no
-  owner comments since watermark. zuda still v2.3.0 (GitHub + local), so items 4-9, 12 blocked.
-- `/stabilize --one`: PR #143 bounded `TopKValue.heapifyDown` and `HeavyKeeper.heapifyDown`
-  (`for (0..@bitSizeOf(usize))` + `else unreachable` with proof comment), +1 heap-order test
-  each. CI green (6m54s / 1m6s), merged, labeled auto-merged. `while (true)` in `src/`: 11 -> 9.
-  Local `zig build test`: 1114/1114, only the 2 known signal-4 crashers; tidy clean.
-- Finding: the new unit tests pass under `zig test src/storage/topk.zig` but the `zig build test`
-  total did not grow, so `storage/topk.zig` and `storage/heavykeeper.zig` unit tests may not be
-  reachable from the `src/main.zig` test root. Verify and wire them in (could apply to more files).
-- Guard hook blocks `git -C <other repo> fetch` and `echo > /tmp/..` in a realm session; plain
-  read-only `git -C zuda tag -l` or `gh api repos/.../tags` works. BSD sed: no multi-line patterns.
-- Next: cycle 20 is forced STABILIZATION (n%5==0): verify unit-test reachability; stash triage
-  (stash@{0} may fix the signal-4 RDB crashers). Items 4-9, 12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 18 — 2026-10-06 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on cca0098), no bugs, no plan PR, milestone #121 open, no
-  owner comments. New issue #141 (`migration: sailor v3.0.0`, opened by the release cycle):
-  sailor v3.0.0 is tagged, but zuda is still v2.3.0, and the pin bump needs the 0.16
-  toolchain, so items 4-9, 12 stay blocked (item 10 needs both tags).
-- `/stabilize --one`: PR #142 — `zoltraak-cli` printed replies via `std.debug.print` (stderr),
-  so `--json/--csv/--raw` could not be piped. Replies/prompts now use a buffered stdout writer;
-  formatters take `*std.Io.Writer`; `run_repl` extracted (tidy ceiling on `main`). `cli.zig` is
-  now in `zig build test` (6 formatter tests). tidy `debug_print` cli.zig 45 -> 0, so the
-  kingdom-wide `std.debug.print` count in `src/` is 0. CI green (4m17s / 58s), merged,
-  labeled auto-merged. Local `zig build test`: 1114/1114, only the 2 known signal-4 crashers.
-- Guard hook blocks chained `gh pr merge ...; ...` commands; run merge/label/checkout as
-  separate plain commands.
-- Next: stash triage (stash@{0} may fix the signal-4 RDB crashers). Items 4-9, 12 unblock when
-  zuda v3.0.0 is tagged; then bump both pins together (#141 has the sailor migration notes).
-  Cycle 20 is forced STABILIZATION.
-- Blockers: zuda v3.0.0. Open questions: none.
+## Cycles 18-20 (2026-10-06..08, condensed 2026-10-17)
+- 18: #142 `zoltraak-cli` printed via `std.debug.print` (stderr), so `--json/--csv/--raw` could
+  not be piped; now a buffered stdout writer, formatters take `*std.Io.Writer`, `run_repl`
+  extracted; `std.debug.print` in `src/` is 0. Issue #141 (`migration: sailor v3.0.0`) opened by
+  the release cycle: pin bump waits for the 0.16 toolchain, so items 4-9, 12 stay blocked.
+- 19: #143 bounded `TopKValue`/`HeavyKeeper` `heapifyDown` (`for (0..@bitSizeOf(usize))`).
+- 20 (STABILIZATION): finding that `src/` has 2659 `test` blocks but `zig build test` ran 1114;
+  Zig runs `test` blocks only for files something analyzes. #144 references topk + heavykeeper
+  from a `src/main.zig` test block (1160/1160). Bulk-referencing all 84 other files does not
+  compile (stale tests, e.g. commands/acl.zig arity, `**Storage`, a 32-arg format limit): wire one
+  file at a time; a full-tree error dump took >10 min, so grep one file.
+- Lessons: `gh pr create --label chore` fails (no label); `gh pr create` can hit a transient
+  GraphQL error, retry; the guard blocks chained `gh pr merge ...; ...`.
 
 ## History (cycles 13-17, condensed 2026-10-10)
 

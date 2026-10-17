@@ -16,96 +16,26 @@ rejected_plans: []
   Watch zuda v3.0.0. Cycle 28 FEATURE; cycle 30 STABILIZATION.
 - Open questions: none.
 
-## Cycle 26 — 2026-10-16 — FEATURE
-- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; no new
-  comments). zuda still v2.3.0 (sailor v3.0.0) → items 5-11 blocked → one `/stabilize --one`.
-- Added `//!` headers to `mcp/capability.zig`, `bench/types.zig`, `util/string_pool.zig`,
-  `versioning/bump.zig` + removed 4 `doc-header` baseline entries. PR #191 merged, 8/8 green
-  (~14 min). Tests 1944/0, tidy 0 failing.
-- Gotchas: `gh pr merge` does not add the `auto-merged` label; add it with `gh pr edit N
-  --add-label auto-merged`. A foreground `until` wait over 10 min gets backgrounded; use a bounded
-  `for` loop with sleep 30.
-- Next: ~195 headers left (`grep doc-header tidy_baseline.txt | cut -d: -f1 | xargs wc -l | sort
-  -n`; next smallest: analytics/json, lang/registry, versioning/types, lang/provider). Watch zuda
-  v3.0.0. Cycle 27 FEATURE; cycle 30 STABILIZATION.
-- Open questions: none.
-
-## Cycle 25 — 2026-10-15 — STABILIZATION
-- Preflight: tree clean on `main`; CI green (last 5 runs); inbox clear (no OWNER comments since
-  watermark; #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.0.0 tagged.
-  zr pins zuda by git ref (v2.0.4) and sailor v2.99.0 — dependency bumps wait for plan item 5.
-- Added `//!` headers to `util/{hash,levenshtein,semver,unicode}.zig` + removed 4 `doc-header`
-  baseline entries. `unicode.zig` doc claimed it wraps sailor; it uses a local range table (header
-  says so). PR #190 merged, 8/8 green (~13 min). Tests 1944/0, tidy 0 failing.
-- Gotchas: `grep -c doc-header tidy_baseline.txt` counts the file's comment line too (entries =
-  count - 1). Guard still blocks `cmd; cmd` chains.
-- Next: ~199 headers left (jsonrpc/types, graph/cycle_detect, jsonrpc/writer, output/color, util/pager).
-  Watch zuda v3.0.0. Cycle 26 FEATURE.
-- Open questions: none.
-
-## Cycle 24 — 2026-10-14 — FEATURE
-- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
-  comment since watermark was my own report). zuda still v2.3.0 → items 5-11 blocked → one
-  `/stabilize --one`.
-- Added `//!` headers to `multirepo.zig`, `upgrade/types.zig`, `codeowners/types.zig`,
-  `util/platform.zig` + removed their 4 `doc-header` baseline entries. PR #189 merged, 8/8 green
-  (~14 min). Tests 1944/0, tidy 0 failing.
-- Gotchas: guard blocks compound `cmd; cmd` chains (use separate Bash calls); for baseline line
-  deletes use one `sed -i '' -e 'Nd' -e 'Md'` with highest line first.
-- Next: ~203 `//!` headers left; pick the next smallest files (`grep doc-header
-  tidy_baseline.txt`, then `wc -l`). Watch zuda v3.0.0. Cycle 25 STABILIZATION.
-- Open questions: none.
-
-## Cycle 23 — 2026-10-12 — FEATURE
-- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
-  comment since watermark was my own report). zuda still v2.3.0 → items 5-11 blocked → one
-  `/stabilize --one`.
-- Added `//!` headers to `template/engine.zig`, `builtin/build.zig`, `builtin/test.zig`; deleted
-  dead `template/loader.zig` (no importers, 0.14 `ArrayList.init`, never compiled) and 5 tidy
-  baseline entries. PR #188 merged, 8/8 green (~14 min). Tests 1944/0, tidy 0 failing.
-- Gotchas: stale `.zig-cache` ("failed to spawn build runner") hit again → `rm -rf .zig-cache`;
-  `git rm` stages the delete, so do not list the removed path in a later `git add`.
-- Next: ~207 `//!` headers left (small files by size: multirepo.zig, upgrade/types.zig,
-  codeowners/types.zig, util/platform.zig). Watch zuda v3.0.0. Cycle 24 FEATURE; cycle 25
-  STABILIZATION.
-- Open questions: none.
-
-## Cycle 22 — 2026-10-11 — FEATURE
-- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
-  comments were my own reports). zuda still v2.3.0 → items 5-11 blocked → one `/stabilize --one`.
-- Remaining `while (true)` re-checked: `registry/server.zig:43` is the top-level accept loop; the
-  rest (task_picker, tui, run.zig:1427, watch/*, show.zig:458) are event/tail loops. Unbounded-IO
-  class is done except add.zig/add_interactive prompt loops (need a source seam).
-- Switched to missing `//!` headers (217 before): 6 `src/template` files (types, registry,
-  builtin ci/release/deploy/lint) + 6 `doc-header` baseline entries removed. PR #187 merged, 8/8
-  green after rerunning a flaky `cache_test.test.690` (concurrent writes, expected 0 found 1;
-  docs-only diff, passed on rerun). Tests 1944/0, tidy 0 failing.
-- Gotchas: guard blocks `cd X; ...` chains (use plain commands); adding a header makes the file's
-  `doc-header` tidy baseline entry stale → delete it from `tidy_baseline.txt` in the same PR
-  (`sed -i '' 'Nd'` works).
-- Next: ~211 headers left (`template/builtin/{build,test}.zig`, `engine.zig`, `loader.zig`, then
-  small files by size: multirepo.zig, upgrade/types.zig, codeowners/types.zig, util/platform.zig).
-  Watch zuda v3.0.0. Cycle 23 FEATURE; cycle 25 STABILIZATION.
-- Open questions: none.
-
-## Cycle 21 — 2026-10-11 — FEATURE
-- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; only
-  new comment was my own report). zuda still v2.3.0 (sailor v3.0.0) → items 5-11 blocked → one
-  `/stabilize --one`.
-- `mcp/server.zig` `serve` read stdin byte by byte into an unbounded `ArrayList`. Now uses shared
-  `cli/line_input.readLine` with one 1 MiB buffer allocated at start (new
-  `line_input.buffer_bytes_max`; `readLine` assert relaxed to it). New `next_request_line` helper
-  (`RequestLine` text/end/too_long), 5 tests. Over-long request is skipped and logged; an
-  unterminated final line at EOF is no longer processed (behavior note). PR #186 merged, 8/8
-  green (~13 min). Tests 1944/0, tidy 0 failing.
-- Gotchas: guard blocks `cd X; ...` chains and heredoc appends (use Edit, plain commands);
-  `gh pr create` has no `--json`; test sources passed to `readLine` need `pub fn read`; a hand-
-  rolled `until gh pr checks | grep -qv pending` loop exits early (any passed line matches) — use
-  `until ! ... | grep -q pending`. tidy line-length baseline counts debug-print lines > 100 cols.
-- Next: task_picker, tui.zig:379, run.zig:1427, registry/server.zig:43 (check each is an event
-  loop or EOF-bounded); `mcp/server.zig serve` baseline (90) can shrink. ~220 missing `//!`
-  headers. Watch zuda v3.0.0. Cycle 22 FEATURE; cycle 25 STABILIZATION.
-- Open questions: none.
+## Cycles 21-26 (2026-10-11..16, condensed 2026-10-17)
+- All FEATURE with zuda still v2.3.0 (sailor v3.0.0), items 5-11 blocked, so one
+  `/stabilize --one` each; each PR merged with 8/8 green (~13 min); tests 1944/0, tidy 0 failing.
+- 21 (#186): `mcp/server.zig` `serve` read stdin byte by byte into an unbounded `ArrayList`; now
+  `cli/line_input.readLine` with one 1 MiB buffer (`line_input.buffer_bytes_max`), `RequestLine`
+  helper, over-long request skipped and logged; an unterminated final line at EOF is no longer
+  processed. 22: remaining `while (true)` re-checked (`registry/server.zig:43` is the accept
+  loop; task_picker, tui, run.zig:1427, watch/*, show.zig:458 are event/tail loops); only
+  add.zig/add_interactive prompt loops need a source seam. 22-26 (#187-#191): `//!` headers
+  (217 -> ~191 left) with the matching `doc-header` baseline entries removed; deleted dead
+  `template/loader.zig` (0.14 `ArrayList.init`, no importers).
+- Open: `analytics/json.zig` writes task names unescaped (documented in its header). Next
+  smallest header files: bench/formatter, migrate/report, cli/which, context/yaml.
+- Gotchas: `gh pr merge` does not add `auto-merged` (`gh pr edit N --add-label auto-merged`);
+  `gh pr checks | awk` ternary breaks on macOS awk (use `cut -f1,2`); `until gh pr checks |
+  grep -qv pending` exits early, use `until ! ... | grep -q pending`; a foreground wait over 10
+  min is backgrounded (bounded `for` loop with sleep 30); adding a header makes the file's
+  `doc-header` baseline entry stale (delete it in the same PR; `sed -i '' -e 'Nd' -e 'Md'`,
+  highest line first); `grep -c doc-header tidy_baseline.txt` counts the comment line too;
+  stale `.zig-cache` -> `rm -rf .zig-cache`; a flaky `cache_test.test.690` passed on rerun.
 
 ## Cycles 19-20 (2026-10-09), folded
 - Both: tree clean, CI green, inbox clear; zuda still v2.3.0 (sailor v3.0.0 tagged) so items 5-11
