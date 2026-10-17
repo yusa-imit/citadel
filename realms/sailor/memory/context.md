@@ -1,7 +1,25 @@
 # sailor — context
 
-last_seen_at: 2026-10-16T00:00:00Z
+last_seen_at: 2026-10-17T08:17:00Z
 rejected_plans: []
+
+## Cycle 35 — 2026-10-17 — STABILIZATION
+
+- Preflight: tree clean on main, CI green (14534d1), inbox clear (only our own comments on #51), no
+  open PRs. Plan 002 milestone #51 open (items 1-7 done, 8 release left).
+- Tiger audit (grep, no agents): 11 `catch unreachable` (all proof-commented, 8 in tests), 8
+  `@panic` commented, 35 `debug.print` (test benchmarks in `tui/buffer.zig` + debug helpers), 13
+  `while (true)`, 53 files >800, 263 asserts, 0 missing `//!`. Nothing worth a PR there.
+- Done: **PR #62** merged (CI 10/10, `auto-merged`): `area_chart_test` block tests assert the four
+  corner glyphs and blank outside the offset area (last `or countNonEmptyCells` disjunction gone).
+  STATE.md updated. ~17 min, no agents.
+- Next: n=36 FEATURE: plan 002 item 8, release v3.1.0 (notes: terminal ANSI, pager soft-wrap,
+  metrics_dashboard fix, richtext strike/underline, `Editor`/`LocalSource` init now `try`; MINOR bump
+  to 3.1.0 in `build.zig.zon`, CHANGELOG, tag, GitHub release, migration issues zr/silica/zoltraak).
+  Open the release PR by minute ~8 (CI Windows ~9 min). Tick plan 002 item 8 box.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Leftover test debt: many "does not crash" tests without assertions (`area_chart_test` NaN/Inf,
+  tiny-area); `MultiCursorEditor.deleteCharAll` shifts all cursors (untested, unfixed).
 
 ## Cycle 34 — 2026-10-16 — FEATURE
 

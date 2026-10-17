@@ -1,5 +1,12 @@
 # sailor — STATE
 
+**Update 2026-10-17 (cycle 35, stabilization):** main green (14534d1). Live `src/` counts: 11
+`catch unreachable` (all carry a proof comment; 8 are in tests), 8 `@panic` (commented), 35
+`std.debug.print` (all in test benchmarks in `tui/buffer.zig` and debug/test helpers), 13
+`while (true)`, 53 files >800 lines, 263 asserts, 0 missing `//!`, tidy baseline 323 entries.
+Test audit: 0 `expect(true)`, 0 `or countNonEmptyCells` disjunctions after PR #62; many
+"does not crash" tests without assertions remain (e.g. `area_chart_test` NaN/Inf, tiny-area).
+
 **Update 2026-10-12 (cycle 30, stabilization):** main green (b2aa25a). Live `src/` counts: 18
 `catch unreachable` (7 bare), 8 `@panic`, 35 `std.debug.print`, 13 `while (true)`, 53 files >800
 lines, 243 asserts, tidy baseline 327 entries. `zig fmt --check` is clean over src, tests,
