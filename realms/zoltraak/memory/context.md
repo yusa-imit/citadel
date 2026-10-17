@@ -1,7 +1,27 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-16T23:27:27Z
+last_seen_at: 2026-10-18T00:00:00Z
 rejected_plans: []
+
+## Cycle 30 — 2026-10-18 — STABILIZATION (periodic, n % 5 == 0)
+- Preflight clean (main, CI green on 28ee7b5), no bugs, no plan PR, milestone #121 open, no
+  owner actions (the only new comment on #121 was our own cycle-29 report). zuda still v2.3.0.
+- Audit: `catch unreachable` all carry proof comments (memory.zig:6164,6234 are asserts on a
+  just-formatted value); 9 `while (true)` in `src/`, one was an unbounded read.
+- PR #154 (merged, CI green): `sendAndReadReply` in `commands/cluster.zig` appended bytes until
+  `\n`, so a hostile MIGRATE target could grow the source's buffer without limit. Read moved to
+  new `src/network/reply_line.zig` (`read_reply_line`, `reply_line_max` = 4096, `ReplyTooLong`);
+  5 loopback tests (mock peer thread), wired into the `src/main.zig` test root, mutation-checked
+  (bound x100 makes the over-limit tests fail). `zig build test` 1610/1610 pass except the 2
+  known signal-4 crashers; fmt and tidy clean. STATE.md: `while (true)` 9 -> 8.
+- Lesson: tests in `commands/*.zig` do not run (they import memory.zig, whose stale suites do
+  not compile); the migrate mock-server tests there are in that group. Put testable logic in a
+  standalone file with no memory.zig import and wire that. Check a new test actually runs by
+  mutating the code under test once.
+- Next: remaining `while (true)`: streams_advanced.zig:446,735, replication.zig:290,388,
+  bloom.zig:826 (test loop); stash triage (stash@{0}); repair memory.zig stale suite. Items 4-9,
+  12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 29 — 2026-10-16 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on b8d35e1), no bugs, no plan PR, milestone #121 open, no
