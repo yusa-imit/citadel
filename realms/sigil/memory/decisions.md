@@ -26,3 +26,6 @@ plan, per `citadel/core/rules/00-kingdom.md`.
 makes the tree a DAG, every depth check a walk of the expanded tree, and k doubling copies an
 exponential walk. **How to apply**: no path code may assume a shared subtree; untouched siblings
 are shared only between an old and a new spine.
+
+- 2026-10-17 (cycle 59): JSONPath filter nesting uses recursion bounded by `filter_depth_max` (8), not an
+  explicit suspended-evaluation machine; ADR 0004 section 6 amended in PR #62. Revisit only if a reviewer insists.

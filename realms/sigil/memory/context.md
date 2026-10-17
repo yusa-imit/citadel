@@ -1,7 +1,26 @@
 # sigil — context
 
-last_seen_at: 2026-10-17T05:00:00Z
+last_seen_at: 2026-10-17T12:00:00Z
 rejected_plans: []
+
+## Cycle 59 — 2026-10-17 — FEATURE
+
+- Done: plan 005 item 7 JSONPath filters (PR #62, CI 8/8 on both commits, squash-merged, auto-merged,
+  milestone #55 ticked 7/10). New `path/filter.zig` (Expr tree + flat per-candidate eval, exact
+  int/uint/float order), `path/filter_parse.zig` (precedence climbing; `length`/`count`/`value`;
+  match/search = UnsupportedFunction), `select.zig` `summarize` for embedded queries. Program grew `sub_`
+  pools, `filters`, `exprs`, `queries`; limits filters 32, exprs 128, queries 32; `QueryError` +4 variants.
+  ADR 0004 section 6 amended: filter nesting = recursion bounded by `filter_depth_max` (not an explicit
+  machine). One sonnet reviewer: 1 critical (core `eql` is not RFC equality: key order, 1 vs 1.0) fixed
+  with iterative `deep_equal`, 5 warnings fixed. ~$2.6.
+- Open: plan file `docs/plans/005` item 7 checkbox NOT ticked (forgot): tick it in the item 8 PR.
+- Next: item 8 conformance corpus (vendor JSONPath compliance suite, license beside it, assert
+  pass/fail/pinned-unsupported counts; check `git ls-files` and the `.gitignore` `test_*` pitfall).
+  Blockers/questions: none.
+- Learned: `std.log.err` inside a test helper fails the test (use direct compile for expected
+  errors); `-0` parses as int 0; a limit test needs the earlier pool limit out of the way
+  (filters_max hit queries_max first); tidy wants one `// proof:` line above each `catch unreachable`,
+  wrap in a helper; mutation check skipped this cycle.
 
 ## Cycle 58 — 2026-10-17 — FEATURE
 
@@ -20,21 +39,11 @@ rejected_plans: []
   --test-filter` on root.zig does not reach path tests, use `zig build test`; guard blocks python heredocs
   that touch citadel paths, use Read/Edit there.
 
-## Cycle 57 — 2026-10-16 — FEATURE
+## History (cycle 57, condensed 2026-10-17)
 
-- Done: plan 005 item 5 `path/jsonpath.zig` parse (PR #60, CI 8/8 on both commits, squash-merged,
-  auto-merged label, milestone #55 ticked 5/10). `compile(*Program, query, diag)`; `Program` is a fixed
-  ~5 KB struct (`Segment`/`Selector` union name|index|wildcard|slice, decoded names inline in `names`);
-  five `QueryError` variants only (FilterTooDeep/UnsupportedFunction/UnknownFunction arrive with item 7);
-  `?` is InvalidSyntax until item 7. Byte-column diags: TooManySegments at segment start,
-  TooManySelectors at selector start, escape errors at the backslash. 573 tests, tidy 0. Tests+impl by me,
-  one sonnet reviewer (0 critical, 2 warnings fixed: assert density, surrogate-pair tests). ~$1.4.
-- Next: item 6 `select(program, root, out)` (ADR 0004 section 6: explicit `[nesting_max]` frame stack,
-  document order, duplicates kept, `OutOfSpace`/`TooDeep`; RFC 9535 section 1.5 bookstore examples).
-  Blockers/questions: none.
-- Learned: tidy wants `// proof:` on the line above a multi-line `catch |err| switch (err)` and flags
-  `switch (err)` without `error.Canceled` unless proof-commented; lines >100 cols fail tidy even in tests;
-  my own generator bug (unquoted `\u0061`) surfaced as a model-test failure, check generators first.
+Cycle 57: item 5 `path/jsonpath.zig` parse (PR #60): `compile(*Program, query, diag)`, fixed struct, byte-column
+diags. Learned: tidy wants `// proof:` above a multi-line `catch |err| switch (err)`; lines >100 cols fail tidy in
+tests too; check test generators first when a model test fails.
 
 ## History (cycles 54-56, condensed 2026-10-17)
 
@@ -172,7 +181,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
-Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-6 of 10 done.
+Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-7 of 10 done.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -187,5 +196,5 @@ Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, ite
 
 ## Next priority
 
-Plan 005 item 7 JSONPath filters; see the newest cycle block above and ADR 0004 section 6.
+Plan 005 item 8 conformance corpus (also tick item 7 in the plan file); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
