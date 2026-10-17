@@ -1,7 +1,24 @@
 # strata — context
 
-last_seen_at: 2026-10-17T12:00:00Z
+last_seen_at: 2026-10-18T12:00:00Z
 rejected_plans: []
+
+## Cycle 57 — 2026-10-18 — FEATURE
+- Done: plan 004 item 9 — `src/wal/redo.zig` `PageRedo` (`init(target, gpa, pm)`, `apply_target()`, `Stats`)
+  + `PageManager.ensure_page_count` (grows the file, publishes count in page 0; `GrowError`) merged as #58
+  (squash, CI 7/7, auto-merged), issue #48 ticked, 601 tests. Redo iff the page read fails with any
+  DecodeError/TornWrite/Unwritten or `page.lsn < frame.lsn`; restored with `lsn = frame.lsn`; page 0, size
+  mismatch, bad magic/type -> `Corrupted` (before any limit `Failed`); limit checked only for id >= page_count.
+- Review: 0 critical, 3 warnings (non-exhaustive read-error switch, lowered `page_count_max` blocking existing
+  pages, error precedence doc) + 5 suggestions all fixed pre-merge via SendMessage (second commit).
+- Left: redo does not sync (caller calls `PageManager.sync` after replay); every I/O error incl. Canceled maps
+  to `Failed` (vtable error set); a failed `preallocate` cannot be faulted (`platform.reserve` bypasses Io);
+  skipped pages after `ensure_page_count` leak if never used.
+- Next: item 10 `wal/checkpoint.zig` (+ `PageManager.set_wal_lsn`, checkpoint-frame check, `redo_lsn`
+  derivation). Blockers: none. Open questions: none.
+- Note: ~$1.9 of $4, ~45 min wall (zig-developer ran 4.5 min but the harness took long to notify; poll
+  `git status`, do not stack sleeps). `until ... grep pending` loop exited early — use
+  `gh pr checks N --watch` in the background instead.
 
 ## Cycle 56 — 2026-10-17 — FEATURE
 - Done: plan 004 item 8 — `BufferPool.set_durable_lsn(lsn)` WAL-before-data gate merged as #57 (squash,
