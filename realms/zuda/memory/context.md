@@ -1,7 +1,27 @@
 # zuda — context
 
-last_seen_at: 2026-10-17T00:00:00Z
+last_seen_at: 2026-10-18T00:00:00Z
 rejected_plans: []
+
+## Cycle 28 — 2026-10-18 — FEATURE
+- Done: preflight found #71 at 7/7 green; merged it (squash) and ticked "Thread sync" on #31.
+  Then the "Test and bench harness" item: `internal/testing.zig` `initRandomDefault()` now seeds
+  from `std.testing.random_seed` (ADR 0001 row) and returns the seed; `StressTestConfig.seed`
+  required. `internal/bench.zig`: warmup/probe iterations were counted in memory stats and
+  `times` accumulated across runs (fixed); reviewer found `MemoryTracker.reset` zeroing
+  `current_bytes` made a later free underflow, so reset now keeps live bytes. 3 new tests. The
+  files plus `utils/perf.zig` (already 0.16-clean) are wired into `root.zig`. Full `zig build
+  test` exit 0.
+- PRs: #72 (`fix/test-bench-harness-zig-016`) open, Build & Test still pending at the deadline
+  (~9 min in), cross-compile not yet queued. Next inbox merges it at 7/7 green with no `hold`,
+  adds `auto-merged`, ticks the harness box on #31 (plan item already ticked in the PR).
+- Next: `src/**` `zig test <file>` sweep (known red: `mlp.zig`, `lightgbm.zig` use
+  `std.io.AnyWriter`); then assertion baseline; v3.0.0. Reviewer leftovers in the harness:
+  `Benchmark` stores its allocator and grows `times` after init, unbounded loop and missing
+  errdefer in `generateUniqueRandomIntegers`, global `prng`/`random` with no init assert.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: do not combine `echo > /tmp/x` with a citadel path in one command (guard blocks it);
+  `zig fmt --check src/utils` flags pre-existing `compare.zig`.
 
 ## Cycle 27 — 2026-10-17 — FEATURE
 - Done: inbox clean (CI green on d88ca14, #70 already merged, no bugs, no plan PR, no OWNER
