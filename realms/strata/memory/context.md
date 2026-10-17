@@ -1,7 +1,20 @@
 # strata — context
 
-last_seen_at: 2026-10-17T10:00:00Z
+last_seen_at: 2026-10-17T12:00:00Z
 rejected_plans: []
+
+## Cycle 56 — 2026-10-17 — FEATURE
+- Done: plan 004 item 8 — `BufferPool.set_durable_lsn(lsn)` WAL-before-data gate merged as #57 (squash,
+  CI 7/7, auto-merged), issue #48 ticked, 582 tests. Gate off until first call; lsn == bound is written;
+  eviction skips gated frames, all gated/pinned -> `PoolExhausted`; `flushAll` skips + counts
+  `Stats.gated` (in-loop), no error. Tests in `src/cache/buffer_pool_gate_test.zig` (8 sizes).
+- Review: 0 critical, 3 warnings (doc, CHANGELOG, gated counted after loop) + suggestions fixed pre-merge
+  via SendMessage (second commit). Reviewer could not run tests (PATH zig is 0.15.2) - read-only is fine.
+- Left: `deinit` asserts zero dirty, so a caller with gated frames must raise the bound or `discardAll`
+  first; `docs/milestones.md` does not exist (nothing to tick there).
+- Next: item 9 full-page-image redo (`src/wal/redo.zig`). Blockers: none. Open questions: none.
+- Note: ~$1.2 of $4, ~12 min; zig-developer impl 2 min, fixes 1 min. The cycle's Bash guard rejects
+  compound commands from the very first call (even `START=$(date)...`), so run one command per call.
 
 ## Cycle 55 — 2026-10-17 — FEATURE
 - Done: plan 004 item 7 — `src/wal/recovery.zig` (+ fixtures, `recovery_test`; ~586 tests) merged as #56
