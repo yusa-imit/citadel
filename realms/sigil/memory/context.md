@@ -1,43 +1,35 @@
 # sigil — context
 
-last_seen_at: 2026-10-17T12:00:00Z
+last_seen_at: 2026-10-18T12:00:00Z
 rejected_plans: []
 
-## Cycle 59 — 2026-10-17 — FEATURE
+## Cycle 60 — 2026-10-18 — FEATURE
 
-- Done: plan 005 item 7 JSONPath filters (PR #62, CI 8/8 on both commits, squash-merged, auto-merged,
-  milestone #55 ticked 7/10). New `path/filter.zig` (Expr tree + flat per-candidate eval, exact
-  int/uint/float order), `path/filter_parse.zig` (precedence climbing; `length`/`count`/`value`;
-  match/search = UnsupportedFunction), `select.zig` `summarize` for embedded queries. Program grew `sub_`
-  pools, `filters`, `exprs`, `queries`; limits filters 32, exprs 128, queries 32; `QueryError` +4 variants.
-  ADR 0004 section 6 amended: filter nesting = recursion bounded by `filter_depth_max` (not an explicit
-  machine). One sonnet reviewer: 1 critical (core `eql` is not RFC equality: key order, 1 vs 1.0) fixed
-  with iterative `deep_equal`, 5 warnings fixed. ~$2.6.
-- Open: plan file `docs/plans/005` item 7 checkbox NOT ticked (forgot): tick it in the item 8 PR.
-- Next: item 8 conformance corpus (vendor JSONPath compliance suite, license beside it, assert
-  pass/fail/pinned-unsupported counts; check `git ls-files` and the `.gitignore` `test_*` pitfall).
+- Done: plan 005 item 8 conformance corpus (PR #63, CI 8/8 on both commits, squash-merged, auto-merged,
+  milestone #55 ticked 8/10; item 7 plan checkbox ticked in the same PR). Vendored jsonpath-standard
+  `tests/jsonpath/{cts.json,LICENSE,NOTICE,SOURCE}` (BSD-2, commit 20ebdcc) and `path/conformance_test.zig`
+  (reads it via `std.testing.io`, wired from `jsonpath.zig` test block). Counts asserted: 715 tests,
+  249 invalid, 466 valid, 659 pass, 56 pinned unsupported (match/search, tag-checked), 0 divergent.
+  Invalid selectors must fail as grammar errors (not limit errors) with line 1, col >= 1. Probe test
+  proves the judges and tally can fail. One reviewer: 0 critical, 4 warnings fixed. ~$1.3.
+- Next: item 9 benchmarks (`bench/main.zig`: Pointer resolve, `$..*`, a filter query over the plan 004
+  document; record MB/s and ns per match in `docs/plans/000-inherited.md`), then item 10 release v0.4.0.
   Blockers/questions: none.
-- Learned: `std.log.err` inside a test helper fails the test (use direct compile for expected
-  errors); `-0` parses as int 0; a limit test needs the earlier pool limit out of the way
-  (filters_max hit queries_max first); tidy wants one `// proof:` line above each `catch unreachable`,
-  wrap in a helper; mutation check skipped this cycle.
+- Learned: `std.log.err` in a helper fails a test, so a probe test of a reporting loop needs a `report`
+  flag; test warn logs make `zig build` print "failed command" but exit 0 (check `$?`); the `cts.json`
+  tests all passed first run (filters were solid); a `// proof:` must be one line above the switch.
 
-## Cycle 58 — 2026-10-17 — FEATURE
+## History (cycles 58-59, condensed 2026-10-18)
 
-- Done: plan 005 item 6 `path/select.zig` (PR #61, CI 8/8 on both commits, squash-merged, auto-merged label,
-  milestone #55 ticked 6/10). `jsonpath.select(program, root, out)` re-exported from `jsonpath.zig`; explicit
-  `[nesting_max]Frame` stack (one frame per container, scalars never framed), descendant = selectors on node
-  then recurse into container children, so DFS order equals the RFC nodelist order. `TooDeep` only when a
-  frame push is needed. 584 tests (+45), tidy 0. Tests+impl by me, one sonnet reviewer (0 critical, 3
-  warnings fixed: assert density, exact-order `$..*` test, mid-query TooDeep). Mutation-checked. ~$1.7.
-- Next: item 7 filters (`?` is InvalidSyntax now; adds FilterTooDeep/UnsupportedFunction/UnknownFunction to
-  `QueryError`, filter stack `filter_depth_max` 8, number comparison per `core.number`). jsonpath.zig is ~470
-  lines: put filter code in a sibling file. Blockers/questions: none.
-- Learned: slice `position` goes negative with negative steps (no `>= 0` assert for slices); a model test
-  whose `out` always fits proves nothing about OutOfSpace (alternate out sizes by seed); a stale error-return
-  trace hides the real cause, print counts/seeds with `std.debug.print` temporarily; `zig test
-  --test-filter` on root.zig does not reach path tests, use `zig build test`; guard blocks python heredocs
-  that touch citadel paths, use Read/Edit there.
+Cycle 59: item 7 JSONPath filters (PR #62): `path/filter.zig` (Expr tree, flat eval, exact int/uint/float
+order), `filter_parse.zig` (`length`/`count`/`value`; match/search = UnsupportedFunction); limits filters 32,
+exprs 128, queries 32; ADR 0004 section 6 amended (filter nesting = recursion bounded by
+`filter_depth_max`); reviewer found core `eql` is not RFC equality (fixed with iterative `deep_equal`).
+Cycle 58: item 6 `path/select.zig` (PR #61): explicit `[nesting_max]Frame` stack, descendant DFS equals
+RFC nodelist order. Learned: slice `position` goes negative with negative steps; a model test whose `out`
+always fits proves nothing about OutOfSpace; `zig test --test-filter` on root.zig misses path tests; the
+guard blocks python heredocs touching citadel paths (use Read/Edit); `-0` parses as int 0; tidy wants one
+`// proof:` line above each `catch unreachable`/`switch (err)`.
 
 ## History (cycle 57, condensed 2026-10-17)
 
@@ -181,7 +173,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
-Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-7 of 10 done.
+Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-8 of 10 done.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -196,5 +188,5 @@ Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, ite
 
 ## Next priority
 
-Plan 005 item 8 conformance corpus (also tick item 7 in the plan file); see the newest cycle block.
+Plan 005 item 9 benchmarks, then item 10 release v0.4.0; see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
