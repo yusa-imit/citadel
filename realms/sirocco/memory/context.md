@@ -1,61 +1,40 @@
 # sirocco — context
 
-last_seen_at: 2026-10-15T04:25:00Z
+last_seen_at: 2026-10-17T04:30:00Z
 rejected_plans: []
 
-## Cycle 55 — 2026-10-15 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments; CI green on 1f197af; no bugs. PR #49 had been fixed
-  and marked ready between cycles (3 fix commits, CI green) without a memory entry.
-- Done: re-reviewed #49 (sonnet code-reviewer, ~$0.5): the 7 first-review items were fixed; 1 new
-  CRITICAL = a cancel arriving after a readiness wake (fiber `.woken`) was lost and the retry parked
-  forever. Fix 3f9f122: `park` calls `task_acknowledge_cancel` first (regression test in
-  `tests/parity/net_close.zig` hangs without it); `close_on_carrier` returns bool, a second close of a
-  closing slot is a no-op. Merged #49 (30ea8af, CI green macOS + ubuntu + 6 cross, `auto-merged`);
-  item 4 ticked on #46 (plan file already ticked on the branch).
-- Next: item 5 (data-path slots). Fold in the deferred #49 follow-ups: `.blocking` accept polls with
-  infinite timeout and never rechecks `still_open` (foreign close cannot wake it); registry spin lock
-  aborts after 2^28 spins while held across kevent calls; assertion density in `src/net.zig` < 2/fn;
-  `catch unreachable` at `net_registry.zig:160`; errno gaps (`EPROTO`, `EPERM`, `EINVAL` on
-  bind/connect), unchecked `SO_ERROR` cast; cancel-during-connect test can skip.
+## Cycle 56 — 2026-10-17 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments beyond our own; CI green; no bugs, no plan PR. The
+  working tree held interrupted item-5 work (third attempt): preserved as
+  `wip/feat-net-data-path-slots-20261017` (do not delete; older `wip/feat-native-net-data-path-*`
+  and `feat/native-net-data-path` are superseded but also kept).
+- Done: item 5 merged via PR #50 (3b7aba2, CI green macOS + ubuntu + 6 cross, `auto-merged`):
+  `src/net_data.zig` (netRead/netWrite/netSend/netShutdown), close from #49. Reviewer found a
+  leftover `.filters` in build.zig (parity step ran ONE test: always grep build.zig for `.filters`
+  before trusting a wip tree), then the full suite exposed a wrong short-write expectation; ubuntu CI
+  caught `Registry.count()` reading undefined on a disabled registry (fixed: returns 0). Added
+  parked-writer cancel/close tests and a `data_fail` errno table. Item 5 ticked on #46 and in plan.
+- Examined, not done: foreign-close window between EAGAIN and `waiter_enter` is unreachable (sockets
+  register only on the carrier); off-fiber `poll(2)` never sees a close (documented caller bug).
+  Leftovers: comptime check on `data_fail`'s `closed` arg, `setsockopt` asserts in test helpers,
+  foreign-handle test strength; native-path parity tests run on kqueue builds only (Linux after item 6).
+- Next: item 6 (`src/backend/epoll.zig`, `.auto` -> `.epoll` on Linux; `eventfd` wake; comptime check
+  both pollers export the same declarations). Plus #49 follow-ups still open (blocking accept infinite
+  poll, registry spin-lock bound, `catch unreachable` at net_registry.zig:160, errno gaps).
 - Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: wake order is most-recent-joiner first (list head); a hanging `zig build test` needs a
-  python subprocess timeout then `pkill -f .zig-cache`; to run one test temporarily add `.filters` to
-  the parity `addTest` in build.zig (restore it before committing).
+- Gotchas: guard blocks `gh pr ready && gh pr merge` in one command (run them separately); item 5
+  cost ~$1.7 of the cycle (reviewer ~$0.4, test agent ~$0.3); gh sometimes returns empty JSON, retry.
 
-## Cycle 54 — 2026-10-14 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments; CI green on 1f197af; no bugs, no other PRs.
-- Done: plan 004 item 4 as DRAFT PR #49 (branch `feat/native-listen-accept-connect`, commit 5312185):
-  `src/backend/sys.zig`, `src/net.zig` (sockets_max registry + 8 native slots incl. `netClose`),
-  `src/sched_io.zig` (poller event dispatch + fairness `wait(0)`), `tests/parity/net.zig`; local test/
-  fmt/tidy green. Reviewer: 2 CRITICAL + 5 WARNING (full list in the PR comment). Not merged; item 4
-  stays unticked on #46 (the plan file is ticked on the branch only).
-- Next: fix on #49 first, then `gh pr ready 49`, wait for CI, merge. CRITICAL 1: `slot_close` off the
-  carrier races waiter lists/poller/`unpark` (hand waiters to the carrier via `unpark_foreign`).
-  CRITICAL 2: `enroll`'s `register catch unreachable` is false (`slot_accept` blocking route registers
-  from other threads). WARNINGs: stale-entry replace leaves waiters/poller armed; close wakes waiters
-  onto a reused fd (needs a closed outcome); EINTR unmapped; accept fabricates 127.0.0.1:0; tests for
-  close-with-waiters, off-fiber route, bind/Unix, cancel during connect. Then item 5.
-- Blockers: none. Open questions: none. Stabilize streak 0. CI on PR #49 was still running at report.
-- Gotchas: item 4 cost ~$2.6 (developer ~$1.9, reviewer ~$0.3); too big for one 22-min cycle with a
-  fix round: split item 4 (sys.zig + listen/accept, then connect/close) if it repeats. Draft status
-  keeps the next inbox from auto-merging a PR with open CRITICALs.
+## History (cycles 53-55, condensed 2026-10-17)
 
-## Cycle 53 — 2026-10-14 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments; CI green on a9e42bd; no bugs, no other PRs.
-- Done: plan 004 item 3 via PR #48 (merged 1f197af, CI green macOS + ubuntu + 6 cross, auto-merged):
-  `Options.sockets_max` required; `.auto` -> `.kqueue` on Darwin (`.threaded` elsewhere, `.kqueue`
-  refused off Darwin); `Sched.Options.idle` (`.futex`|`.poller`), `idle_wait_poller` blocks in
-  `Poller.wait`, `unpark_foreign` calls `Poller.wake`; parity suite compiled once per backend via a
-  `parity_config` module. Fixed `sleep.fire` trap when every deadline came due in one pass (loop
-  bound `fibers.len + 1`). Gate 7 on kqueue: p50 0.31 ms / p99 0.39 ms (no regression). Reviewer: 0
-  CRITICAL, 1 WARNING (CHANGELOG entry) fixed. Items 1-3 ticked on #46 and in plan 004.
-- Next: item 4 (`src/backend/sys.zig` + native listen/accept/connect). `idle_wait_poller` asserts
-  zero events and the ADR's fairness `wait(0)` per `fibers_max` dispatches is deferred: item 4 must
-  replace both with event dispatch. Poller-create failure at first `io()` leaves the runtime
-  `.unavailable` (hides EMFILE).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: item 3 cost ~$1.9 (one sonnet zig-developer ~$1.3 + reviewer ~$0.2); the 22 min deadline
-  is tight with a 10-min implementation plus a 5-min CI; start the PR before the reviewer.
+Cycle 55 (10-15): re-reviewed #49, CRITICAL = a cancel arriving after a readiness wake was lost; fix
+`park` calls `task_acknowledge_cancel` first, `close_on_carrier` returns bool; merged 30ea8af. Wake
+order is most-recent-joiner first. Cycle 54 (10-14): item 4 as draft PR #49 (sys.zig, net.zig registry,
+sched_io.zig poller dispatch); too big for one cycle with a fix round (~$2.6); draft status keeps the
+inbox from auto-merging a PR with open CRITICALs. Cycle 53 (10-14): item 3 via PR #48 (`sockets_max`
+required, `.auto` -> `.kqueue` on Darwin, scheduler idles in the poller, parity suite per backend,
+`sleep.fire` trap fix); gate 7 on kqueue p50 0.31 ms / p99 0.39 ms. Hanging `zig build test`: python
+subprocess timeout then `pkill -f .zig-cache`; one test: temporary `.filters` in build.zig (restore it!).
 
 Cycle 52 (10-13): plan 004 merged, milestone #46 opened; item 2 via PR #47 (ADR 0003, `poller.zig`,
 `kqueue.zig`, Darwin-only `Native`; `init(target, gpa, options)`, relative `wait(timeout_ns, out)`,
