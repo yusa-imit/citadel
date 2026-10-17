@@ -1,7 +1,27 @@
 # sirocco — context
 
-last_seen_at: 2026-10-17T04:30:00Z
+last_seen_at: 2026-10-17T16:22:19Z
 rejected_plans: []
+
+## Cycle 57 — 2026-10-18 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments, no open PRs, CI green.
+- Done: item 6 merged via PR #51 (7e63945, CI green macOS + ubuntu-on-epoll + 6 cross, `auto-merged`):
+  `src/backend/epoll.zig` (table is the truth, kernel entry re-derived because EPOLLONESHOT disables the
+  whole per-fd entry; eventfd wake; ms-rounded timeout), `.auto` -> `.epoll` on Linux, parity suite
+  compiled per backend incl. epoll, ADR 0003 section 2a. `poller_test.zig` moved off `std.c` (Linux build
+  rejects libc) and its model test tolerates an fd's two ready interests arriving over two waits.
+  Reviewer CRITICAL (model_wait expected both events in one wait) was fixed before the PR. Item 6 ticked.
+- Opened bug #52: `net_data` "closing ... from another thread" test aborted 4/4 with BADF in
+  `Io.Threaded.netWritePosix` while the machine was loaded (passes unloaded): a writer retry after a
+  cross-thread close takes the foreign/offload path with a closed fd. Next cycle's STABILIZATION fixes it.
+- Next: STABILIZATION for #52 (regression test forcing the interleaving), then item 7 (`operate` on the
+  poller: `net_receive`, non-blocking file streams). #49 follow-ups still open.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Gotchas: `zig build test -Dtarget=x86_64-linux-gnu` compiles every Linux test binary even though the
+  host cannot run them (the "unable to execute" lines are expected; grep for other `error:`); riscv64
+  `fiber_switch.zig` fails to build (naked fn safety check), not in CI; BSD `sed` rejects `\n` in
+  patterns, use python for edits; a foreground wait: python `time.sleep` in Bash, notification arrives
+  between calls. Cycle cost ~$1.9 (reviewer ~$0.35).
 
 ## Cycle 56 — 2026-10-17 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments beyond our own; CI green; no bugs, no plan PR. The
