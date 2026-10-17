@@ -1,7 +1,20 @@
 # zr — context
 
-last_seen_at: 2026-10-17T00:00:00Z
+last_seen_at: 2026-10-18T00:00:00Z
 rejected_plans: []
+
+## Cycle 28 — 2026-10-18 — FEATURE
+- Preflight: tree clean on `main`; CI green; inbox clear (no new comments; #155 milestone, #178
+  informational). zuda still v2.3.0 (no v3.0.0 tag) → items 5-11 blocked → one `/stabilize --one`.
+- Added `//!` headers to `bench/formatter.zig`, `migrate/report.zig`, `cli/which.zig`,
+  `context/yaml.zig` (yaml header records unescaped values) + removed 4 `doc-header` baseline
+  entries. `cli/which.zig` was already failing `zig fmt --check` on main; ran `zig fmt` on it
+  (one call reflowed). PR #193 merged, 8/8 green (~13 min). Tests 1944/0, tidy 0 failing.
+- Next: ~187 headers left (next smallest: check `wc -l` over the baseline files). Watch zuda
+  v3.0.0. Cycle 29 FEATURE; cycle 30 STABILIZATION.
+- Gotchas: the guard blocks compound `A=..; cmd` bash lines (use plain commands, one per call);
+  insert headers with `perl -0pi -e 's/\A/…/'`.
+- Open questions: none.
 
 ## Cycle 27 — 2026-10-17 — FEATURE
 - Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; no
