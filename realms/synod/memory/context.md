@@ -1,7 +1,28 @@
 # synod — context
 
-last_seen_at: 2026-10-16T06:26:00Z
+last_seen_at: 2026-10-17T06:30:00Z
 rejected_plans: []
+
+## Cycle 57 — 2026-10-17 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (84158c9), milestone #57 open, no open PRs.
+- Preflight: found cycle 56's item 5 WIP uncommitted on `feat/sim-crash-restart`; preserved to
+  `wip/feat-sim-crash-restart-20261017` (pushed, do not delete), continued on
+  `feat/sim-crash-restart-2` (deleted at merge). The only red test was a wrong vacuity floor
+  (`torn >= 300`, measured 280 -> 200).
+- Done: item 5 via PR #62 (squash-merged, 7/7 CI, `auto-merged`): `sim/crash_store.zig`,
+  `sim/sim_node.zig`, crash/restart in `Simulation`, planted `lose_synced_hard_state` breaks
+  `ElectionSafety`. 703 tests. `code-reviewer` (~$0.3): 0 CRITICAL, 4 WARNING fixed
+  (undrained applies now reach the Checker on a crash event, new `Stats.lossy_crashes` floor
+  >= 30 (measured 71), stale "Red stub" headers, ADR-008 "Amendments" section). Milestone #57
+  item 5 ticked. Cost ~ $1.1 of $4.
+- Next: item 6 (retire `cluster_test` onto `Simulation`; `zig build test` < 10 s).
+- Open suggestions: plant-refused restart is silent (no counter); `catch` on `StoreIoFailed`
+  in `simulation.zig` is not an exhaustive switch; `arm_failure` assert is tautological; no
+  `crash_keeping(keep)` test hook. PR #61 got only the incidental review above.
+- Blockers: none. Open questions: none.
+- Tool notes: python3 heredoc via `-c "..."` expands backticks (use `python3 -I - <<'EOF'`);
+  failing-test stack traces are polluted by `types.zig` error traces: print counters
+  temporarily to find which expect failed.
 
 ## Cycle 56 — 2026-10-16 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (3588168), milestone #57 open, no open PRs.
