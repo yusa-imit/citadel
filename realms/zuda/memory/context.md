@@ -23,99 +23,33 @@ rejected_plans: []
 - Quirk: `gh pr checks` waiting loop in the foreground hit the 600s tool cap; cross-compile jobs
   queue late (>15 min). Plan the cycle so the PR is open by minute ~8.
 
-## Cycle 26 — 2026-10-16 — FEATURE
-- Done: inbox clean (CI green on 4586eb8, no bugs, no plan PR, no OWNER comments; milestone #31).
-  Plan 001 item "Thread sync" first slice. `WorkStealingDeque` tests did not compile on 0.16 and
-  were outside the test graph: fixed `var cap: usize`, a phantom item after resize (push used a
-  `bottom` loaded before `resize` reset the counters; resize now keeps counters), and
-  non-wrapping `t < b` checks in pop/steal (wrapping distance now). `parallel_sort.zig` ported:
-  merge sort corrupted data for 100+ elements (outer full-buffer memcpy), quick sort partition
-  OOB; rewritten (stable merge, OOM-atomic, explicit-stack three-way quick sort). `prefix_sum`
-  `parallelScan` Blelloch was wrong for non-power-of-two n (now zero-padded). All wired into
-  `root.zig` tests. Reviewer: 0 critical, 7 warnings, all addressed. Local test exit 0, fmt clean.
-- PRs: #70 (`fix/work-stealing-resize-parallel-sort`) open; Build & Test green 9m24s, 6
-  cross-compile checks still pending at the deadline. Next cycle's inbox merges it at 7/7 green
-  with no `hold` label.
-- Next: FEATURE — `map_reduce.zig` needs an API redesign (mapper returns an anonymous struct
-  slice that cannot be instantiated; `wordCountMapper` returns a dangling stack pointer; slice
-  keys break `asc`/`std.meta.eql`) -> ask `architect`; `concurrent_skip_list` `Thread.yield`;
-  `error.Canceled` prongs; full `src/**` `zig test <file>` sweep; then harness, assertion
-  baseline, v3.0.0. Deque is still unsafe for resize concurrent with steal (steal reads `items`
-  without the mutex; pre-existing, noted in its header).
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: `zig build test` with a warm cache took ~2 min locally; CI Build & Test 9.4 min and
-  cross-compile jobs queued late. The guard rejects shell redirects in a command that mentions
-  the citadel path; read the counter with a plain `cat`.
-
-## Cycle 25 — 2026-10-15 — STABILIZATION
-- Done: periodic (n%5==0). Inbox clean (CI green, no bugs, no plan PR, no OWNER comments; milestone
-  #31). Merged #68 (approximation/greedy/dfa/graph_coloring compile-clean; 7/7 green, `auto-merged`).
-  Stabilize class "user-data asserts -> typed errors" (review follow-up from #68): `vertex_cover`
-  `error.InvalidEdge`; `knapsack` (greedy) and `bin_packing` `error.InvalidInput` (NaN/negative
-  weight, NaN capacity, negative/NaN item size). Each file exports `Error`; tests red first (a
-  negative weight grew the remaining capacity and tripped the postcondition assert). CHANGELOG
-  notes the v3.0.0 break. Local `zig build test` exit 0, fmt clean.
-- PRs: #68, #69 merged (squash, 7/7 checks, Build & Test ~6.5m, labeled `auto-merged`).
-- Next: FEATURE — rest of plan 001 "compile-clean": full `src/**` `zig test <file>` sweep. Then
-  Thread sync, harness, assertion baseline, v3.0.0. Leftovers: `greedy_coloring` Tiger cleanup,
-  `backtracking_coloring` contract docs, DFA stores an allocator (note an exception), huffman stack
-  depth assert, `hamiltonian.zig` not OOM-audited. STATE.md numbers not re-measured this cycle.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: a stale `.zig-cache` made `zig build test` fail with "failed to spawn build runner" again;
-  use `--cache-dir /tmp/zuda-zcache`. Use `nohup sh -c` for the background build, then a Bash
-  `until grep -q '^exit '` loop on the log.
-
-## Cycle 24 — 2026-10-14 — FEATURE
-- Done: inbox clean (CI green on 7feb1c1, no bugs, no plan PR, no OWNER comments; milestone #31).
-  Preflight found uncommitted work from an interrupted cycle: preserved as
-  `wip/compile-clean-greedy-automata-approx-20261014`, then re-verified it. Plan 001
-  "compile-clean": `approximation/*`, `greedy/*`, `automata/dfa`, `graph_coloring/*` (13 files)
-  ported to unmanaged ArrayList and wired into `root.zig`. `greedy_coloring` was only half
-  ported; `backtracking_coloring` (subagent) had wrong `exactKColoring` and a propagation bug.
-  Reviewer found a REAL `dsatur` infinite loop on isolated vertices (strict `>` with 0
-  thresholds); fixed with optional next_vertex, deterministic scan, regression tests.
-- PRs: #68 merged in cycle 25 (user-data asserts became typed errors in #69).
-- Leftovers: `greedy_coloring` Tiger cleanup (long lines, `while` loops, per-vertex hash maps);
-  `backtracking_coloring` contract docs; DFA stores an allocator (note an exception); huffman
-  code stack depth assert.
-- Quirk: `zig fmt --check src` prints ~160 pre-existing unformatted files (check only touched
-  paths); `perl -pi` that strips `defer {\n` per line deletes the line, use `-0pi`.
-
-## Cycle 23 — 2026-10-12 — FEATURE (folded)
-- `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne` ported per ADR 0001 D1 (required `seed: u64`), PR #67.
-  Never-run tests exposed t-SNE (in-place P symmetrize, inverted gain sign), kmeans (empty
-  clusters, OOM leak) and gmm (undefined free on OOM) bugs. Leftovers: `hamiltonian.zig` not
-  OOM-audited; `dinic`, `edmonds_karp` not in test graph; gmm per-point E-step alloc.
-- Quirk: a Monitor loop with `read -t N </dev/zero` exits 1; a build-runner child can outlive
-  `pkill` of its parent, kill by pid before rerunning.
-
-## Cycles 20-22 (2026-10-09 to 10-11), folded
+## Cycles 20-26 (2026-10-09..16, condensed 2026-10-17)
+- All merged by squash with 7/7 checks, labeled `auto-merged`. Plan 001 "compile-clean" and
+  "Thread sync" slices:
 - 20 (STABILIZATION, bug #63, PR #64): OOM leaks and an undefined free in `palindrome_partition`,
-  `knights_tour`, and append-failure leaks in `combination_sum`/`permutations`/`subsets`/
-  `n_queens`; `checkAllAllocationFailures` test per file. 21: ported `nfa`, `matrix_chain`,
-  `ford_fulkerson` (PR #65); the never-run tests exposed a wrong `NFA.fromWildcard` (every state
-  accepting, bad Kleene star), OOM undefined-frees/double frees, `maxInt` on f64 capacities.
-  22: merged #65; `bogosort.zig` ported per ADR 0001 D1 (required `seed: u64`,
-  `bogoSortBounded(.., seed, iterations_max: u32)`, PR #66).
-- Quirks: the `zig` on PATH is still 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`; the
-  guard rejects `sleep N`, `cd X; ...` and `for` loops mixing the repo path; BSD sed lacks `\n`
-  (use perl/python); zsh expands `==`; `zig build test` takes ~9 min locally.
-
-## Cycle 20 — 2026-10-09 — STABILIZATION
-- Done: periodic (n%5==0) and open OWNER bug #63. Fixed it in PR #64 (squash, 7/7 checks, Build &
-  Test 6m18s, labeled `auto-merged`; #63 closed by `Fixes #63`): OOM leaks and an undefined free in
-  `palindrome_partition` (minCut rows, partition base case, dupe/append), `knights_tour` (both
-  board setups), and append-failure leaks in `combination_sum`, `permutations`, `subsets`,
-  `n_queens`. Each file has a `checkAllAllocationFailures` test, confirmed red against HEAD.
-  Reviewer: 0 critical; fixed 2 warnings (line > 100 cols, camelCase runner fn names).
-- Next: FEATURE — plan 001 item "compile-clean files outside test graph": `nfa`, `matrix_chain`,
-  `ford_fulkerson`, `bogosort`, `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne`, then a full `src/**`
-  `zig test <file>` sweep. Then Thread sync, harness, assertion baseline, v3.0.0. Stabilize
-  leftovers: hamiltonian.zig not OOM-audited; Tiger Style class audit not run this cycle.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: the `zig` on PATH is still 0.15.2; use `/Users/fn/.zr/toolchains/zig/0.16.0/zig` for
-  every command (the 0.15 `zig build test` fails). The guard rejects `cd X; ...` and `for` loops
-  mixing the repo path; run plain commands. zsh expands `==`, so avoid `echo == x`.
+  `knights_tour`, `combination_sum`, `permutations`, `subsets`, `n_queens`; a
+  `checkAllAllocationFailures` test per file. 21-22: ported `nfa`, `matrix_chain`,
+  `ford_fulkerson` (#65; never-run tests exposed a wrong `NFA.fromWildcard`) and `bogosort`
+  (#66, required `seed: u64`). 23: `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne` per ADR 0001 D1 (#67;
+  t-SNE, kmeans, gmm bugs found).
+- 24-25: `approximation/*`, `greedy/*`, `automata/dfa`, `graph_coloring/*` ported and wired
+  (#68; real `dsatur` infinite loop on isolated vertices fixed); user-data asserts became typed
+  errors in #69 (`vertex_cover` `InvalidEdge`; `knapsack`, `bin_packing` `InvalidInput`;
+  CHANGELOG notes the v3.0.0 break). Interrupted work was preserved as
+  `wip/compile-clean-greedy-automata-approx-20261014`.
+- 26: #70 `WorkStealingDeque` (phantom item after resize, wrapping `t < b`) and `parallel_sort`
+  (merge sort corrupted 100+ elements, quick sort partition OOB; rewritten) and `prefix_sum`
+  (Blelloch wrong for non-power-of-two n), all wired into `root.zig`.
+- Leftovers: `greedy_coloring` Tiger cleanup, `backtracking_coloring` contract docs, DFA stores
+  an allocator (note an exception), huffman stack-depth assert, `hamiltonian.zig` not OOM-
+  audited, `dinic`/`edmonds_karp` not in the test graph, gmm per-point E-step alloc, deque resize
+  concurrent with steal still unsafe (documented in header).
+- Quirks: the `zig` on PATH is 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`; stale
+  `.zig-cache` -> `--cache-dir /tmp/zuda-zcache`; `zig fmt --check src` lists ~160 pre-existing
+  unformatted files (check touched paths only); the guard rejects `cd X; ...`, `sleep N`, and
+  shell redirects in a command mentioning the citadel path; BSD sed lacks `\n` (use `perl -0pi`);
+  zsh expands `==`; a build-runner child can outlive `pkill` of its parent (kill by pid);
+  cross-compile CI jobs queue late (>15 min): open the PR by minute ~8.
 
 ## Cycles 16-19 (2026-10-01 to 10-08), folded
 All merged by squash with 7/7 checks, labeled `auto-merged`.

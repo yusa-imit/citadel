@@ -19,110 +19,30 @@ rejected_plans: []
 - Note: cost ~ $2.0 of $4 in ~15 min; zig-developer 4.3 min impl + 2.3 min fixes, reviewer 3.4 min in
   parallel with CI. A brief that lists the ADR sections and says "stop at 11 min" worked well.
 
-## Cycle 54 — 2026-10-16 — FEATURE
-- Done: plan 004 item 5 closed out (#54 merged, ticked in #48); item 6 group commit (#55 merged, squash,
-  CI 7/7, 554 tests): `src/wal/group_commit.zig` (`Group.enter/finish`, Io.Mutex/Condition),
-  `Writer.commit(io, upto)`, `Stats{syncs,commits}`, Options `group_commit_window`/`_bytes_max`
-  (defaulted, less explicit than Tiger Style wants), `FaultIo` forwards futexWait/Wake + sleep.
-  Reviewer 0 critical; warnings fixed pre-merge (Canceled sync -> `.abandoned` not latch, assert after
-  lock, `unreachable` -> `error.Failed`, batch_error cleared in `Writer.sync`).
-- Left (non-blocking): no canceled-sync / canceled-follower test (FaultIo `Plan` cannot inject
-  Canceled); no deterministic blocked-follower test (8-committer test is order-free, first leader's
-  sync already covers all LSNs); `append`/`sync`/`deinit` must be serialized against `commit` by the
-  caller (documented); window does not wake early when pending grows; `Options` defaults.
-  Older leftovers (cycle 53 below) still open.
-- Next: item 7 `wal/recovery.zig` (Recovery.replay, truncate torn tail, Apply vtable); consider adding
-  FaultIo cancel injection first. Zig is 0.16.0 now (build.zig.zon) — use the 0.16 toolchain with
+## Cycles 49-54 (2026-10-14..16, condensed 2026-10-17)
+- Plan 004 items 2-6 merged (PRs #50-#55, squash, CI 7/7, auto-merged; tests 505 -> 554):
+  `wal/frame.zig` (17 B header, CRC32C seeded with the expected LSN, `lsn_limit = 2^63`, golden
+  frames; the reader must range-check the first LSN before `decode`), `wal/segment.zig` (24 B
+  header, `format_name`/`parse_name`, exclusive `tryLock`, `SegmentLimit`/`SegmentIndexExhausted`),
+  `wal/reader.zig` (`Reader.open/next/position`; Unwritten/torn tail legal only in the newest
+  segment; opens the next segment before closing the previous; `fail()` closes `current`),
+  `wal/writer.zig` (init via reader, torn tail -> `RecoveryRequired`, `durable_lsn` advances only
+  after sync, failure latch, rotate syncs old segment + `platform.sync_dir`), and
+  `wal/group_commit.zig` (`Group.enter/finish`, `Writer.commit(io, upto)`, `Stats`, Options
+  `group_commit_window`/`_bytes_max`; `FaultIo` forwards futexWait/Wake + sleep).
+- Left (non-blocking): `FaultIo` `Plan` cannot inject Canceled (no canceled-sync / canceled-
+  follower test); no deterministic blocked-follower test; `append`/`sync`/`deinit` must be
+  serialized against `commit` by the caller (documented); group-commit window does not wake early;
+  `Options` defaults less explicit than Tiger Style wants; `sync_dir` ignores the full-sync variant
+  on darwin; rotation-fault test lacks a `durable_lsn` check at the create/dir-sync step; stale
+  sentence in `segment.zig` header about directory sync; `live_count` needs a reclaim hook for
+  item 10; no test for `Segment.open`/`length` failing mid-crossing while the old segment is held;
+  `Segment.open` is read_write (read-only dirs); `list_segments` should skip non-file entries.
+- Lessons: brief the zig-developer for ONE item with tests + impl (~10 min, ~$1.5-2.5 of $4);
+  resume the same agent via SendMessage for review fixes; spawn the reviewer in parallel with CI;
+  wait with one `until ...; do sleep 20; done` foreground loop; `chore` label does not exist in
+  strata (`gh pr create --label` fails, use only `auto-merged`); `gh pr merge` has no `-q`; use
   `--cache-dir /tmp/strata-cache` if `.zig-cache` fails to spawn the build runner.
-- Blockers: none. Open questions: none.
-- Note: cost ~ $1.4 of $4 in ~15 min: zig-developer 8.7 min for impl + tests, 0.8 min fix round via
-  SendMessage (cheap: resume the same agent for review fixes). Reviewer ran in parallel with CI.
-
-## Cycle 53 — 2026-10-16 — FEATURE
-- Done: plan 004 item 5 — `src/wal/writer.zig` (+ fixtures, `writer_test`, `writer_tail_test`,
-  `writer_fault_test`; 545 tests, tidy 0): init via reader, torn tail -> `RecoveryRequired`, one
-  `frame_bytes_max` batch buffer, `durable_lsn` advances only after sync, failure latch, rotate syncs
-  old segment + `platform.sync_dir` (ADR Q4 resolved), `FaultIo` `sync_fail_after` + `dirRead`.
-  Reviewer: critical (offset assert on reopen with smaller segment limit) and warning (init syncs a
-  non-empty tail so durable_lsn is true) fixed in 351bba5.
-- PRs: #54 OPEN, CI not yet seen (deadline hit). Item 5 box ticked in the plan file on the branch, NOT
-  yet in issue #48. Next cycle: `gh pr checks 54`, merge if green (squash, label auto-merged), tick #48.
-- Left (non-blocking): `sync_dir` ignores full-sync variant on darwin (fix doc/ADR or route through
-  sync_full); rotation-fault test lacks `durable_lsn` check at create/dir-sync step; stale sentence in
-  `segment.zig` header about directory sync; `live_count` needs a reclaim hook for item 10.
-- Next: merge #54, then item 6 group commit (`Writer.commit`; batch buffer grows there).
-- Blockers: none. Open questions: none.
-- Note: cost ~ $3.4 of $4; zig-developer 13.5 min for writer + 4.7 min for fixes, review 1.3 min. Spawn
-  the reviewer BEFORE waiting on anything and start work earlier: the 22-min budget fits only one agent
-  round plus one fix round; for big items brief the agent to stop at 10 min.
-
-## Cycle 52 — 2026-10-15 — FEATURE
-- Done: the 3 cycle-51 reader warnings fixed in PR #53 (merged, squash, CI 7/7, 509 tests): `read_frame`
-  reads the 17 B header then exactly the frame (irregular header -> old full window); `enter` opens
-  the next segment before closing the previous (lock handoff, `cross` no longer closes first);
-  `fail()` closes `current` on any `next` error, `check_invariants` requires `current == null` in
-  `.failed`. Reviewer: 0 critical. Left: (W) no test for `Segment.open`/`length` failing mid-crossing
-  while the old segment is held (hold seg 2 with a second open -> WouldBlock, check seg 1 released);
-  CHANGELOG Unreleased `wal.reader` entry lacks the locking/handoff note.
-- Next: item 5 `wal/writer.zig` (append, sync, rotate); do it in a fresh cycle with >= 15 min left.
-  Torn/absent newest header case is the writer's to close; dir sync after `Segment.create` (ADR Q4).
-- Blockers: none. Open questions: none.
-- Note: cost ~ $1.1 of $4; zig-developer for a 3-fix brief took 3.5 min. Guard blocks compound Bash
-  and `$VAR`/`date` chains in the first call; use `until ...; do sleep 20; done` foreground, once.
-  `chore` label does not exist in strata (gh pr create --label fails); skip labels except auto-merged.
-
-## Cycle 51 — 2026-10-14 — FEATURE
-- Done: plan 004 item 4 — `src/wal/reader.zig` (+ `reader_fixtures`, `reader_test`, `reader_tail_test`,
-  33 tests; 505 total): `Reader.open(target, io, gpa, dir, segment.Options)` (dir needs `.iterate`),
-  `next(io)` (null = sticky clean EOF), `position()`, `deinit`, `check_invariants`. Index + strictly
-  increasing first-LSN at open, exact `first_lsn == end LSN` when `next` crosses; Unwritten/torn tail
-  legal only in the newest segment (a torn/absent newest header is treated as absent); LSN >= 2^63 ->
-  Corrupted before decode; short read -> Corrupted. No `from_lsn` seek yet (recovery, item 7).
-- PRs: #52 merged (squash, CI 7/7). Issue #48 item 4 ticked.
-- Review (code-reviewer): 0 critical, 3 warnings NOT yet fixed (deadline): (1) `read_frame` (reader.zig
-  ~369) reads min(remaining, frame_bytes_max) per frame -> read 17 B header then 17+len; (2) lock doc
-  claims writer exclusion but lock is per-segment and dropped between segments in `cross` (open next
-  before closing current; reword doc); (3) errdefer `.failed` leaves `current` open (close it or reword).
-  Suggestions: skip non-file entries in `list_segments`; `Segment.open` is read_write (read-only dirs).
-- Next: small fix PR for warnings 1-3 first, then item 5 `wal/writer.zig`. Writer must close the
-  torn-header-on-newest case (recovery inspects that file itself).
-- Blockers: none. Open questions: none.
-- Note: cost ~ $2.6 of $4; zig-developer took 14 min. Each idle wakeup re-reads context (~$0.3): use ONE
-  long foreground wait. `gh pr merge` has no `-q`; run merge and `gh pr edit --add-label` separately.
-
-## Cycle 50 — 2026-10-14 — FEATURE
-- Done: plan 004 item 3 — `src/wal/segment.zig` (+ `segment_test.zig`, `segment_file_test.zig`,
-  `segment_fixtures.zig`, 40 tests): `format_name`/`parse_name` (`error{Corrupted}!?u32`, index 0 =
-  Corrupted), 24 B header codec, `Segment{file,index,first_lsn}` create/open/append/length/sync/close,
-  exclusive `tryLock`, `index_next`/`live_count_check` -> `SegmentLimit`/`SegmentIndexExhausted`.
-  `open` scans an all-zero file (Unwritten) in 64 KiB chunks. ADR §13 signatures updated.
-- PRs: #51 merged (squash, CI 7/7, auto-merged). Issue #48 item 3 ticked.
-- Review: code-reviewer 0 critical, 4 warnings: fixed chunk size (4->64 KiB), unused import, ADR §13,
-  create WouldBlock doc. Left: `read_exact` has `else => |other| return other` (pass-through of
-  the std set); `FaultIo` cannot fail sync so `create`'s sync-fail cleanup is unproven (add a sync
-  fault when the writer needs it, item 5). Cost ~ $2.55 of $4 (zig-developer 10 min ~ $1.6).
-- Next: item 4 `wal/reader.zig` (list segments bounded by `segments_max`, `live_count_check`,
-  index + first-LSN continuity -> Corrupted; Unwritten/TornWrite only legal in the newest segment;
-  segment header first_lsn out of [1,2^63) -> Corrupted before `frame.decode`). Directory sync after
-  `Segment.create` is still the writer's job (ADR open question 4).
-- Blockers: none. Open questions: none.
-- Note: brief the zig-developer for ONE item with tests+impl, it takes ~10 min; run
-  `until gh pr checks N | grep -qv pending...` foreground for CI.
-
-## Cycle 49 — 2026-10-14 — FEATURE
-- Done: plan 004 item 2 — `src/wal/frame.zig` (+ `frame_test.zig`, 17 tests): 17 B header, CRC32C seeded
-  with the expected LSN, `TornWrite`/`ChecksumMismatch`/`Corrupted`, `lsn_limit = 2^63`, golden frames
-  pinned; truncation matrix now runs the real decoder (no-CRC mutant rebuilt as len-only, still caught).
-  ADR-0003 §11 negative pin corrected (frame 1 under seed 2 = 0x2E5419B8, verified independently).
-- PRs: #50 merged (squash, CI 7/7, auto-merged). Issue #48 item 2 ticked.
-- Review: code-reviewer 0 critical, 2 warnings fixed (decode doc: reader must range-check first LSN
-  before deriving `lsn_expected` — decode asserts it; page_image test sizes 256/131072 added).
-  Cost ~ $1.5 of $4 (zig-developer wrote tests+impl ~$0.8, reviewer ~$0.3).
-- Next: item 3 `wal/segment.zig` (header codec over `file.File`, tryLock, `segments_max`). Reader (item 4)
-  must return `Corrupted` for a segment header whose first LSN is out of [1, 2^63) before calling decode.
-- Blockers: none. Open questions: none.
-- Note: a foreground `sleep 1` background task wastes a turn; use `until gh pr checks ... ; do sleep 20; done`
-  in one foreground call (timeout 480000) instead of `--watch` + idle polling.
 
 ## Cycles 45-48 (2026-10-11..13, condensed 2026-10-15)
 - 45: page manager + buffer pool suites widened to all 8 page sizes; `src/testing/page_matrix_test.zig`
