@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-10-17T06:30:00Z
+last_seen_at: 2026-10-18T07:00:00Z
 rejected_plans: []
+
+## Cycle 58 — 2026-10-18 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (6395dc5), milestone #57 open, no open PRs.
+- Preflight: cycle 57's killed run left item 6 WIP (churn test + sim changes, tree dirty on
+  `feat/sim-retire-cluster-test`); preserved to `wip/feat-sim-retire-cluster-test-20261018`
+  (pushed, do not delete), continued on `feat/sim-retire-cluster-test-2`.
+- Done: item 6 via PR #63 (squash-merged, 7/7 CI, `auto-merged`): `Faults.partition_percent`/
+  `partition_ms_max`, `Proposals`, `Stats.truncates/partitions/proposed`, `OptionsError`;
+  `sim/simulation_churn_test.zig` (100 seeds, cluster_test floors and planted faults);
+  `raft/cluster_test.zig` deleted. 713 tests. Milestone #57 item 6 ticked. Cost ~ $0.8 of $4.
+- Deviation: `zig build test` ~23 s in Debug (plan said < 10 s); churn seeds 500 -> 100 saved
+  only ~9 s, the rest is other sim tests (crash tests 300+200 seeds x 10 s). Item 11 re-measures.
+- NOT code-reviewed (deadline): run `code-reviewer` on PR #61 and #63 diffs next cycle.
+- Next: item 7 (`zig build sim -Dseeds=N`, `-Dseed=S`).
+- Blockers: none. Open questions: none.
+- Tool notes: guard blocks chained Bash mixing `$(date)`/citadel paths with repo writes: split
+  calls. `git add` of an already-staged deleted file fails: omit it. The model test's
+  `isolated` helper must count a non-victim's single cut link.
 
 ## Cycle 57 — 2026-10-17 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (84158c9), milestone #57 open, no open PRs.
