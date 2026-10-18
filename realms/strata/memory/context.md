@@ -1,7 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-10-18T12:00:00Z
+last_seen_at: 2026-10-18T05:22:30Z
 rejected_plans: []
+
+## Cycle 58 — 2026-10-18 — FEATURE
+- Done: plan 004 item 10 — `src/wal/checkpoint.zig` (`Checkpoint.init/run/reclaim`, `redo_start`),
+  `PageManager.set_wal_lsn`, `BufferPool.dirty_lsn_max`, `Writer.oldest_index/segments_reclaimed`,
+  `FaultIo` forwards `dirDeleteFile` + `delete_fail_after` knob. Merged as #59 (squash, CI 7/7,
+  auto-merged), issue #48 ticked, 623 tests. `redo_start` returns 0 (not lsn_first) when wal_lsn == 0;
+  `reclaim_lsn` is set only after step 5, `reclaim` before that -> `NotCheckpointed`.
+- Review: 1 critical (reclaim after failed run could delete needed segments) + 3 warnings + suggestions,
+  all fixed pre-merge via SendMessage (second commit). ADR-0003 open question 6: page-0 rewrite relies on
+  512 B sector atomicity.
+- Left: `Reader.validate` rejects index holes from out-of-order persisted reclaim (ADR §8 says ignore);
+  `redo_start` reads sequentially (no Reader seek); no mutant runs (dropped sync / reordered steps).
+- Next: item 11 3E crash-recovery property tests (`src/testing/wal_recovery_test.zig`), then docs+v0.5.0.
+  Blockers: none. Open questions: none.
+- Note: ~$3.3 of $4 (impl 9 min/$1.7, fixes 4.5 min/$0.8) - item 11 is large; consider a leaner brief.
+  Cycle-time was ~15 min; the Bash guard still wants one simple command per call.
 
 ## Cycle 57 — 2026-10-18 — FEATURE
 - Done: plan 004 item 9 — `src/wal/redo.zig` `PageRedo` (`init(target, gpa, pm)`, `apply_target()`, `Stats`)
