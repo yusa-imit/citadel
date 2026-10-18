@@ -1,7 +1,23 @@
 # sirocco — context
 
-last_seen_at: 2026-10-17T16:22:19Z
+last_seen_at: 2026-10-18T00:00:00Z
 rejected_plans: []
+
+## Cycle 58 — 2026-10-18 — STABILIZATION
+- Inbox: bug #52 (OWNER account), milestone #46 open, no plan PR, CI green; the only new comment was ours.
+- Done: #52 fixed via PR #53 (2b63d9b, CI green macOS + ubuntu + 6 cross, `auto-merged`). Root cause was a
+  test race, not a runtime bug: a late ACK woke the parked writer, `write_until_error` then made a fresh
+  `netWrite` after the closer had removed the handle from the registry, so it routed as foreign into
+  `Io.Threaded` (BADF). A call that starts after a close is a caller bug (now stated in `net_data.zig`
+  header). The test joins the closer before the carrier runs (carrier only runs inside `await`), so the
+  close always lands on a parked writer. Issue closed by the merge.
+- Tiger Style spot check: `catch unreachable` 3 (all with proof comments), `while (true)` 1, largest file
+  697 lines. STATE.md refreshed.
+- Next: FEATURE, milestone 004 item 7 (`operate` on the poller: `net_receive`, non-blocking file streams);
+  #49 follow-ups still open. Streak 0.
+- Blockers: none. Open questions: none.
+- Gotchas: `zig build test` re-runs are cached, so a loop of identical runs under load tests nothing after
+  the first; change an input or use `--summary all` with `-Dno-cache`-style invalidation. Cycle cost ~$0.7.
 
 ## Cycle 57 — 2026-10-18 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments, no open PRs, CI green.

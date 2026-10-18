@@ -1,4 +1,13 @@
-# sirocco — State Survey (2026-09-05, refreshed 2026-10-13)
+# sirocco — State Survey (2026-09-05, refreshed 2026-10-18)
+
+## Refresh 2026-10-18 (cycle 58, STABILIZATION — bug #52)
+
+- Bug #52 fixed by PR #53 (2b63d9b, CI green): a test race, not a runtime defect. A call that
+  starts after a cross-thread close is a caller bug (foreign fd); the test now joins the closer
+  before the carrier runs. Documented in `net_data.zig`.
+- Main at 2b63d9b, CI green, `zig build test`/`fmt --check`/`tidy` green. Milestone 004 items 1-6
+  done; item 7 next. `catch unreachable` 3 (all carry proof comments), `while (true)` 1 (offload
+  worker loop), largest file `concurrency.zig` 697 / `sched.zig` 695 lines (cap 800).
 
 ## Refresh 2026-10-13 (cycle 51, FEATURE — bounded stabilization while plan PR #44 awaits merge)
 
