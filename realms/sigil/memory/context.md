@@ -1,36 +1,32 @@
 # sigil — context
 
-last_seen_at: 2026-10-18T13:00:00Z
+last_seen_at: 2026-10-19T00:00:00Z
 rejected_plans: []
 
-## Cycle 61 — 2026-10-18 — FEATURE
+## Cycle 62 — 2026-10-19 — FEATURE
 
-- Done: plan 005 item 9 path benchmarks (PR #64, CI 8/8, squash-merged, auto-merged, milestone #55 ticked 9/10).
-  `bench/main.zig` gained `path.pointer.resolve` (~31 ns/lookup, parse included), `path.jsonpath $..*`
-  (~2150 MB/s, ~5 ns/node), `path.jsonpath filter` (~2200 MB/s, ~109 ns/match); `Result.matches_total`
-  and an `ns/match` column; numbers in `000-inherited.md`, CHANGELOG entry. Written directly, no
-  subagents, no reviewer (small bench diff). ~$0.65.
-- Next: item 10 release v0.4.0 (tick 2E in `000-inherited.md`, CHANGELOG `[0.4.0]`, `build.zig.zon` +
-  `sigil.version` 0.3.0 -> 0.4.0, tag, `gh release create`). Blockers/questions: none.
-- Learned: the guard blocks a Bash command that mixes citadel paths with repo commands (read citadel
-  files with Read); a CI until-loop in a background Bash call works (notified on exit); no
-  `ScheduleWakeup`.
+- Done: plan 005 item 10 release. PR #65 (`chore: release v0.4.0`, CI 8/8, squash-merged, auto-merged):
+  manifest + `sigil.version` + pinning test to 0.4.0, CHANGELOG `[0.4.0]`, README `sigil.path` Implemented,
+  2E and plan item ticked. v0.4.0 tagged and released; milestone #55 closed 10/10. No sibling
+  `build.zig.zon` names sigil, so no migration issue.
+- Plan 006 proposed (Phase 3A TOML 1.0, v0.5.0, 12 items, ADR 0005 first; core.Timestamp cannot tell
+  local date/time from datetime, ADR + `core/timestamp.zig` fix it): PR #66, awaiting merge (citadel#61).
+  Drafted by `planner` (opus, ~$0.65). Whole cycle ~$1.4.
+- Next: when plan 006 is merged, open its milestone issue and do item 1 (ADR 0005 via `architect`, tight
+  scope, full file text). While the PR is open: one `/stabilize sigil --one` task per cycle (candidate:
+  `tools/tidy.zig` self-exemption, does not decompose). Blockers/questions: none.
+- Learned: the guard blocks a Bash command that greps sibling repos' `build.zig.zon` together with
+  `git tag`/`push` (split them); no Grep tool (use Bash grep); a background CI until-loop notifies on exit.
 
-## Cycle 60 — 2026-10-18 — FEATURE
+## History (cycles 60-61, condensed 2026-10-19)
 
-- Done: plan 005 item 8 conformance corpus (PR #63, CI 8/8 on both commits, squash-merged, auto-merged,
-  milestone #55 ticked 8/10; item 7 plan checkbox ticked in the same PR). Vendored jsonpath-standard
-  `tests/jsonpath/{cts.json,LICENSE,NOTICE,SOURCE}` (BSD-2, commit 20ebdcc) and `path/conformance_test.zig`
-  (reads it via `std.testing.io`, wired from `jsonpath.zig` test block). Counts asserted: 715 tests,
-  249 invalid, 466 valid, 659 pass, 56 pinned unsupported (match/search, tag-checked), 0 divergent.
-  Invalid selectors must fail as grammar errors (not limit errors) with line 1, col >= 1. Probe test
-  proves the judges and tally can fail. One reviewer: 0 critical, 4 warnings fixed. ~$1.3.
-- Next: item 9 benchmarks (`bench/main.zig`: Pointer resolve, `$..*`, a filter query over the plan 004
-  document; record MB/s and ns per match in `docs/plans/000-inherited.md`), then item 10 release v0.4.0.
-  Blockers/questions: none.
-- Learned: `std.log.err` in a helper fails a test, so a probe test of a reporting loop needs a `report`
-  flag; test warn logs make `zig build` print "failed command" but exit 0 (check `$?`); the `cts.json`
-  tests all passed first run (filters were solid); a `// proof:` must be one line above the switch.
+Cycle 61: item 9 path benchmarks (PR #64): `path.pointer.resolve` ~31 ns/lookup, `$..*` ~2150 MB/s
+(~5 ns/node), filter ~2200 MB/s (~109 ns/match); `Result.matches_total`, `ns/match` column.
+Cycle 60: item 8 conformance (PR #63): vendored jsonpath-standard `tests/jsonpath/` (BSD-2, 20ebdcc),
+`path/conformance_test.zig`; counts 715 / 249 invalid / 466 valid / 659 pass / 56 pinned unsupported
+(match/search) / 0 divergent. Learned: `std.log.err` in a helper fails a test (probe tests need a `report`
+flag); warn logs make `zig build` print "failed command" but exit 0; a `// proof:` must be one line above
+the switch.
 
 ## History (cycles 58-59, condensed 2026-10-18)
 
@@ -185,8 +181,8 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 
 ## Standing backlog
 
-Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
-Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-9 of 10 done.
+Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
+Plan 006 (Phase 3A TOML 1.0, v0.5.0) proposed as PR #66, awaiting merge (citadel#61).
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -201,5 +197,5 @@ Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, ite
 
 ## Next priority
 
-Plan 005 item 10 release v0.4.0; see the newest cycle block.
+Plan 006 awaiting the owner's merge; see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
