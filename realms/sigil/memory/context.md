@@ -1,7 +1,20 @@
 # sigil — context
 
-last_seen_at: 2026-10-18T12:00:00Z
+last_seen_at: 2026-10-18T13:00:00Z
 rejected_plans: []
+
+## Cycle 61 — 2026-10-18 — FEATURE
+
+- Done: plan 005 item 9 path benchmarks (PR #64, CI 8/8, squash-merged, auto-merged, milestone #55 ticked 9/10).
+  `bench/main.zig` gained `path.pointer.resolve` (~31 ns/lookup, parse included), `path.jsonpath $..*`
+  (~2150 MB/s, ~5 ns/node), `path.jsonpath filter` (~2200 MB/s, ~109 ns/match); `Result.matches_total`
+  and an `ns/match` column; numbers in `000-inherited.md`, CHANGELOG entry. Written directly, no
+  subagents, no reviewer (small bench diff). ~$0.65.
+- Next: item 10 release v0.4.0 (tick 2E in `000-inherited.md`, CHANGELOG `[0.4.0]`, `build.zig.zon` +
+  `sigil.version` 0.3.0 -> 0.4.0, tag, `gh release create`). Blockers/questions: none.
+- Learned: the guard blocks a Bash command that mixes citadel paths with repo commands (read citadel
+  files with Read); a CI until-loop in a background Bash call works (notified on exit); no
+  `ScheduleWakeup`.
 
 ## Cycle 60 — 2026-10-18 — FEATURE
 
@@ -173,7 +186,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-004 closed (issues #3, #20, #27, #42); v0.3.0 tagged 2026-10-14.
-Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-8 of 10 done.
+Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, items 1-9 of 10 done.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -188,5 +201,5 @@ Plan 005 (Phase 2E `path/`, v0.4.0) approved (PR #54 merged), milestone #55, ite
 
 ## Next priority
 
-Plan 005 item 9 benchmarks, then item 10 release v0.4.0; see the newest cycle block.
+Plan 005 item 10 release v0.4.0; see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
