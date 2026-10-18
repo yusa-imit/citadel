@@ -1,7 +1,27 @@
 # zuda — context
 
-last_seen_at: 2026-10-18T00:00:00Z
+last_seen_at: 2026-10-19T00:00:00Z
 rejected_plans: []
+
+## Cycle 29 — 2026-10-19 — FEATURE
+- Done: inbox clean (CI green, no bugs, no OWNER comments; #72 already merged). Plan item
+  "Assertion baseline" started: `red_black_tree.zig` (zero asserts before) now asserts size delta
+  and root state in `insert`/`remove`, runs full `validate` in Debug up to 512 nodes after each
+  mutation; `validate` also rejects root-with-parent, node count != size. File was invisible to
+  `zig build test`; wired into `root.zig`. Seeded model tests (64 and 1500 keys), corruption
+  tests. Reviewer: 3 warnings fixed (ReleaseSafe gating, 100 cols, large-tree coverage).
+- PRs: #73 (`test/assertion-baseline-rbt-blas`) merged at 7/7 green, labeled `auto-merged`.
+  Full local `zig build test` exit 0 took only ~2 min this time.
+- Finding: `linalg/blas.zig` tests and several public routines do not compile on 0.16 (77 errors:
+  `OutOfMemory` escaping `NDArray.Error` in trmv/trmm/syrk via simd_blas, `clone` missing,
+  `std.math.isInfinite`, comptime_float, rotmg return shape). Tried adding flag asserts there,
+  reverted: unverifiable. Noted in the plan item text.
+- Next: finish the box (ndarray.zig, distributions sampling; blas after the `src/**` compile
+  sweep; optional tidy assertion-floor rule, tidy.zig has none yet), then v3.0.0. Review
+  leftovers: RBT `insert`/`remove` size-delta assert is weak (pair with return value).
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: Monitor/`until` loops via Bash run_in_background work for waiting on a log; the guard
+  rejects `echo > /tmp/x` combined with a citadel path.
 
 ## Cycle 28 — 2026-10-18 — FEATURE
 - Done: preflight found #71 at 7/7 green; merged it (squash) and ticked "Thread sync" on #31.
