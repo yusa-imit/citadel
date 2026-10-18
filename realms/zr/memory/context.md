@@ -1,7 +1,23 @@
 # zr — context
 
-last_seen_at: 2026-10-18T00:00:00Z
+last_seen_at: 2026-10-19T00:00:00Z
 rejected_plans: []
+
+## Cycle 29 — 2026-10-19 — FEATURE
+- Preflight: tree clean on `main`; CI green; no bugs. Inbox: OWNER comment on #178 (2026-10-18)
+  says sailor v3.1.0 is released, target the newest tag (not v3.0.0) when migrating; only break:
+  `Editor.init`, `MultiCursorEditor.init`, `LocalSource.init` now return `error{OutOfMemory}!T`.
+  zuda still v2.3.0 (no v3.0.0) → items 5-11 blocked → one `/stabilize --one`.
+- Added `//!` headers to `exec/notification.zig` (`send` only delivers on Linux), `lsp/document.zig`,
+  `ci/templates/types.zig`; deleted dead `util/object_pool.zig` (no importers, 0.14 API); removed 5
+  baseline entries. PR #194 merged, 8/8 green (~13 min). Tests 1944/0, tidy 0 failing.
+- Found: `lsp/document.zig` `DocumentStore.open` on an already-open URI overwrites the entry and
+  leaks the earlier copy (documented in the header); candidate fix (close-then-open or error).
+- Next: ~183 headers left (next smallest: lsp/position, cli/context, lsp/diagnostics, cli/help).
+  Item 5 should bump to sailor v3.1.0 + zuda v3.x. Cycle 30 STABILIZATION.
+- Gotchas: stale `.zig-cache` again → `rm -rf .zig-cache`; `git rm`'d files are already staged, do
+  not list them in `git add`.
+- Open questions: none.
 
 ## Cycle 28 — 2026-10-18 — FEATURE
 - Preflight: tree clean on `main`; CI green; inbox clear (no new comments; #155 milestone, #178
