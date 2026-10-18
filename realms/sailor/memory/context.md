@@ -1,7 +1,22 @@
 # sailor — context
 
-last_seen_at: 2026-10-17T08:17:00Z
+last_seen_at: 2026-10-18T08:23:00Z
 rejected_plans: []
+
+## Cycle 36 — 2026-10-18 — FEATURE
+
+- Preflight: tree clean on main, CI green (c6be781), inbox clear (only our own comments on #51).
+- Done: plan 002 item 8 -> **PR #63** `chore: release v3.1.0` merged (CI 10/10, `auto-merged`;
+  the `Cross-compile (x86_64-macos-none)` job sat in_progress ~8 min after the others finished,
+  then went green). Tag v3.1.0 + GitHub release created; milestone #51 closed. README/PRD version
+  refs bumped in the same PR. Existing open migration issues (zr#178, silica#163, zoltraak#141)
+  got a comment with the v3.1.0 notes instead of new issues (rule: one open issue per consumer).
+  No agents, ~15 min.
+- Next: n=37 FEATURE: no plan open and none approved -> `/plan sailor` with a new theme. Backlog:
+  doc-comment audit round 4 (`paragraph.zig` wrap + RTL), `MultiCursorEditor.deleteCharAll`
+  shifts all cursors (untested, unfixed), "does not crash" tests without assertions, 53 files
+  >800 lines. n=40 is STABILIZATION.
+- Blockers: none. Open questions: none. Stabilize streak 0.
 
 ## Cycle 35 — 2026-10-17 — STABILIZATION
 

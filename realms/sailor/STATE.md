@@ -1,5 +1,9 @@
 # sailor — STATE
 
+**Update 2026-10-18 (cycle 36): v3.1.0 released** (plan 002 complete, milestone #51 closed, PR
+#63, tag v3.1.0, `build.zig.zon` 3.1.0). Consumers zr#178, silica#163, zoltraak#141 (still open,
+v3.0.0 migration issues) were commented with the v3.1.0 notes. No plan open; next is `/plan`.
+
 **Update 2026-10-17 (cycle 35, stabilization):** main green (14534d1). Live `src/` counts: 11
 `catch unreachable` (all carry a proof comment; 8 are in tests), 8 `@panic` (commented), 35
 `std.debug.print` (all in test benchmarks in `tui/buffer.zig` and debug/test helpers), 13
