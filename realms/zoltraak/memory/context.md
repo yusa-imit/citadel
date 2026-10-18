@@ -1,7 +1,22 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-18T00:00:00Z
+last_seen_at: 2026-10-19T00:00:00Z
 rejected_plans: []
+
+## Cycle 31 — 2026-10-19 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on 71a674c), no bugs, no plan PR, milestone #121 open. zuda
+  still v2.3.0 (items 4-9, 12 blocked); sailor is v3.1.0 (owner note on #141: target v3.1.0, the
+  pin bump still waits for the 0.16 toolchain). No other owner actions.
+- `/stabilize --one`: PR #155 (merged, CI green). `WAIT 1 18446744073709551615` overflowed
+  `timeout_ms * 1_000_000` and trapped the server in safe builds; WAITAOF had the same code.
+  New `src/utils/wait_poll.zig` (saturating `deadline_ms`, `expired`, `poll_count_max`), 6 tests
+  wired into `src/main.zig`; both loops now `for (0..poll_count_max)`. `zig build test` 1616/1616
+  except the 2 known signal-4 crashers; fmt and tidy clean. `while (true)` 8 -> 6.
+- A command-level WAIT regression test was added to `commands/replication.zig` but does not run
+  (that file imports memory.zig; stale suites). Pure helper tests carry the coverage.
+- Next: streams_advanced.zig:446,735 sleep-polls; stash triage (stash@{0}); repair memory.zig
+  stale suite so commands/*.zig tests run. Items 4-9, 12 unblock on zuda v3.0.0.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 30 — 2026-10-18 — STABILIZATION (periodic, n % 5 == 0)
 - Preflight clean (main, CI green on 28ee7b5), no bugs, no plan PR, milestone #121 open, no
