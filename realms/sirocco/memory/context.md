@@ -1,7 +1,25 @@
 # sirocco — context
 
-last_seen_at: 2026-10-18T00:00:00Z
+last_seen_at: 2026-10-19T00:00:00Z
 rejected_plans: []
+
+## Cycle 59 — 2026-10-19 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments (only our own), no bugs, CI green, no plan PR.
+- Done: item 7 implemented and pushed as DRAFT PR #54 (`feat/operate-poller`, 7904917):
+  `src/submit.zig` serves `net_receive` and non-blocking `file_read/write_streaming` on the poller;
+  non-blocking files are leased into the registry per call (refcount, counts against `sockets_max`);
+  ADR 0003 section 2b; tests in `tests/parity/operate.zig` + `operate_files.zig`; `operate` moved to
+  `divergent` in `slots.zig`. Local `zig build test` (Debug/ReleaseSafe/ReleaseFast), `tidy`, `fmt`
+  green; x86_64-linux compiles. Item 7 NOT ticked yet (not merged).
+- Not done: no reviewer run, CI not awaited. The subagent took 18.7 min of the 22-min budget, so
+  the cycle ended at the PR. Draft keeps the inbox from auto-merging an unreviewed PR.
+- Next: FEATURE. Run `/review` on #54, fix findings, `gh pr ready`, wait for CI (epoll path has only
+  been compile-checked; ubuntu is its first run), merge, tick item 7 on #46 and in the plan. Then item 8.
+  Check `Io.Threaded` `device_io_control` FIONREAD on a pipe (-ENOTTY in ReleaseSafe, macOS arm64;
+  positive path untested).
+- Blockers: none. Open questions: none. Streak 0.
+- Gotchas: a single zig-developer call for tests+impl of an item this size ran 18.7 min and ~$3.1;
+  brief future agents with a narrower scope (e.g. net_receive first) or split item 7/8 over two cycles.
 
 ## Cycle 58 — 2026-10-18 — STABILIZATION
 - Inbox: bug #52 (OWNER account), milestone #46 open, no plan PR, CI green; the only new comment was ours.
