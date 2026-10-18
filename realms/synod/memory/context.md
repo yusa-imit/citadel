@@ -1,7 +1,30 @@
 # synod — context
 
-last_seen_at: 2026-10-18T07:00:00Z
+last_seen_at: 2026-10-19T03:25:00Z
 rejected_plans: []
+
+## Cycle 59 — 2026-10-19 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (db3c96b), milestone #57 open, no open PRs.
+- Done: item 7 via PR #64 (squash-merged, 7/7 CI, `auto-merged`): `tools/sim.zig` + `zig build
+  sim -Dseeds/-Dseed/-Dseed_start/-Dplant` (ReleaseSafe; 1000 seeds ~20 s locally), tests in
+  `zig build test`, CI sweep + planted-fault step, bench `sim_cluster_5_nodes_10s` mean 21.9 ms
+  (target < 50 ms; plan said median, bench prints mean). 722 tests. Milestone #57 item 7 ticked.
+  Cost ~ $1.5 of $4; cycle used ~19 of 22 min.
+- Reviews (code-reviewer): #64 fixed in-PR (typed ArgsTooMany/WindowOverflow, Flag enum,
+  CHANGELOG). #63/#61 found 0 CRITICAL, 5 WARNING NOT yet fixed (do first next cycle, small
+  `fix/sim-review-findings` PR): (1) `simulation.zig` ~745: proposal `data` is `[8]u8` but
+  validate allows data_bytes <= entry_bytes_max (>8 panics); (2) crash_percent>0 with
+  down_ms_max==0 asserts mid-run, needs OptionsError; (3) crash/torn percent >100 asserted not
+  returned; (4) `partition_start`/`propose_draw` lack docs and asserts; (5) propose-error switch
+  uses `else` with no ProposeTooLarge arm. Suggestions: propose_seq u8 wraps, `im`/`pm`/`n`
+  names, tie-order docs omit heal/propose, tautological arm_failure assert.
+- Next: fix the 5 warnings, then item 8 (nightly sweep workflow with `--seed-start` rotation).
+- Blockers: none. Open questions: none.
+- Tool notes: guard blocks `cd <repo>; ...` chains; run from cwd. Global `zig` is 0.15.2: use
+  /Users/fn/.zr/toolchains/zig/0.16.0/zig. zig build's Run step loses a child's stderr when the
+  build's own stderr is redirected to a FILE (pipe is fine): in CI use `2>&1 | tee`. A python
+  slice-replace of ci.yml silently truncated the cross-compile job: diff the file before commit.
+
 
 ## Cycle 58 — 2026-10-18 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (6395dc5), milestone #57 open, no open PRs.
@@ -77,41 +100,9 @@ rejected_plans: []
 - Tool notes: `timeout` is not on this macOS shell; use `gh pr checks --watch` with the Bash tool
   timeout. Deadline was tight (~22 min): start the test-writer within 5 min of preflight.
 
-## Cycle 54 — 2026-10-15 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green, no open PRs; milestone #57 open.
-- Preflight: found the previous cycle's interrupted item 2 work (tests written, impl stubs) on
-  `feat/sim-clock-network`; preserved to `wip/feat-sim-clock-network-20261015` (pushed), then
-  restored onto the feat branch from it. Do not delete the wip branch.
-- Done: item 2 (3A-i) via PR #59 (squash-merged, 7/7 CI, `auto-merged`): `sim/prng.zig`
-  (SplitMix64, `derive_seed`), `sim/clock.zig` (`VirtualClock`), `sim/network.zig` (bounded,
-  loss/delay/dup/partition/planted faults, conservation identity), tidy sim purity gate
-  (`is_sim_purity_file`, `sim_banned_patterns`, `sim_banned_tokens`, comment lines skipped),
-  ADR-008 amended (`Network.slot_meta_bytes = 24`, `check_invariants`). 594 tests. Reviewer
-  warnings fixed (u64 due-time overflow, `messages_max+1` u32, `set_partition` validates before
-  mutating, tautological asserts). Cost ~ $2.1 of $4. Milestone #57 item 2 ticked.
-- Next: item 3 (`sim/invariants.zig`, five safety properties), then item 4 (`simulation.zig`,
-  adds `init_bytes_max` to `raft.Node`/`Driver`). `network_test.zig` is 906 lines (tidy does not
-  flag it; split if tidy starts to). Suggestion left: `std.hash.Wyhash` in `trace_hash` is not
-  pinned across Zig releases (fine until traces are persisted).
-- Blockers: none. Open questions: none.
-- Tool notes: in a new cycle the working tree may hold WIP from a killed run: check `git status`
-  first. Developer agent resumed with SendMessage for review fixes kept context cheap (~$0.5).
-
-## Cycle 53 — 2026-10-14 — FEATURE
-- Inbox: plan 004 PR #56 merged by the OWNER; no bugs, CI green, no open issues.
-- Done: opened milestone #57 (12 items). Item 1 ADR-008 (`docs/adr/0008-simulator-contract.md`)
-  via `architect` (~$1.8 of $4, ~12 min wall), PR #58 (docs, CHANGELOG entry, plan box ticked,
-  7/7 CI, squash-merged). The architect returned the text HTML-escaped (`&lt; &gt; &amp;`):
-  unescape before writing. Milestone #57 item 1 ticked.
-- Next: item 2 (`sim/clock.zig`, `sim/network.zig`, widen tidy purity gate per ADR-008:
-  `sim_purity_dir`, `is_sim_purity_file`, `sim_banned_patterns`; also `sim/prng.zig` is
-  ADR-008's determinism root, add it with item 2). Item 4's PR adds `init_bytes_max` to
-  `raft.Node` and `Driver` (ADR-008 Consequences 1).
-- Blockers: none. Open questions: none.
-- Tool notes: waiting for a background agent by `sleep` in background costs ~$0.5 of context
-  per wake; give the agent one long job and do not poll. Guard blocks `cd <path>;` and `>`
-  redirects mixed with citadel paths; use Write for /tmp files. Global zig is 0.15.2, use
-  `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --build-file ... --cache-dir /tmp/x`.
+## Cycles 53-54 (2026-10-14..15), folded
+- Older per-cycle detail dropped to keep this file under 200 lines; the record is the merged
+  PRs #54-#58 (v0.4.0 release, plan 004 and ADR-008) and the milestone issues on GitHub.
 
 ## Cycles 51-52 (2026-10-13..14), folded
 - 51: item 11 (Tiger Style baseline re-measure) via PR #53, docs only; README status "Phase 2
