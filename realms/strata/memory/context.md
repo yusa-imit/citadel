@@ -1,7 +1,27 @@
 # strata — context
 
-last_seen_at: 2026-10-18T05:22:30Z
+last_seen_at: 2026-10-19T05:20:00Z
 rejected_plans: []
+
+## Cycle 59 — 2026-10-19 — FEATURE
+- Done: plan 004 item 11 — `src/testing/wal_recovery_test.zig` + `wal_recovery_fixtures.zig` (seeded
+  crash-recovery property: real Writer/pool/Checkpoint/PageRedo over FaultIo write cancel + CrashSink tail
+  cut, 3 sizes x 12 seeds) merged as #60 (squash, CI 7/7, auto-merged), issue #48 ticked, 627 tests.
+  `Env.edit_io(io, ...)` added to `wal/checkpoint_fixtures.zig`.
+- Recovery: cycle 58 died with item 11 uncommitted on `test/wal-recovery-property`; preserved as
+  `wip/test-wal-recovery-property-20261019` (pushed, keep per never-delete rule). It contains a deliberate
+  mutant `or true` in `wal/redo.zig` - never merge that branch. Rebuilt on the feature branch from it.
+- Mutants (by hand, not committed): redo that never applies fails at all sizes; pool gate off fails only at
+  64 KiB (512 B / 4 KiB pass - weak spot). "Redo always applies" was not run.
+- Review: 0 critical, 5 warnings; 3 fixed pre-merge (relieve swallowed errors, `unreachable` in `end_of`,
+  CHANGELOG claim). Left: `classify` maps Failed/InputOutput to crash without counting fio injections;
+  property 2 is prefix + >= durable only (no exact equality when cut == durable_offset); checkpoint ack
+  reads `cp.stage/redo_lsn`; idempotence compares count + last_lsn only; `stats.crashed` ignores
+  sync-fail-only crashes; no `applied > 0` in Totals; model uses `rfx.image_payload` like the impl.
+- Next: item 12 docs + module status + release v0.5.0 (`/release strata minor`). Blockers: none.
+  Open questions: none.
+- Note: ~$1.1 of $4, ~15 min. Bash guard: one simple command per call; piping to grep works and keeps
+  `zig build test` output small. Do not call ScheduleWakeup in a /cycle (it is /loop only).
 
 ## Cycle 58 — 2026-10-18 — FEATURE
 - Done: plan 004 item 10 — `src/wal/checkpoint.zig` (`Checkpoint.init/run/reclaim`, `redo_start`),
