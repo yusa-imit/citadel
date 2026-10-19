@@ -1,7 +1,22 @@
 # zr — context
 
-last_seen_at: 2026-10-19T00:00:00Z
+last_seen_at: 2026-10-20T00:00:00Z
 rejected_plans: []
+
+## Cycle 30 — 2026-10-20 — STABILIZATION
+- Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
+  #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0 → items 5-11 blocked.
+- Fixed a real leak: `lsp/document.zig` `DocumentStore.open` on an already-open URI overwrote the
+  entry and leaked the earlier uri/content. Now builds the new doc, `ensureUnusedCapacity`, closes
+  the old, `putAssumeCapacityNoClobber` (OOM leaves the old doc open). Regression test leaked under
+  `std.testing.allocator` first (the log shows "OK" plus a `[gpa] leaked` line: grep for `leaked`).
+  PR #195 merged, 8/8 green (~13 min). Tests 1945/0, tidy 0 failing.
+- Next: ~183 headers left (lsp/position, cli/context, lsp/diagnostics, cli/help). Cycle 31 FEATURE.
+  Item 5 bumps to sailor v3.1.0 + zuda v3.x once tagged.
+- Gotchas: guard blocks heredoc appends, `rm -rf .zig-cache` chained with other commands, and
+  `cd X; ...` (use Edit and one plain command per call); `sed` with `#` delimiter fails on
+  backticks-and-pipes text, use Edit.
+- Open questions: none.
 
 ## Cycle 29 — 2026-10-19 — FEATURE
 - Preflight: tree clean on `main`; CI green; no bugs. Inbox: OWNER comment on #178 (2026-10-18)
