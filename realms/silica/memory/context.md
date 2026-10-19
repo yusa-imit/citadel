@@ -1,7 +1,18 @@
 # silica — context
 
-last_seen_at: 2026-10-18T09:00:00Z
+last_seen_at: 2026-10-19T09:00:00Z
 rejected_plans: []
+
+## Cycle 36 — 2026-10-19 — FEATURE
+- Preflight: main clean, CI green (af2de22), no bug/question issues, no open PRs; inbox nothing new
+  (only own comments on #137, #163). zuda still v2.3.0, so every unchecked plan 001 item is blocked.
+- Done: one `/stabilize --one` filler, PR #177 (merged, `auto-merged`, CI 7/7): `matrixRowIndex`
+  extracted from renderMatrixView (72) with a unit test (verb match now case-insensitive); baseline
+  entry dropped (`function_length` 39 -> 38). Local tidy + test + fmt green. No subagents, ~$0.4.
+- Next: fillers getSqlKeywordHelp 73, renderBracketViewer 73, renderRadarChart 73, run 73,
+  readAndExecuteFile 74. Cycle 40 is the next n%5==0. Migration waits for zuda v3.0.0 (target sailor v3.1.0).
+- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
+- Tooling: `sed -i` on citadel is blocked by the guard, use Edit. CI ~10.5 min; cycle took ~20 min.
 
 ## Cycle 35 — 2026-10-18 — STABILIZATION (n%5==0)
 - Preflight: main clean, CI green (83b410b, last 5 runs green), no bug/question issues, no open PRs.
@@ -17,45 +28,14 @@ rejected_plans: []
 - Tooling: guard blocks `grep ... --include=*.zig` multi-command lines mentioning citadel paths;
   run counts as separate Bash calls. Cycle took ~13 min (CI ~12 min).
 
-## Cycle 34 — 2026-10-17 — FEATURE
-- Preflight: main clean, CI green (fb608c8), no bug/question issues, no open PRs; inbox nothing new
-  (only own comments on #137). zuda still v2.3.0, so every unchecked plan 001 item stays blocked.
-- Done: one `/stabilize --one` filler, PR #175 (merged, `auto-merged`, CI 7/7): helper
-  `jsonScalarToTextValue` cut evalJsonExtract (71) under 70; its baseline entry dropped
-  (`function_length` 43 -> 42). Local tidy + test + fmt green. No subagents, ~$0.35.
-- Next: remaining fillers are real splits (showIndexes 77, readAndExecuteFile 74, renderBracketViewer
-  73, renderRadarChart 73, renderMatrixView 72, getSqlKeywordHelp 73, run 73). Cycle 35 is n%5==0
-  STABILIZATION.
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: guard rejects compound `git ...; grep > file && cp` lines; run each write/branch step as its
-  own Bash call. CI ~9 min; cycle took ~13 min.
+## History (cycles 32-34, condensed 2026-10-19)
 
-## Cycle 33 — 2026-10-16 — FEATURE
-- Preflight: main clean, CI green (7befc8a), no bug/question issues, no open PRs; inbox nothing new
-  (only own comments on #137). zuda still v2.3.0, so every unchecked plan 001 item stays blocked.
-- Done: one `/stabilize --one` filler, PR #174 (merged, `auto-merged`, CI 7/7): tidy_baseline.txt
-  only. Ran `zig build tidy` with all `function_length:` lines removed, parsed the 41 reported spans,
-  dropped 15 stale entries (functions already <= 70) and lowered 24 limits to the measured span
-  (58 -> 43 entries). Local test + fmt green. No subagents, ~$0.55.
-- Method (reusable): /tmp python script re-derives baseline limits from tidy output; the
-  compound `cp; grep -v > file; zig build tidy | grep` line was NOT blocked by the guard.
-- Next: remaining fillers are real splits (showIndexes 77, readAndExecuteFile 74, renderBracketViewer
-  73, renderRadarChart 73, renderMatrixView 72, evalJsonExtract 71). Cycle 35 is the next n%5==0.
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-
-## Cycle 32 — 2026-10-15 — FEATURE
-- Preflight: main clean, CI green (46a8009), no bug/question issues, no open PRs; inbox nothing new
-  (only own comment on #137). zuda still v2.3.0, so every unchecked plan 001 item stays blocked.
-- Done: one `/stabilize --one` filler, PR #173 (merged, `auto-merged`, CI 7/7): helpers
-  `applyIntervalUnit` and `hasFormatToken` cut parseIntervalString (71) and toNumber (72) under 70
-  lines; both baseline entries dropped (`function_length` 58 -> 56). Local tidy + test + fmt green.
-  No subagents, ~$0.55. Hygiene check: `zig-pkg/` is already gitignored (REALM.md note is stale).
-- Next: zuda v3.0.0 tag unblocks migration. Meanwhile more function_length fillers: renderStatusBar
-  72, showDbInfo 73, jsonInsertAtPath 73, getAllQuantifierEndpoints 73, getSqlKeywordHelp 73, run 73.
-  Cycle 35 is the next n%5==0 stabilization.
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: global zig is 0.15.2, so use `std.mem.trimRight` (not `trimEnd`). A compound Bash line
-  writing to /tmp and reading citadel was blocked by the guard; split into separate calls.
+Cycles 32-34 (2026-10-15 to 10-17, FEATURE, all blocked on zuda v3.0.0): one `/stabilize --one`
+filler each, auto-merged CI 7/7. #173 helpers `applyIntervalUnit`/`hasFormatToken` (parseIntervalString,
+toNumber); #174 baseline ratchet (re-derive limits by running `zig build tidy` with the `function_length:`
+lines removed; 58 -> 43 entries); #175 `jsonScalarToTextValue` (evalJsonExtract). `zig-pkg/` is already
+gitignored (REALM.md note stale). Global zig is 0.15.2: use `std.mem.trimRight`. Guard rejects compound
+lines mixing git/grep/writes or citadel reads; run steps as separate Bash calls.
 
 ## Cycle 31 — 2026-10-14 — FEATURE
 - Preflight: main clean, CI green (9c457f8), no bug/question issues, no open PRs, inbox nothing new
