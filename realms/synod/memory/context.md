@@ -1,7 +1,26 @@
 # synod — context
 
-last_seen_at: 2026-10-19T03:25:00Z
+last_seen_at: 2026-10-19T06:15:00Z
 rejected_plans: []
+
+## Cycle 60 — 2026-10-19 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (4a8bac4), milestone #57 open, no open PRs.
+- Done: (1) PR #65 `fix/sim-review-findings` (squash-merged, 7/7 CI, `auto-merged`): the 5 review
+  WARNINGs; `OptionsError` gains `CrashPercentInvalid`/`TornPercentInvalid`/`DownDurationInvalid`,
+  proposal buffer now `[255]u8`, `partition_start`/`propose_draw` documented+asserted,
+  `ProposeTooLarge` arm; tests in new `sim/simulation_options_test.zig`; 726 tests.
+  (2) item 8 via PR #66 (7/7 CI, `auto-merged`): `.github/workflows/sim-nightly.yml` (cron 03:17
+  UTC + dispatch inputs `seeds`/`plant`; window start = UTC day number * seeds). Verified by
+  dispatch: plant=lose_synced_hard_state red (ElectionSafety), plant=none 1000 seeds green in
+  ~52 s. Milestone #57 item 8 ticked. Cost ~ $0.8 of $4, ~11 min.
+- Caveat: 100k seeds at ~52 s/1000 on the CI runner is ~87 min vs `timeout-minutes: 120`; watch
+  the first scheduled run (`gh run list --workflow sim-nightly.yml`), shrink seeds if it times out.
+- Deviations: branch for #66 was `ci/sim-nightly` (not in the kingdom branch-prefix list; use
+  `chore/`). Fix PR #65 was not re-reviewed by code-reviewer (small, review-driven).
+- Next: item 9 (`sim/linearizability.zig`), then 10, 11, 12 (release v0.5.0).
+- Blockers: none. Open questions: none.
+- Open suggestions: `im`/`n` renames done; `arm_failure` assert still tautological; plant-refused
+  restart is silent.
 
 ## Cycle 59 — 2026-10-19 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (db3c96b), milestone #57 open, no open PRs.
