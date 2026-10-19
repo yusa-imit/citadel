@@ -1,7 +1,25 @@
 # sirocco — context
 
-last_seen_at: 2026-10-19T00:00:00Z
+last_seen_at: 2026-10-20T00:00:00Z
 rejected_plans: []
+
+## Cycle 61 — 2026-10-20 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments (only our own reports), no bugs, CI green, no plan PR.
+- Done: item 8 as PR #55 (`feat/batch-poller`, ready, not yet merged): `src/batch.zig` native
+  `batchAwaitAsync/Concurrent/Cancel` for fiber-awaited batches of one-message registered-socket
+  `net_receive` and non-blocking file streams, else the whole batch goes to `Io.Threaded`. The wait is
+  wheel slices (50 us -> 2 ms), NOT a poller park (a fiber sits on one waiter list only), so no
+  `ConcurrencyUnavailable`; plan item 8b added for a per-op waiter node. ADR 0003 section 2c.
+- Review (code-reviewer): 0 CRITICAL, 4 WARNING all fixed: a socket closed mid-wait now completes with
+  `SocketUnconnected` (new test), stale ADR/header text, empty-batch cancel, plan deviation noted.
+  Std 0.16.0 bug: `Io.Threaded.batchAwaitConcurrent` leaves a ready `net_receive` on `submitted`.
+- Next: first thing, `gh pr checks 55`; green + no hold -> squash-merge, label `auto-merged`, tick item 8
+  on #46 (plan file already ticked in the PR). Then item 9 (`concurrent`/`groupConcurrent`).
+- Blockers: none. Open questions: none. Streak 0. Epoll batch tests only cross-compiled (ubuntu CI is
+  their first run). CI was still pending at the 22-min deadline (macOS + ubuntu queued).
+- Gotchas: one zig-developer call for item 8 took ~9 min / ~$1.4 with a narrow brief and a 14-min cap;
+  `gh pr checks --watch` of 9 min hits the Bash timeout; the guard blocks compound Bash writing citadel
+  files (use Write/Edit); the sweep needs `rt` to consult the registry.
 
 ## Cycle 60 — 2026-10-19 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments, no bugs, CI green, only draft PR #54 open.
