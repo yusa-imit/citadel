@@ -1,7 +1,22 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-19T00:00:00Z
+last_seen_at: 2026-10-19T23:16:15Z
 rejected_plans: []
+
+## Cycle 32 — 2026-10-20 — FEATURE (all plan items blocked)
+- Preflight clean (main, CI green on df7cf08), no bugs, no plan PR, milestone #121 open. zuda
+  still v2.3.0 (items 4-9, 12 blocked); no new owner comments (#141 still says target sailor
+  v3.1.0, bump waits for the 0.16 toolchain).
+- `/stabilize --one`: PR #156 (merged, CI green). XREAD/XREADGROUP BLOCK loops were
+  `while (true)` (BLOCK 0 unbounded). Now `for (0..block_poll.poll_count_max)` (one year at
+  100 ms) with pure `timed_out`; new `src/utils/block_poll.zig`, 5 tests wired into the
+  `src/main.zig` test root, mutation-checked (`>=` to `>` fails 4). `zig build test` 1621/1621
+  except the 2 known signal-4 crashers; fmt and tidy clean. `while (true)` in `src/` 6 -> 4.
+- Next: remaining `while (true)`: server.zig:575, cli.zig:108, lua_engine.zig:301 (probably
+  legit loops, audit), bloom.zig:826 (test loop); stash triage (stash@{0}); repair memory.zig
+  stale suite so commands/*.zig tests run. Items 4-9, 12 unblock on zuda v3.0.0.
+- Lesson: BSD sed `-i` needs a suffix arg (`-i ''`); use the Edit tool for mutation checks.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 31 — 2026-10-19 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on 71a674c), no bugs, no plan PR, milestone #121 open. zuda
