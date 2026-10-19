@@ -1,7 +1,20 @@
 # strata — context
 
-last_seen_at: 2026-10-19T05:20:00Z
+last_seen_at: 2026-10-20T00:00:00Z
 rejected_plans: []
+
+## Cycle 60 — 2026-10-20 — FEATURE
+- Done: plan 004 item 12 — `wal.zig` drops `NotImplemented`, re-exports Frame/Reader/Writer/Apply/Recovery/
+  PageRedo/Checkpoint; README, CHANGELOG `[0.5.0]`, zon 0.5.0, 000-inherited 3A-3E ticked; merged #61 (CI 7/7).
+  Tagged v0.5.0 + GitHub release, milestone #48 closed. No sibling zon names strata -> no migration issues.
+- Plan 005 (Phase 4a B+Tree + WAL integration + bench, 12 items, v0.6.0; kv -> plan 006) proposed as
+  PR #62, awaiting merge (citadel#65). Open questions for the owner are in the PR body (full-page image per
+  op; kv in 006).
+- Next: when #62 merges, open milestone issue "milestone: 005 ..." and implement item 1 (ADR-0004 via
+  architect). Blockers: none. Open questions: PR #62 body (2).
+- Note: ~$1.9 of $4, ~15 min. No `timeout` binary on macOS; `gh pr checks --watch` in background,
+  foreground `until ! gh pr checks N | grep -q pending` loop worked. Docs-only release item needs no agents.
+  Poll a subagent by grepping its subagents jsonl for `"stop_reason":"end_turn"`.
 
 ## Cycle 59 — 2026-10-19 — FEATURE
 - Done: plan 004 item 11 — `src/testing/wal_recovery_test.zig` + `wal_recovery_fixtures.zig` (seeded
@@ -39,51 +52,14 @@ rejected_plans: []
 - Note: ~$3.3 of $4 (impl 9 min/$1.7, fixes 4.5 min/$0.8) - item 11 is large; consider a leaner brief.
   Cycle-time was ~15 min; the Bash guard still wants one simple command per call.
 
-## Cycle 57 — 2026-10-18 — FEATURE
-- Done: plan 004 item 9 — `src/wal/redo.zig` `PageRedo` (`init(target, gpa, pm)`, `apply_target()`, `Stats`)
-  + `PageManager.ensure_page_count` (grows the file, publishes count in page 0; `GrowError`) merged as #58
-  (squash, CI 7/7, auto-merged), issue #48 ticked, 601 tests. Redo iff the page read fails with any
-  DecodeError/TornWrite/Unwritten or `page.lsn < frame.lsn`; restored with `lsn = frame.lsn`; page 0, size
-  mismatch, bad magic/type -> `Corrupted` (before any limit `Failed`); limit checked only for id >= page_count.
-- Review: 0 critical, 3 warnings (non-exhaustive read-error switch, lowered `page_count_max` blocking existing
-  pages, error precedence doc) + 5 suggestions all fixed pre-merge via SendMessage (second commit).
-- Left: redo does not sync (caller calls `PageManager.sync` after replay); every I/O error incl. Canceled maps
-  to `Failed` (vtable error set); a failed `preallocate` cannot be faulted (`platform.reserve` bypasses Io);
-  skipped pages after `ensure_page_count` leak if never used.
-- Next: item 10 `wal/checkpoint.zig` (+ `PageManager.set_wal_lsn`, checkpoint-frame check, `redo_lsn`
-  derivation). Blockers: none. Open questions: none.
-- Note: ~$1.9 of $4, ~45 min wall (zig-developer ran 4.5 min but the harness took long to notify; poll
-  `git status`, do not stack sleeps). `until ... grep pending` loop exited early — use
-  `gh pr checks N --watch` in the background instead.
-
-## Cycle 56 — 2026-10-17 — FEATURE
-- Done: plan 004 item 8 — `BufferPool.set_durable_lsn(lsn)` WAL-before-data gate merged as #57 (squash,
-  CI 7/7, auto-merged), issue #48 ticked, 582 tests. Gate off until first call; lsn == bound is written;
-  eviction skips gated frames, all gated/pinned -> `PoolExhausted`; `flushAll` skips + counts
-  `Stats.gated` (in-loop), no error. Tests in `src/cache/buffer_pool_gate_test.zig` (8 sizes).
-- Review: 0 critical, 3 warnings (doc, CHANGELOG, gated counted after loop) + suggestions fixed pre-merge
-  via SendMessage (second commit). Reviewer could not run tests (PATH zig is 0.15.2) - read-only is fine.
-- Left: `deinit` asserts zero dirty, so a caller with gated frames must raise the bound or `discardAll`
-  first; `docs/milestones.md` does not exist (nothing to tick there).
-- Next: item 9 full-page-image redo (`src/wal/redo.zig`). Blockers: none. Open questions: none.
-- Note: ~$1.2 of $4, ~12 min; zig-developer impl 2 min, fixes 1 min. The cycle's Bash guard rejects
-  compound commands from the very first call (even `START=$(date)...`), so run one command per call.
-
-## Cycle 55 — 2026-10-17 — FEATURE
-- Done: plan 004 item 7 — `src/wal/recovery.zig` (+ fixtures, `recovery_test`; ~586 tests) merged as #56
-  (squash, CI 7/7, auto-merged), issue #48 ticked. `Recovery.replay(io, gpa, dir, target: Apply, options)
-  -> {last_lsn}`; `Apply` = ptr + vtable (`ApplyError{Failed,Corrupted}`); seek = read-and-skip frames below
-  `from_lsn` (frame must start exactly at it; TornWrite before target -> Corrupted); repairs run only
-  after the whole log was read (torn frame: setLength+sync; torn newest header: delete+sync_dir); Torn
-  carries segment length, re-checked under lock. ADR-0003 Open question 5: damage before the checkpoint
-  blocks recovery (read-and-skip is O(bytes)).
-- Review: 0 critical, 6 warnings + suggestions all fixed pre-merge (second commit via SendMessage).
-- Left: no FaultIo crash inside setLength/delete (goes to 3E tests); checkpoint-frame validation at
-  `wal_lsn` + `redo_lsn` derivation is item 10's / the caller's job.
-- Next: item 8 pool WAL-before-data gate (`set_durable_lsn`, src/cache/).
-- Blockers: none. Open questions: none.
-- Note: cost ~ $2.0 of $4 in ~15 min; zig-developer 4.3 min impl + 2.3 min fixes, reviewer 3.4 min in
-  parallel with CI. A brief that lists the ADR sections and says "stop at 11 min" worked well.
+## Cycles 55-57 (2026-10-17..18, condensed 2026-10-20)
+- Plan 004 items 7-9 merged (#56 `wal/recovery.zig` `Recovery.replay` + `Apply` vtable; #57 `BufferPool.
+  set_durable_lsn` WAL-before-data gate; #58 `wal/redo.zig` `PageRedo` + `PageManager.ensure_page_count`;
+  CI 7/7, auto-merged, reviews 0 critical). Left: recovery repairs run after the whole log is read; redo
+  does not sync (caller syncs); every I/O error incl. Canceled maps to `Failed`; `deinit` asserts zero dirty
+  so gated frames need a raised bound or `discardAll`; `docs/milestones.md` does not exist.
+- Lessons: brief the zig-developer with ADR sections + "stop at 11 min"; reviewer in parallel with CI;
+  fixes via SendMessage; Bash guard wants one simple command per call.
 
 ## Cycles 49-54 (2026-10-14..16, condensed 2026-10-17)
 - Plan 004 items 2-6 merged (PRs #50-#55, squash, CI 7/7, auto-merged; tests 505 -> 554):
