@@ -1,7 +1,24 @@
 # zuda — context
 
-last_seen_at: 2026-10-19T00:00:00Z
+last_seen_at: 2026-10-20T00:00:00Z
 rejected_plans: []
+
+## Cycle 30 — 2026-10-20 — STABILIZATION (periodic, n%5==0)
+- Done: CI green (last 5 runs), no bugs, no OWNER comments. Tiger Style audit via grep: `@panic`
+  0, `std.debug.print` 4 (3 demo `main.zig`, 1 seed-report errdefer in an RBT test), `while
+  (true)` 106, `catch unreachable` 44 non-test in `distributions.zig`; `correlation.zig`'s 12
+  are all test code. Class fixed: proof comments on `catch unreachable`. Read every `quantile`
+  body (only error: p outside [0, 1]) and commented 20 sample/median sites plus the `Deque`
+  iterator. Full `zig build test` exit 0, fmt clean.
+- PRs: #74 (`chore/catch-unreachable-proofs`) merged at 7/7 green, labeled `auto-merged`. The
+  `chore` label does not exist in the repo (`gh pr create --label chore` fails).
+- Next: ~24 `Gamma/StudentT/Lindley/GeneralizedNormal.init(self.param) catch unreachable` sites
+  in `distributions.zig` need the owner's init validation as proof (or a typed path); then
+  resume plan 001 FEATURE: remaining assertion baseline (ndarray, distributions sampling), blas
+  after the `src/**` compile sweep, v3.0.0. Cycle 31 is FEATURE.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: `perl -i -pe` with `$.` inserts comment lines by number (go bottom-up); the guard
+  rejects `cd <repo>; ...` and `==` in zsh breaks `sed`/`echo` banners.
 
 ## Cycle 29 — 2026-10-19 — FEATURE
 - Done: inbox clean (CI green, no bugs, no OWNER comments; #72 already merged). Plan item
