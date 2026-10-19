@@ -40,26 +40,20 @@ always fits proves nothing about OutOfSpace; `zig test --test-filter` on root.zi
 guard blocks python heredocs touching citadel paths (use Read/Edit); `-0` parses as int 0; tidy wants one
 `// proof:` line above each `catch unreachable`/`switch (err)`.
 
-## History (cycle 57, condensed 2026-10-17)
+## History (cycles 54-57, condensed 2026-10-19)
 
-Cycle 57: item 5 `path/jsonpath.zig` parse (PR #60): `compile(*Program, query, diag)`, fixed struct, byte-column
-diags. Learned: tidy wants `// proof:` above a multi-line `catch |err| switch (err)`; lines >100 cols fail tidy in
-tests too; check test generators first when a model test fails.
-
-## History (cycles 54-56, condensed 2026-10-17)
-
-Cycle 56: item 4 `path/patch.zig` (PR #59): `apply(tree, ops, diag)` per-op spine rebuild, one `tree.root`
-assignment, `op <i>: <reason>` diags; `copy`/`move` deep-copy via `clone.deep` (a shared subtree makes a DAG
-with exponential depth walk); index past end is `IndexOutOfRange`, `-` is `PathNotFound`. Learned: guard
-blocks `cd <repo>`; `gh pr checks` right after push says "no checks" ~1 min (until-loop); `**` and `++`
-share precedence, parenthesize; arena-backed FailingAllocator sweeps hit few allocations, assert content.
-
-Cycle 54: item 2 `path/pointer.zig` (PR #57; `parse` into `[128]Segment`, `resolve`, `format`, `index_of`,
-`segment_eql`). Cycle 55: item 3 `path/merge.zig` (PR #58; path copying, one `tree.root` swap, internal
-`path/clone.zig` `clone.deep`). Learned: `node = .{ .map = try f(node) }` aliases the result location (use a
-temp); merge tests import `json.dom` for RFC fixtures (test-only); arena batches child allocs so a
-FailingAllocator sweep sees only ~2 failure points; `Map.put` rejects duplicate keys; tests build documents
-inside out with `tree.new_map(n)`; a trailing `Monitor sleep` placeholder is wasted money.
+Cycle 57: item 5 `path/jsonpath.zig` parse (PR #60): `compile(*Program, query, diag)`, fixed struct,
+byte-column diags. Cycle 56: item 4 `path/patch.zig` (PR #59): `apply(tree, ops, diag)` per-op spine
+rebuild, one `tree.root` assignment, `op <i>: <reason>` diags; `copy`/`move` deep-copy via `clone.deep`
+(a shared subtree makes a DAG with exponential depth walk); index past end is `IndexOutOfRange`, `-` is
+`PathNotFound`. Cycle 55: item 3 `path/merge.zig` (PR #58; path copying, one `tree.root` swap, internal
+`path/clone.zig`). Cycle 54: item 2 `path/pointer.zig` (PR #57; `parse` into `[128]Segment`, `resolve`,
+`format`, `index_of`, `segment_eql`). Learned: tidy wants `// proof:` above a multi-line
+`catch |err| switch (err)`; lines >100 cols fail tidy in tests too; `**` and `++` share precedence,
+parenthesize; `node = .{ .map = try f(node) }` aliases the result location (use a temp); arena-backed
+FailingAllocator sweeps hit only ~2 failure points, assert content; `Map.put` rejects duplicate keys;
+tests build documents inside out with `tree.new_map(n)`; `gh pr checks` right after a push says "no
+checks" for ~1 min (until-loop); a trailing `Monitor sleep` placeholder is wasted money.
 
 ## History (cycles 52-53, condensed 2026-10-16)
 

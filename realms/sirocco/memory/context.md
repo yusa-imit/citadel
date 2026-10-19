@@ -37,126 +37,56 @@ rejected_plans: []
 - Gotchas: `zig build test` re-runs are cached, so a loop of identical runs under load tests nothing after
   the first; change an input or use `--summary all` with `-Dno-cache`-style invalidation. Cycle cost ~$0.7.
 
-## Cycle 57 — 2026-10-18 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments, no open PRs, CI green.
-- Done: item 6 merged via PR #51 (7e63945, CI green macOS + ubuntu-on-epoll + 6 cross, `auto-merged`):
-  `src/backend/epoll.zig` (table is the truth, kernel entry re-derived because EPOLLONESHOT disables the
-  whole per-fd entry; eventfd wake; ms-rounded timeout), `.auto` -> `.epoll` on Linux, parity suite
-  compiled per backend incl. epoll, ADR 0003 section 2a. `poller_test.zig` moved off `std.c` (Linux build
-  rejects libc) and its model test tolerates an fd's two ready interests arriving over two waits.
-  Reviewer CRITICAL (model_wait expected both events in one wait) was fixed before the PR. Item 6 ticked.
-- Opened bug #52: `net_data` "closing ... from another thread" test aborted 4/4 with BADF in
-  `Io.Threaded.netWritePosix` while the machine was loaded (passes unloaded): a writer retry after a
-  cross-thread close takes the foreign/offload path with a closed fd. Next cycle's STABILIZATION fixes it.
-- Next: STABILIZATION for #52 (regression test forcing the interleaving), then item 7 (`operate` on the
-  poller: `net_receive`, non-blocking file streams). #49 follow-ups still open.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: `zig build test -Dtarget=x86_64-linux-gnu` compiles every Linux test binary even though the
-  host cannot run them (the "unable to execute" lines are expected; grep for other `error:`); riscv64
-  `fiber_switch.zig` fails to build (naked fn safety check), not in CI; BSD `sed` rejects `\n` in
-  patterns, use python for edits; a foreground wait: python `time.sleep` in Bash, notification arrives
-  between calls. Cycle cost ~$1.9 (reviewer ~$0.35).
+## History (cycles 56-57, condensed 2026-10-19)
 
-## Cycle 56 — 2026-10-17 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments beyond our own; CI green; no bugs, no plan PR. The
-  working tree held interrupted item-5 work (third attempt): preserved as
-  `wip/feat-net-data-path-slots-20261017` (do not delete; older `wip/feat-native-net-data-path-*`
-  and `feat/native-net-data-path` are superseded but also kept).
-- Done: item 5 merged via PR #50 (3b7aba2, CI green macOS + ubuntu + 6 cross, `auto-merged`):
-  `src/net_data.zig` (netRead/netWrite/netSend/netShutdown), close from #49. Reviewer found a
-  leftover `.filters` in build.zig (parity step ran ONE test: always grep build.zig for `.filters`
-  before trusting a wip tree), then the full suite exposed a wrong short-write expectation; ubuntu CI
-  caught `Registry.count()` reading undefined on a disabled registry (fixed: returns 0). Added
-  parked-writer cancel/close tests and a `data_fail` errno table. Item 5 ticked on #46 and in plan.
-- Examined, not done: foreign-close window between EAGAIN and `waiter_enter` is unreachable (sockets
-  register only on the carrier); off-fiber `poll(2)` never sees a close (documented caller bug).
-  Leftovers: comptime check on `data_fail`'s `closed` arg, `setsockopt` asserts in test helpers,
-  foreign-handle test strength; native-path parity tests run on kqueue builds only (Linux after item 6).
-- Next: item 6 (`src/backend/epoll.zig`, `.auto` -> `.epoll` on Linux; `eventfd` wake; comptime check
-  both pollers export the same declarations). Plus #49 follow-ups still open (blocking accept infinite
-  poll, registry spin-lock bound, `catch unreachable` at net_registry.zig:160, errno gaps).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Gotchas: guard blocks `gh pr ready && gh pr merge` in one command (run them separately); item 5
-  cost ~$1.7 of the cycle (reviewer ~$0.4, test agent ~$0.3); gh sometimes returns empty JSON, retry.
+Cycle 57 (10-18): item 6 via PR #51: `src/backend/epoll.zig` (table is the truth, kernel entry
+re-derived because EPOLLONESHOT disables the whole per-fd entry; eventfd wake; ms-rounded timeout),
+`.auto` -> `.epoll` on Linux, ADR 0003 section 2a. Opened bug #52 (fixed in cycle 58). Gotchas:
+`zig build test -Dtarget=x86_64-linux-gnu` compiles every Linux test binary though the host cannot
+run them (the "unable to execute" lines are expected); riscv64 `fiber_switch.zig` fails to build
+(naked fn safety check), not in CI; BSD `sed` rejects `\n`, use python for edits.
 
-## History (cycles 53-55, condensed 2026-10-17)
+Cycle 56 (10-17): item 5 via PR #50: `src/net_data.zig` (netRead/netWrite/netSend/netShutdown).
+Interrupted tree preserved as `wip/feat-net-data-path-slots-20261017` (do not delete; older
+`wip/feat-native-net-data-path-*` and `feat/native-net-data-path` are kept too). Always grep
+build.zig for a leftover `.filters` before trusting a wip tree (the parity step ran ONE test).
+`Registry.count()` read undefined on a disabled registry (returns 0 now). Leftovers: comptime check
+on `data_fail`'s `closed` arg, `setsockopt` asserts in test helpers, foreign-handle test strength,
+#49 follow-ups (blocking accept infinite poll, registry spin-lock bound, `catch unreachable` at
+net_registry.zig:160, errno gaps). The guard blocks a ready-and-merge pair in one command.
+
+## History (cycles 49-55, condensed 2026-10-19)
 
 Cycle 55 (10-15): re-reviewed #49, CRITICAL = a cancel arriving after a readiness wake was lost; fix
-`park` calls `task_acknowledge_cancel` first, `close_on_carrier` returns bool; merged 30ea8af. Wake
-order is most-recent-joiner first. Cycle 54 (10-14): item 4 as draft PR #49 (sys.zig, net.zig registry,
-sched_io.zig poller dispatch); too big for one cycle with a fix round (~$2.6); draft status keeps the
-inbox from auto-merging a PR with open CRITICALs. Cycle 53 (10-14): item 3 via PR #48 (`sockets_max`
-required, `.auto` -> `.kqueue` on Darwin, scheduler idles in the poller, parity suite per backend,
-`sleep.fire` trap fix); gate 7 on kqueue p50 0.31 ms / p99 0.39 ms. Hanging `zig build test`: python
-subprocess timeout then `pkill -f .zig-cache`; one test: temporary `.filters` in build.zig (restore it!).
+`park` calls `task_acknowledge_cancel` first, `close_on_carrier` returns bool. Wake order is
+most-recent-joiner first. Cycle 54: item 4 as draft PR #49 (sys.zig, net.zig registry, sched_io.zig
+poller dispatch); too big for one cycle with a fix round (~$2.6); draft status keeps the inbox from
+auto-merging a PR with open CRITICALs. Cycle 53: item 3 via PR #48 (`sockets_max` required,
+`.auto` -> `.kqueue` on Darwin, parity suite per backend); gate 7 on kqueue p50 0.31 ms / p99
+0.39 ms. Cycle 52 (10-13): plan 004 merged, milestone #46; item 2 via PR #47 (ADR 0003, `poller.zig`,
+`kqueue.zig`; `init(target, gpa, options)`, relative `wait(timeout_ns, out)`). One subagent for
+tests+impl is cheaper than architect + two agents. Cycles 49-51: plan 004 proposed as PR #44 (12
+items, v0.5.0 MINOR); PR #45 split `src/sched.zig` tests. Gotchas: a hanging `zig build test`:
+python subprocess timeout then `pkill -f .zig-cache`; no `stabilize` label in the repo; the guard
+blocks compound Bash (`cd <repo>;`, citadel paths): run commands alone, use Read/Write/Edit.
 
-Cycle 52 (10-13): plan 004 merged, milestone #46 opened; item 2 via PR #47 (ADR 0003, `poller.zig`,
-`kqueue.zig`, Darwin-only `Native`; `init(target, gpa, options)`, relative `wait(timeout_ns, out)`,
-off-fiber calls on a registered socket `poll(2)` on the calling thread). One subagent for tests+impl
-(TDD order in the prompt) is cheaper than architect + two agents; architect output is text only.
+## History (cycles 37-48, condensed 2026-10-19)
 
-Cycles 49-51 (10-12/13): plan 004 proposed as PR #44 (12 items, v0.5.0 MINOR; a gate-1 miss on one
-carrier becomes plan 005); PR #45 split `src/sched.zig` tests (823 -> 588 lines); cycle 51 sweep found
-nothing. Gotchas: no `stabilize` label in the repo; the guard blocks compound Bash (`cd <repo>;`, citadel
-paths): run each command alone and use Read/Write/Edit for citadel files.
-
-## History (cycles 43-48, condensed 2026-10-13)
-
-Cycle 48 (10-11): plan 003 item 9 + release v0.4.0 via PR #43 (README, PRD, CHANGELOG; no kingdom
-repo pins sirocco). Cycle 47 (10-11): item 8 via PR #42, `src/offload_slots.zig` comptime thunks
-route blocking `dir*`/`file*`/`net*`/`operate`/`childWait` through the pool (`.forward` only);
-closes/`netShutdown`/seeks/`fileUnlock`/memory-map/`netWriteFile`/`netLookup` stay on the carrier;
-`Runtime.init` gpa must be thread-safe. Gotchas: run `zig build tidy` explicitly (a stale cache once
-hid a >100-col line); BSD `sed -i` needs `''`; `gh pr checks` right after a push shows the previous
-run, poll `gh run list` by headSha.
-
-Cycle 46 (10-11): item 7 via PR #41, `src/offload.zig` bounded worker pool (futex mutex, completion
-via `Sched.unpark_foreign`), `Options.offload_threads` required, ADR 0002 (offload before
-multi-carrier). `Io.sleep` on `Io.Threaded` did not overlap (use `futexWaitTimeout` as a timer in
-tests). Cycle 45 (10-10): item 6 via PR #39, `harness.expectSameResultInFiber`. CI ignores `docs/**`
-and `*.md`, so docs-only PRs have no checks (a `gh pr checks` poll spins): tick plan items inside the
-implementation PR. The guard blocks compound Bash that writes citadel files: use Write/Edit.
-
-Cycle 44 (10-10): item 5 via PR #38, `bench/timer.zig`; PRD gate 7 passes (sirocco p50 311 us / p99
-400 us late vs Io.Threaded p50 7.32 ms / p99 8.04 ms, Apple arm64). Cycle 43 (10-09): item 4 via
-PR #37, `src/sleep.zig`: native `sleep` parks on `Sched.wheel`, `sleep.fire` runs before every
-dispatch, futex timeouts share the wheel (`Sched.Expiry`). Reviewer CRITICAL: a woken/canceled
-futex waiter keeps its wheel node, so `fire` pops READY fibers; assert `.parked` only behind
-`outcome == .waiting` under the table lock. Gotchas: an unset `$Z` in compound Bash hung 120 s;
-`gh pr checks` right after a push says "no checks" for a few seconds; the guard blocks compound
-Bash that writes files (python heredoc, `cat > /tmp/x`): use Write/Edit and `--body-file`.
-
-## History (cycle 42, condensed 2026-10-09)
-
-Cycle 42: item 3 via PR #36, `src/timer.zig`: 4x64-slot hierarchical wheel + overflow list, 131 us
-tick, deadlines round up, wheel-owned node array, `expire` jumps slot to slot, clamps a backwards
-clock; its macOS job was `cancelled` once after 15 m (not a test failure, re-run went green).
-
-## History (cycle 41, condensed 2026-10-09)
-
-Cycle 41 (10-08): item 2 via PR #35: `async` starts the task at once (`Sched.spawn_first`; in a fiber
-the caller `yield`s, off-fiber `run_loop` returns at the new fiber's first switch-out via
-`Sched.first`); gate 6 passes (44 vs 1796 ns @1, 28 vs 615 ns @1000); `groupAsync` members stay
-lazy; tasks needing a cancel before their first check park on a gate futex word. Gotchas: a child
-`async` inside an eager task ends the outer `async` early; tidy flags `//!` lines > 100 in tests/.
-
-## History (cycle 40, condensed 2026-10-09)
-
-Cycle 40 (2026-10-08): plan 003 merged 10-07; opened milestone #33; item 1 via PR #34: `groupAwait`
-honors a cancel arriving while parked (`Task.awaiting` armed in `group_park`). Open suggestions:
-nested-group test, cancel-during-groupCancel test. A hanging `zig build test` blocks the 120s tool
-limit: run via python subprocess with timeout, then `pkill -f .zig-cache`. Parity tests that need a
-parked fiber: `scene.yield` x4 then act, `scene.run_modes(12, ...)`.
-
-Cycle 39 (10-07): quiet bounded stabilization, nothing to fix. Cycle 38 (10-07): PR #32 split nine
-disjunctive implication asserts into `if (a) assert(b);`; `concurrency.zig:183` is real set
-membership. Known gap: `tools/tidy.zig` has no compound-assert check.
-
-## History (cycle 37)
-Cycle 37 (10-06): plan 002 item 9 + release v0.3.0 via PR #30; proposed plan 003 (PR #31, since merged:
-groupAwait cancel, eager async, timer wheel + native sleep, offload pool). No consumers pin sirocco.
-Gotchas: guard blocks compound Bash with `cd` into a repo or globs over sibling repos; the primary cwd
-is already sirocco; `zig build test` on 0.16.0 is silent on pass.
+Plan 002 item 9 + v0.3.0 (cycle 37, PR #30); plan 003 (PRs #31-#43), released v0.4.0 in cycle 48
+(PR #43; no kingdom repo pins sirocco). Cycle 40: `groupAwait` honors a cancel while parked (PR #34).
+Cycle 41: eager `async` (`Sched.spawn_first`, PR #35; gate 6: 44 vs 1796 ns @1). Cycle 42: PR #36
+`src/timer.zig`, 4x64-slot hierarchical wheel + overflow list, 131 us tick. Cycle 43: PR #37
+`src/sleep.zig`, native `sleep` parks on `Sched.wheel`; reviewer CRITICAL: a woken futex waiter
+keeps its wheel node, assert `.parked` only behind `outcome == .waiting` under the table lock.
+Cycle 44: `bench/timer.zig`, gate 7 passes (p50 311 us vs Io.Threaded 7.32 ms). Cycle 45:
+`harness.expectSameResultInFiber`. Cycle 46: `src/offload.zig` bounded worker pool (ADR 0002);
+`Io.sleep` on `Io.Threaded` did not overlap (use `futexWaitTimeout` as a timer in tests). Cycle 47:
+`src/offload_slots.zig` comptime thunks route blocking `dir*`/`file*`/`net*` through the pool;
+`Runtime.init` gpa must be thread-safe. Gotchas: run `zig build tidy` explicitly (a stale cache hid
+a >100-col line); `gh pr checks` right after a push shows the previous run or "no checks", poll
+`gh run list` by headSha; CI ignores `docs/**` and `*.md`, so tick plan items inside the
+implementation PR; an unset `$Z` in compound Bash hung 120 s; cycle 38 split nine disjunctive
+implication asserts (`tools/tidy.zig` has no compound-assert check).
 
 ## History (cycles 0-36, condensed 2026-10-10)
 
