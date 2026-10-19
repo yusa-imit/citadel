@@ -1,7 +1,23 @@
 # sailor — context
 
-last_seen_at: 2026-10-18T08:23:00Z
+last_seen_at: 2026-10-19T08:30:00Z
 rejected_plans: []
+
+## Cycle 37 — 2026-10-19 — FEATURE
+
+- Preflight: tree clean on main, CI green (5e36ace), no open issues or PRs, inbox clear (the only
+  new comments are our own on #51).
+- Done: plan 002 fully checked and released, so `/plan`: **plan 003 proposed, PR #64, awaiting merge
+  (citadel#64)**, "Tiger Style bounds and test honesty" -> v3.2.0. Items: `deleteCharAll` fix,
+  shared bounded line rasterizer (6 Bresenham loops), remaining 7 `while (true)` + tidy
+  `unbounded_while`, tidy `assertion_free_test` ratchet, area/bullet chart test honesty, ADR 0001
+  (paragraph wrap + bidi), paragraph wrap, paragraph RTL, release. Planner (opus) drafted it,
+  ~$0.9; its output had HTML entities (`&lt;`) to un-escape before writing.
+- Next: n=38 FEATURE: if #64 is merged, open the milestone issue for 003 and implement item 1;
+  if still open, one `/stabilize sailor --one` task. n=40 is STABILIZATION.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Unverified planner facts: ~1,050 assertion-free tests is a regex estimate; `layout.zig` is now
+  3631 lines; tidy baseline 329 entries.
 
 ## Cycle 36 — 2026-10-18 — FEATURE
 
