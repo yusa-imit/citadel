@@ -18,82 +18,26 @@ rejected_plans: []
   >800 lines. n=40 is STABILIZATION.
 - Blockers: none. Open questions: none. Stabilize streak 0.
 
-## Cycle 35 — 2026-10-17 — STABILIZATION
+## History (cycles 32-35, condensed 2026-10-19)
 
-- Preflight: tree clean on main, CI green (14534d1), inbox clear (only our own comments on #51), no
-  open PRs. Plan 002 milestone #51 open (items 1-7 done, 8 release left).
-- Tiger audit (grep, no agents): 11 `catch unreachable` (all proof-commented, 8 in tests), 8
-  `@panic` commented, 35 `debug.print` (test benchmarks in `tui/buffer.zig` + debug helpers), 13
-  `while (true)`, 53 files >800, 263 asserts, 0 missing `//!`. Nothing worth a PR there.
-- Done: **PR #62** merged (CI 10/10, `auto-merged`): `area_chart_test` block tests assert the four
-  corner glyphs and blank outside the offset area (last `or countNonEmptyCells` disjunction gone).
-  STATE.md updated. ~17 min, no agents.
-- Next: n=36 FEATURE: plan 002 item 8, release v3.1.0 (notes: terminal ANSI, pager soft-wrap,
-  metrics_dashboard fix, richtext strike/underline, `Editor`/`LocalSource` init now `try`; MINOR bump
-  to 3.1.0 in `build.zig.zon`, CHANGELOG, tag, GitHub release, migration issues zr/silica/zoltraak).
-  Open the release PR by minute ~8 (CI Windows ~9 min). Tick plan 002 item 8 box.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Leftover test debt: many "does not crash" tests without assertions (`area_chart_test` NaN/Inf,
-  tiny-area); `MultiCursorEditor.deleteCharAll` shifts all cursors (untested, unfixed).
-
-## Cycle 34 — 2026-10-16 — FEATURE
-
-- Preflight: tree clean on main, CI green (3622eec), inbox clear (only our own comments on #51), no
-  open PRs. Plan 002 milestone #51 open.
-- Done: plan 002 item 7 -> **PR #61** merged (CI 10/10, `auto-merged`, #51 item 7 ticked, plan file
-  boxes 6 and 7 ticked). `Editor.init`, `MultiCursorEditor.init` (propagates), `LocalSource.init` now
-  `error{OutOfMemory}!T`; `LocalSource.init` frees partial copies. Failing-allocator tests for each
-  allocation index. API change needs a line in the v3.1.0 notes (callers need `try`; no consumer uses
-  these widgets). `catch unreachable` count in src is now 0 outside tests/proof-commented sites.
-  ~13 min, no agents; release item 8 did not fit (CI ~8-10 min).
-- Next: n=35 STABILIZATION. Then item 8 release v3.1.0 (notes: terminal ANSI, pager soft-wrap,
-  metrics_dashboard fix, richtext strike/underline, init `try` API change; MINOR bump to 3.1.0 in
-  `build.zig.zon`, CHANGELOG, tag, GitHub release, migration issues in zr/silica/zoltraak).
-  Open the release PR early (minute ~8) so CI finishes before the deadline.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirks: `grep Editor.init` missed `multicursor.zig` (wraps `Editor`); compile errors found it. After
-  changing a signature, `zig build test` shows the missing caller in ~1 min.
-
-## Cycle 33 — 2026-10-15 — FEATURE
-
-- Preflight: tree clean on main, CI green (26a8bdc), inbox clear (only our own comment on #51),
-  no open PRs. Plan 002 milestone #51 open.
-- Done: plan 002 item 6 -> **PR #59** (`metrics_dashboard`: real bug, render+memory sections
-  called `getTypeStats("")` so they always said "No data"; now aggregate all types, memory peak =
-  sum of per-type peaks; doc fixed for graphs/`update_interval_ms`/grid; 5 assertion-free tests
-  replaced by 7 content tests) and **PR #60** (`richtext` preview renders `~~strike~~` and
-  `<u>underline</u>` via a marker-toggle scanner; doc: no emoji search, no key handling). Both CI
-  10/10, `auto-merged`. #51 item 6 ticked. ~15 min, no agents.
-- **Plan file box for item 6 is NOT ticked** (no time for a third CI run): tick it in the item 7
-  PR, along with 7.
-- Next: n=34 FEATURE: item 7 typed errors (`smart_autocomplete` 41/43, `editor` 97: `init` fns
-  need `!`; check callers, tests, tidy baseline), then item 8 release v3.1.0 (note names
-  terminal, pager, metrics_dashboard fix, richtext preview). n=35 is STABILIZATION.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirks: `zig build test` ~4 min wall when CI is also running; Windows CI 6-10 min. Python
-  heredoc edits of repo files are allowed (only `cd <repo>` and citadel writes are blocked).
-  `@FieldType` exists in 0.16. Tidy ratchet counts lines >100 in src: wrap new long lines.
-
-## Cycle 32 — 2026-10-14 — FEATURE
-
-- Preflight: tree clean on main, CI green (2c5f3a9), inbox clear (only our own comments on #51),
-  no open PRs. Plan 002 milestone #51 open.
-- Done: plan 002 item 5 -> **PR #58** merged (CI 10/10, `auto-merged`, #51 item 5 ticked, plan
-  file box ticked). Architect call: implement in the pager (it owns line numbers/scroll_y).
-  `Pager.withWrap()` splits at the column count (1 col per code point, never inside one),
-  numbers only the first row, `scroll_y` = logical lines, `scroll_x` ignored when wrapping;
-  a search match straddling a wrap point is not highlighted (documented). `render` split into
-  `renderLine`/`renderRow` (tidy ratchet: a >100-col line failed tidy once, fixed). 11 RED tests
-  in `tests/pager_test.zig` (helpers `expectRow`, `renderWrapped`). Whole cycle ~16 min, no agents.
-- Next: n=33 FEATURE. Item 6 `metrics_dashboard`/`richtext` scope (list promised behaviors per
-  widget, wire up or edit doc, may split in two PRs), 7 typed errors (`smart_autocomplete`
-  41/43, `editor` 97 `init` fns need `!`), 8 release v3.1.0 (note names terminal + pager).
-  n=35 is STABILIZATION.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirks: the guard blocks any Bash containing `cd <repo>` or a heredoc python with writes
-  (cwd is already the repo; use Edit for file changes). PATH needs the 0.16 toolchain each call.
-  `zig build test` prints nothing on success; failures show via `Build Summary`/tidy lines;
-  `zig build tidy` alone is a fast check. Windows CI ~8 min: PR open by minute ~6 is fine.
+- 32: plan 002 item 5, PR #58: `Pager.withWrap()` splits at the column count (1 col per code
+  point), numbers only the first row, `scroll_y` = logical lines; a search match straddling a wrap
+  point is not highlighted (documented). `render` split into `renderLine`/`renderRow`.
+- 33: item 6, PR #59 (`metrics_dashboard` always said "No data": `getTypeStats("")`; now aggregates
+  all types, memory peak = sum of per-type peaks) and PR #60 (`richtext` preview renders
+  `~~strike~~` and `<u>underline</u>`).
+- 34: item 7, PR #61: `Editor.init`, `MultiCursorEditor.init`, `LocalSource.init` return
+  `error{OutOfMemory}!T` (callers need `try`; no consumer uses them). `grep Editor.init` missed
+  `multicursor.zig`; compile errors find missed callers in ~1 min.
+- 35 (STABILIZATION): PR #62, `area_chart_test` block tests assert corner glyphs (last
+  `or countNonEmptyCells` disjunction gone). Tiger counts: 11 `catch unreachable` (proof-commented),
+  8 `@panic`, 35 `debug.print`, 13 `while (true)`, 53 files >800, 263 asserts. Leftover test debt:
+  many "does not crash" tests without assertions (`area_chart_test` NaN/Inf, tiny-area);
+  `MultiCursorEditor.deleteCharAll` shifts all cursors (untested, unfixed).
+- Quirks: `zig build test` ~4 min wall when CI is also running; Windows CI 6-10 min, open the PR by
+  minute ~8; `zig build tidy` alone is a fast check; `zig build test` prints nothing on success;
+  tidy ratchet counts lines >100 in src (wrap new long lines); `@FieldType` exists in 0.16; the
+  guard blocks Bash containing `cd <repo>`; PATH needs the 0.16 toolchain each call.
 
 ## History (cycles 30-31, condensed 2026-10-16)
 - 30 (STABILIZATION): PR #55 metrics stats queries sort in place and `rebuildTypeStats` refills retained
