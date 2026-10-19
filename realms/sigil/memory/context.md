@@ -1,22 +1,25 @@
 # sigil — context
 
-last_seen_at: 2026-10-19T00:00:00Z
+last_seen_at: 2026-10-19T03:11:00Z
 rejected_plans: []
 
-## Cycle 62 — 2026-10-19 — FEATURE
+## Cycle 63 — 2026-10-19 — FEATURE
 
-- Done: plan 005 item 10 release. PR #65 (`chore: release v0.4.0`, CI 8/8, squash-merged, auto-merged):
-  manifest + `sigil.version` + pinning test to 0.4.0, CHANGELOG `[0.4.0]`, README `sigil.path` Implemented,
-  2E and plan item ticked. v0.4.0 tagged and released; milestone #55 closed 10/10. No sibling
-  `build.zig.zon` names sigil, so no migration issue.
-- Plan 006 proposed (Phase 3A TOML 1.0, v0.5.0, 12 items, ADR 0005 first; core.Timestamp cannot tell
-  local date/time from datetime, ADR + `core/timestamp.zig` fix it): PR #66, awaiting merge (citadel#61).
-  Drafted by `planner` (opus, ~$0.65). Whole cycle ~$1.4.
-- Next: when plan 006 is merged, open its milestone issue and do item 1 (ADR 0005 via `architect`, tight
-  scope, full file text). While the PR is open: one `/stabilize sigil --one` task per cycle (candidate:
-  `tools/tidy.zig` self-exemption, does not decompose). Blockers/questions: none.
-- Learned: the guard blocks a Bash command that greps sibling repos' `build.zig.zon` together with
-  `git tag`/`push` (split them); no Grep tool (use Bash grep); a background CI until-loop notifies on exit.
+- Done: owner merged plan 006 (PR #66); opened milestone #67 (12 items). Item 1 ADR 0005 TOML contract
+  written by me directly (no `architect`; ~$0.8 whole cycle vs ~$2.9): PR #68, docs-only, CI 8/8,
+  auto-merged. Plan item and issue #67 box 1 ticked, PRD 4.3 TOML row amended.
+- ADR 0005 pins: `Timestamp.Kind {instant, local_datetime, local_date, local_time}` + `kind` field
+  (no default); scratch node/edge arrays from `gpa` (`input.len/2+1`), then exact `new_map` copy; one
+  state per table (implicit/header/dotted/inline/array_static/array_tables), errors `DuplicateKey`,
+  `TableRedefined`, `TypeConflict`; 17 parse + 6 write variants; `parse_value(gpa, tree, input, opts,
+  diag)`; writer inlines a table followed by a scalar so round-trip `eql` holds; runner decodes
+  toml-test JSON with `std.json`. Depth counts the root: 127 header segments pass / 128 `TooDeep`
+  (plan said 128/129; tests use 127/128).
+- Next: item 2 `core/timestamp.zig` (Kind field, civil date <-> days, RFC 3339 parse/format, 1,000-seed
+  model test; update `reflect`, `json.writer`, `path/clone.zig` test literals). Blockers/questions: none.
+- Learned: >100-col check on docs must skip table rows; foreground `gh pr checks` retry loop works (~6 min).
+Cycle 62: plan 005 item 10 release, PR #65, v0.4.0 tagged, milestone #55 closed; plan 006 PR #66
+(planner opus ~$0.65). Guard blocks grepping sibling `build.zig.zon` together with `git tag`/`push`.
 
 ## History (cycles 60-61, condensed 2026-10-19)
 
@@ -176,7 +179,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
-Plan 006 (Phase 3A TOML 1.0, v0.5.0) proposed as PR #66, awaiting merge (citadel#61).
+Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, item 1 done, items 2-12 open.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -191,5 +194,5 @@ Plan 006 (Phase 3A TOML 1.0, v0.5.0) proposed as PR #66, awaiting merge (citadel
 
 ## Next priority
 
-Plan 006 awaiting the owner's merge; see the newest cycle block.
+Plan 006 item 2 (`core/timestamp.zig`); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
