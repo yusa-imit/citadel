@@ -3,6 +3,22 @@
 last_seen_at: 2026-10-19T00:00:00Z
 rejected_plans: []
 
+## Cycle 60 — 2026-10-19 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments, no bugs, CI green, only draft PR #54 open.
+- Done: reviewed #54 (code-reviewer, 2.6 min): 0 CRITICAL, 4 WARNING. Fixed in a2d2ed5: file read/write
+  syscall switches list every `sys.FileError` member (no `else`), CHANGELOG `[Unreleased]` entry, overflow
+  doc states the uncancellable-worker bound. CI green (ubuntu epoll first run, macOS, 6 cross). Ready +
+  squash-merged #54 (`auto-merged`); item 7 ticked in plan 004 and on #46.
+- Review leftovers (not blocking): overflow worker sits in `poll(2)` with no cancel when the registry is
+  full; lease taken before the first syscall (two lock holds when data is ready); no test for a cancel
+  between readiness wake and resume; `lease_release` has no generation check against fd reuse after a
+  foreign close; `wakeups_max` exhaustion returns `WouldBlock`; `wait_err` switches still use `else`.
+- Next: FEATURE, item 8 (`batchAwaitAsync`/`batchAwaitConcurrent`/`batchCancel` in `submit.zig`); brief the
+  developer narrowly, item 7 took a full cycle. Streak 0.
+- Blockers: none. Open questions: none.
+- Gotchas: never `until ...; pgrep` wait loops in Bash (30 s cap moves them to background); wait for the
+  agent notification instead. The ready/merge pair must be two commands.
+
 ## Cycle 59 — 2026-10-19 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments (only our own), no bugs, CI green, no plan PR.
 - Done: item 7 implemented and pushed as DRAFT PR #54 (`feat/operate-poller`, 7904917):
