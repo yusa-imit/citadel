@@ -1,7 +1,28 @@
 # synod — context
 
-last_seen_at: 2026-10-19T06:15:00Z
+last_seen_at: 2026-10-20T06:18:00Z
 rejected_plans: []
+
+## Cycle 61 — 2026-10-20 — FEATURE
+- Inbox: no OWNER comments, no bugs, CI green (f3eacad), milestone #57 open, no open PRs.
+- Preflight: cycle 60's item 9 WIP (stub + 4 test files) was uncommitted on
+  `feat/sim-linearizability`; preserved to `wip/feat-sim-linearizability-20261020` (pushed, do
+  not delete); continued on `feat/sim-linearizability-2`.
+- Done: item 9 via PR #67 (squash-merged, 7/7 CI, `auto-merged`): `sim/linearizability.zig`
+  `HistoryChecker` (Wing-Gong per key, explicit stack, alloc in `init`). 799 tests. Milestone
+  #57 items 1-9 ticked. `code-reviewer`: 0 CRITICAL; fixed W3 (factorial search over pending
+  puts: skip a pending put unless a completed get can observe it) with a regression test.
+  Cost ~ $1.1 of $4, 13 min (zig-developer ~$0.35, reviewer ~$0.2).
+- Next: item 10 (KV workload in the sim). Contract from the reviewer: retire a client index when
+  its op goes pending (pending stays outstanding for the one-op-per-client assert); put never
+  writes 0; invoke < complete strictly; out-of-range key is a typed workload error, not passed
+  to `check`.
+- Blockers: none. Open questions: none.
+- Open suggestions: client assert skipped above 256 ops; `check` is O(n) per step; ADR-008 says
+  `options: *const` but `init` takes by value; sim-nightly first scheduled run not yet observed
+  (only dispatch runs exist; watch for the 120 min cap).
+- Tool notes: `.zig-cache` corrupts (`FileNotFound`): `rm -rf .zig-cache`. The `branch -b` name
+  clash: wip branch names persist, so `-2` suffix for continuation branches.
 
 ## Cycle 60 — 2026-10-19 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (4a8bac4), milestone #57 open, no open PRs.
