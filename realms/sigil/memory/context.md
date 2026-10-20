@@ -1,7 +1,25 @@
 # sigil — context
 
-last_seen_at: 2026-10-19T03:11:00Z
+last_seen_at: 2026-10-20T00:00:00Z
 rejected_plans: []
+
+## Cycle 64 — 2026-10-20 — FEATURE
+
+- Done: found leftover PR #69 (plan 006 item 2 `core.timestamp`, CI 8/8, left open by an interrupted
+  cycle 63 on `feat/core-timestamp-plan-006-item-2`) and merged it. Then item 3 `toml/lexer.zig` +
+  `lexer_test.zig` written directly (no developer subagents): PR #70, CI 8/8, auto-merged. Boxes 2-3 of
+  #67 ticked. Total cost ~$1.7 incl. one sonnet code-reviewer (~$0.3).
+- Lexer shape: `Lexer.next(diag, mode)` with `Mode {key, value}`; key mode splits `.`, returns `[[`/`]]`
+  and `bare_key`; value mode returns one `.scalar` run (up to ws, newline, `, ] } #`) so item 4 must
+  classify it AND rejoin `1979-05-27 07:32:00` (two scalars today). Strings: 4 kinds, `raw` = body,
+  `decode_string(kind, raw, out)` no error set. `ScanError` 6 variants. `Lexer.input_len_max =
+  maxInt(u32) - 16` (reviewer: `offset + 8` could wrap; ADR 0005 section 5 amended).
+- Next: item 4 lexer scalars (integers via `core.number`, `0x/0o/0b`, floats, bools, datetimes via
+  `core.timestamp`). Blockers/questions: none.
+- Learned: the guard blocks one command mixing citadel paths and repo commands (split them); `///` on a
+  `test` is a compile error; tidy wants a `// proof:` above `switch (err)` even in tests; after a
+  failing test the runner prints an unrelated json/writer stack (noise); `findScalar` replaces
+  `indexOfScalar` in 0.16.
 
 ## Cycle 63 — 2026-10-19 — FEATURE
 
