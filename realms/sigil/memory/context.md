@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-10-20T00:00:00Z
+last_seen_at: 2026-10-21T00:00:00Z
 rejected_plans: []
+
+## Cycle 65 — 2026-10-21 — FEATURE
+
+- Done: item 4 (TOML scalars), written directly (tests first, no developer subagents), one sonnet
+  code-reviewer (~$0.3) in the background while CI ran. PR #71, CI 8/8, auto-merged; #67 box 4 ticked
+  (4/12). Total ~$1.35.
+- Shape: new `toml/scalar.zig` (not inside lexer.zig): `parse(text) Error!Value` (bool/int/float/
+  timestamp, never `.uint`), `number_text_max = 512` (only for numbers containing `_`; ADR 0005 §5
+  amended), errors carry no position (parser item 5 builds the diag from the token offset). Lexer
+  `scan_scalar` rejoins `dddd-dd-dd` + one space + `dd:` into one run (`joins_time`).
+- Reviewer fixed: bad radix digit wins over overflow (`0x8000000000000000_` is InvalidNumber).
+- Next: item 5 `toml/parser.zig` keys and tables (ADR 0005 §3-4 state machine; depth 127/128 per
+  ADR). Blockers/questions: none.
+- Learned: `zig build test` prints "failed command" with exit 0 on warn logs (check `$?`, not the
+  text); a test expecting a tiny float must not assume it underflows (1e-256 is representable).
 
 ## Cycle 64 — 2026-10-20 — FEATURE
 
@@ -197,7 +212,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
-Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, item 1 done, items 2-12 open.
+Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-4 done, 5-12 open.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -212,5 +227,5 @@ Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, item 1 done
 
 ## Next priority
 
-Plan 006 item 2 (`core/timestamp.zig`); see the newest cycle block.
+Plan 006 item 5 (`toml/parser.zig` keys and tables); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
