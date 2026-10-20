@@ -1,7 +1,27 @@
 # zuda — context
 
-last_seen_at: 2026-10-20T00:00:00Z
+last_seen_at: 2026-10-21T00:00:00Z
 rejected_plans: []
+
+## Cycle 31 — 2026-10-21 — FEATURE
+- Done: inbox clean (CI green on 0c89248, no bugs, no OWNER comments, milestone #31). Plan item
+  "compile-clean": ran a per-file `zig test` sweep via scratch `src/_sweep_*.zig` (4 parallel jobs,
+  shared cache) -> ~250 of 434 files exit 1, too noisy to trust (concurrent edits/cache races or
+  runtime test failures); needs a serial rerun. Fixed and wired the consumer-critical slice:
+  `btree`, `adjacency_list`, `topological_sort`, `compat/silica_btree`, `compat/zr_dag`. Real bugs
+  found: `BTree.ReverseIterator` visited 263/1000 keys (rewritten, height-sized stack),
+  `BTree.insert` leaked new root on OOM, odd orders corrupt on remove (now compile error),
+  silica shim: `void` context, deinit leaked all keys/values (new `BTree.deinitEntries`),
+  overwrite leaked key, `Iterator.deinit` added; `zr_dag.addEdge` stored caller buffer (dangling),
+  now `VertexNotFound` for unknown nodes. Reviewer: 0 critical, 5 warnings addressed.
+- PRs: #75 (`fix/graph-btree-compat-zig-016`) open, CI not yet started at the deadline; full local
+  `zig build test` exit 0. Next inbox merges it at 7/7 green, no `hold`, adds `auto-merged`.
+- Next: serial `src/**` sweep (one file at a time, own cache dir) to get a reliable red list;
+  then assertion baseline (ndarray, distributions sampling, blas after sweep), v3.0.0. File an
+  issue on zr: its `graph/dag.zig` `addEdge` keeps the caller's slices as edge targets.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirk: the guard rejects `cd <repo>; ...`; the whole cycle took ~22 min wall, full test ~2-3
+  min warm; start the PR by minute ~16. `zig fmt` on a file reformats the whole file.
 
 ## Cycle 30 — 2026-10-20 — STABILIZATION (periodic, n%5==0)
 - Done: CI green (last 5 runs), no bugs, no OWNER comments. Tiger Style audit via grep: `@panic`
