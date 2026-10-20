@@ -1,7 +1,25 @@
 # sirocco — context
 
-last_seen_at: 2026-10-20T04:30:00Z
+last_seen_at: 2026-10-21T00:00:00Z
 rejected_plans: []
+
+## Cycle 63 — 2026-10-21 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green, no plan PR.
+- Done: item 9 as PR #56, squash-merged f7d5a27 (`auto-merged`, CI green macOS + ubuntu + 6 cross); ticked
+  on #46 and in plan 004. `concurrent`/`groupConcurrent` now start on a free fiber (`task_start`,
+  `group_member_start` in `src/concurrency.zig`) and refuse with `ConcurrencyUnavailable` only where
+  `async` would run inline (no sched, `fibers_max` alive, failed alloc), group left untouched. Moved both
+  slots from `divergent` to `native` in `tests/parity/slots.zig`. Done directly (no subagent for tests/impl)
+  in ~6 min; one code-reviewer pass: 0 CRITICAL, 3 WARNING fixed (test names/alloc-index brittleness).
+- Left over: README still says `concurrent` always refuses (item 12 rewrites it); no test cancels a parked
+  `concurrent` future; ping-pong test runs only under the default mode, not `.forward`/`.fail`.
+- Next: FEATURE, item 10 (`bench/echo.zig`, gates 1-2), then 8b, 11, 12. Streak 0.
+- Blockers: none. Open questions: none. Cycle ~$1.5.
+- Gotchas: a hardcoded `FailingAllocator` `fail_index` differs by backend (init takes 4 blocks on
+  threaded, 7 evented), so a test can fail in scheduler init instead of the task record and still look
+  green for `async`; set `failing.fail_index = failing.alloc_index` after `io()`. The guard blocks
+  `cd <repo>; python3 - <<EOF` (use Edit, or plain `cd x && ...`). `gh pr checks` right after a push
+  exits 1 with "no checks"; wait for the monitor on the new head.
 
 ## Cycle 62 — 2026-10-20 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green; PR #55 had red CI (both OS jobs).
