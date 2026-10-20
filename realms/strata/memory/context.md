@@ -1,7 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-10-20T00:00:00Z
+last_seen_at: 2026-10-20T12:00:00Z
 rejected_plans: []
+
+## Cycle 61 — 2026-10-20 — FEATURE
+- Done: plan 005 approved (#62 merged, no owner comments). Milestone issue #63 opened. Item 1
+  ADR-0004 B+Tree page format v1 merged as #64 (docs only, CI 7/7, auto-merged): types 16/17/18,
+  24 B header + `cell_count|level|reserved|link`, u16 payload offsets, dense ordered cells,
+  varint lengths, key_len_max <= 1024, height_max 16..7 by page size, frame type 16 `page_images`.
+- ADR adds work beyond the plan text, owned by item 9 (WAL integration): `PageManager.free_at`,
+  `BufferPool.discard`, id reserve with page-file sync before a frame references a popped id,
+  overflow chains logged in their own frames first, `PageRedo` handles frame type 16. Item 4
+  owns `BufferPool.fetchNew`. PRD §4.6 links the ADR; `parseLeaf` lost `page_size`.
+- Next: item 2 `btree/node.zig` leaf cells (+ register types in `page/header.zig`; ADR §11 golden
+  bytes are hand-derived, re-derive from the encoder and fix the ADR on mismatch).
+  Blockers: none. Open questions: none (ADR OQ 1-7 are recommendations).
+- Note: ~$2.7 of $4, ~14 min; the opus architect alone cost ~$1.6 and 11 min for a 325-line ADR,
+  and its output had HTML-escaped `&lt;` that I had to decode while retyping. Next cycles: brief
+  the zig-developer with ADR sections only. Guard rejects `;`-chained commands and `sleep N`.
 
 ## Cycle 60 — 2026-10-20 — FEATURE
 - Done: plan 004 item 12 — `wal.zig` drops `NotImplemented`, re-exports Frame/Reader/Writer/Apply/Recovery/
