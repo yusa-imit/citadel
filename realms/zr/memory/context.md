@@ -1,7 +1,21 @@
 # zr — context
 
-last_seen_at: 2026-10-20T00:00:00Z
+last_seen_at: 2026-10-21T00:00:00Z
 rejected_plans: []
+
+## Cycle 31 — 2026-10-21 — FEATURE
+- Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
+  #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0 → items 5-11 blocked.
+- Added `//!` headers to `lsp/position.zig` (character counts UTF-8 bytes, not UTF-16),
+  `lsp/diagnostics.zig` (`toJson` does not JSON-escape the message; field/section names come from
+  the document), `cli/context.zig`; removed 3 `doc-header` baseline entries. PR #196 merged, 8/8
+  green (~13 min). Tests 1945/0, tidy 0 failing.
+- Open: diagnostics `toJson` JSON-escape fix, UTF-16 positions in `lsp/position.zig`.
+- Next: ~180 headers left (cli/help, cli/version, lsp/definition, lsp/hover). Cycle 32 FEATURE.
+  Item 5 bumps to sailor v3.1.0 + zuda v3.x once tagged.
+- Gotchas: guard blocks compound `A=..; cmd` lines and `cd X; ...`; use plain commands and
+  `cd X && cmd`; `sed -i '' -e 'Nd'` highest line first for baseline entries.
+- Open questions: none.
 
 ## Cycle 30 — 2026-10-20 — STABILIZATION
 - Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
