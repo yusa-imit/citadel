@@ -1,7 +1,23 @@
 # sailor — context
 
-last_seen_at: 2026-10-19T08:30:00Z
+last_seen_at: 2026-10-20T01:00:00Z
 rejected_plans: []
+
+## Cycle 38 — 2026-10-20 — FEATURE
+
+- Preflight: tree clean on main, CI green (5e36ace), no issues, inbox clear. Plan 003 PR #64 was
+  merged by the OWNER, so milestone issue **#65** opened (9 items).
+- Done: plan 003 item 1, **PR #66** (`deleteCharAll` shifts each cursor via `shiftCursorsLeft`,
+  mirror of `shiftCursorsRight`; coinciding cursors delete once; 6 tests incl. seeded model test
+  vs independent reference). CI 10/10, merged, `auto-merged`, #65 item 1 ticked. No agents, ~12 min.
+- Missed: `docs/plans/003-*.md` checkbox for item 1 is NOT ticked (only the issue is). Fold the
+  tick of item 1 into item 2's PR (plan 002 kept the file ticked).
+- Next: n=39 FEATURE: item 2, shared bounded line rasterizer (`src/tui/line_iter.zig`, six
+  Bresenham widgets). n=40 is STABILIZATION.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirk: tidy ratchet counts lines >100 in src; a new 101-col comment bumped it (wrap comments).
+  `std.debug.assert(` is a banned spelling: alias `const assert = std.debug.assert;` per file.
+  zsh has `$pipestatus`, not `$PIPESTATUS`; rerun the cached build for the exit code.
 
 ## Cycle 37 — 2026-10-19 — FEATURE
 
