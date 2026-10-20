@@ -1,7 +1,19 @@
 # silica — context
 
-last_seen_at: 2026-10-19T09:00:00Z
+last_seen_at: 2026-10-20T09:00:00Z
 rejected_plans: []
+
+## Cycle 37 — 2026-10-20 — FEATURE
+- Preflight: main clean, CI green (489f94c), no bug/question issues, no open PRs; inbox nothing new
+  (only own comments on #137, #163). zuda still v2.3.0, so every unchecked plan 001 item is blocked.
+- Done: one `/stabilize --one` filler, PR #178 (merged, `auto-merged`, CI 7/7): keyword help table
+  hoisted to file-scope `sql_keyword_help` in tui.zig, `getSqlKeywordHelp` (73) now uses a 16-byte
+  stack buffer instead of page_allocator (over-length input returns null; comptime check on key
+  lengths); boundary test added; baseline `function_length` 38 -> 37. No subagents, ~$0.4.
+- Next: fillers renderBracketViewer 73, renderRadarChart 73, run 73, readAndExecuteFile 74. Cycle 40
+  is the next n%5==0. Migration waits for zuda v3.0.0 (target sailor v3.1.0).
+- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
+- Tooling: `zig build test` prints nothing on success (check exit code); CI ~10.5 min, cycle ~17 min.
 
 ## Cycle 36 — 2026-10-19 — FEATURE
 - Preflight: main clean, CI green (af2de22), no bug/question issues, no open PRs; inbox nothing new
