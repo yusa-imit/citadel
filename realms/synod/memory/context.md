@@ -84,40 +84,15 @@ rejected_plans: []
   failing-test stack traces are polluted by `types.zig` error traces: print counters
   temporarily to find which expect failed.
 
-## Cycle 56 — 2026-10-16 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green (3588168), milestone #57 open, no open PRs.
-- Done: item 4 (3A-ii) via PR #61 (squash-merged, 7/7 CI, `auto-merged`): `sim/simulation.zig`
-  (`Simulation` init/step/run_until/propose/check/report, `run_seed`, `EventsExhausted`),
-  `Node.init_bytes_max`/`Driver.init_bytes_max` (sizing in `raft/node_init.zig`: `node.zig` is
-  exactly 800 lines, the cap). 666 tests. Milestone #57 item 4 ticked. Cost ~ $2.9 of $4:
-  test-writer ~$1.2 (8 min), developer ~$1.3 (9 min).
-- NOT code-reviewed (deadline hit at 18 min before CI): run `code-reviewer` on PR #61's diff
-  first thing next cycle, fix findings in a small PR.
-- ADR-008 deviations to amend: `propose` is a scripted non-event call; `Stats.digest` content;
-  `Error` carries `raft.ProposeError` and `Network.InvariantError`; `init(io, gpa, options)`;
-  `check(.linearizability)` no-op until item 9; `events_max = 0` allowed.
-- Next: item 5 (crash and restart; sim-only crash store, planted lost-synced-write fault). Start
-  the test-writer within 3 min of preflight; test-writer + developer already eat ~$2.5.
-- Blockers: none. Open questions: none.
-- Tool notes: guard blocks `cd <repo>; ...` chains mixing in `$(cat /tmp/..)`; run zig from the
-  repo cwd without `cd`. `zig build test` ~16 s now (cluster_test ~8 s, removed by item 6).
-
-## Cycle 55 — 2026-10-15 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green (60e8664), milestone #57 open, no open PRs.
-- Done: item 3 (3B) via PR #60 (squash-merged, 7/7 CI, `auto-merged`): `sim/invariants.zig`
-  (`Checker`: election safety, leader append-only, log matching, leader completeness, state
-  machine safety; fingerprints, latched violations, allocates only in `init`);
-  `raft/cluster_test.zig` ported onto it (688 -> ~500 lines, private Oracle deleted). 636 tests.
-  Flow: test-writer ($0.7) -> developer ($0.6) -> reviewer (0 CRITICAL, 5 WARNING fixed via
-  SendMessage resume, $0.2). Cost ~ $2.4 of $4. Milestone #57 item 3 ticked.
-- Next: item 4 (`sim/simulation.zig` event loop; adds `init_bytes_max` to `raft.Node`/`Driver`).
-- Open suggestions: `chosen_terms` records the first observer's term (sound but weak: record the
-  minimum, run all `commit_node` before any `leader_complete`); assertion density < 2 in a few
-  small helpers; `cluster_test.enqueue` has an `assert(a and b)`; ADR-008 memory formula omits
-  the per-node `NodeMemory` slice; `restarted` keeps the leader-per-term table (pinned by a test).
-- Blockers: none. Open questions: none.
-- Tool notes: `timeout` is not on this macOS shell; use `gh pr checks --watch` with the Bash tool
-  timeout. Deadline was tight (~22 min): start the test-writer within 5 min of preflight.
+## Cycles 55-56 (2026-10-15..16), folded
+- Item 3 (3B) PR #60: `sim/invariants.zig` `Checker` (5 invariants, latched violations,
+  allocates only in `init`); `raft/cluster_test.zig` ported onto it. Item 4 (3A-ii) PR #61:
+  `sim/simulation.zig`, `Node.init_bytes_max`/`Driver.init_bytes_max` (`node.zig` is exactly at
+  the 800-line cap; sizing lives in `raft/node_init.zig`).
+- Open suggestions: `chosen_terms` records the first observer's term (weak); `cluster_test.enqueue`
+  has an `assert(a and b)`; ADR-008 memory formula omits the per-node `NodeMemory` slice.
+- Tool notes: no `timeout` on macOS; use `gh pr checks --watch`. Start the test-writer within
+  5 min of preflight; test-writer + developer cost ~$2.5 per item.
 
 ## Cycles 53-54 (2026-10-14..15), folded
 - Older per-cycle detail dropped to keep this file under 200 lines; the record is the merged
