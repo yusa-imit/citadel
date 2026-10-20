@@ -1,7 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-10-20T12:00:00Z
+last_seen_at: 2026-10-21T12:00:00Z
 rejected_plans: []
+
+## Cycle 62 — 2026-10-21 — FEATURE
+- Done: plan 005 item 2 — `src/btree/node.zig` leaf codec (`parse_leaf`, `Leaf.entry/search/check_invariants/
+  check_link(id)`, `format_leaf`, `seal`, `set_next`, `leaf_insert`, `leaf_remove`; ADR-0004 §2 limits with
+  comptime asserts) + page types 16-18 in `page/header.zig`. Merged as #65 (squash, CI 7/7, auto-merged),
+  issue #63 item 2 ticked, 652 tests. ADR §11 golden bytes reproduced from the encoder (no erratum).
+- Deviations: own-id link rule is `Leaf.check_link(id)` (parse_leaf has no id); mutators are free fns over
+  `[]u8` that leave the CRC stale - caller ends with `seal(page, id, lsn)`; `leaf_insert` returns
+  `NodeFull`/`Corrupted` before the first write (count >= cell_count_max, neighbour order checked, not asserted).
+- Review: 0 critical, 5 warnings fixed pre-merge (insert mutated before erroring, asserts on page bytes, vacuous
+  sweep, missing negative tests). Left: model test uses 4 B keys/1 B varints only; `copyForwards/Backwards` fine on 0.16 CI.
+- Next: item 3 internal cells + `split_point`. `node.zig` is 453 lines and `header_test.zig` 794/800 - put
+  internal code in a new file (e.g. `btree/internal.zig`) and new header tests in a new test file.
+  Blockers: none. Open questions: none.
+- Note: ~$2.5 of $4, ~20 min. Pattern that worked: one zig-developer does tests+impl (9 min, ~$0.9), reviewer
+  in parallel while ticking plan/CHANGELOG, fixes via SendMessage (2.5 min), PR CI 1m.
 
 ## Cycle 61 — 2026-10-20 — FEATURE
 - Done: plan 005 approved (#62 merged, no owner comments). Milestone issue #63 opened. Item 1
@@ -19,54 +35,15 @@ rejected_plans: []
   and its output had HTML-escaped `&lt;` that I had to decode while retyping. Next cycles: brief
   the zig-developer with ADR sections only. Guard rejects `;`-chained commands and `sleep N`.
 
-## Cycle 60 — 2026-10-20 — FEATURE
-- Done: plan 004 item 12 — `wal.zig` drops `NotImplemented`, re-exports Frame/Reader/Writer/Apply/Recovery/
-  PageRedo/Checkpoint; README, CHANGELOG `[0.5.0]`, zon 0.5.0, 000-inherited 3A-3E ticked; merged #61 (CI 7/7).
-  Tagged v0.5.0 + GitHub release, milestone #48 closed. No sibling zon names strata -> no migration issues.
-- Plan 005 (Phase 4a B+Tree + WAL integration + bench, 12 items, v0.6.0; kv -> plan 006) proposed as
-  PR #62, awaiting merge (citadel#65). Open questions for the owner are in the PR body (full-page image per
-  op; kv in 006).
-- Next: when #62 merges, open milestone issue "milestone: 005 ..." and implement item 1 (ADR-0004 via
-  architect). Blockers: none. Open questions: PR #62 body (2).
-- Note: ~$1.9 of $4, ~15 min. No `timeout` binary on macOS; `gh pr checks --watch` in background,
-  foreground `until ! gh pr checks N | grep -q pending` loop worked. Docs-only release item needs no agents.
-  Poll a subagent by grepping its subagents jsonl for `"stop_reason":"end_turn"`.
-
-## Cycle 59 — 2026-10-19 — FEATURE
-- Done: plan 004 item 11 — `src/testing/wal_recovery_test.zig` + `wal_recovery_fixtures.zig` (seeded
-  crash-recovery property: real Writer/pool/Checkpoint/PageRedo over FaultIo write cancel + CrashSink tail
-  cut, 3 sizes x 12 seeds) merged as #60 (squash, CI 7/7, auto-merged), issue #48 ticked, 627 tests.
-  `Env.edit_io(io, ...)` added to `wal/checkpoint_fixtures.zig`.
-- Recovery: cycle 58 died with item 11 uncommitted on `test/wal-recovery-property`; preserved as
-  `wip/test-wal-recovery-property-20261019` (pushed, keep per never-delete rule). It contains a deliberate
-  mutant `or true` in `wal/redo.zig` - never merge that branch. Rebuilt on the feature branch from it.
-- Mutants (by hand, not committed): redo that never applies fails at all sizes; pool gate off fails only at
-  64 KiB (512 B / 4 KiB pass - weak spot). "Redo always applies" was not run.
-- Review: 0 critical, 5 warnings; 3 fixed pre-merge (relieve swallowed errors, `unreachable` in `end_of`,
-  CHANGELOG claim). Left: `classify` maps Failed/InputOutput to crash without counting fio injections;
-  property 2 is prefix + >= durable only (no exact equality when cut == durable_offset); checkpoint ack
-  reads `cp.stage/redo_lsn`; idempotence compares count + last_lsn only; `stats.crashed` ignores
-  sync-fail-only crashes; no `applied > 0` in Totals; model uses `rfx.image_payload` like the impl.
-- Next: item 12 docs + module status + release v0.5.0 (`/release strata minor`). Blockers: none.
-  Open questions: none.
-- Note: ~$1.1 of $4, ~15 min. Bash guard: one simple command per call; piping to grep works and keeps
-  `zig build test` output small. Do not call ScheduleWakeup in a /cycle (it is /loop only).
-
-## Cycle 58 — 2026-10-18 — FEATURE
-- Done: plan 004 item 10 — `src/wal/checkpoint.zig` (`Checkpoint.init/run/reclaim`, `redo_start`),
-  `PageManager.set_wal_lsn`, `BufferPool.dirty_lsn_max`, `Writer.oldest_index/segments_reclaimed`,
-  `FaultIo` forwards `dirDeleteFile` + `delete_fail_after` knob. Merged as #59 (squash, CI 7/7,
-  auto-merged), issue #48 ticked, 623 tests. `redo_start` returns 0 (not lsn_first) when wal_lsn == 0;
-  `reclaim_lsn` is set only after step 5, `reclaim` before that -> `NotCheckpointed`.
-- Review: 1 critical (reclaim after failed run could delete needed segments) + 3 warnings + suggestions,
-  all fixed pre-merge via SendMessage (second commit). ADR-0003 open question 6: page-0 rewrite relies on
-  512 B sector atomicity.
-- Left: `Reader.validate` rejects index holes from out-of-order persisted reclaim (ADR §8 says ignore);
-  `redo_start` reads sequentially (no Reader seek); no mutant runs (dropped sync / reordered steps).
-- Next: item 11 3E crash-recovery property tests (`src/testing/wal_recovery_test.zig`), then docs+v0.5.0.
-  Blockers: none. Open questions: none.
-- Note: ~$3.3 of $4 (impl 9 min/$1.7, fixes 4.5 min/$0.8) - item 11 is large; consider a leaner brief.
-  Cycle-time was ~15 min; the Bash guard still wants one simple command per call.
+## Cycles 58-60 (2026-10-18..20, condensed 2026-10-21)
+- Plan 004 items 10-12 merged: `wal/checkpoint.zig` (#59; `redo_start` 0 when wal_lsn == 0, `reclaim` before
+  `run` -> `NotCheckpointed`), seeded crash-recovery property `src/testing/wal_recovery_test.zig` (#60), docs +
+  v0.5.0 tagged (#61), milestone #48 closed. `wip/test-wal-recovery-property-20261019` holds a deliberate
+  mutant (`or true` in `wal/redo.zig`) - never merge it. Plan 005 proposed (#62), approved, milestone #63.
+- Left: reclaim after a failed run is guarded; `Reader.validate` rejects index holes; recovery mutants for
+  dropped sync not run; weak spot: pool gate off only fails at 64 KiB in the property test.
+- Lessons: no `timeout` on macOS; `gh pr checks --watch` in background or `until ! gh pr checks N | grep -q
+  pending`; do not call ScheduleWakeup in /cycle; opus ADR cost ~$1.6; brief zig-developer with ADR sections.
 
 ## Cycles 55-57 (2026-10-17..18, condensed 2026-10-20)
 - Plan 004 items 7-9 merged (#56 `wal/recovery.zig` `Recovery.replay` + `Apply` vtable; #57 `BufferPool.
