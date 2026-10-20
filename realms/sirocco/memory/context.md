@@ -1,7 +1,23 @@
 # sirocco — context
 
-last_seen_at: 2026-10-20T00:00:00Z
+last_seen_at: 2026-10-20T04:30:00Z
 rejected_plans: []
+
+## Cycle 62 — 2026-10-20 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green; PR #55 had red CI (both OS jobs).
+- Done: PR #55 fixed and squash-merged as 7687892 (`auto-merged`); item 8 ticked on #46. Cause was a test
+  flaw, not the runtime: `Io.Threaded` rounds its poll timeout down and reports `Timeout` under 10 ms, so
+  the idle parity test (a) compared `waited` against that oracle, (b) asserted `waited` on `rt.io()` for the
+  `.threaded` backend where `rt.io()` IS the baseline (the 42-skip binary). Fix 7a12aba: parity projects
+  to `timed_out` + `later_ok`; the 10 ms floor is asserted only when `evented`.
+- Verified by running the parity binaries 36x each, 6-way parallel: 0 failures (was ~20-30%).
+- Next: FEATURE, item 9 (`concurrent`/`groupConcurrent`), then 8b (per-op waiter node), 10, 11, 12.
+- Blockers: none. Open questions: none. Streak 0. Cycle used ~16 min, ~$1.
+- Gotchas: a parity test whose oracle is `Io.Threaded` is unsound for any timing floor. Running one test
+  binary many times in parallel makes the loopback `batch` "late" test fail (a datagram from another
+  process lands in a rebound ephemeral port); serial runs are clean, so do not read that as a bug. Run a
+  stress of the built binary (`.zig-cache/o/*/test`), since `zig build test` re-runs are cached. Stale
+  `.zig-cache` gave `failed to spawn build runner` again (rm -rf it).
 
 ## Cycle 61 — 2026-10-20 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments (only our own reports), no bugs, CI green, no plan PR.
