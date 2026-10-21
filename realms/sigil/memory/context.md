@@ -6,8 +6,13 @@ rejected_plans: []
 ## Cycle 67 — 2026-10-22 — FEATURE
 
 - Done: item 6 (TOML arrays and inline tables), written directly. PR #73, CI 8/8, auto-merged; #67 box 6
-  ticked (6/12). A sonnet code-reviewer was still running at merge, so its findings were NOT seen: next
-  cycle re-check `parser.zig` `read_value`/`place` for review follow-ups if cheap.
+  ticked (6/12). Reviewer (finished after merge): 0 critical; fuzz of ~965k inputs found no node-bound
+  OutOfMemory. Follow-ups to fold into the item 7 PR (or a small fix PR first): CHANGELOG `[Unreleased]`
+  item 6 bullet and drop "follow in item 6"; `toml.zig` header says items 6-7 pending; >=2 asserts in
+  `read_value`/`step`/`place`/`array_step`/`table_step`; seeded prefix-truncation test for the node
+  bound (ADR/`scratch.zig` argument is amortised, not "2 bytes per node"); tests for `{ b.c = 1,
+  b.d = 2 }`, comment inside `{}` rejected, CRLF/comment between array elements; ADR 0005 line 97
+  is 123 cols, and section 4 says inline state set at `}` (code sets it at `{`); `depth = 0` dead init.
 - Shape: `parser.zig` explicit `Frame` stack (`Need {first, after_comma, comma_or_close}`), `step` ->
   `array_step`/`table_step`, `place(Target{keyed|element}, token)`, `key_path` shared with statements.
   `scratch.append_scalar`/`append_container`; `nodes_max = len/2 + 2 + depth_max` (open `[`/`{` cost one
