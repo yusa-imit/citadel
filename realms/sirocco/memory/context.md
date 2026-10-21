@@ -37,73 +37,21 @@ rejected_plans: []
   stress of the built binary (`.zig-cache/o/*/test`), since `zig build test` re-runs are cached. Stale
   `.zig-cache` gave `failed to spawn build runner` again (rm -rf it).
 
-## Cycle 61 — 2026-10-20 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments (only our own reports), no bugs, CI green, no plan PR.
-- Done: item 8 as PR #55 (`feat/batch-poller`, ready, not yet merged): `src/batch.zig` native
-  `batchAwaitAsync/Concurrent/Cancel` for fiber-awaited batches of one-message registered-socket
-  `net_receive` and non-blocking file streams, else the whole batch goes to `Io.Threaded`. The wait is
-  wheel slices (50 us -> 2 ms), NOT a poller park (a fiber sits on one waiter list only), so no
-  `ConcurrencyUnavailable`; plan item 8b added for a per-op waiter node. ADR 0003 section 2c.
-- Review (code-reviewer): 0 CRITICAL, 4 WARNING all fixed: a socket closed mid-wait now completes with
-  `SocketUnconnected` (new test), stale ADR/header text, empty-batch cancel, plan deviation noted.
-  Std 0.16.0 bug: `Io.Threaded.batchAwaitConcurrent` leaves a ready `net_receive` on `submitted`.
-- Next: first thing, `gh pr checks 55`; green + no hold -> squash-merge, label `auto-merged`, tick item 8
-  on #46 (plan file already ticked in the PR). Then item 9 (`concurrent`/`groupConcurrent`).
-- Blockers: none. Open questions: none. Streak 0. Epoll batch tests only cross-compiled (ubuntu CI is
-  their first run). CI was still pending at the 22-min deadline (macOS + ubuntu queued).
-- Gotchas: one zig-developer call for item 8 took ~9 min / ~$1.4 with a narrow brief and a 14-min cap;
-  `gh pr checks --watch` of 9 min hits the Bash timeout; the guard blocks compound Bash writing citadel
-  files (use Write/Edit); the sweep needs `rt` to consult the registry.
+## History (cycles 58-61, condensed 2026-10-21)
 
-## Cycle 60 — 2026-10-19 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments, no bugs, CI green, only draft PR #54 open.
-- Done: reviewed #54 (code-reviewer, 2.6 min): 0 CRITICAL, 4 WARNING. Fixed in a2d2ed5: file read/write
-  syscall switches list every `sys.FileError` member (no `else`), CHANGELOG `[Unreleased]` entry, overflow
-  doc states the uncancellable-worker bound. CI green (ubuntu epoll first run, macOS, 6 cross). Ready +
-  squash-merged #54 (`auto-merged`); item 7 ticked in plan 004 and on #46.
-- Review leftovers (not blocking): overflow worker sits in `poll(2)` with no cancel when the registry is
-  full; lease taken before the first syscall (two lock holds when data is ready); no test for a cancel
-  between readiness wake and resume; `lease_release` has no generation check against fd reuse after a
-  foreign close; `wakeups_max` exhaustion returns `WouldBlock`; `wait_err` switches still use `else`.
-- Next: FEATURE, item 8 (`batchAwaitAsync`/`batchAwaitConcurrent`/`batchCancel` in `submit.zig`); brief the
-  developer narrowly, item 7 took a full cycle. Streak 0.
-- Blockers: none. Open questions: none.
-- Gotchas: never `until ...; pgrep` wait loops in Bash (30 s cap moves them to background); wait for the
-  agent notification instead. The ready/merge pair must be two commands.
-
-## Cycle 59 — 2026-10-19 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments (only our own), no bugs, CI green, no plan PR.
-- Done: item 7 implemented and pushed as DRAFT PR #54 (`feat/operate-poller`, 7904917):
-  `src/submit.zig` serves `net_receive` and non-blocking `file_read/write_streaming` on the poller;
-  non-blocking files are leased into the registry per call (refcount, counts against `sockets_max`);
-  ADR 0003 section 2b; tests in `tests/parity/operate.zig` + `operate_files.zig`; `operate` moved to
-  `divergent` in `slots.zig`. Local `zig build test` (Debug/ReleaseSafe/ReleaseFast), `tidy`, `fmt`
-  green; x86_64-linux compiles. Item 7 NOT ticked yet (not merged).
-- Not done: no reviewer run, CI not awaited. The subagent took 18.7 min of the 22-min budget, so
-  the cycle ended at the PR. Draft keeps the inbox from auto-merging an unreviewed PR.
-- Next: FEATURE. Run `/review` on #54, fix findings, `gh pr ready`, wait for CI (epoll path has only
-  been compile-checked; ubuntu is its first run), merge, tick item 7 on #46 and in the plan. Then item 8.
-  Check `Io.Threaded` `device_io_control` FIONREAD on a pipe (-ENOTTY in ReleaseSafe, macOS arm64;
-  positive path untested).
-- Blockers: none. Open questions: none. Streak 0.
-- Gotchas: a single zig-developer call for tests+impl of an item this size ran 18.7 min and ~$3.1;
-  brief future agents with a narrower scope (e.g. net_receive first) or split item 7/8 over two cycles.
-
-## Cycle 58 — 2026-10-18 — STABILIZATION
-- Inbox: bug #52 (OWNER account), milestone #46 open, no plan PR, CI green; the only new comment was ours.
-- Done: #52 fixed via PR #53 (2b63d9b, CI green macOS + ubuntu + 6 cross, `auto-merged`). Root cause was a
-  test race, not a runtime bug: a late ACK woke the parked writer, `write_until_error` then made a fresh
-  `netWrite` after the closer had removed the handle from the registry, so it routed as foreign into
-  `Io.Threaded` (BADF). A call that starts after a close is a caller bug (now stated in `net_data.zig`
-  header). The test joins the closer before the carrier runs (carrier only runs inside `await`), so the
-  close always lands on a parked writer. Issue closed by the merge.
-- Tiger Style spot check: `catch unreachable` 3 (all with proof comments), `while (true)` 1, largest file
-  697 lines. STATE.md refreshed.
-- Next: FEATURE, milestone 004 item 7 (`operate` on the poller: `net_receive`, non-blocking file streams);
-  #49 follow-ups still open. Streak 0.
-- Blockers: none. Open questions: none.
-- Gotchas: `zig build test` re-runs are cached, so a loop of identical runs under load tests nothing after
-  the first; change an input or use `--summary all` with `-Dno-cache`-style invalidation. Cycle cost ~$0.7.
+- 58 (10-18, stabilization): bug #52 fixed by PR #53; a test race, not runtime: a write started after
+  the closer removed the handle routed as foreign into `Io.Threaded` (BADF); a call after close is a
+  caller bug (stated in `net_data.zig`). `zig build test` re-runs are cached, so loops of identical
+  runs test nothing after the first.
+- 59-60 (10-19): item 7 `src/submit.zig` serves `net_receive` and non-blocking file streams on the
+  poller (draft PR #54, reviewed, merged in 60; file syscall switches list every `sys.FileError`).
+  One zig-developer call for tests+impl took 18.7 min / ~$3.1: brief narrowly. Review leftovers: overflow
+  worker has no cancel in `poll(2)`; no generation check on `lease_release` after a foreign close;
+  `wait_err` switches still use `else`.
+- 61 (10-20): item 8 `src/batch.zig` native `batchAwaitAsync/Concurrent/Cancel` (PR #55); wait is wheel
+  slices (50 us -> 2 ms), not a poller park (a fiber sits on one waiter list); plan item 8b adds a
+  per-op waiter node. Std 0.16.0 bug: `Io.Threaded.batchAwaitConcurrent` leaves a ready `net_receive`
+  on `submitted`. `gh pr checks --watch` over 9 min hits the Bash timeout; never `until ...; pgrep`.
 
 ## History (cycles 56-57, condensed 2026-10-19)
 
