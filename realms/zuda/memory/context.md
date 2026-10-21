@@ -40,65 +40,21 @@ rejected_plans: []
 - Quirk: `perl -i -pe` with `$.` inserts comment lines by number (go bottom-up); the guard
   rejects `cd <repo>; ...` and `==` in zsh breaks `sed`/`echo` banners.
 
-## Cycle 29 — 2026-10-19 — FEATURE
-- Done: inbox clean (CI green, no bugs, no OWNER comments; #72 already merged). Plan item
-  "Assertion baseline" started: `red_black_tree.zig` (zero asserts before) now asserts size delta
-  and root state in `insert`/`remove`, runs full `validate` in Debug up to 512 nodes after each
-  mutation; `validate` also rejects root-with-parent, node count != size. File was invisible to
-  `zig build test`; wired into `root.zig`. Seeded model tests (64 and 1500 keys), corruption
-  tests. Reviewer: 3 warnings fixed (ReleaseSafe gating, 100 cols, large-tree coverage).
-- PRs: #73 (`test/assertion-baseline-rbt-blas`) merged at 7/7 green, labeled `auto-merged`.
-  Full local `zig build test` exit 0 took only ~2 min this time.
-- Finding: `linalg/blas.zig` tests and several public routines do not compile on 0.16 (77 errors:
-  `OutOfMemory` escaping `NDArray.Error` in trmv/trmm/syrk via simd_blas, `clone` missing,
-  `std.math.isInfinite`, comptime_float, rotmg return shape). Tried adding flag asserts there,
-  reverted: unverifiable. Noted in the plan item text.
-- Next: finish the box (ndarray.zig, distributions sampling; blas after the `src/**` compile
-  sweep; optional tidy assertion-floor rule, tidy.zig has none yet), then v3.0.0. Review
-  leftovers: RBT `insert`/`remove` size-delta assert is weak (pair with return value).
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: Monitor/`until` loops via Bash run_in_background work for waiting on a log; the guard
-  rejects `echo > /tmp/x` combined with a citadel path.
-
-## Cycle 28 — 2026-10-18 — FEATURE
-- Done: preflight found #71 at 7/7 green; merged it (squash) and ticked "Thread sync" on #31.
-  Then the "Test and bench harness" item: `internal/testing.zig` `initRandomDefault()` now seeds
-  from `std.testing.random_seed` (ADR 0001 row) and returns the seed; `StressTestConfig.seed`
-  required. `internal/bench.zig`: warmup/probe iterations were counted in memory stats and
-  `times` accumulated across runs (fixed); reviewer found `MemoryTracker.reset` zeroing
-  `current_bytes` made a later free underflow, so reset now keeps live bytes. 3 new tests. The
-  files plus `utils/perf.zig` (already 0.16-clean) are wired into `root.zig`. Full `zig build
-  test` exit 0.
-- PRs: #72 (`fix/test-bench-harness-zig-016`) open, Build & Test still pending at the deadline
-  (~9 min in), cross-compile not yet queued. Next inbox merges it at 7/7 green with no `hold`,
-  adds `auto-merged`, ticks the harness box on #31 (plan item already ticked in the PR).
-- Next: `src/**` `zig test <file>` sweep (known red: `mlp.zig`, `lightgbm.zig` use
-  `std.io.AnyWriter`); then assertion baseline; v3.0.0. Reviewer leftovers in the harness:
-  `Benchmark` stores its allocator and grows `times` after init, unbounded loop and missing
-  errdefer in `generateUniqueRandomIntegers`, global `prng`/`random` with no init assert.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: do not combine `echo > /tmp/x` with a citadel path in one command (guard blocks it);
-  `zig fmt --check src/utils` flags pre-existing `compare.zig`.
-
-## Cycle 27 — 2026-10-17 — FEATURE
-- Done: inbox clean (CI green on d88ca14, #70 already merged, no bugs, no plan PR, no OWNER
-  comments; milestone #31). Plan 001 "Thread sync" item finished. `map_reduce.zig` redesigned:
-  mapper emits into a bounded `EmitterType` (`pairs_max`, `error.PairsLimitExceeded`, pre-reserved
-  so `emit` never allocates), comptime `key_order` comparator (slice keys work), stable
-  `std.sort.block`, `groupBy`/`mapReduce`/`partition` results without a stored allocator
-  (`deinit(gpa)`), `GroupByResult` keeps its `flat` buffer. 16 tests (OOM, seeded model, stability
-  at 600 elements, case-folded equal keys); wired into `root.zig`. `concurrent_skip_list`
-  (`Thread.yield`) already compiled, 24/24 pass; no `error.Canceled` switches exist in these
-  modules. Reviewer: 1 critical (CHANGELOG, fixed), 6 warnings addressed. Plan item ticked in PR.
-- PRs: #71 (`fix/map-reduce-api-zig-016`) open; Build & Test green 8m32s, 6 cross-compile checks
-  pending at the deadline (same as cycle 26). Next inbox merges it at 7/7 green, no `hold`, then
-  adds the `auto-merged` label (I removed it early) and ticks the "Thread sync" box on issue #31.
-- Next: FEATURE — Test/bench harness item (`internal/testing.zig`, `internal/bench.zig`,
-  `utils/perf.zig` fixedBufferStream, Smith fuzz); full `src/**` `zig test <file>` sweep; assertion
-  baseline; v3.0.0. Deque resize concurrent with steal still unsafe (documented in header).
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: `gh pr checks` waiting loop in the foreground hit the 600s tool cap; cross-compile jobs
-  queue late (>15 min). Plan the cycle so the PR is open by minute ~8.
+## Cycles 27-29 (2026-10-17..19, condensed 2026-10-21)
+- All merged by squash at 7/7 green, labeled `auto-merged`.
+- 27 (#71): `map_reduce.zig` redesigned (bounded `EmitterType` with `pairs_max`/`PairsLimitExceeded`,
+  comptime `key_order`, stable sort, results without a stored allocator); "Thread sync" item done.
+- 28 (#72): `internal/testing.zig` seeds from `std.testing.random_seed`; `internal/bench.zig` fixed
+  (warmup counted in memory stats; `MemoryTracker.reset` must keep live bytes). Leftovers:
+  `Benchmark` stores its allocator and grows `times` after init, `generateUniqueRandomIntegers`
+  unbounded loop, global `prng` with no init assert.
+- 29 (#73): `red_black_tree.zig` assertion baseline (size delta, root state, `validate` up to 512
+  nodes after each mutation; file had been invisible to `zig build test`). `linalg/blas.zig` has 77
+  errors on 0.16 (`OutOfMemory` escaping `NDArray.Error` in trmv/trmm/syrk, `clone` missing); asserts
+  there reverted as unverifiable. RBT size-delta assert is weak (pair with return value).
+- Quirks: `gh pr checks` foreground loop hits the 600 s tool cap; cross-compile jobs queue late
+  (>15 min), so open the PR by minute ~8; `zig fmt --check src/utils` flags pre-existing
+  `compare.zig`; Monitor/`until` via Bash run_in_background works for waiting on a log.
 
 ## Cycles 20-26 (2026-10-09..16, condensed 2026-10-17)
 - All merged by squash with 7/7 checks, labeled `auto-merged`. Plan 001 "compile-clean" and

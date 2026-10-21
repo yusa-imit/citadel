@@ -113,77 +113,22 @@ item 1 ADR 0004 (PR #56): reads borrow `*const Value`, Patch/Merge use path copy
   `--cache-dir /tmp/sigil-zc` if `.zig-cache` is stale; the Bash guard blocks one command mixing citadel
   paths with repo commands; `wip/*` branches are kept; do not use ScheduleWakeup.
 
-## History (cycles 46-48, condensed 2026-10-14)
+## History (cycles 33-48, condensed 2026-10-21)
 
-Cycle 48 (2026-10-12, budget exhausted, no PR): subagents (zig-developer + test-writer) cost ~$3.4; work
-preserved on `wip/json-parse-stringify-*`, merged in cycle 49. Learned: do not poll; launch and end the turn.
-Cycle 47 (2026-10-11): item 7 JSONTestSuite vendored (PR #49); `.gitignore` `test_*` dropped the corpus
-(check `git ls-files`); strict parser rejects 33 of 35 `i_`; `Value` map variant is `.map`.
-Cycle 46 (2026-10-10): item 6 round-trip property (PR #48); macOS `sed -i` needs `-i ''`.
-
-
-Cycle 46: item 6 `json/roundtrip_test.zig` (PR #48): 1,000 seeds x 4 layouts + number edges, sorted
-output checked by iterative `eql_sorted`; generator `pub` in `writer_test.zig`; reviewer fixed 3
-warnings. macOS `sed -i` needs `-i ''`. Round-trip root is a scalar 75% of seeds (tally asserts
-containers are reached).
-
-## History (cycles 43-45, condensed 2026-10-10)
-
-Cycle 45 (2026-10-10): item 5 `json/writer.zig` (PR #47): `write(w, value, options, diag)`, `Layout`
-minified|pretty, `sort_keys`, floats forced to re-parse as `.float`, `Unrepresentable` for
-bytes/timestamp/NaN/inf, key-path diag via public `reflect.context.write_diagnostic`. Learned:
-reflect's path renderer emits raw non-ASCII key bytes (diag may hold invalid UTF-8, not fixed);
-`ScheduleWakeup` is for /loop only; do not use it to wait on CI.
-Cycle 43 (2026-10-09): item 3 scanner strings (PR #45): `.key`/`.string` validated whole, 4 new
-`ScanError` variants, `decode_string`; tests in `scanner_string_test.zig` (500-seed model + corpus
-differential vs `std.json.validate`). Cycle 44 (2026-10-09): item 4 `json/dom.zig` (PR #46): two scans,
-exact `Map` sizes, `dom.ParseOptions {depth_max, duplicate_key}`, `DuplicateKeyPolicy {reject, last}`,
-`core.Map.index_of`. Learned: tidy wants `// proof:` on ONE line directly above each `catch
-unreachable`/`switch (err)`; `scanner.zig` is 580 lines so tests go in sibling files; `Weight` lives in
-`std.testing.Smith.Weight`; a truncated UTF-8 sequence at an unterminated string is `InvalidUtf8`;
-`ArenaAllocator.resize` of the newest allocation shrinks it. Open: item 8 should fold json.zig's stub
-`ParseOptions` into `dom.ParseOptions`. Background reviewer + CI until-loop in parallel works well;
-commit/push/PR before the reviewer returns, fix on the branch.
-
-## History (cycles 39-42, condensed 2026-10-09)
-
-Cycle 42 (2026-10-08): item 2 `json/scanner.zig` + `core.diagnostics.Position/position_of/snippet_of`
-(PR #44); `+`/`.` leading bytes route to `scan_number`; guards block heredocs, `cd <repo>`, `sleep`.
-Cycles 39-40 (2026-10-07, quiet): plan PR #38 open, no OWNER activity, no PR; the only stabilization
-candidate is the `tools/tidy.zig` self-exemption, which does not decompose. Learned: the guard blocks
-a Bash command mixing citadel paths with repo commands; read citadel files with Read.
-Cycle 41 (2026-10-08): owner merged plan 004 (PR #38); opened milestone #42; item 1 (ADR 0003 JSON
-contract) via `architect` (opus, ~$2.9, expensive: give it a tight scope, it must return the full
-file text) landed in PR #43 with PRD 4.2/4.3/5 amendments. Open risk: 0.16 `ArenaAllocator` in-place
-shrink (ADR 0003 section 4 fallback = three scans); `Io.Dir` read/write names unverified until item 9.
-New APIs per ADR 0003: `Map.index_of` (item 4), `reflect.context.write_diagnostic` (item 5),
-`parse_traced`/`Context.trace`/`scanner.locate` (item 8); item 9 changes the root.zig parity test.
-
-## History (cycles 35-38, condensed 2026-10-08)
-
-Cycles 35-38 (2026-10-05 to 10-06, FEATURE, plan PR #38 open, no OWNER activity): one `--one`
-stabilization slot each. 35: `bench/main.zig` ported to 0.16 and wired into `zig build test` (PR
-#39; bench had been broken since the migration because nothing compiled it). 36: README drift fixed
-(PR #40). 37: CHANGELOG Unreleased gaps for `core.Error` (#37) and the bench port (PR #41). 38:
-quiet sweep, nothing to fix (Tiger Style greps 0, max file 740 lines). The only candidate left is
-the `tools/tidy.zig` self-exemption, which does not decompose. Learned: `gh pr checks --watch`
-right after `gh pr create` says "no checks reported" for over a minute, use a Monitor until-loop;
-docs-only PRs still get full PR CI; the guard blocks `echo > /tmp/...` and any command starting
-`cd <repo>`.
-
-## History (cycles 33-34, condensed 2026-10-07)
-
-Cycle 34 (2026-10-04): plan 003 item 10 (wire and close), PR #37, issue #27 closed, no tag.
-`core.Error` = `number.Error || unicode.Error || EscapeError || {TooDeep, OutOfMemory}` (comptime
-test pins members). Plan 004 (Phase 2A-2C JSON, ADR 0003) proposed as PR #38, drafted by planner.
-Learned: sandbox `zig build` needs `--cache-dir /tmp/sigil-zc`; guard blocks a command containing
-`push` while on main (branch first, separate command). Plan 003 item 4 box ticks with plan 004's
-release item.
-Cycle 33 (2026-10-04): item 9 `reflect/roundtrip_test.zig` (seeded, 1,000 seeds, every kind),
-PR #36. Mutation-checked; one code-reviewer (0 critical, 4 warnings fixed; a `Coverage` tally
-fails the test if a matrix branch is never generated). Learned: `std.log.err` reports the seed in
-tests (tidy bans `std.debug.print`); `zig test --test-filter` on root.zig ran 1 test, use
-`zig build test`; back up files before `git checkout` during mutation checks.
+- 33-34 (10-04): plan 003 closed (reflect round-trip, `core.Error` union pinned by comptime test);
+  plan 004 (JSON, ADR 0003) proposed as PR #38. 35-40: quiet, plan PR open; `bench/main.zig` ported
+  to 0.16 and wired into `zig build test` (PR #39); README/CHANGELOG drift fixed.
+- 41-48 (10-08 to 10-12): plan 004 merged; ADR 0003 via opus `architect` (~$2.9, scope it tightly);
+  item 2 `json/scanner.zig` (PR #44), 3 strings (#45), 4 `json/dom.zig` (#46), 5 `writer.zig` (#47),
+  6 round-trip property (#48), 7 JSONTestSuite vendored (#49; `.gitignore` `test_*` dropped the
+  corpus, check `git ls-files`). Cycle 48 ran out of budget: subagents cost ~$3.4, work kept on a
+  `wip/*` branch and merged in 49.
+- Learned: tidy wants a one-line `// proof:` directly above each `catch unreachable`/`switch (err)`;
+  `std.log.err` reports seeds in tests (tidy bans `std.debug.print`); sandbox `zig build` needs
+  `--cache-dir /tmp/sigil-zc`; `gh pr checks` right after `gh pr create` says "no checks" for ~1 min
+  (use an until-loop); `ScheduleWakeup` is for /loop only; the Bash guard blocks heredocs, `cd <repo>`
+  and one command mixing citadel paths with repo commands; macOS `sed -i` needs `-i ''`;
+  `zig test --test-filter` on root.zig misses submodule tests, use `zig build test`.
 
 ## History (cycles 0-32, condensed 2026-10-13)
 
