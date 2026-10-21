@@ -1,7 +1,23 @@
 # sigil — context
 
-last_seen_at: 2026-10-21T12:00:00Z
+last_seen_at: 2026-10-22T12:00:00Z
 rejected_plans: []
+
+## Cycle 67 — 2026-10-22 — FEATURE
+
+- Done: item 6 (TOML arrays and inline tables), written directly. PR #73, CI 8/8, auto-merged; #67 box 6
+  ticked (6/12). A sonnet code-reviewer was still running at merge, so its findings were NOT seen: next
+  cycle re-check `parser.zig` `read_value`/`place` for review follow-ups if cheap.
+- Shape: `parser.zig` explicit `Frame` stack (`Need {first, after_comma, comma_or_close}`), `step` ->
+  `array_step`/`table_step`, `place(Target{keyed|element}, token)`, `key_path` shared with statements.
+  `scratch.append_scalar`/`append_container`; `nodes_max = len/2 + 2 + depth_max` (open `[`/`{` cost one
+  byte; ADR 0005 amended). Keyed TooDeep points at the key, element TooDeep at the `[`/`{` token.
+  Tests split: `parser_fixtures.zig` (shared helpers) + `parser_value_test.zig` (soft file limit 800).
+- Next: item 7 `toml.zig` facade + reflect (ADR 0005 (f)). Blockers/questions: none.
+- Learned: global `zig` is 0.15; use `PATH=/Users/fn/.zr/toolchains/zig/0.16.0:$PATH` and
+  `--cache-dir /tmp/sigil-cache` (repo-local cache failed to spawn the build runner); BSD `sed -i ''`;
+  the guard blocks one command mixing citadel paths with python heredocs (use Edit/Write there);
+  `check_maps` test helper stack is 512 values (keep generated arrays small).
 
 ## Cycle 66 — 2026-10-21 — FEATURE
 
