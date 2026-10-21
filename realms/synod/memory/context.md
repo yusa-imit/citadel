@@ -1,7 +1,18 @@
 # synod — context
 
-last_seen_at: 2026-10-20T06:18:00Z
+last_seen_at: 2026-10-22T00:00:00Z
 rejected_plans: []
+
+## Cycle 62 — 2026-10-22 — PREFLIGHT ABORT (disk)
+- Disk gate failed: `df -g /` showed 18 GB free (< 20). No inbox, no CI check, no feature work.
+- Preflight: tree was dirty on `feat/sim-kv-workload-2` (item 10 KV workload: `workload.zig`,
+  new `workload_hooks.zig`, `sim_node.zig`, `simulation.zig`, 2 test files; an earlier cycle-62
+  attempt had already left `wip/feat-sim-kv-workload-20261021`). Committed the tree to
+  `wip/feat-sim-kv-workload-2-20261022` (pushed, do not delete); tests NOT run on it.
+- Next: free disk first (`rm -rf .zig-cache`, old `zig-out`, other realms' caches), then continue
+  item 10 from the 20261022 wip branch on `feat/sim-kv-workload-3`. Reviewer contract for item 10
+  is in the cycle 61 block below.
+- Blockers: low disk on the dev box (needs the OWNER or a cleanup). Open questions: none.
 
 ## Cycle 61 — 2026-10-20 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (f3eacad), milestone #57 open, no open PRs.
