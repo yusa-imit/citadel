@@ -1,7 +1,24 @@
 # sigil — context
 
-last_seen_at: 2026-10-21T00:00:00Z
+last_seen_at: 2026-10-21T12:00:00Z
 rejected_plans: []
+
+## Cycle 66 — 2026-10-21 — FEATURE
+
+- Done: item 5 (TOML keys and tables) written directly, one sonnet code-reviewer (~$0.3, 0 critical)
+  while CI ran. PR #72, CI 8/8, auto-merged; #67 box 5 ticked (5/12). Total ~$2.4.
+- Shape: `toml/scratch.zig` = node array + hash index over (parent, key) (the ADR's "edges"), one
+  `State` per container, `header_pass`/`header_end(array)`/`dotted_pass`/`insert_scalar`/
+  `insert_container(inline_table|array_static)`, `conflict_offset` for the earlier line, iterative
+  `materialize` (writes `Map.entries` directly, `put` is linear). `toml/parser.zig`: `parse_value`,
+  `ParseOptions`, 17-variant `ParseValueError`; `[`/`{` in value position still `UnexpectedToken`
+  (item 6). `nodes_max = input_len/2 + 2`, ADR amended; scratch ~50 B per input byte.
+- Next: item 6 arrays and inline tables: values on an explicit stack, `insert_container` and element
+  append are in scratch already (elements need an `add_element`-style call for arrays); add a worst-case
+  node-bound test (nested one-byte arrays/tables). Blockers/questions: none.
+- Learned: `catch |err| switch` over a one-variant set trips tidy's Canceled prong, use
+  `catch return ...`; public `: usize` params are banned (use u32); `std.mem.indexOf` -> `find`;
+  derive expected line:col from the lexer's fault offset (backslash, newline), not the token start.
 
 ## Cycle 65 — 2026-10-21 — FEATURE
 
@@ -157,7 +174,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
-Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-4 done, 5-12 open.
+Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-5 done, 6-12 open.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -172,5 +189,5 @@ Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-4 d
 
 ## Next priority
 
-Plan 006 item 5 (`toml/parser.zig` keys and tables); see the newest cycle block.
+Plan 006 item 6 (`toml/parser.zig` arrays and inline tables); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
