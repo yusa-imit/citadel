@@ -1,7 +1,21 @@
 # zr — context
 
-last_seen_at: 2026-10-21T00:00:00Z
+last_seen_at: 2026-10-22T00:00:00Z
 rejected_plans: []
+
+## Cycle 32 — 2026-10-22 — FEATURE
+- Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
+  #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0 → items 5-11 blocked.
+- Fixed `lsp/diagnostics.zig` `Diagnostic.toJson`: message is now written via `std.json.fmt`
+  (`{f}`), so quotes/backslashes/control bytes are escaped; regression test parses the output
+  back (failed before the fix); header updated. PR #197 merged, 8/8 green (~16 min). Tests
+  1946/0, tidy 0 failing.
+- Open: UTF-16 positions in `lsp/position.zig`.
+- Next: ~180 headers left (cli/help, cli/version, lsp/definition, lsp/hover). Cycle 33 FEATURE.
+  Item 5 bumps to sailor v3.1.0 + zuda v3.x once tagged.
+- Gotchas: `gh pr checks` waits: two ~10 min loops needed (CI ~13-16 min); `gh pr merge` then
+  `gh pr edit N --add-label auto-merged`.
+- Open questions: none.
 
 ## Cycle 31 — 2026-10-21 — FEATURE
 - Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
@@ -48,31 +62,8 @@ rejected_plans: []
   not list them in `git add`.
 - Open questions: none.
 
-## Cycle 28 — 2026-10-18 — FEATURE
-- Preflight: tree clean on `main`; CI green; inbox clear (no new comments; #155 milestone, #178
-  informational). zuda still v2.3.0 (no v3.0.0 tag) → items 5-11 blocked → one `/stabilize --one`.
-- Added `//!` headers to `bench/formatter.zig`, `migrate/report.zig`, `cli/which.zig`,
-  `context/yaml.zig` (yaml header records unescaped values) + removed 4 `doc-header` baseline
-  entries. `cli/which.zig` was already failing `zig fmt --check` on main; ran `zig fmt` on it
-  (one call reflowed). PR #193 merged, 8/8 green (~13 min). Tests 1944/0, tidy 0 failing.
-- Next: ~187 headers left (next smallest: check `wc -l` over the baseline files). Watch zuda
-  v3.0.0. Cycle 29 FEATURE; cycle 30 STABILIZATION.
-- Gotchas: the guard blocks compound `A=..; cmd` bash lines (use plain commands, one per call);
-  insert headers with `perl -0pi -e 's/\A/…/'`.
-- Open questions: none.
-
-## Cycle 27 — 2026-10-17 — FEATURE
-- Preflight: tree clean on `main`; CI green; inbox clear (#155 milestone, #178 informational; no
-  comments since watermark). zuda still v2.3.0 (sailor v3.0.0) → items 5-11 blocked → one
-  `/stabilize --one`.
-- Added `//!` headers to `analytics/json.zig`, `lang/registry.zig`, `lang/provider.zig`,
-  `versioning/types.zig` + removed 4 `doc-header` baseline entries. PR #192 merged, 8/8 green
-  (~13 min). Tests 1944/0, tidy 0 failing.
-- Gotchas: `gh pr checks | awk` with ternary breaks on macOS awk; use `cut -f1,2`. `analytics/json.zig`
-  writes task names unescaped (documented in its header; possible JSON-escape fix later).
-- Next: ~191 headers left (next smallest: bench/formatter, migrate/report, cli/which, context/yaml).
-  Watch zuda v3.0.0. Cycle 28 FEATURE; cycle 30 STABILIZATION.
-- Open questions: none.
+## Cycles 27-28 (2026-10-17..18), folded
+- FEATURE, items 5-11 blocked, one `stabilize --one` each: `//!` headers + baseline entries (#192, #193; tests 1944/0). `analytics/json.zig` writes task names unescaped (documented; fix like #197). `cli/which.zig` was failing fmt on main, reformatted.
 
 ## Cycles 21-26 (2026-10-11..16, condensed 2026-10-17)
 - All FEATURE with zuda still v2.3.0 (sailor v3.0.0), items 5-11 blocked, so one
