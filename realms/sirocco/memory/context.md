@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-10-21T00:00:00Z
+last_seen_at: 2026-10-21T12:00:00Z
 rejected_plans: []
+
+## Cycle 64 — 2026-10-21 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green, no plan PR.
+- Done: item 10 as PR #57, squash-merged b511fa5 (`auto-merged`, CI green); ticked on #46 and in plan
+  004. `bench/echo.zig` + `zig build bench-echo` (one `concurrent` server task per connection,
+  window opens after all clients connect). kqueue, M-series 10 cores, 3 runs: gate 2 PASS 0.91x
+  (margin 0.01, any extra syscall on the 1-conn path can break it); gate 1 MISS 0.83-0.87x
+  (152-161k vs 184k echoes/s). Recorded in ADR 0003 section 4a + two PRD §5 rows.
+- Left over: no per-function profile (`sample(1)` hung attaching to the bench; the ADR says plan 005
+  starts with Instruments/dtrace), then multi-carrier. No code-reviewer pass (bench-only PR).
+- Next: FEATURE, item 11 (`bench/latency.zig`, gates 3-4), then 8b, 12 (release v0.5.0; gate-1 miss
+  ships, plan 005 is multi-carrier). Streak 0.
+- Blockers: none. Open questions: none. Cycle ~11 min, ~$0.9.
+- Gotchas: `bench-echo` needs ~2100 fds (macOS default 256): it raises RLIMIT_NOFILE itself and
+  refuses rather than shrinking N. Never run `sample` on the bench from Bash (it hangs 60 s+).
 
 ## Cycle 63 — 2026-10-21 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green, no plan PR.
