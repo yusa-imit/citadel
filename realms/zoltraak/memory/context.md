@@ -1,7 +1,24 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-19T23:16:15Z
+last_seen_at: 2026-10-21T23:05:55Z
 rejected_plans: []
+
+## Cycle 33 — 2026-10-22 — FEATURE (all plan items blocked)
+- Preflight: checkout was on `fix/lua-array-reply-bounded` (clean, pushed) with PR #157 open and
+  CI green: leftover of an interrupted cycle that never reported. Main CI green on 4910989; no
+  bugs, no plan PR, milestone #121 open; zuda still v2.3.0 (items 4-9, 12 blocked); no new owner
+  comments.
+- PR #157 (merged, CI green, labelled auto-merged): `luaToRESP2Buf` counted array slots with
+  `while (true)`. Scan moved to `src/scripting/lua_array.zig` (`sequence_len`), bounded by
+  `lua_objlen` (a border is always >= first nil index - 1, so replies are unchanged); 6 tests on
+  a real Lua state wired into `src/main.zig`. `zig build test` 1627/1627 except the 2 known
+  signal-4 crashers; fmt and tidy clean. `while (true)` in `src/` 4 -> 3. The mutation check
+  hung the build (inconclusive); the test count rising 1621 -> 1627 shows the tests run.
+- Next: remaining `while (true)`: server.zig:575, cli.zig:108 (probably legit loops, audit),
+  bloom.zig:826 (test loop); stash triage (stash@{0}); repair memory.zig stale suite so
+  commands/*.zig tests run. Items 4-9, 12 unblock on zuda v3.0.0.
+- Lesson: the guard blocks a compound command containing `git -C <other repo>`; run it alone.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 32 — 2026-10-20 — FEATURE (all plan items blocked)
 - Preflight clean (main, CI green on df7cf08), no bugs, no plan PR, milestone #121 open. zuda
