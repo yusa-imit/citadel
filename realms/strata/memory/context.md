@@ -1,7 +1,20 @@
 # strata — context
 
-last_seen_at: 2026-10-21T12:00:00Z
+last_seen_at: 2026-10-21T14:00:00Z
 rejected_plans: []
+
+## Cycle 63 — 2026-10-21 — FEATURE
+- Done: plan 005 item 3 — `src/btree/internal.zig` (`Internal`, `parse_internal(page, level)`, `parse_internal_raw`,
+  `format_internal`, `internal_insert/remove`, `set_child`, `set_right_child`, `child_index/child_at`,
+  `check_link/check_children/check_invariants`) + `src/btree/split.zig` `split_point(page, incoming_bytes, at)
+  ParseError!u16` (leaf: first index of right node; internal: index of cell that moves up). Merged #66 (CI 7/7,
+  683 tests, auto-merged), issue #63 item 3 ticked. ADR §11 internal golden matched first time.
+- Review: 1 critical (split_point asserted on page bytes -> now `Corrupted`; ADR §13 amended), 7 warnings fixed
+  (vacuous tests, sweep bias, added `set_child`). `node.zig` helpers (get16/put16/...) widened to `pub`.
+- Next: item 4 `btree/tree.zig` create/get/insert-into-root-leaf + `BufferPool.fetchNew`. Brief the developer with
+  ADR §8, §9, §13 and node/internal/split API. Blockers: none. Open questions: none.
+- Note: ~$2.4 of $4, ~20 min. Same pattern (dev ~7 min $0.9, reviewer parallel, fixes via SendMessage ~4.5 min).
+  `internal_test.zig` 692 / `split_test.zig` 397 lines; `internal.zig` 334.
 
 ## Cycle 62 — 2026-10-21 — FEATURE
 - Done: plan 005 item 2 — `src/btree/node.zig` leaf codec (`parse_leaf`, `Leaf.entry/search/check_invariants/
