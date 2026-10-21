@@ -97,32 +97,16 @@ Cycle 60: item 8 conformance (PR #63): vendored jsonpath-standard `tests/jsonpat
 flag); warn logs make `zig build` print "failed command" but exit 0; a `// proof:` must be one line above
 the switch.
 
-## History (cycles 58-59, condensed 2026-10-18)
+## History (cycles 54-59, condensed 2026-10-22)
 
-Cycle 59: item 7 JSONPath filters (PR #62): `path/filter.zig` (Expr tree, flat eval, exact int/uint/float
-order), `filter_parse.zig` (`length`/`count`/`value`; match/search = UnsupportedFunction); limits filters 32,
-exprs 128, queries 32; ADR 0004 section 6 amended (filter nesting = recursion bounded by
-`filter_depth_max`); reviewer found core `eql` is not RFC equality (fixed with iterative `deep_equal`).
-Cycle 58: item 6 `path/select.zig` (PR #61): explicit `[nesting_max]Frame` stack, descendant DFS equals
-RFC nodelist order. Learned: slice `position` goes negative with negative steps; a model test whose `out`
-always fits proves nothing about OutOfSpace; `zig test --test-filter` on root.zig misses path tests; the
-guard blocks python heredocs touching citadel paths (use Read/Edit); `-0` parses as int 0; tidy wants one
-`// proof:` line above each `catch unreachable`/`switch (err)`.
-
-## History (cycles 54-57, condensed 2026-10-19)
-
-Cycle 57: item 5 `path/jsonpath.zig` parse (PR #60): `compile(*Program, query, diag)`, fixed struct,
-byte-column diags. Cycle 56: item 4 `path/patch.zig` (PR #59): `apply(tree, ops, diag)` per-op spine
-rebuild, one `tree.root` assignment, `op <i>: <reason>` diags; `copy`/`move` deep-copy via `clone.deep`
-(a shared subtree makes a DAG with exponential depth walk); index past end is `IndexOutOfRange`, `-` is
-`PathNotFound`. Cycle 55: item 3 `path/merge.zig` (PR #58; path copying, one `tree.root` swap, internal
-`path/clone.zig`). Cycle 54: item 2 `path/pointer.zig` (PR #57; `parse` into `[128]Segment`, `resolve`,
-`format`, `index_of`, `segment_eql`). Learned: tidy wants `// proof:` above a multi-line
-`catch |err| switch (err)`; lines >100 cols fail tidy in tests too; `**` and `++` share precedence,
-parenthesize; `node = .{ .map = try f(node) }` aliases the result location (use a temp); arena-backed
-FailingAllocator sweeps hit only ~2 failure points, assert content; `Map.put` rejects duplicate keys;
-tests build documents inside out with `tree.new_map(n)`; `gh pr checks` right after a push says "no
-checks" for ~1 min (until-loop); a trailing `Monitor sleep` placeholder is wasted money.
+Plan 005 `path/`, one item per cycle (PRs #57-#62): `pointer.zig` (`parse` into `[128]Segment`), `merge.zig`
++ internal `clone.zig` (path copying, one `tree.root` swap), `patch.zig` (`copy`/`move` deep-copy via
+`clone.deep`), `jsonpath.zig` compile, `select.zig` (explicit `[nesting_max]Frame` stack), `filter.zig`
+(iterative `deep_equal`; core `eql` is not RFC equality; limits filters 32, exprs 128, queries 32).
+Learned: tidy wants a one-line `// proof:` above each `catch unreachable`/`switch (err)`; lines >100 cols
+fail tidy in tests too; `**` and `++` share precedence; arena-backed FailingAllocator sweeps hit ~2
+failure points, assert content; `Map.put` rejects duplicates; `gh pr checks` right after a push says "no
+checks" for ~1 min; slice `position` goes negative with negative steps; `-0` parses as int 0.
 
 ## History (cycles 52-53, condensed 2026-10-16)
 
@@ -190,7 +174,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
-Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-5 done, 6-12 open.
+Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-6 done, 7-12 open.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -205,5 +189,5 @@ Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-5 d
 
 ## Next priority
 
-Plan 006 item 6 (`toml/parser.zig` arrays and inline tables); see the newest cycle block.
+Plan 006 item 7 (`toml.zig` facade and reflect); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
