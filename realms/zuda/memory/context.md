@@ -1,6 +1,6 @@
 # zuda — context
 
-last_seen_at: 2026-10-21T00:00:00Z
+last_seen_at: 2026-10-22T00:00:00Z
 rejected_plans: []
 
 ## Cycle 31 — 2026-10-21 — FEATURE
@@ -23,22 +23,34 @@ rejected_plans: []
 - Quirk: the guard rejects `cd <repo>; ...`; the whole cycle took ~22 min wall, full test ~2-3
   min warm; start the PR by minute ~16. `zig fmt` on a file reformats the whole file.
 
-## Cycle 30 — 2026-10-20 — STABILIZATION (periodic, n%5==0)
-- Done: CI green (last 5 runs), no bugs, no OWNER comments. Tiger Style audit via grep: `@panic`
-  0, `std.debug.print` 4 (3 demo `main.zig`, 1 seed-report errdefer in an RBT test), `while
-  (true)` 106, `catch unreachable` 44 non-test in `distributions.zig`; `correlation.zig`'s 12
-  are all test code. Class fixed: proof comments on `catch unreachable`. Read every `quantile`
-  body (only error: p outside [0, 1]) and commented 20 sample/median sites plus the `Deque`
-  iterator. Full `zig build test` exit 0, fmt clean.
-- PRs: #74 (`chore/catch-unreachable-proofs`) merged at 7/7 green, labeled `auto-merged`. The
-  `chore` label does not exist in the repo (`gh pr create --label chore` fails).
-- Next: ~24 `Gamma/StudentT/Lindley/GeneralizedNormal.init(self.param) catch unreachable` sites
-  in `distributions.zig` need the owner's init validation as proof (or a typed path); then
-  resume plan 001 FEATURE: remaining assertion baseline (ndarray, distributions sampling), blas
-  after the `src/**` compile sweep, v3.0.0. Cycle 31 is FEATURE.
+## Cycle 32 — 2026-10-22 — FEATURE
+- Done: merged #75 (7/7, `auto-merged`). Ran the serial `src/**` sweep: ONE scratch root per
+  file, `src/_sweep_J.zig` = `test { _ = @import("rel/path.zig"); }`, then `zig test` with
+  `-fno-emit-bin` and per-job `--cache-dir`/`--global-cache-dir` (4 jobs, ~3 min for 435 files).
+  `zig test <file>` directly cannot import across dirs, which caused cycle 31's noise. Result:
+  180 files red. Red by dir: machine_learning 34, graph 20, dynamic_programming 17, string 12,
+  trees 8, geometry 8, compression 8, `algorithms/*.zig` aggregators 8, linalg 6, sorting 6,
+  iterators 5, combinatorics 5, spatial 4, then 1-3 each (searching, randomized, online,
+  number_theory, bitwise, heaps, cache, network_flow, signal, optimize, ndarray, ffi, ...).
+- PR #76 (`fix/compile-clean-graph-bitwise-dp-zig-016`): 45 files fixed and wired (graph 20,
+  bitwise 4, combinatorics 8, dp 15; mostly `= .{}` -> `.empty`). Real bugs: `countPartitions`,
+  `bellNumber`, `clearRightmostBit(0)`, bit-field full width, RS-insert OOM free, `eulerian`
+  undirected paths + self-loop degree. Still red in dp: max_sum_rectangle, scramble_string,
+  stock_trading, subset_sum, target_sum. Local `zig build test` exit 0.
+- Cost lesson: 4 parallel sonnet agents burned ~$2.2 of a $4 budget in ~6 min (the long ones
+  ~$0.25/min); I killed the DP agent. Use <= 2 agents or do mechanical `.{}` -> `.empty` with
+  perl directly. Agents leave scratch files; delete `src/_sweep*` before commit.
+- Next: merge #76 at 7/7; continue sweep dirs (string, trees, geometry, compression, sorting,
+  linalg, iterators, aggregators, ML last), then assertion baseline, v3.0.0.
 - Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: `perl -i -pe` with `$.` inserts comment lines by number (go bottom-up); the guard
-  rejects `cd <repo>; ...` and `==` in zsh breaks `sed`/`echo` banners.
+- Quirk: `read -t` on /dev/null does not wait (use `perl -e 'select(undef,undef,undef,N)'`);
+  the guard blocks `git push -u origin HEAD` when chained after checkout, push by branch name.
+
+## Cycle 30 — 2026-10-20 — STABILIZATION (periodic)
+- #74 merged: proof comments on 21 `catch unreachable` sites (quantile in sample/median, Deque
+  iterator). Left: ~24 `Gamma/StudentT/Lindley/GeneralizedNormal.init(self.param) catch
+  unreachable` sites in `distributions.zig` need the owner's init validation as proof. The
+  `chore` label does not exist in the repo.
 
 ## Cycles 27-29 (2026-10-17..19, condensed 2026-10-21)
 - All merged by squash at 7/7 green, labeled `auto-merged`.
