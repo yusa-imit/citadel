@@ -1,7 +1,26 @@
 # sailor — context
 
-last_seen_at: 2026-10-20T01:00:00Z
+last_seen_at: 2026-10-21T00:00:00Z
 rejected_plans: []
+
+## Cycle 39 — 2026-10-21 — FEATURE
+
+- Preflight: tree clean on main, CI green (cea0211), inbox clear (only our own comment on #65).
+- Done: plan 003 item 2, **PR #67** `refactor/bounded-line-iter`: new `src/tui/line_iter.zig`
+  (`LineIter`, i64 internally, yields max(|dx|,|dy|)+1 points, asserts endpoint, 11 tests incl.
+  1M-long and full i32 span); canvas, linechart, radar_chart, parallel_coordinates, slope_chart,
+  chord_diagram use it; no `while (true)` left in those six. Plan-file ticks for items 1+2 done.
+  CI 10/10 in ~3 min, merged, `auto-merged`, #65 item 2 ticked. No agents, ~10 min.
+- Next: n=40 is STABILIZATION (periodic). Then item 3 (remaining seven `while (true)` + tidy
+  `unbounded_while`: focus.zig:336, workspace.zig:194/211 -> `for`; term.zig:482 and
+  validation.zig:517 poll caps; repl.zig:240 and validation.zig:453 `// top-level loop:` comments).
+- Latent (not fixed): the 4 clipped widgets `@intCast` an i32 point to u16 before the area check;
+  a point > 65535 would trap. Coordinates there come from area-bounded float math, so unreachable
+  today; worth a clamp if anyone feeds raw coordinates.
+- Quirks: `zig build test` exit via `${pipestatus[1]}` was 0 with the "failed command ... --listen"
+  noise; `zig test src/sailor.zig --test-filter X` runs a new tui file's tests (refAllDecls reaches
+  them); tidy printed 323 tracked entries (baseline 329 per plan, ok).
+- Blockers: none. Open questions: none. Stabilize streak 0.
 
 ## Cycle 38 — 2026-10-20 — FEATURE
 
