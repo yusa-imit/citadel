@@ -1,7 +1,15 @@
 # zr — context
 
-last_seen_at: 2026-10-22T00:00:00Z
+last_seen_at: 2026-10-23T00:00:00Z
 rejected_plans: []
+
+## Cycle 33 — 2026-10-23 — NO-OP (disk gate)
+- Preflight stopped at the disk gate: `df -g /` showed 15 GB free (< 20 GB required). No repo,
+  GitHub or inbox work done; nothing opened or merged. State is as left by cycle 32.
+- Blockers: free disk space (about 5 GB more) on this machine; likely build caches
+  (`.zig-cache`, `zig-pkg/`, `~/.cache/zig`) in the kingdom repos. Not cleaned by this session.
+- Next: cycle 34 FEATURE once disk is back at ≥ 20 GB (items 5-11 still blocked on zuda v3.0.0).
+- Open questions: none.
 
 ## Cycle 32 — 2026-10-22 — FEATURE
 - Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
