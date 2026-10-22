@@ -1,5 +1,12 @@
 # sailor — STATE
 
+**Update 2026-10-22 (cycle 40, stabilization):** main green (7fe6b18, then 99ddd3b after PR #68).
+Live `src/` counts: 11 `catch unreachable` (proof-commented), 8 `@panic`, 35 `std.debug.print`,
+7 `while (true)` (down from 13 after plan 003 item 2), 52 files >800 lines, 0 missing `//!`.
+Test audit: 0 `expect(true)`, last `a > 0 or b > 0` disjunctions (sunburst focus tests) tightened
+in PR #68, which also fixed a real bug (`withFocused(n >= 1)` styled nothing). Docs: README
+version refs match v3.1.0. Hygiene: root files clean. Milestone 003 at 2/9 (items 3-9 open).
+
 **Update 2026-10-18 (cycle 36): v3.1.0 released** (plan 002 complete, milestone #51 closed, PR
 #63, tag v3.1.0, `build.zig.zon` 3.1.0). Consumers zr#178, silica#163, zoltraak#141 (still open,
 v3.0.0 migration issues) were commented with the v3.1.0 notes. No plan open; next is `/plan`.

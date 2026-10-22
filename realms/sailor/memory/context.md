@@ -1,7 +1,24 @@
 # sailor — context
 
-last_seen_at: 2026-10-21T00:00:00Z
+last_seen_at: 2026-10-22T00:00:00Z
 rejected_plans: []
+
+## Cycle 40 — 2026-10-22 — STABILIZATION
+
+- Preflight: tree clean on main, CI green (7fe6b18), inbox clear (only our own comment on #65).
+- Done: **PR #68** `fix/sunburst-focused-top-level-index`. Test audit found the last
+  `a > 0 or b > 0` disjunctions (sunburst focus tests); tightening them (focused=1 must style
+  more cells than focused=0) exposed a real bug: `resolveNode` never set the top-level index
+  from the depth-0 sibling index, so `withFocused(n >= 1)` styled nothing (bold 51 vs 0).
+  Fixed, CI 10/10, merged, `auto-merged`. No agents, ~15 min.
+- Counts: 11 `catch unreachable` (commented), 8 `@panic`, 35 debug.print, 7 `while (true)`,
+  52 files >800, 0 missing `//!`. README matches v3.1.0. STATE.md updated.
+- Next: n=41 FEATURE: plan 003 item 3 (remaining seven `while (true)` + tidy `unbounded_while`;
+  see cycle 39 for the list). Milestone #65 at 2/9.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: a stale `.zig-cache` made `zig build test` fail with `FileNotFound` (tidy and test
+  binaries); `--cache-dir /tmp/sailor-zig-cache2` fixed it, exit 0. Weak asserts can hide real
+  bugs: tightening one found one, so keep auditing `or`/"does not crash" tests.
 
 ## Cycle 39 — 2026-10-21 — FEATURE
 
