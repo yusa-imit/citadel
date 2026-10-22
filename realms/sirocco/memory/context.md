@@ -3,6 +3,10 @@
 last_seen_at: 2026-10-22T00:00:00Z
 rejected_plans: []
 
+## Disk-blocked no-op — 2026-10-23 (third in a row; counter stays 64)
+- `df -g /` showed 16 GB free (gate 20), measured twice. Stopped at preflight; no repo or GitHub changes.
+  Needs the operator to free disk. Next: FEATURE item 11 (`bench/latency.zig`), 8b, 12.
+
 ## Disk-blocked no-op — 2026-10-22 (counter stays 64, next cycle is still 65)
 - Preflight `df -g /` showed 18 GB free (gate is 20), twice on 2026-10-22 (two consecutive no-ops).
   Stopped before inbox/mode; no repo or GitHub changes. Main tree clean on main. Needs the operator
