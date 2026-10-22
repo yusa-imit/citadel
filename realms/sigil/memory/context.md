@@ -1,7 +1,16 @@
 # sigil — context
 
-last_seen_at: 2026-10-22T12:00:00Z
+last_seen_at: 2026-10-22T13:00:00Z
 rejected_plans: []
+
+## Cycle 68 — 2026-10-22 — DISK (no work)
+
+- Done: nothing. Preflight disk gate failed: `df -g /` shows 18 GB available (< 20 required), so the
+  cycle stopped before any repo work. Repo clean on main at daf365e, CI green on that SHA, only open
+  issue is milestone #67 (6/12).
+- Next: item 7 `toml.zig` facade + reflect (ADR 0005 (f)) plus the cycle 67 follow-ups, once disk >= 20 GB.
+- Blockers: low disk on the dev box (needs the human or a cache cleanup, e.g. `.zig-cache`,
+  `/tmp/sigil-cache`, `/tmp/sigil-zc`). Open questions: none.
 
 ## Cycle 67 — 2026-10-22 — FEATURE
 
