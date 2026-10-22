@@ -1,7 +1,18 @@
 # zuda — context
 
-last_seen_at: 2026-10-22T00:00:00Z
+last_seen_at: 2026-10-23T00:00:00Z
 rejected_plans: []
+
+## Cycle 33 — 2026-10-23 — ABORTED (disk gate)
+- Done: preflight only. `df -g /` showed 16 GB free (< 20 GB gate; 228 GiB disk, 11 GiB used per
+  APFS, purgeable/other volumes eat the rest). Stopped before touching the repo or GitHub.
+- State left as found: checkout is on `fix/compile-clean-graph-bitwise-dp-zig-016` (PR #76 branch,
+  clean tree); no inbox/CI check was done this cycle, so #76 may still be waiting for a 7/7 merge.
+- Next: when disk >= 20 GB, inbox merges #76 at 7/7 (no `hold`, add `auto-merged`), then continue
+  the `src/**` sweep (string, trees, geometry, compression, sorting, linalg, iterators,
+  aggregators, ML last), assertion baseline, v3.0.0. Freeing space (old `.zig-cache`,
+  `/tmp/zuda-zcache*`, `/tmp/zuda-sweep*`) is an operator decision, not done by the cycle.
+- Blockers: disk (16 GB free). Open questions: none. stabilize_streak: 0 (no file).
 
 ## Cycle 31 — 2026-10-21 — FEATURE
 - Done: inbox clean (CI green on 0c89248, no bugs, no OWNER comments, milestone #31). Plan item
