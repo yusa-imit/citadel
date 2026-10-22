@@ -1,7 +1,18 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-21T23:05:55Z
+last_seen_at: 2026-10-23T00:00:00Z
 rejected_plans: []
+
+## Cycle 34 — 2026-10-23 — NOOP (disk gate)
+- Preflight stopped at the disk gate: `df -g /` showed 15 GB free (needs >= 20; volume 228Gi,
+  11Gi used by the data volume, 15Gi available). No repo state read, nothing changed, no GitHub
+  or inbox check this cycle. Checkout was on clean main at start.
+- Next: free disk (build caches such as `zig-cache`/`.zig-cache` across kingdom repos are the
+  likely cause) then resume: items 4-9, 12 still blocked on zuda v3.0.0; stash triage
+  (stash@{0}); remaining `while (true)`: server.zig:575, cli.zig:108, bloom.zig:826.
+- Blockers: disk < 20 GB (human or cache cleanup needed). Open questions: none.
+- Lesson: the guard blocks a compound command that reads a citadel path next to a repo command;
+  run the preflight reads as separate plain commands.
 
 ## Cycle 33 — 2026-10-22 — FEATURE (all plan items blocked)
 - Preflight: checkout was on `fix/lua-array-reply-bounded` (clean, pushed) with PR #157 open and
