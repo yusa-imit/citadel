@@ -1,7 +1,16 @@
 # synod — context
 
-last_seen_at: 2026-10-22T12:00:00Z
+last_seen_at: 2026-10-23T12:00:00Z
 rejected_plans: []
+
+## Cycle 64 — 2026-10-23 — PREFLIGHT ABORT (disk)
+- Disk gate failed a third time: `df -g /` showed 16 GB free (< 20), trend 18 -> 17 -> 16. No
+  inbox, no CI check, no feature work. The box is losing ~1 GB per day; the OWNER or a cleanup
+  job must free space (other realms' `.zig-cache`/`zig-out`, old toolchains, Xcode/Docker data).
+- Repo: clean, on `wip/feat-sim-kv-workload-2-20261022` (preserved; tests never run on it).
+- Next: once disk >= 20 GB, continue item 10 (sim KV workload) from that wip branch on
+  `feat/sim-kv-workload-3`; reviewer contract is in the cycle 61 block.
+- Blockers: low disk on the dev box (3 consecutive aborts). Open questions: none.
 
 ## Cycle 63 — 2026-10-22 — PREFLIGHT ABORT (disk)
 - Disk gate failed again: `df -g /` showed 17 GB free (< 20), worse than cycle 62's 18 GB. No
