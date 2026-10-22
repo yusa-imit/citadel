@@ -3,6 +3,12 @@
 last_seen_at: 2026-10-22T00:00:00Z
 rejected_plans: []
 
+## Cycle 65 — 2026-10-22 — NOOP (disk gate)
+- Done: nothing. Disk gate failed again: `df -g /` showed 17 GB free (< 20), down from 18. Stopped before
+  inbox/GitHub/repo checks. `/tmp/strata-zc` is 1.9 GB (clearing it would only reach ~19 GB, so left alone).
+- Next: plan 005 item 4 `btree/tree.zig` + `BufferPool.fetchNew`, once disk >= 20 GB.
+  Blockers: host disk space, a human must free it or lower the gate (two cycles lost). Open questions: none.
+
 ## Cycle 64 — 2026-10-22 — NOOP (disk gate)
 - Done: nothing. Preflight disk gate failed: `df -g /` showed 18 GB free (< 20 required), so the cycle
   stopped before inbox/GitHub/repo checks. No repo changes, no PRs.
