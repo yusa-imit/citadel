@@ -14,91 +14,31 @@ rejected_plans: []
 - Lesson: the guard blocks a compound command that reads a citadel path next to a repo command;
   run the preflight reads as separate plain commands.
 
-## Cycle 33 — 2026-10-22 — FEATURE (all plan items blocked)
-- Preflight: checkout was on `fix/lua-array-reply-bounded` (clean, pushed) with PR #157 open and
-  CI green: leftover of an interrupted cycle that never reported. Main CI green on 4910989; no
-  bugs, no plan PR, milestone #121 open; zuda still v2.3.0 (items 4-9, 12 blocked); no new owner
-  comments.
-- PR #157 (merged, CI green, labelled auto-merged): `luaToRESP2Buf` counted array slots with
-  `while (true)`. Scan moved to `src/scripting/lua_array.zig` (`sequence_len`), bounded by
-  `lua_objlen` (a border is always >= first nil index - 1, so replies are unchanged); 6 tests on
-  a real Lua state wired into `src/main.zig`. `zig build test` 1627/1627 except the 2 known
-  signal-4 crashers; fmt and tidy clean. `while (true)` in `src/` 4 -> 3. The mutation check
-  hung the build (inconclusive); the test count rising 1621 -> 1627 shows the tests run.
-- Next: remaining `while (true)`: server.zig:575, cli.zig:108 (probably legit loops, audit),
-  bloom.zig:826 (test loop); stash triage (stash@{0}); repair memory.zig stale suite so
-  commands/*.zig tests run. Items 4-9, 12 unblock on zuda v3.0.0.
-- Lesson: the guard blocks a compound command containing `git -C <other repo>`; run it alone.
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 32 — 2026-10-20 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on df7cf08), no bugs, no plan PR, milestone #121 open. zuda
-  still v2.3.0 (items 4-9, 12 blocked); no new owner comments (#141 still says target sailor
-  v3.1.0, bump waits for the 0.16 toolchain).
-- `/stabilize --one`: PR #156 (merged, CI green). XREAD/XREADGROUP BLOCK loops were
-  `while (true)` (BLOCK 0 unbounded). Now `for (0..block_poll.poll_count_max)` (one year at
-  100 ms) with pure `timed_out`; new `src/utils/block_poll.zig`, 5 tests wired into the
-  `src/main.zig` test root, mutation-checked (`>=` to `>` fails 4). `zig build test` 1621/1621
-  except the 2 known signal-4 crashers; fmt and tidy clean. `while (true)` in `src/` 6 -> 4.
-- Next: remaining `while (true)`: server.zig:575, cli.zig:108, lua_engine.zig:301 (probably
-  legit loops, audit), bloom.zig:826 (test loop); stash triage (stash@{0}); repair memory.zig
-  stale suite so commands/*.zig tests run. Items 4-9, 12 unblock on zuda v3.0.0.
-- Lesson: BSD sed `-i` needs a suffix arg (`-i ''`); use the Edit tool for mutation checks.
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 31 — 2026-10-19 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on 71a674c), no bugs, no plan PR, milestone #121 open. zuda
-  still v2.3.0 (items 4-9, 12 blocked); sailor is v3.1.0 (owner note on #141: target v3.1.0, the
-  pin bump still waits for the 0.16 toolchain). No other owner actions.
-- `/stabilize --one`: PR #155 (merged, CI green). `WAIT 1 18446744073709551615` overflowed
-  `timeout_ms * 1_000_000` and trapped the server in safe builds; WAITAOF had the same code.
-  New `src/utils/wait_poll.zig` (saturating `deadline_ms`, `expired`, `poll_count_max`), 6 tests
-  wired into `src/main.zig`; both loops now `for (0..poll_count_max)`. `zig build test` 1616/1616
-  except the 2 known signal-4 crashers; fmt and tidy clean. `while (true)` 8 -> 6.
-- A command-level WAIT regression test was added to `commands/replication.zig` but does not run
-  (that file imports memory.zig; stale suites). Pure helper tests carry the coverage.
-- Next: streams_advanced.zig:446,735 sleep-polls; stash triage (stash@{0}); repair memory.zig
-  stale suite so commands/*.zig tests run. Items 4-9, 12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 30 — 2026-10-18 — STABILIZATION (periodic, n % 5 == 0)
-- Preflight clean (main, CI green on 28ee7b5), no bugs, no plan PR, milestone #121 open, no
-  owner actions (the only new comment on #121 was our own cycle-29 report). zuda still v2.3.0.
-- Audit: `catch unreachable` all carry proof comments (memory.zig:6164,6234 are asserts on a
-  just-formatted value); 9 `while (true)` in `src/`, one was an unbounded read.
-- PR #154 (merged, CI green): `sendAndReadReply` in `commands/cluster.zig` appended bytes until
-  `\n`, so a hostile MIGRATE target could grow the source's buffer without limit. Read moved to
-  new `src/network/reply_line.zig` (`read_reply_line`, `reply_line_max` = 4096, `ReplyTooLong`);
-  5 loopback tests (mock peer thread), wired into the `src/main.zig` test root, mutation-checked
-  (bound x100 makes the over-limit tests fail). `zig build test` 1610/1610 pass except the 2
-  known signal-4 crashers; fmt and tidy clean. STATE.md: `while (true)` 9 -> 8.
-- Lesson: tests in `commands/*.zig` do not run (they import memory.zig, whose stale suites do
-  not compile); the migrate mock-server tests there are in that group. Put testable logic in a
-  standalone file with no memory.zig import and wire that. Check a new test actually runs by
-  mutating the code under test once.
-- Next: remaining `while (true)`: streams_advanced.zig:446,735, replication.zig:290,388,
-  bloom.zig:826 (test loop); stash triage (stash@{0}); repair memory.zig stale suite. Items 4-9,
-  12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 29 — 2026-10-16 — FEATURE (all plan items blocked)
-- Preflight clean (main, CI green on b8d35e1), no bugs, no plan PR, milestone #121 open, no
-  owner comments. zuda still v2.3.0, so items 4-9, 12 blocked.
-- `/stabilize --one`: PR #153. notifications.zig tests passed `PubSub` by value (compile error,
-  never ran) and asserted nothing; now real subscribers + exact RESP2 frame comparison + a
-  no-flags negative case, wired into the `src/main.zig` reachability test. Only the 2 known
-  signal-4 crashers fail locally. First CI run died on a DNS flake fetching deps
-  (TemporaryNameServerFailure); `gh run rerun --failed` went green (6m54s / 57s), merged.
-- Finding: wiring lazyfree.zig or blocking.zig fails, not by their own tests: any wired file that
-  `@import`s `storage/memory.zig` drags in memory.zig's stale test suite (66 errors) plus
-  search (110), config (59), modules (41), acl (30), cluster (39). Those suites must be repaired
-  first (a big task: one file at a time, memory.zig first). persistence/aof/replication not tried;
-  check their imports for memory.zig before wiring.
-- Careful: `sed '/storage\/blocking.zig/d'` also deleted the real `pub const blocking` line in
-  main.zig; use anchored patterns.
-- Next: try aof/replication/persistence (if they avoid memory.zig); commands/*.zig stale tests;
-  stash triage (stash@{0}). Items 4-9, 12 unblock on zuda v3.0.0.
-- Blockers: zuda v3.0.0. Open questions: none.
+## Cycles 29-33 (2026-10-16..22), folded
+All plan items 4-9, 12 blocked on zuda v3.0.0 (zuda still v2.3.0), so each cycle took one
+stabilization fix; every PR merged with CI green and `auto-merged`; milestone #121 open; no owner actions.
+- C29 PR #153: notifications.zig tests passed `PubSub` by value (never compiled); now exact RESP2 frame
+  checks. First CI run died on a DNS flake (`TemporaryNameServerFailure`): `gh run rerun --failed`.
+  Finding: wiring lazyfree.zig or blocking.zig drags in memory.zig's stale test suite (66 errors) plus
+  search (110), config (59), modules (41), acl (30), cluster (39); repair one file at a time, memory.zig
+  first. persistence/aof/replication untried: check their imports for memory.zig before wiring.
+- C30 PR #154 (stabilization): `sendAndReadReply` read unbounded, now `src/network/reply_line.zig`
+  (`reply_line_max` = 4096, `ReplyTooLong`) with loopback tests. Tests in `commands/*.zig` do not run
+  (they import memory.zig); put testable logic in a standalone file and wire it into `src/main.zig`;
+  mutate the code under test once to prove a new test runs.
+- C31 PR #155: `WAIT 1 18446744073709551615` overflowed `timeout_ms * 1_000_000` and trapped; new
+  `src/utils/wait_poll.zig` (saturating `deadline_ms`, `poll_count_max`), WAIT and WAITAOF loops bounded.
+- C32 PR #156: XREAD/XREADGROUP BLOCK loops bounded by `src/utils/block_poll.zig` (`poll_count_max` = one
+  year at 100 ms, pure `timed_out`), mutation-checked.
+- C33 PR #157: `luaToRESP2Buf` array scan moved to `src/scripting/lua_array.zig` (`sequence_len`,
+  bounded by `lua_objlen`), 6 tests on a real Lua state. The mutation check hung the build.
+- State after C33: `zig build test` 1627/1627 except the 2 known signal-4 crashers; fmt and tidy clean;
+  `while (true)` in `src/` 9 -> 3.
+- Open: server.zig:575, cli.zig:108 (probably legit loops, audit), bloom.zig:826 (test loop),
+  streams_advanced.zig:446,735 sleep-polls; stash triage (stash@{0}); repair memory.zig stale suite.
+- Quirks: the guard blocks compound commands mixing citadel paths with repo commands and `git -C <other
+  repo>`; run them alone. BSD sed `-i` needs `-i ''`; anchor patterns (`sed '/storage\/blocking.zig/d'`
+  also deleted the real `pub const blocking` line in main.zig); use Edit for mutation checks.
 
 ## Cycles 25-28 (2026-10-13..15, condensed 2026-10-17)
 - All `/stabilize --one`, zuda still v2.3.0 (items 4-9, 12 blocked). Each wired a file into the
