@@ -3,23 +3,12 @@
 last_seen_at: 2026-10-23T13:00:00Z
 rejected_plans: []
 
-## Cycle 69 — 2026-10-23 — DISK (no work)
+## Cycles 68-69 — 2026-10-22..23 — DISK (no work)
 
-- Done: nothing. Disk gate failed again: `df -g /` shows 16 GB available (< 20; was 18 in cycle 68, so
-  it is shrinking). Repo clean on main at daf365e. No inbox/GitHub triage was run.
-- Next: item 7 `toml.zig` facade + reflect (milestone #67, 6/12) plus the cycle 67 follow-ups, once
-  disk >= 20 GB.
-- Blockers: dev box disk, 2 cycles in a row. Needs the human or a cache cleanup (`.zig-cache`,
-  `/tmp/sigil-cache`, `/tmp/sigil-zc`, other realms' caches). Open questions: none.
-
-## Cycle 68 — 2026-10-22 — DISK (no work)
-
-- Done: nothing. Preflight disk gate failed: `df -g /` shows 18 GB available (< 20 required), so the
-  cycle stopped before any repo work. Repo clean on main at daf365e, CI green on that SHA, only open
-  issue is milestone #67 (6/12).
-- Next: item 7 `toml.zig` facade + reflect (ADR 0005 (f)) plus the cycle 67 follow-ups, once disk >= 20 GB.
-- Blockers: low disk on the dev box (needs the human or a cache cleanup, e.g. `.zig-cache`,
-  `/tmp/sigil-cache`, `/tmp/sigil-zc`). Open questions: none.
+- Done: nothing. Disk gate failed (`df -g /`: 18 GB in cycle 68, 16 GB in cycle 69, need 20); no repo or
+  inbox work. Repo clean on main at daf365e, CI green.
+- Next: item 7 `toml.zig` facade + reflect (milestone #67, 6/12) plus the cycle 67 follow-ups, once disk
+  >= 20 GB. Blockers: dev box disk (needs the human or a cache cleanup: `.zig-cache`, `/tmp/sigil-*`).
 
 ## Cycle 67 — 2026-10-22 — FEATURE
 
@@ -42,71 +31,25 @@ rejected_plans: []
   the guard blocks one command mixing citadel paths with python heredocs (use Edit/Write there);
   `check_maps` test helper stack is 512 values (keep generated arrays small).
 
-## Cycle 66 — 2026-10-21 — FEATURE
+## History (cycles 63-66, condensed 2026-10-23)
 
-- Done: item 5 (TOML keys and tables) written directly, one sonnet code-reviewer (~$0.3, 0 critical)
-  while CI ran. PR #72, CI 8/8, auto-merged; #67 box 5 ticked (5/12). Total ~$2.4.
-- Shape: `toml/scratch.zig` = node array + hash index over (parent, key) (the ADR's "edges"), one
-  `State` per container, `header_pass`/`header_end(array)`/`dotted_pass`/`insert_scalar`/
-  `insert_container(inline_table|array_static)`, `conflict_offset` for the earlier line, iterative
-  `materialize` (writes `Map.entries` directly, `put` is linear). `toml/parser.zig`: `parse_value`,
-  `ParseOptions`, 17-variant `ParseValueError`; `[`/`{` in value position still `UnexpectedToken`
-  (item 6). `nodes_max = input_len/2 + 2`, ADR amended; scratch ~50 B per input byte.
-- Next: item 6 arrays and inline tables: values on an explicit stack, `insert_container` and element
-  append are in scratch already (elements need an `add_element`-style call for arrays); add a worst-case
-  node-bound test (nested one-byte arrays/tables). Blockers/questions: none.
-- Learned: `catch |err| switch` over a one-variant set trips tidy's Canceled prong, use
-  `catch return ...`; public `: usize` params are banned (use u32); `std.mem.indexOf` -> `find`;
-  derive expected line:col from the lexer's fault offset (backslash, newline), not the token start.
+Plan 006 (TOML 1.0, milestone #67) items 1-5, one per cycle, written directly (~$0.8-2.4 each, one sonnet
+reviewer while CI runs). C63: ADR 0005 TOML contract (PR #68): `Timestamp.Kind {instant, local_datetime,
+local_date, local_time}`; scratch node/edge arrays from `gpa` then exact `new_map` copy; one state per
+table; errors `DuplicateKey`/`TableRedefined`/`TypeConflict`; 17 parse + 6 write variants; depth counts the
+root (127 pass / 128 `TooDeep`). C64: `core.timestamp` (PR #69) and `toml/lexer.zig` (PR #70):
+`Lexer.next(diag, Mode{key,value})`, `input_len_max = maxInt(u32) - 16`. C65: `toml/scalar.zig` (PR #71):
+`parse(text) Error!Value`, `number_text_max = 512`, bad radix digit wins over overflow. C66:
+`toml/scratch.zig` node array + hash index over (parent, key), `header_pass`/`dotted_pass`/`insert_*`,
+iterative `materialize`; `parse_value(gpa, tree, input, opts, diag)` (PR #72).
+Learned: global `zig` is 0.15, use `PATH=/Users/fn/.zr/toolchains/zig/0.16.0:$PATH` and `--cache-dir
+/tmp/sigil-cache`; `zig build test` prints "failed command" with exit 0 on warn logs (check `$?`); `///`
+on a `test` is a compile error; tidy wants a one-line `// proof:` above `switch (err)`/`catch unreachable`,
+and `catch return` instead of a one-variant `catch |err| switch`; public `: usize` params are banned (u32);
+`std.mem.indexOf` -> `find`, `indexOfScalar` -> `findScalar`; the guard blocks one command mixing citadel
+paths with repo commands or python heredocs (split, or use Edit/Write); foreground `gh pr checks` retry
+loop works (~6 min); >100-col check on docs must skip table rows.
 
-## Cycle 65 — 2026-10-21 — FEATURE
-
-- Done: item 4 (TOML scalars), written directly (tests first, no developer subagents), one sonnet
-  code-reviewer (~$0.3) in the background while CI ran. PR #71, CI 8/8, auto-merged; #67 box 4 ticked
-  (4/12). Total ~$1.35.
-- Shape: new `toml/scalar.zig` (not inside lexer.zig): `parse(text) Error!Value` (bool/int/float/
-  timestamp, never `.uint`), `number_text_max = 512` (only for numbers containing `_`; ADR 0005 §5
-  amended), errors carry no position (parser item 5 builds the diag from the token offset). Lexer
-  `scan_scalar` rejoins `dddd-dd-dd` + one space + `dd:` into one run (`joins_time`).
-- Reviewer fixed: bad radix digit wins over overflow (`0x8000000000000000_` is InvalidNumber).
-- Next: item 5 `toml/parser.zig` keys and tables (ADR 0005 §3-4 state machine; depth 127/128 per
-  ADR). Blockers/questions: none.
-- Learned: `zig build test` prints "failed command" with exit 0 on warn logs (check `$?`, not the
-  text); a test expecting a tiny float must not assume it underflows (1e-256 is representable).
-
-## Cycle 64 — 2026-10-20 — FEATURE
-
-- Done: found leftover PR #69 (plan 006 item 2 `core.timestamp`, CI 8/8, left open by an interrupted
-  cycle 63 on `feat/core-timestamp-plan-006-item-2`) and merged it. Then item 3 `toml/lexer.zig` +
-  `lexer_test.zig` written directly (no developer subagents): PR #70, CI 8/8, auto-merged. Boxes 2-3 of
-  #67 ticked. Total cost ~$1.7 incl. one sonnet code-reviewer (~$0.3).
-- Lexer shape: `Lexer.next(diag, mode)` with `Mode {key, value}`; key mode splits `.`, returns `[[`/`]]`
-  and `bare_key`; value mode returns one `.scalar` run (up to ws, newline, `, ] } #`) so item 4 must
-  classify it AND rejoin `1979-05-27 07:32:00` (two scalars today). Strings: 4 kinds, `raw` = body,
-  `decode_string(kind, raw, out)` no error set. `ScanError` 6 variants. `Lexer.input_len_max =
-  maxInt(u32) - 16` (reviewer: `offset + 8` could wrap; ADR 0005 section 5 amended).
-- Next: item 4 lexer scalars (integers via `core.number`, `0x/0o/0b`, floats, bools, datetimes via
-  `core.timestamp`). Blockers/questions: none.
-- Learned: the guard blocks one command mixing citadel paths and repo commands (split them); `///` on a
-  `test` is a compile error; tidy wants a `// proof:` above `switch (err)` even in tests; after a
-  failing test the runner prints an unrelated json/writer stack (noise); `findScalar` replaces
-  `indexOfScalar` in 0.16.
-
-## Cycle 63 — 2026-10-19 — FEATURE
-
-- Done: owner merged plan 006 (PR #66); opened milestone #67 (12 items). Item 1 ADR 0005 TOML contract
-  written by me directly (no `architect`; ~$0.8 whole cycle vs ~$2.9): PR #68, docs-only, CI 8/8,
-  auto-merged. Plan item and issue #67 box 1 ticked, PRD 4.3 TOML row amended.
-- ADR 0005 pins: `Timestamp.Kind {instant, local_datetime, local_date, local_time}` + `kind` field
-  (no default); scratch node/edge arrays from `gpa` (`input.len/2+1`), then exact `new_map` copy; one
-  state per table (implicit/header/dotted/inline/array_static/array_tables), errors `DuplicateKey`,
-  `TableRedefined`, `TypeConflict`; 17 parse + 6 write variants; `parse_value(gpa, tree, input, opts,
-  diag)`; writer inlines a table followed by a scalar so round-trip `eql` holds; runner decodes
-  toml-test JSON with `std.json`. Depth counts the root: 127 header segments pass / 128 `TooDeep`
-  (plan said 128/129; tests use 127/128).
-- Next: item 2 `core/timestamp.zig` (Kind field, civil date <-> days, RFC 3339 parse/format, 1,000-seed
-  model test; update `reflect`, `json.writer`, `path/clone.zig` test literals). Blockers/questions: none.
-- Learned: >100-col check on docs must skip table rows; foreground `gh pr checks` retry loop works (~6 min).
 Cycle 62: plan 005 item 10 release, PR #65, v0.4.0 tagged, milestone #55 closed; plan 006 PR #66
 (planner opus ~$0.65). Guard blocks grepping sibling `build.zig.zon` together with `git tag`/`push`.
 

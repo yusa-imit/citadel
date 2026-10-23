@@ -20,71 +20,24 @@ rejected_plans: []
   binaries); `--cache-dir /tmp/sailor-zig-cache2` fixed it, exit 0. Weak asserts can hide real
   bugs: tightening one found one, so keep auditing `or`/"does not crash" tests.
 
-## Cycle 39 — 2026-10-21 — FEATURE
+## History (cycles 36-39, condensed 2026-10-23)
 
-- Preflight: tree clean on main, CI green (cea0211), inbox clear (only our own comment on #65).
-- Done: plan 003 item 2, **PR #67** `refactor/bounded-line-iter`: new `src/tui/line_iter.zig`
-  (`LineIter`, i64 internally, yields max(|dx|,|dy|)+1 points, asserts endpoint, 11 tests incl.
-  1M-long and full i32 span); canvas, linechart, radar_chart, parallel_coordinates, slope_chart,
-  chord_diagram use it; no `while (true)` left in those six. Plan-file ticks for items 1+2 done.
-  CI 10/10 in ~3 min, merged, `auto-merged`, #65 item 2 ticked. No agents, ~10 min.
-- Next: n=40 is STABILIZATION (periodic). Then item 3 (remaining seven `while (true)` + tidy
-  `unbounded_while`: focus.zig:336, workspace.zig:194/211 -> `for`; term.zig:482 and
-  validation.zig:517 poll caps; repl.zig:240 and validation.zig:453 `// top-level loop:` comments).
-- Latent (not fixed): the 4 clipped widgets `@intCast` an i32 point to u16 before the area check;
-  a point > 65535 would trap. Coordinates there come from area-bounded float math, so unreachable
-  today; worth a clamp if anyone feeds raw coordinates.
-- Quirks: `zig build test` exit via `${pipestatus[1]}` was 0 with the "failed command ... --listen"
-  noise; `zig test src/sailor.zig --test-filter X` runs a new tui file's tests (refAllDecls reaches
-  them); tidy printed 323 tracked entries (baseline 329 per plan, ok).
-- Blockers: none. Open questions: none. Stabilize streak 0.
-
-## Cycle 38 — 2026-10-20 — FEATURE
-
-- Preflight: tree clean on main, CI green (5e36ace), no issues, inbox clear. Plan 003 PR #64 was
-  merged by the OWNER, so milestone issue **#65** opened (9 items).
-- Done: plan 003 item 1, **PR #66** (`deleteCharAll` shifts each cursor via `shiftCursorsLeft`,
-  mirror of `shiftCursorsRight`; coinciding cursors delete once; 6 tests incl. seeded model test
-  vs independent reference). CI 10/10, merged, `auto-merged`, #65 item 1 ticked. No agents, ~12 min.
-- Missed: `docs/plans/003-*.md` checkbox for item 1 is NOT ticked (only the issue is). Fold the
-  tick of item 1 into item 2's PR (plan 002 kept the file ticked).
-- Next: n=39 FEATURE: item 2, shared bounded line rasterizer (`src/tui/line_iter.zig`, six
-  Bresenham widgets). n=40 is STABILIZATION.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirk: tidy ratchet counts lines >100 in src; a new 101-col comment bumped it (wrap comments).
-  `std.debug.assert(` is a banned spelling: alias `const assert = std.debug.assert;` per file.
-  zsh has `$pipestatus`, not `$PIPESTATUS`; rerun the cached build for the exit code.
-
-## Cycle 37 — 2026-10-19 — FEATURE
-
-- Preflight: tree clean on main, CI green (5e36ace), no open issues or PRs, inbox clear (the only
-  new comments are our own on #51).
-- Done: plan 002 fully checked and released, so `/plan`: **plan 003 proposed, PR #64, awaiting merge
-  (citadel#64)**, "Tiger Style bounds and test honesty" -> v3.2.0. Items: `deleteCharAll` fix,
-  shared bounded line rasterizer (6 Bresenham loops), remaining 7 `while (true)` + tidy
-  `unbounded_while`, tidy `assertion_free_test` ratchet, area/bullet chart test honesty, ADR 0001
-  (paragraph wrap + bidi), paragraph wrap, paragraph RTL, release. Planner (opus) drafted it,
-  ~$0.9; its output had HTML entities (`&lt;`) to un-escape before writing.
-- Next: n=38 FEATURE: if #64 is merged, open the milestone issue for 003 and implement item 1;
-  if still open, one `/stabilize sailor --one` task. n=40 is STABILIZATION.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Unverified planner facts: ~1,050 assertion-free tests is a regex estimate; `layout.zig` is now
-  3631 lines; tidy baseline 329 entries.
-
-## Cycle 36 — 2026-10-18 — FEATURE
-
-- Preflight: tree clean on main, CI green (c6be781), inbox clear (only our own comments on #51).
-- Done: plan 002 item 8 -> **PR #63** `chore: release v3.1.0` merged (CI 10/10, `auto-merged`;
-  the `Cross-compile (x86_64-macos-none)` job sat in_progress ~8 min after the others finished,
-  then went green). Tag v3.1.0 + GitHub release created; milestone #51 closed. README/PRD version
-  refs bumped in the same PR. Existing open migration issues (zr#178, silica#163, zoltraak#141)
-  got a comment with the v3.1.0 notes instead of new issues (rule: one open issue per consumer).
-  No agents, ~15 min.
-- Next: n=37 FEATURE: no plan open and none approved -> `/plan sailor` with a new theme. Backlog:
-  doc-comment audit round 4 (`paragraph.zig` wrap + RTL), `MultiCursorEditor.deleteCharAll`
-  shifts all cursors (untested, unfixed), "does not crash" tests without assertions, 53 files
-  >800 lines. n=40 is STABILIZATION.
-- Blockers: none. Open questions: none. Stabilize streak 0.
+C36: v3.1.0 released (PR #63, tag, milestone #51 closed; consumer issues zr#178, silica#163, zoltraak#141
+got a comment, rule: one open issue per consumer). C37: plan 003 "Tiger Style bounds and test honesty"
+(-> v3.2.0) proposed, PR #64; items: `deleteCharAll` fix, shared line rasterizer, remaining 7 `while
+(true)` + tidy `unbounded_while`, tidy `assertion_free_test` ratchet, area/bullet test honesty, ADR 0001
+(paragraph wrap + bidi), wrap, RTL, release. Planner output had HTML entities to un-escape. C38: owner
+merged #64, milestone #65 opened; item 1 PR #66 (`deleteCharAll` shifts cursors via `shiftCursorsLeft`;
+plan-file tick is easy to miss, fold it into the next PR). C39: item 2 PR #67, `src/tui/line_iter.zig`
+(`LineIter`, i64 internally, 11 tests) used by canvas, linechart, radar_chart, parallel_coordinates,
+slope_chart, chord_diagram.
+Open for item 3 (seven `while (true)`): focus.zig:336, workspace.zig:194/211 -> `for`; term.zig:482 and
+validation.zig:517 poll caps; repl.zig:240 and validation.zig:453 `// top-level loop:` comments.
+Latent: the 4 clipped widgets `@intCast` an i32 point to u16 before the area check (a point > 65535 would
+trap; unreachable today, clamp if raw coordinates are ever fed).
+Quirks: tidy ratchet counts lines >100 in src (wrap comments); `std.debug.assert(` is banned, alias
+`const assert = std.debug.assert;` per file; zsh has `$pipestatus`, not `$PIPESTATUS`; `zig test
+src/sailor.zig --test-filter X` runs a new tui file's tests; tidy baseline 329 entries.
 
 ## History (cycles 32-35, condensed 2026-10-19)
 

@@ -3,36 +3,16 @@
 last_seen_at: 2026-10-23T12:00:00Z
 rejected_plans: []
 
-## Cycle 64 — 2026-10-23 — PREFLIGHT ABORT (disk)
-- Disk gate failed a third time: `df -g /` showed 16 GB free (< 20), trend 18 -> 17 -> 16. No
-  inbox, no CI check, no feature work. The box is losing ~1 GB per day; the OWNER or a cleanup
-  job must free space (other realms' `.zig-cache`/`zig-out`, old toolchains, Xcode/Docker data).
-- Repo: clean, on `wip/feat-sim-kv-workload-2-20261022` (preserved; tests never run on it).
-- Next: once disk >= 20 GB, continue item 10 (sim KV workload) from that wip branch on
-  `feat/sim-kv-workload-3`; reviewer contract is in the cycle 61 block.
-- Blockers: low disk on the dev box (3 consecutive aborts). Open questions: none.
-
-## Cycle 63 — 2026-10-22 — PREFLIGHT ABORT (disk)
-- Disk gate failed again: `df -g /` showed 17 GB free (< 20), worse than cycle 62's 18 GB. No
-  inbox, no CI check, no feature work. Synod's `.zig-cache` + `zig-out` are only ~160 MB, so a
-  local cleanup cannot close the gap; the box needs ~3+ GB freed (other realms' caches, old
-  toolchains, Docker/Xcode data) by the OWNER or a cleanup job.
-- Repo: clean, on `wip/feat-sim-kv-workload-2-20261022` (preserved; tests never run on it).
-- Next: once disk >= 20 GB, continue item 10 (sim KV workload) from that wip branch on
-  `feat/sim-kv-workload-3`; reviewer contract is in the cycle 61 block.
-- Blockers: low disk on the dev box (2 consecutive aborts). Open questions: none.
+## Cycles 62-64 — 2026-10-22..23 — PREFLIGHT ABORT (disk)
+- Disk gate failed three cycles in a row: `df -g /` 18 -> 17 -> 16 GB free (< 20). No inbox, no CI check,
+  no feature work. The box loses ~1 GB per day; synod's own `.zig-cache` + `zig-out` are only ~160 MB, so
+  the OWNER or a cleanup job must free space (other realms' caches, old toolchains, Xcode/Docker data).
+- Repo: clean, on `wip/feat-sim-kv-workload-2-20261022` (pushed, preserved, do not delete; holds item 10
+  KV workload: `workload.zig`, new `workload_hooks.zig`, `sim_node.zig`, `simulation.zig`, 2 test files;
+  tests never run on it; an earlier attempt left `wip/feat-sim-kv-workload-20261021`).
+- Next: once disk >= 20 GB, continue item 10 from that wip branch on `feat/sim-kv-workload-3`; reviewer
+  contract is in the cycle 61 block. Blockers: low disk. Open questions: none.
 - Tool notes: guard blocks `START=$(date ...)` chained with citadel paths; split calls.
-
-## Cycle 62 — 2026-10-22 — PREFLIGHT ABORT (disk)
-- Disk gate failed: `df -g /` showed 18 GB free (< 20). No inbox, no CI check, no feature work.
-- Preflight: tree was dirty on `feat/sim-kv-workload-2` (item 10 KV workload: `workload.zig`,
-  new `workload_hooks.zig`, `sim_node.zig`, `simulation.zig`, 2 test files; an earlier cycle-62
-  attempt had already left `wip/feat-sim-kv-workload-20261021`). Committed the tree to
-  `wip/feat-sim-kv-workload-2-20261022` (pushed, do not delete); tests NOT run on it.
-- Next: free disk first (`rm -rf .zig-cache`, old `zig-out`, other realms' caches), then continue
-  item 10 from the 20261022 wip branch on `feat/sim-kv-workload-3`. Reviewer contract for item 10
-  is in the cycle 61 block below.
-- Blockers: low disk on the dev box (needs the OWNER or a cleanup). Open questions: none.
 
 ## Cycle 61 — 2026-10-20 — FEATURE
 - Inbox: no OWNER comments, no bugs, CI green (f3eacad), milestone #57 open, no open PRs.
@@ -55,47 +35,23 @@ rejected_plans: []
 - Tool notes: `.zig-cache` corrupts (`FileNotFound`): `rm -rf .zig-cache`. The `branch -b` name
   clash: wip branch names persist, so `-2` suffix for continuation branches.
 
-## Cycle 60 — 2026-10-19 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green (4a8bac4), milestone #57 open, no open PRs.
-- Done: (1) PR #65 `fix/sim-review-findings` (squash-merged, 7/7 CI, `auto-merged`): the 5 review
-  WARNINGs; `OptionsError` gains `CrashPercentInvalid`/`TornPercentInvalid`/`DownDurationInvalid`,
-  proposal buffer now `[255]u8`, `partition_start`/`propose_draw` documented+asserted,
-  `ProposeTooLarge` arm; tests in new `sim/simulation_options_test.zig`; 726 tests.
-  (2) item 8 via PR #66 (7/7 CI, `auto-merged`): `.github/workflows/sim-nightly.yml` (cron 03:17
-  UTC + dispatch inputs `seeds`/`plant`; window start = UTC day number * seeds). Verified by
-  dispatch: plant=lose_synced_hard_state red (ElectionSafety), plant=none 1000 seeds green in
-  ~52 s. Milestone #57 item 8 ticked. Cost ~ $0.8 of $4, ~11 min.
-- Caveat: 100k seeds at ~52 s/1000 on the CI runner is ~87 min vs `timeout-minutes: 120`; watch
-  the first scheduled run (`gh run list --workflow sim-nightly.yml`), shrink seeds if it times out.
-- Deviations: branch for #66 was `ci/sim-nightly` (not in the kingdom branch-prefix list; use
-  `chore/`). Fix PR #65 was not re-reviewed by code-reviewer (small, review-driven).
-- Next: item 9 (`sim/linearizability.zig`), then 10, 11, 12 (release v0.5.0).
-- Blockers: none. Open questions: none.
-- Open suggestions: `im`/`n` renames done; `arm_failure` assert still tautological; plant-refused
-  restart is silent.
-
-## Cycle 59 — 2026-10-19 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green (db3c96b), milestone #57 open, no open PRs.
-- Done: item 7 via PR #64 (squash-merged, 7/7 CI, `auto-merged`): `tools/sim.zig` + `zig build
-  sim -Dseeds/-Dseed/-Dseed_start/-Dplant` (ReleaseSafe; 1000 seeds ~20 s locally), tests in
-  `zig build test`, CI sweep + planted-fault step, bench `sim_cluster_5_nodes_10s` mean 21.9 ms
-  (target < 50 ms; plan said median, bench prints mean). 722 tests. Milestone #57 item 7 ticked.
-  Cost ~ $1.5 of $4; cycle used ~19 of 22 min.
-- Reviews (code-reviewer): #64 fixed in-PR (typed ArgsTooMany/WindowOverflow, Flag enum,
-  CHANGELOG). #63/#61 found 0 CRITICAL, 5 WARNING NOT yet fixed (do first next cycle, small
-  `fix/sim-review-findings` PR): (1) `simulation.zig` ~745: proposal `data` is `[8]u8` but
-  validate allows data_bytes <= entry_bytes_max (>8 panics); (2) crash_percent>0 with
-  down_ms_max==0 asserts mid-run, needs OptionsError; (3) crash/torn percent >100 asserted not
-  returned; (4) `partition_start`/`propose_draw` lack docs and asserts; (5) propose-error switch
-  uses `else` with no ProposeTooLarge arm. Suggestions: propose_seq u8 wraps, `im`/`pm`/`n`
-  names, tie-order docs omit heal/propose, tautological arm_failure assert.
-- Next: fix the 5 warnings, then item 8 (nightly sweep workflow with `--seed-start` rotation).
-- Blockers: none. Open questions: none.
-- Tool notes: guard blocks `cd <repo>; ...` chains; run from cwd. Global `zig` is 0.15.2: use
-  /Users/fn/.zr/toolchains/zig/0.16.0/zig. zig build's Run step loses a child's stderr when the
-  build's own stderr is redirected to a FILE (pipe is fine): in CI use `2>&1 | tee`. A python
-  slice-replace of ci.yml silently truncated the cross-compile job: diff the file before commit.
-
+## Cycles 59-60 (2026-10-19), folded
+- C59: item 7 PR #64 `tools/sim.zig` + `zig build sim -Dseeds/-Dseed/-Dseed_start/-Dplant` (ReleaseSafe;
+  1000 seeds ~20 s), CI sweep + planted-fault step, bench `sim_cluster_5_nodes_10s` mean 21.9 ms
+  (target < 50 ms). Reviews of #63/#61 gave 5 WARNINGs, fixed in C60.
+- C60: PR #65 `fix/sim-review-findings` (`OptionsError` gains `CrashPercentInvalid`/`TornPercentInvalid`/
+  `DownDurationInvalid`, proposal buffer `[255]u8`, `ProposeTooLarge` arm; 726 tests); item 8 PR #66
+  `.github/workflows/sim-nightly.yml` (cron 03:17 UTC + dispatch inputs `seeds`/`plant`; plant=
+  lose_synced_hard_state red with ElectionSafety, plant=none 1000 seeds green in ~52 s).
+- Caveat: 100k seeds at ~52 s/1000 on the runner is ~87 min vs `timeout-minutes: 120`; watch the first
+  scheduled run (`gh run list --workflow sim-nightly.yml`), shrink seeds if it times out. Branch prefix
+  `ci/` is not in the kingdom list (use `chore/`).
+- Open suggestions: `arm_failure` assert still tautological; plant-refused restart is silent; propose_seq
+  u8 wraps; tie-order docs omit heal/propose.
+- Tool notes: guard blocks `cd <repo>; ...` chains; global `zig` is 0.15.2, use
+  /Users/fn/.zr/toolchains/zig/0.16.0/zig; zig build's Run step loses a child's stderr when the build's
+  stderr is redirected to a FILE (pipe is fine, use `2>&1 | tee`); a python slice-replace of ci.yml
+  silently truncated the cross-compile job: diff the file before commit.
 
 ## Cycles 57-58 (2026-10-17..18), folded
 - 57: item 5 PR #62 `sim/crash_store.zig`, `sim/sim_node.zig`, crash/restart in `Simulation`,
