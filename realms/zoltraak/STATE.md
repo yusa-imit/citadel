@@ -54,12 +54,15 @@ zero-violation check — counts below are the real absolute state.
 | Files over 800 lines | 52 / 88 | `memory.zig` 16,248 is the extreme outlier (+598 from cycles 7-9's assertion-baseline additions) |
 | `std.debug.print` in `src/` (excl. `main.zig`/`cli.zig` entry points) | 0 / 0 files | 0 total left; #138 moved 13, #139 server.zig's 26, #140 main.zig's 21, #142 cli.zig's 45 to a stdout writer (cycles 15-18) |
 | `catch unreachable` without same-line proof comment | 0 (was 2) | 2 sites in `storage/memory.zig:6164,6233` (`incrby`/`incrbyfloat`) regressed in PR #132's assertion work, fixed same-cycle in PR #133 |
-| Unbounded `while (true)` | 6 (4 legit, 2 polling) | was 8; #155 bounded the WAIT/WAITAOF polls (`utils/wait_poll.zig`, also fixed a u64 overflow trap on `WAIT n 18446744073709551615`). Remaining: `streams_advanced.zig:446,735` (sleep-poll for BLOCK), `bloom.zig:826` is a test scan loop; others are server/cli/lua loops |
+| Unbounded `while (true)` | 3 (2 legit, 1 test) | cycle 35 recount: `cli.zig:108` REPL, `server.zig:575` per-connection loop (both top-level loops), `bloom.zig:826` test scan loop (bound it with `for (0..n)`). #155-157 bounded the WAIT/XREAD/Lua polls |
+| Compound `assert(a and b)` | 0 (was 5) | cycle 35 PR #158 split the five in `commands/strings.zig` into `if (a) assert(!b)` |
+| `== error.` / `!= error.` | 115 | cycle 35 count; top: `sorted_sets.zig` 32, `sets.zig` 14, `lists.zig` 13, `hashes.zig` 11, `sentinel.zig` 8. Next class candidate (exhaustive `switch (err)`); `server.zig:~578` uses it too |
+| `catch unreachable` | 26, all with proof comments | cycle 35 recount |
 | `assert` (any spelling) | 197 | up from 40 after cycles 6-9's assertion-baseline PRs (#127-132); 193/197 (98%) concentrated in 5 files: `commands/strings.zig` 46, `protocol/writer.zig` 44, `storage/memory.zig` 41, `protocol/parser.zig` 35, `server.zig` 27 — the other 83 files remain near-zero of 1,921 total functions |
 | `@panic` | 0 | — |
 | Functions over 70 lines | 125 | down from 155; worst: `commands/geo.zig:cmdGeosearchstore` 344, `commands/geo.zig:cmdGeosearch` 329, `commands/streams_advanced.zig:cmdXread` 298 |
 | `usize` in wire-format struct fields (RESP/RDB/AOF) | 0 real hits | confirmed again; all on-disk writes use explicit `writeInt(u16/u32/u64/i64,...)`, `protocol/parser.zig` matches are internal cursors only |
-| Files missing `//!` module header | 88 / 88 (100%) | unchanged — next-cheapest mechanical class, still flagged for a future cycle |
+| Files missing `//!` module header | 82 / 88 | cycle 35 recount (first-line check); still flagged for a future cycle |
 | `TODO`/`FIXME` | 3 | was 5; PR #134 removed stale bits/bitfield blocks; left: `network/tls.zig:15,48` (OpenSSL, real work), `commands/utility.zig:322` |
 
 ## Zig 0.16 probe summary

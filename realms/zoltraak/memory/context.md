@@ -1,7 +1,18 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-23T00:00:00Z
+last_seen_at: 2026-10-26T00:00:00Z
 rejected_plans: []
+
+## Cycle 35 — 2026-10-26 — STABILIZATION (n % 5)
+- CI green on main (fbbc2a5), no bugs, no OWNER comments, no open PRs; milestone #121 open.
+- Audit recount (STATE.md updated): `catch unreachable` 26 all with proof comments, `@panic` 0,
+  `std.debug.print` 0, `while (true)` 3, `//!` missing 82/88, `== error.` 115, compound asserts 5.
+- PR #158 (merged, auto-merged): split the 5 compound asserts in `commands/strings.zig` into
+  `if (a) assert(!b)`. `zig build test` 1627/1627 except the 2 known signal-4 crashers; fmt, tidy clean.
+- Next: `== error.` -> exhaustive `switch (err)` (start `server.zig` ~578, then `sorted_sets.zig` 32);
+  bound the `bloom.zig:826` test loop; `//!` headers (82 files); stash triage. Items 4-9, 12 blocked
+  on zuda v3.0.0. Blockers: none. Open questions: none.
+- Quirk: BSD sed has no `\s`; use plain patterns or Edit.
 
 ## Cycle 34 — 2026-10-23 — NOOP (disk gate)
 - Preflight stopped at the disk gate: `df -g /` showed 15 GB free (needs >= 20; volume 228Gi,
