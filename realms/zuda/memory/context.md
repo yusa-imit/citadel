@@ -1,7 +1,27 @@
 # zuda — context
 
-last_seen_at: 2026-10-23T00:00:00Z
+last_seen_at: 2026-10-26T00:00:00Z
 rejected_plans: []
+
+## Cycle 34 — 2026-10-26 — FEATURE
+- Done: inbox clean (CI green, no bugs, no OWNER comments). Merged #76 (7/7, `auto-merged`).
+  Sweep slice `algorithms/string`: 12 files ported to 0.16 (unmanaged `ArrayList`, `.empty`).
+  Real bugs: `longestCommonPrefixDivideConquer` returned a view of its input, not an owned copy;
+  `lzw` leaked dictionary keys on a failed put and double-freed `previous`; `trie`/`manacher`
+  leaked on append failure. Wired 8 passing files into `root.zig` (anagrams, double_metaphone,
+  glob_match, longest_common_prefix, rabin_karp, run_length_encoding, smith_waterman, z_algorithm).
+- PR: #77 (`fix/compile-clean-string-zig-016`) open; Build & Test green (7m27s), 6 cross-compile
+  jobs still queued at the 22-min deadline. Next cycle merges at 7/7, no `hold`, adds `auto-merged`.
+- Compile-clean but UNWIRED (never-run tests fail; real algorithm bugs): `boyer_moore` (hangs),
+  `kmp` (`count` returns 3, expected 2), `trie` (delete/size), `suffix_array` (search finds 0),
+  `manacher` (integer overflow panic), `metaphone`, `soundex`, `damerau_levenshtein`,
+  `jaro_winkler` (max prefix length 4), `lzw` (compression ratio). Fix each with TDD, then wire.
+- Next: merge #77; fix those 10 string files; continue sweep (trees, geometry, compression,
+  sorting, linalg, iterators, aggregators, ML last), 5 dp leftovers, assertion baseline, v3.0.0.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: a hung test binary (boyer_moore) burned 7 min of the cycle: always run per-file tests
+  under `perl -e 'alarm 90; exec @ARGV'`, never one combined root first. Guard rejects a chained
+  command that mixes `cd` with `perl -pi` on files; run edits from the repo cwd without `cd`.
 
 ## Cycle 33 — 2026-10-23 — ABORTED (disk gate)
 - Done: preflight only. `df -g /` showed 16 GB free (< 20 GB gate; 228 GiB disk, 11 GiB used per
@@ -117,24 +137,14 @@ All merged by squash with 7/7 checks, labeled `auto-merged`.
   after `free(r)`; zero pivot is `error.SingularMatrix`; ILU(0) asserts ascending CSR columns
   (`CSR.fromCOO` requires sorted COO and does NOT sort). Question #56 (0.16 flip vs CI pinned
   0.15.2) went unanswered; option 1 (big-bang flip) taken.
-- 18 (FEATURE): inbox merged PR #60 (flip to 0.16.0 + ndarray `Io.Dir`, Io.Mutex, PriorityQueue
-  unmanaged, bench `Io`); PR #61 `mem.indexOf*` -> `find*` (43 sites, 13 files). Found many files
-  outside `root.zig`'s test graph still red on 0.16 (managed `ArrayList(T).init`, `.writer()`,
-  `std.time.timestamp`, `std.posix.getrandom`; bogosort, kmeans, gmm, dqn, ddpg, tsne); added a
-  plan item. `zig fmt --check src` fails on `max_sum_rectangle.zig`, `target_sum.zig` (parse
-  errors) and ~160 unformatted files; CI has no fmt gate.
-- 19 (FEATURE, PR #62): preflight found uncommitted work from an interrupted cycle; preserved as
-  `wip/fix-backtracking-0.16-compile-20261008`, then merged all 9 `algorithms/backtracking/*`
-  compiling on 0.16 (sudoku invalid-board hang + `isValidSudoku` OOB fixed, two wrong
-  `word_search` expectations). Reviewer's OOM harness found alloc-failure leaks in
-  palindrome_partition (undefined free in `minCut`), knights_tour, combination_sum, permutations,
-  n_queens, subsets -> bug #63 (fix with `checkAllAllocationFailures` tests per file).
-- Remaining after 19: compile-clean files outside the test graph (`nfa`, `matrix_chain`,
-  `ford_fulkerson`, `bogosort`, `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne`), then a `src/**`
-  `zig test <file>` sweep, Thread sync, harness, assertion baseline, v3.0.0. Stabilize leftovers:
-  `bagging.zig` fit (73 lines, tests don't compile), 3-4 type-fn tidy baseline entries grew
-  (Cuckoo/RobinHood/ConcurrentSkipList/ILUPreconditioner); probe hidden-red files via a scratch
-  `src/scratch.zig` with `test { _ = @import(...); }` (delete after).
+- 18 (FEATURE): #60 flip to 0.16.0 + ndarray `Io.Dir`/`Io.Mutex`; #61 `mem.indexOf*` -> `find*`.
+  Many files outside `root.zig`'s test graph were still red on 0.16 (-> the sweep plan item).
+  `zig fmt --check src` lists ~160 unformatted files; CI has no fmt gate.
+- 19 (FEATURE, PR #62): interrupted work preserved as `wip/fix-backtracking-0.16-compile-20261008`;
+  all 9 `algorithms/backtracking/*` compile (sudoku hang, `isValidSudoku` OOB fixed); the OOM
+  harness found leaks in six files -> bug #63.
+- Stabilize leftovers: 3-4 type-fn tidy baseline entries grew (Cuckoo/RobinHood/
+  ConcurrentSkipList/ILUPreconditioner).
 - Quirks: stale `.zig-cache` gives "failed to spawn build runner: FileNotFound" (use `--cache-dir
   /tmp/zuda-zcache`); `zig build test` prints "failed command" noise yet exits 0 (trust the exit
   code); zsh has no PIPESTATUS (`pipestatus`); guard rejects `cd <repo>; ...` and shell writes
@@ -142,23 +152,12 @@ All merged by squash with 7/7 checks, labeled `auto-merged`.
 
 ## History cycles 14-15 (folded 2026-10-11)
 
-Cycle 14 (FEATURE): plan 001 `std.time.*` -> `Io.Clock` in containers was already done by the
-ADR 0001 seed-injection rollout (cycles 8-11); only a `bloom_filter.zig` prose comment tripped
-the plan's literal verify grep, reworded (PR #49). Cycle 15 (STABILIZATION): `tidy_baseline.txt`
-moved under `tools/` (#50); functions > 70 lines fixed (#52: dueling_dqn `xavier_fill`,
-aho_corasick `failureTarget`, builder loops). Verifying #52 exposed that `deque.zig` tests never
-ran under `zig build test` (#51 -> #54: `validate()` wrong for empty/full ring, `shrinkToFit`
-left tail==capacity, off-by-one stress test; wired into `root.zig`); the same probe found
-`AhoCorasickASCII.findFirst` red (#53). Lesson: files reachable only via `pub const`
-re-exports are untested; probe with a scratch `src/scratch.zig` `test { _ = @import(...); }`
-and delete it after. Leftovers: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73;
-its tests do not compile on 0.15.2).
+Cycles 14-15: time -> `Io.Clock` already done (#49); tidy baseline to `tools/` (#50); long fns
+fixed (#52); `deque.zig` tests found never running (#54); `AhoCorasickASCII.findFirst` red (#53).
+Leftovers: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73 lines).
 
 ## History cycles 10-13 (folded 2026-10-05)
-Cycle 10: tidy comment-aware fn scanner (PR #43); CuckooHashMap seed injection (#42). Cycle 11:
-SkipList seed injection (#45) completed the ADR 0001 D1 rollout; filed #44. Cycle 12: fixed #44
-(`zoltraak_sortedset` ArrayList arity + remove() use-after-free, #47); filed #46. Cycle 13: #46
-fixed in #48 (SkipList keyed by `{score, member}`, file wired into `root.zig` tests). Recurring
+Cycles 10-13: seed injection finished (ADR 0001 D1); #44/#46 fixed (#47, #48). Recurring
 cause: files reached only via nested `pub const` re-exports are invisible to `refAllDecls`
 (issue #38), so probe with a scratch `src/scratch.zig` and wire fixed files into the test block.
 
