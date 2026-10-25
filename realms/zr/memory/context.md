@@ -1,15 +1,24 @@
 # zr — context
 
-last_seen_at: 2026-10-23T00:00:00Z
+last_seen_at: 2026-10-26T00:00:00Z
 rejected_plans: []
 
-## Cycle 33 — 2026-10-23 — NO-OP (disk gate)
-- Preflight stopped at the disk gate: `df -g /` showed 15 GB free (< 20 GB required). No repo,
-  GitHub or inbox work done; nothing opened or merged. State is as left by cycle 32.
-- Blockers: free disk space (about 5 GB more) on this machine; likely build caches
-  (`.zig-cache`, `zig-pkg/`, `~/.cache/zig`) in the kingdom repos. Not cleaned by this session.
-- Next: cycle 34 FEATURE once disk is back at ≥ 20 GB (items 5-11 still blocked on zuda v3.0.0).
+## Cycle 34 — 2026-10-26 — FEATURE
+- Preflight: disk 22 GB (gate passed); tree clean on `main`; CI green; no bugs; inbox clear (no
+  comments since watermark; #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0
+  → items 5-11 blocked → one `/stabilize --one`.
+- Fixed `analytics/json.zig` `generateJsonReport`: task names (task_stats, critical_path) and
+  time-series keys go through `std.json.fmt` (`{f}`); regression test parses the output back
+  (failed `SyntaxError` before the fix); header updated. PR #198 merged, 8/8 green (~16 min).
+  Tests 1947/0, tidy 0 failing.
+- Next: ~180 headers left (cli/help, cli/version, lsp/definition, lsp/hover); UTF-16 positions in
+  `lsp/position.zig`. Cycle 35 is STABILIZATION (n % 5). Item 5 bumps to sailor v3.1.0 + zuda v3.x.
+- Gotchas: stale `.zig-cache` again ("failed to spawn build runner") → `rm -rf .zig-cache` as its
+  own command.
 - Open questions: none.
+
+## Cycle 33 — 2026-10-23 — NO-OP (disk gate)
+- Stopped at the disk gate (15 GB free < 20 GB); nothing done. Disk was back to 22 GB in cycle 34.
 
 ## Cycle 32 — 2026-10-22 — FEATURE
 - Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
