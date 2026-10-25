@@ -1,7 +1,25 @@
 # sigil — context
 
-last_seen_at: 2026-10-23T13:00:00Z
+last_seen_at: 2026-10-26T01:30:00Z
 rejected_plans: []
+
+## Cycle 70 — 2026-10-26 — FEATURE
+
+- Done: plan 006 item 7 (`toml.zig` facade), written directly. PR #74, CI 8/8, auto-merged; #67 box 7
+  ticked (7/12). Disk gate passed (22 GB) after cycles 68-69 skipped it.
+- Shape: `toml.parse_value`/`parse(T, gpa, tree, input, options, diag)`, `ParseOptions`, `ParseValueError`
+  (17) / `ParseError` (25, pinned by comptime assert) replace the NotImplemented stub; `Error = ParseError`.
+  `write_value`/`stringify` deliberately NOT exported yet (no tagged stub) — they land with item 9.
+  Reflect failures re-located by `parser.locate` (second parse into a throwaway scratch + temp tree, error
+  path only) using `Scratch.offset_of_path`: position = node definition offset (key for keyed values,
+  first byte for array elements, header key for tables, root 1:1). Parser `start` was renamed `begin`
+  (param `start` shadows). Reflect messages are "{path}: {reason}" so tests match with `find`, not prefix.
+- Skipped cycle 67 follow-ups still open: >=2 asserts in `read_value`/`step`/`place`/`array_step`/
+  `table_step`; seeded prefix-truncation node-bound test; tests for `{ b.c = 1, b.d = 2 }`, comment in
+  `{}`, CRLF/comment between array elements; `depth = 0` dead init. (CHANGELOG, toml.zig header, ADR
+  line wrapping and inline-freeze wording were fixed in #74.) No reviewer subagent run this cycle.
+- Next: item 8 toml-test corpus (`tests/toml-test/`, `toml/conformance_test.zig`, std.json decode, check
+  licence and `git ls-files` counts). Blockers: none.
 
 ## Cycles 68-69 — 2026-10-22..23 — DISK (no work)
 
@@ -140,7 +158,7 @@ heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watc
 ## Standing backlog
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
-Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-6 done, 7-12 open.
+Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-7 done, 8-12 open.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -155,5 +173,5 @@ Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-6 d
 
 ## Next priority
 
-Plan 006 item 7 (`toml.zig` facade and reflect); see the newest cycle block.
+Plan 006 item 8 (toml-test corpus); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
