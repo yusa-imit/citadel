@@ -1,7 +1,17 @@
 # silica — context
 
-last_seen_at: 2026-10-22T10:00:00Z
+last_seen_at: 2026-10-25T10:05:00Z
 rejected_plans: []
+
+## Cycle 40 — 2026-10-25 — NOOP (disk gate)
+- Preflight stopped at the disk gate: `df -g /` showed 13 GB free (14Gi in `df -h`), below the 20 GB
+  required (cycle 39 saw 16 GB, so free space is still shrinking). No repo state, CI, or inbox check
+  was done; no PRs opened or merged.
+- Mode would have been STABILIZATION (n=40, n%5==0).
+- Next: when disk allows, STABILIZATION; fillers renderRadarChart 73, run 73, readAndExecuteFile 74.
+  Migration waits for zuda v3.0.0 (target sailor v3.1.0).
+- Blockers: disk < 20 GB free on the dev box, two cycles in a row. Needs a human to free space, or
+  prune /tmp/silica-zc-* and zig caches. zuda v3.0.0 still pending. Open questions unchanged.
 
 ## Cycle 39 — 2026-10-22 — NOOP (disk gate)
 - Preflight stopped at the disk gate: `df -g /` showed 16 GB free (17Gi in `df -h`), below the 20 GB
