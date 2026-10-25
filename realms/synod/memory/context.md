@@ -1,7 +1,21 @@
 # synod — context
 
-last_seen_at: 2026-10-23T12:00:00Z
+last_seen_at: 2026-10-26T12:00:00Z
 rejected_plans: []
+
+## Cycle 65 — 2026-10-26 — FEATURE
+- Preflight: disk 24 GB (gate ok), CI green (f09957c), no bugs, no OWNER comments, milestone #57 open.
+- Done: item 10 via PR #68 (squash-merged, 7/7 CI, `auto-merged`, 860 tests): continued the
+  preserved wip (`feat/sim-kv-workload-3`); the WIP compiled but 3 tests failed: churn commit bound
+  ignored workload ops (`committed_bound` now adds `workload.ops_invoked`), and `calm` needed a
+  256-entry log (Phase 3 has no compaction, a 64-entry log caps ops at 63). `zig build sim
+  -Dseeds=1000` green; `-Dplant=ack_uncommitted` red. Milestone #57 items 1-10 ticked.
+- NOT code-reviewed (deadline at 20 of 22 min; CI Build&Test takes 6m22s). Review #68 first next
+  cycle (reviewer contract in the cycle 61 block), fix findings in a small PR.
+- Next: item 11 (re-measure Tiger Style baseline, docs), then item 12 release v0.5.0.
+- Blockers: none. Open questions: none. `wip/feat-sim-kv-workload-*` branches stay (do not delete).
+- Tool notes: error-return traces in failing tests are polluted by earlier tests; print stats
+  temporarily to find the failing `expect` (remove before commit: tidy bans `std.debug.print`).
 
 ## Cycles 62-64 — 2026-10-22..23 — PREFLIGHT ABORT (disk)
 - Disk gate failed three cycles in a row: `df -g /` 18 -> 17 -> 16 GB free (< 20). No inbox, no CI check,
