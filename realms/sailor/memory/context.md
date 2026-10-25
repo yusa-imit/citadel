@@ -1,7 +1,25 @@
 # sailor — context
 
-last_seen_at: 2026-10-22T00:00:00Z
+last_seen_at: 2026-10-25T00:00:00Z
 rejected_plans: []
+
+## Cycle 41 — 2026-10-25 — FEATURE
+
+- Preflight: tree clean on main, CI green (99ddd3b), inbox clear; only open issue is milestone #65.
+- Done: plan 003 item 3, **PR #69** `fix/bounded-while-sites` (CI 10/10, merged, `auto-merged`).
+  focus.zig/workspace.zig walks bounded; `getResultWithTimeout` and Windows `readByteWindows`
+  pipe poll get a `timeout/poll_ms + 2` cap; repl.zig and validation.zig worker keep
+  `while (true)` with `// top-level loop:`; tidy `unbounded_while` (`countUnboundedWhile`, proof
+  comment on same or previous line), baseline 0, tidy entries 329 -> 323. CHANGELOG now has an
+  `[Unreleased]` section (items 1-3 + sunburst); plan item 3 ticked; #65 at 3/9. No agents, ~14 min.
+- Next: n=42 FEATURE: item 4 (`assertion_free_test` ratchet in tidy, walks `tests/`). n=45 is
+  STABILIZATION.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: a frozen-clock test needs a manually spawned blocker thread assigned to
+  `validator.thread` (a worker using the frozen `Io` would spin); `FrozenClock` double lives in
+  validation.zig tests (same shape as `VirtualClock`). `zig build test -Dtarget=x86_64-windows-gnu`
+  on macOS only prints run-step "unable to execute" noise. Poll `gh pr checks` with python in
+  <=400 s slices; PR CI took ~13 min wall to reach all-green.
 
 ## Cycle 40 — 2026-10-22 — STABILIZATION
 
