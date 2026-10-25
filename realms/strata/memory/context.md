@@ -1,27 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-10-23T00:00:00Z
+last_seen_at: 2026-10-26T00:00:00Z
 rejected_plans: []
 
-## Cycle 66 — 2026-10-23 — NOOP (disk gate)
-- Done: nothing. Disk gate failed a third time: `df -g /` showed 16 GB free (< 20), down from 17. Stopped before
-  inbox/GitHub/repo checks. No repo changes, no PRs. `/tmp/strata-zc` (1.9 GB) left alone, cannot reach 20 GB.
-- Next: plan 005 item 4 `btree/tree.zig` + `BufferPool.fetchNew`, once disk >= 20 GB.
-  Blockers: host disk space (three cycles lost; free space is shrinking ~1 GB/day, human must free it or
-  lower the gate). Open questions: none.
+## Cycle 67 — 2026-10-26 — FEATURE
+- Done: plan 005 item 4 — `BufferPool.fetchNew(io, id)` (zeroed dirty frame, `FetchNewError`; ADR §13 line fixed)
+  + `src/btree/tree.zig` `Tree.create/open/get/insert/check_invariants` (root leaf only, unlogged; `open` returns
+  `Corrupted` for a bad root; `NodeFull` until item 5; overflow cell in root -> `Corrupted` until item 8).
+  Merged #67 (CI 7/7, 706 tests, auto-merged), issue #63 item 4 ticked.
+- Review: 1 critical (u32 underflow in `insert` overwrite path on a crafted valid-CRC page -> now `Corrupted`),
+  5 warnings fixed (vacuous lsn test, missing create/Corrupted tests, `open` assert -> error).
+- Next: item 5 split + `validate` (`tree.zig` is 206 lines, `tree_test.zig` 615: put split code in a new file
+  e.g. `btree/split_tree.zig`/tests in a new test file). Blockers: none. Open questions: none.
+- Note: ~$2.1 of $4, ~17 min. Disk gate passed again (25 GB). Pattern: dev 6.5 min, reviewer 3.5 min parallel
+  with CI, fixes via SendMessage 3.7 min. Reviewer cannot run 0.16 tests (PATH zig is 0.15.2).
 
-## Cycle 65 — 2026-10-22 — NOOP (disk gate)
-- Done: nothing. Disk gate failed again: `df -g /` showed 17 GB free (< 20), down from 18. Stopped before
-  inbox/GitHub/repo checks. `/tmp/strata-zc` is 1.9 GB (clearing it would only reach ~19 GB, so left alone).
-- Next: plan 005 item 4 `btree/tree.zig` + `BufferPool.fetchNew`, once disk >= 20 GB.
-  Blockers: host disk space, a human must free it or lower the gate (two cycles lost). Open questions: none.
-
-## Cycle 64 — 2026-10-22 — NOOP (disk gate)
-- Done: nothing. Preflight disk gate failed: `df -g /` showed 18 GB free (< 20 required), so the cycle
-  stopped before inbox/GitHub/repo checks. No repo changes, no PRs.
-- Next: plan 005 item 4 `btree/tree.zig` (create/get/insert-into-root-leaf) + `BufferPool.fetchNew`, once
-  disk is back above 20 GB. Blockers: disk space on the host (needs a human to free it or lower the gate).
-  Open questions: none.
+## Cycles 64-66 (2026-10-22..23, condensed 2026-10-26)
+- Three NOOP cycles: disk gate failed (18, 17, 16 GB free); nothing changed. Host disk later recovered to 25 GB.
+  `/tmp/strata-zc` (1.9 GB) is the zig cache for 0.16 builds.
 
 ## Cycle 63 — 2026-10-21 — FEATURE
 - Done: plan 005 item 3 — `src/btree/internal.zig` (`Internal`, `parse_internal(page, level)`, `parse_internal_raw`,
