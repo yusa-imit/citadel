@@ -1,7 +1,23 @@
 # sirocco — context
 
-last_seen_at: 2026-10-22T00:00:00Z
+last_seen_at: 2026-10-26T00:00:00Z
 rejected_plans: []
+
+## Cycle 65 — 2026-10-26 — FEATURE
+- Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green, no plan PR. Disk 22 GB (gate passed).
+- Item 11 (`bench/latency.zig` + `zig build bench-latency`) NOT done: preserved as
+  `wip/feat-latency-bench-20261026` (do not delete; has debug progress prints, `connections_idle` at
+  10_000). Gate 3 passes on kqueue (p99 66-95 ms vs Threaded 130-160 ms at 1000). Gate 4 passes at 2000
+  idle (14.4 KB vs 14.9 KB/task) but the native run never finishes at 5000/10000; Threaded refuses threads
+  at ~4089 tasks (24.7 KB each). Opened bug #58 (hang, undiagnosed).
+- Next: STABILIZATION (bug #58 forces it): diagnose the hang from the wip branch, regression test, fix,
+  then resume item 11 (drop debug prints), 8b, 12. Streak 0.
+- Blockers: none. Open questions: none. Cycle ~20 min, ~$0.9.
+- Gotchas: the `zig build` child sees a 10240 RLIMIT_NOFILE hard cap here (bench refuses); run the built
+  `.zig-cache/o/*/sirocco-bench-latency` directly with setrlimit(30000) from python. Killed bench runs leave
+  sockets that make the next run's connects fail (wait ~30 s). Bench stdout is buffered: flush per section
+  or a hang shows no output. Use `pkill -f sirocco-bench` after a timeout; the guard blocks compound Bash
+  that writes citadel paths (use Write/Edit).
 
 ## Disk-blocked no-op — 2026-10-23 (third in a row; counter stays 64)
 - `df -g /` showed 16 GB free (gate 20), measured twice. Stopped at preflight; no repo or GitHub changes.
