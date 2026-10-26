@@ -14,6 +14,11 @@ copy (no tracked files touched). See `REALM.md` for the durable realm summary th
   Phase 2 pure Raft core and driver). MINOR; no consumer pins synod, so no migration issues.
   495 tests, tidy clean. Next: plan 004 (Phase 3 simulation harness), PR #56 awaiting merge.
 
+- **v0.5.0** (2026-10-27, cycle 67, PR #71, tag + GitHub release): closes milestone 004 (#57,
+  Phase 3 deterministic simulation harness: `sim` module, `zig build sim`, nightly sweep,
+  linearizability checker, KV workload). MINOR; no consumer pins synod (build.zig.zon of silica,
+  zoltraak, zr, sailor, zuda checked), so no migration issues. 878 tests, tidy clean.
+
 ## What exists vs. what is claimed
 
 - Claimed (README/PRD/old CLAUDE.md): a full I/O-free Raft core (PreVote election, log

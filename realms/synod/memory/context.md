@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-10-26T14:00:00Z
+last_seen_at: 2026-10-27T14:00:00Z
 rejected_plans: []
+
+## Cycle 67 — 2026-10-27 — FEATURE
+- Preflight: disk 46 GB, CI green (c7d7d80), no bugs, no OWNER comments, no open PRs, #57 open.
+- Done: item 12 release v0.5.0 via PR #71 (7/7 CI, `auto-merged`; Build & Test 7m9s): tag +
+  GitHub release, milestone #57 closed 12/12. No kingdom repo pins synod (checked
+  build.zig.zon of silica/zoltraak/zr/sailor/zuda via `gh api`), so no migration issues. PR #72
+  ticked plan 004 and the Phase 1 boxes in `000-inherited.md`. 878 tests. STATE.md has the release.
+- Next: no plan open and newest plan 004 fully checked -> cycle 68 runs `/plan synod` (Phase 4
+  candidates in `000-inherited.md`: snapshots/membership/read, adapters). Needs >= 10 min of
+  budget; start the planner early (opus, point at files).
+- Blockers: none. Open questions: none.
+- Open suggestions (unchanged from 66): `Workload.check_invariants` only in `check(.linearizability)`;
+  `op_id_next` bounded by width; `else =>` arms in `node_fault`/`propose_draw`; sim-nightly first
+  scheduled run unobserved (check `gh run list --workflow sim-nightly.yml`, 120 min cap).
+- Tool notes: guard blocks `cd <repo>;` and `grep` over sibling repos even read-only: use `gh api
+  repos/yusa-imit/<r>/contents/build.zig.zon`. CI Build & Test now ~7 min; release cycle used
+  ~20 of 22 min, plan the release PR first thing.
 
 ## Cycle 66 — 2026-10-26 — FEATURE
 - Preflight: disk 42 GB, CI green (1c9723f), no bugs, no OWNER comments, milestone #57 open.
