@@ -39,64 +39,18 @@ rejected_plans: []
 ## Cycle 33 — 2026-10-23 — NO-OP (disk gate)
 - Stopped at the disk gate (15 GB free < 20 GB); nothing done. Disk was back to 22 GB in cycle 34.
 
-## Cycle 32 — 2026-10-22 — FEATURE
-- Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
-  #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0 → items 5-11 blocked.
-- Fixed `lsp/diagnostics.zig` `Diagnostic.toJson`: message is now written via `std.json.fmt`
-  (`{f}`), so quotes/backslashes/control bytes are escaped; regression test parses the output
-  back (failed before the fix); header updated. PR #197 merged, 8/8 green (~16 min). Tests
-  1946/0, tidy 0 failing.
-- Open: UTF-16 positions in `lsp/position.zig`.
-- Next: ~180 headers left (cli/help, cli/version, lsp/definition, lsp/hover). Cycle 33 FEATURE.
-  Item 5 bumps to sailor v3.1.0 + zuda v3.x once tagged.
-- Gotchas: `gh pr checks` waits: two ~10 min loops needed (CI ~13-16 min); `gh pr merge` then
-  `gh pr edit N --add-label auto-merged`.
-- Open questions: none.
-
-## Cycle 31 — 2026-10-21 — FEATURE
-- Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
-  #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0 → items 5-11 blocked.
-- Added `//!` headers to `lsp/position.zig` (character counts UTF-8 bytes, not UTF-16),
-  `lsp/diagnostics.zig` (`toJson` does not JSON-escape the message; field/section names come from
-  the document), `cli/context.zig`; removed 3 `doc-header` baseline entries. PR #196 merged, 8/8
-  green (~13 min). Tests 1945/0, tidy 0 failing.
-- Open: diagnostics `toJson` JSON-escape fix, UTF-16 positions in `lsp/position.zig`.
-- Next: ~180 headers left (cli/help, cli/version, lsp/definition, lsp/hover). Cycle 32 FEATURE.
-  Item 5 bumps to sailor v3.1.0 + zuda v3.x once tagged.
-- Gotchas: guard blocks compound `A=..; cmd` lines and `cd X; ...`; use plain commands and
-  `cd X && cmd`; `sed -i '' -e 'Nd'` highest line first for baseline entries.
-- Open questions: none.
-
-## Cycle 30 — 2026-10-20 — STABILIZATION
-- Preflight: tree clean on `main`; CI green; no bugs; inbox clear (no comments since watermark;
-  #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0 → items 5-11 blocked.
-- Fixed a real leak: `lsp/document.zig` `DocumentStore.open` on an already-open URI overwrote the
-  entry and leaked the earlier uri/content. Now builds the new doc, `ensureUnusedCapacity`, closes
-  the old, `putAssumeCapacityNoClobber` (OOM leaves the old doc open). Regression test leaked under
-  `std.testing.allocator` first (the log shows "OK" plus a `[gpa] leaked` line: grep for `leaked`).
-  PR #195 merged, 8/8 green (~13 min). Tests 1945/0, tidy 0 failing.
-- Next: ~183 headers left (lsp/position, cli/context, lsp/diagnostics, cli/help). Cycle 31 FEATURE.
-  Item 5 bumps to sailor v3.1.0 + zuda v3.x once tagged.
-- Gotchas: guard blocks heredoc appends, `rm -rf .zig-cache` chained with other commands, and
-  `cd X; ...` (use Edit and one plain command per call); `sed` with `#` delimiter fails on
-  backticks-and-pipes text, use Edit.
-- Open questions: none.
-
-## Cycle 29 — 2026-10-19 — FEATURE
-- Preflight: tree clean on `main`; CI green; no bugs. Inbox: OWNER comment on #178 (2026-10-18)
-  says sailor v3.1.0 is released, target the newest tag (not v3.0.0) when migrating; only break:
-  `Editor.init`, `MultiCursorEditor.init`, `LocalSource.init` now return `error{OutOfMemory}!T`.
-  zuda still v2.3.0 (no v3.0.0) → items 5-11 blocked → one `/stabilize --one`.
-- Added `//!` headers to `exec/notification.zig` (`send` only delivers on Linux), `lsp/document.zig`,
-  `ci/templates/types.zig`; deleted dead `util/object_pool.zig` (no importers, 0.14 API); removed 5
-  baseline entries. PR #194 merged, 8/8 green (~13 min). Tests 1944/0, tidy 0 failing.
-- Found: `lsp/document.zig` `DocumentStore.open` on an already-open URI overwrites the entry and
-  leaks the earlier copy (documented in the header); candidate fix (close-then-open or error).
-- Next: ~183 headers left (next smallest: lsp/position, cli/context, lsp/diagnostics, cli/help).
-  Item 5 should bump to sailor v3.1.0 + zuda v3.x. Cycle 30 STABILIZATION.
-- Gotchas: stale `.zig-cache` again → `rm -rf .zig-cache`; `git rm`'d files are already staged, do
-  not list them in `git add`.
-- Open questions: none.
+## Cycles 29-32 (2026-10-19..22), folded
+- FEATURE/STAB, zuda v2.3.0 so items 5-11 blocked, one `stabilize --one` each; each PR 8/8 green
+  (~13-16 min). 29 (#194): headers, deleted dead `util/object_pool.zig`; OWNER on #178: target
+  sailor v3.1.0 (only break: `Editor.init`, `MultiCursorEditor.init`, `LocalSource.init` return
+  `error{OutOfMemory}!T`). 30 (#195): `lsp/document.zig` `DocumentStore.open` reopen leak fixed
+  (build new, `ensureUnusedCapacity`, close old, `putAssumeCapacityNoClobber`; leak shows as `[gpa]
+  leaked` while the test says OK, grep `leaked`). 31 (#196): headers for lsp/position (UTF-8
+  byte columns, not UTF-16: open), lsp/diagnostics, cli/context. 32 (#197): diagnostics `toJson`
+  escapes message via `std.json.fmt` (`{f}`).
+- Gotchas: guard blocks compound `A=..; cmd`, `cd X; ...`, heredoc appends (use `cd X && cmd`,
+  Edit/Write); `sed -i '' -e 'Nd'` highest line first for baseline entries; label merged PRs
+  `auto-merged` via `gh pr edit`; CI ~13-16 min, loop `gh pr checks` with sleep 30.
 
 ## Cycles 27-28 (2026-10-17..18), folded
 - FEATURE, items 5-11 blocked, one `stabilize --one` each: `//!` headers + baseline entries (#192, #193; tests 1944/0). `analytics/json.zig` writes task names unescaped (documented; fix like #197). `cli/which.zig` was failing fmt on main, reformatted.
