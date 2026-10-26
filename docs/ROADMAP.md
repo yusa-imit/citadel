@@ -24,7 +24,7 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 | strata | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-16, PR #15); plan 002 released v0.3.0 (2026-10-04, PR #27); plan 003 released v0.4.0 (2026-10-12, PR #45); plan 004 released v0.5.0 (2026-10-19, PR #61) |
 | synod | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-15, PR #15); plan 002 released v0.3.0 (2026-09-30, PR #31); plan 003 released v0.4.0 (2026-10-13, PR #54) |
 | sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10); plan 002 released v0.3.0 (2026-10-06, PR #30); plan 003 released v0.4.0 (2026-10-11, PR #43) |
-| zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — toolchain flip merged (PR #60, 2026-10-04), zon at 0.16.0, v3.0.0 pending; plan 001 compile-clean in progress (180 files red on 0.16 in a src-level sweep; btree, graphs and compat shims fixed by merged PR zuda#75, graph/bitwise/combinatorics/DP by open PR zuda#76) |
+| zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — toolchain flip merged (PR #60, 2026-10-04), zon at 0.16.0, v3.0.0 pending; plan 001 compile-clean in progress (180 files red on 0.16 in a src-level sweep; btree, graphs and compat shims fixed by merged PR zuda#75 (2026-10-21), graph/bitwise/combinatorics/DP by merged PR zuda#76 (2026-10-25), string algorithms by open PR zuda#77) |
 | sailor | 368 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — migration merged to main (PR #40, 2026-09-29), zon at 0.16.0 — **done**, released v3.0.0 (2026-10-05, PR #47); plan 002 released v3.1.0 (2026-10-18, PR #63) |
 | zr | 79 + deps | large | zuda v3, sailor v3 | MINOR |
 | silica | 275 + deps | medium | zuda v3, sailor v3 | MINOR |
