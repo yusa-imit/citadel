@@ -1,4 +1,12 @@
-# sirocco — State Survey (2026-09-05, refreshed 2026-10-18)
+# sirocco — State Survey (2026-09-05, refreshed 2026-10-26)
+
+## Refresh 2026-10-26 (cycle 66, STABILIZATION — bug #58)
+
+- Bug #58 fixed by PR #59 (e0a327f, CI green): the idle-connection hang was the bench (client
+  TIME_WAIT exhausted the 16384 macOS ports, a refused connect left `run_idle` awaiting a parked
+  acceptor), not the runtime. Plan 004 item 11 landed with it: gate 3 passes in 7 of 8 runs
+  (p99 ~127k us vs ~162k us, one 422k us outlier), gate 4 misses (29.2 KB vs 24.7 KB per task).
+- Main at e0a327f; `zig build test`/`fmt --check`/`tidy` green. Items 1-11 done; 8b and 12 left.
 
 ## Refresh 2026-10-18 (cycle 58, STABILIZATION — bug #52)
 

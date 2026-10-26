@@ -1,7 +1,23 @@
 # sirocco — context
 
-last_seen_at: 2026-10-26T00:00:00Z
+last_seen_at: 2026-10-26T13:30:00Z
 rejected_plans: []
+
+## Cycle 66 — 2026-10-26 — STABILIZATION
+- Bug #58 fixed by PR #59 (e0a327f, CI green, auto-merged); item 11 landed in the same PR and is ticked
+  in plan 004 and milestone #46. Not a runtime bug: clients closed first, 10000 + the latency rounds
+  exhaust macOS's 16384 ephemeral ports (TIME_WAIT), a connect was refused and `run_idle` awaited an
+  acceptor parked in `accept`. Fix: clients close with `SO_LINGER` 0, a short scenario cancels the
+  acceptor, `rt.io()` taken before the baseline thread flood (the scheduler is created at the first
+  `io()` and failed under the flood -> `concurrent` refused).
+- Gates (ADR 0003 section 4b, PRD §5): gate 3 PASS 7 of 8 runs (p99 ~127k us vs ~162k us; one run 422k
+  us, unexplained); gate 4 MISS at 10000 (29.2 KB vs 24.7 KB per task; 14.4 KB at 2000 earlier, so the
+  figure is not flat in N; not profiled). `wip/feat-latency-bench-20261026` is now superseded but kept.
+- Next: FEATURE: item 8b (per-op waiter node), then item 12 (README, CHANGELOG 0.5.0, PRD, release v0.5.0
+  with gates 1 and 4 missing). Streak 0. Blockers: none. Open questions: none. Cycle ~16 min, ~$1.
+- Gotchas: `zig build bench-latency` refuses here (10240 hard NOFILE cap, needs 20128): run the built
+  binary via python `setrlimit(30000)` with a subprocess timeout. A stale `.zig-cache` failed `tidy`
+  with `file_hash FileNotFound`: rm -rf it. `tidy` reports lines >100 cols in bench/ too.
 
 ## Cycle 65 — 2026-10-26 — FEATURE
 - Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green, no plan PR. Disk 22 GB (gate passed).
