@@ -25,7 +25,10 @@ timeoutMs = 3600000
 allowedTools = []
 sessionLimitThreshold = 90
 
+# PR + need-human prompt since 2026-10-26 (the_kernel D-515), same flow as powehi-dev-v1.
+# the_kernel is standalone (Rust); citadel only schedules it.
 [jobs.the-kernel-dev-v1]
+enabled = true
 expression = "50 */6 * * *"
 cwd = "/Users/fn/codespace/the_kernel"
 model = "sonnet"
