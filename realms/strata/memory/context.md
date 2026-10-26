@@ -1,7 +1,20 @@
 # strata — context
 
-last_seen_at: 2026-10-26T00:00:00Z
+last_seen_at: 2026-10-26T12:00:00Z
 rejected_plans: []
+
+## Cycle 68 — 2026-10-26 — FEATURE
+- Done: plan 005 item 5 — PR #68 (`feat/btree-split`, NOT merged yet): `btree/split_tree.zig` (prepare/apply split,
+  root id fixed, `HeightLimit`), `descend.zig`, `validate.zig`, `Tree.validate(io, gpa)`; `NodeFull` removed from
+  `InsertError`. Plan box + CHANGELOG ticked on the branch. Local 729 tests, fmt/tidy clean; first CI run 7/7.
+- Review: 1 critical (plan_leaf/plan_internal under-validated, apply could wipe a leaf then fail Corrupted) fixed
+  in c394acd (full `check_invariants` + separator bounds in prepare) + 6 negative/atomicity tests. CI on c394acd
+  was still pending at the deadline; PR comment left.
+- Next: FIRST check `gh pr checks 68`; if green and no `hold`, `gh pr merge 68 --squash --delete-branch`, label
+  `auto-merged` (already applied), tick #63 item 5. Then item 6 delete/merge/rebalance in new files.
+- Note: ~$3.2 of $4, ~24 min (overran). Developer wrote tests AFTER code despite the brief: demand red-first
+  (or use test-writer). The first dev run took 12.4 min, so brief "stop at 8 min". Pipe: dev 12 min, reviewer
+  3 min parallel with CI, fix 4 min. Blockers: none. Open questions: none.
 
 ## Cycle 67 — 2026-10-26 — FEATURE
 - Done: plan 005 item 4 — `BufferPool.fetchNew(io, id)` (zeroed dirty frame, `FetchNewError`; ADR §13 line fixed)
