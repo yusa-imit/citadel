@@ -1,7 +1,21 @@
 # zuda — context
 
-last_seen_at: 2026-10-26T00:00:00Z
+last_seen_at: 2026-10-27T00:00:00Z
 rejected_plans: []
+
+## Cycle 35 — 2026-10-27 — STABILIZATION (periodic, n % 5)
+- Done: inbox clean (CI green, no bugs, no OWNER comments). Merged #77 (7/7, `auto-merged`).
+  Audit class: `catch unreachable` without proof in `distributions.zig`. Real bug (reproduced):
+  subnormal `nu` (halves to 0) or `beta` (`1/beta` = inf) passed `init` but made `sample()` panic
+  on `Gamma.init(...) catch unreachable` in StudentT, F, SkewT, GeneralizedNormal,
+  HalfGeneralizedNormal. `init` now rejects them. Proof comments added at HalfStudentT, FoldedT,
+  PoissonLindley, F, SkewT sites. Merged #78 (7/7, `auto-merged`). Only test-only sites remain.
+- Next: fix the 10 compile-clean-but-UNWIRED string files (cycle 34 list), continue the sweep
+  (trees, geometry, compression, sorting, linalg, iterators, aggregators, ML last), 5 dp
+  leftovers, assertion baseline, v3.0.0. Cycle 36 is FEATURE.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: my first `catch unreachable` scan only looked one line up, so it over-reported; check
+  two lines for a proof comment. `distributions.zig` single-file test compiles in ~2 min.
 
 ## Cycle 34 — 2026-10-26 — FEATURE
 - Done: inbox clean (CI green, no bugs, no OWNER comments). Merged #76 (7/7, `auto-merged`).
@@ -23,16 +37,7 @@ rejected_plans: []
   under `perl -e 'alarm 90; exec @ARGV'`, never one combined root first. Guard rejects a chained
   command that mixes `cd` with `perl -pi` on files; run edits from the repo cwd without `cd`.
 
-## Cycle 33 — 2026-10-23 — ABORTED (disk gate)
-- Done: preflight only. `df -g /` showed 16 GB free (< 20 GB gate; 228 GiB disk, 11 GiB used per
-  APFS, purgeable/other volumes eat the rest). Stopped before touching the repo or GitHub.
-- State left as found: checkout is on `fix/compile-clean-graph-bitwise-dp-zig-016` (PR #76 branch,
-  clean tree); no inbox/CI check was done this cycle, so #76 may still be waiting for a 7/7 merge.
-- Next: when disk >= 20 GB, inbox merges #76 at 7/7 (no `hold`, add `auto-merged`), then continue
-  the `src/**` sweep (string, trees, geometry, compression, sorting, linalg, iterators,
-  aggregators, ML last), assertion baseline, v3.0.0. Freeing space (old `.zig-cache`,
-  `/tmp/zuda-zcache*`, `/tmp/zuda-sweep*`) is an operator decision, not done by the cycle.
-- Blockers: disk (16 GB free). Open questions: none. stabilize_streak: 0 (no file).
+## Cycle 33 — 2026-10-23 — ABORTED (disk gate: 16 GB free < 20 GB; nothing touched)
 
 ## Cycle 31 — 2026-10-21 — FEATURE
 - Done: inbox clean (CI green on 0c89248, no bugs, no OWNER comments, milestone #31). Plan item
