@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-10-26T12:00:00Z
+last_seen_at: 2026-10-26T14:00:00Z
 rejected_plans: []
+
+## Cycle 66 — 2026-10-26 — FEATURE
+- Preflight: disk 42 GB, CI green (1c9723f), no bugs, no OWNER comments, milestone #57 open.
+- Done: item 11 via PR #69 (docs only, 7/7 CI): Phase 3 baseline re-measured (all sim fns <= 68
+  lines, simulation.zig 870 non-test lines), README sim row implemented, 000-inherited Phase 3
+  ticked, milestone item 11 ticked. Reviewed #68 (code-reviewer): 1 CRITICAL + 6 WARNING fixed via
+  PR #70 (corrupt KV entry -> typed `WorkloadInvariant`, `WorkloadInvalid` branches tested, ADR-008
+  amended; 878 tests, 7/7 CI). Both `auto-merged`.
+- `zig build test` now ~105 s locally (workload/sim model tests dominate).
+- Next: item 12 release v0.5.0 (`/release synod minor`; gate: 0 bugs, 6 cross targets green).
+- Blockers: none. Open questions: none.
+- Open suggestions: `Workload.check_invariants` runs only in `check(.linearizability)`, not per event;
+  `op_id_next` bounded by width not an option; `else =>` arms in `node_fault`/`propose_draw`
+  (simulation.zig) non-exhaustive; sim-nightly first scheduled run still unobserved.
+- Tool notes: foreground `sleep` is blocked; use `python3 -I -c "import time; time.sleep(N)"` while
+  waiting for a background agent. `gh pr checks --watch` right after push may say "no checks":
+  retry after ~20 s. Spawning reviewer (read-only) and doing the docs item in parallel worked well.
 
 ## Cycle 65 — 2026-10-26 — FEATURE
 - Preflight: disk 24 GB (gate ok), CI green (f09957c), no bugs, no OWNER comments, milestone #57 open.
