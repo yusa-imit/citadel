@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-10-26T01:30:00Z
+last_seen_at: 2026-10-26T12:30:00Z
 rejected_plans: []
+
+## Cycle 71 — 2026-10-26 — FEATURE
+
+- Done: plan 006 item 8 (toml-test corpus), written directly. PR #75, CI 8/8, auto-merged; #67 box 8
+  ticked (8/12). No reviewer subagent (test-only change).
+- Shape: toml-test v2.2.0 (ce08da1, MIT) `files-toml-1.0.0` list + 884 case files + LICENSE + SOURCE in
+  `tests/toml-test/` (887 tracked files, `git ls-files` verified). `toml/conformance_test.zig`: 679 cases
+  (474 invalid, 205 valid), 679 pass, 0 pinned; explicit-stack comparator over `std.json.Value`; floats
+  by bit pattern (NaN equal), datetimes compared as `core.timestamp.parse` values because the suite pads
+  fractions (".600") and `format` does not (ADR 0005 section 9 amended). Probe tests cover wrong expectations.
+- Next: item 9 `toml/writer.zig` + `toml.stringify`/`write_value` (ADR 0005 section 8 writer rules).
+  Still-open cycle 67 follow-ups (asserts in parser step fns, truncation test, inline-table tests) are
+  good filler for item 9 or 10. Blockers/questions: none.
+- Learned: the guard blocks `cd <repo>` and python heredocs (cwd is already the repo; use Edit/sed -i '');
+  `gh api repos/<o>/<r>/tarball/<tag>` into a /tmp dir fetches a corpus fine.
 
 ## Cycle 70 — 2026-10-26 — FEATURE
 
@@ -173,5 +188,5 @@ Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-7 d
 
 ## Next priority
 
-Plan 006 item 8 (toml-test corpus); see the newest cycle block.
+Plan 006 item 9 (`toml/writer.zig`); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
