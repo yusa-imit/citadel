@@ -10,12 +10,10 @@ rejected_plans: []
 - Item 12 merged as PR #60 (8c8e0c7, CI green, auto-merged): README Status (32 native slots), PRD §4.1
   Options/InitError sketch + §4.3 notes, CHANGELOG `[0.5.0] - 2026-10-27`, version 0.5.0 in
   `build.zig.zon` and `src/root.zig`, plan 004 item 12 ticked.
-- NOT DONE: tag `v0.5.0` + `gh release create` + close milestone #46 + STATE.md: main CI run on
-  8c8e0c7 stayed `queued` ~9 min (runner contention) past the deadline. Release awaiting CI.
-- Next: FEATURE, first thing: if main CI on 8c8e0c7 (`git rev-parse` it) is green and no bug is open,
-  `git tag -a v0.5.0 -m "Release v0.5.0" 8c8e0c7`, push it, `gh release create v0.5.0 --notes-file` (the
-  `[0.5.0]` section, extract with sed), close #46 with the link; no consumer pins sirocco (no migration
-  issues). Then `/plan sirocco`: plan 005 = profile gate 1 (Instruments/dtrace), multi-carrier, 8b.
+- Release finished after the report, once main CI on 8c8e0c7 went green: tag `v0.5.0`, GitHub release
+  created, milestone #46 closed. No kingdom repo pins sirocco, so no migration issues.
+- Next: FEATURE: no plan PR and the newest plan (004) is fully checked or `[~]`, so `/plan sirocco`:
+  plan 005 = profile gate 1 (Instruments/dtrace), multi-carrier, gate 4 memory, 8b (architect first).
 - Blockers: none. Open questions: none. Streak 0. Cycle ~19 min, ~$1.
 - Gotchas: python heredoc inside the repo is allowed by the guard (it blocked only `cd; python3 -`);
   `sed -i` with a multi-line pattern fails on BSD sed, use Edit. `gh run watch` over 8 min hits the
