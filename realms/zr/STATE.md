@@ -48,7 +48,7 @@ Drift found, not missing functionality:
 | Functions > 70 lines | 72 | Worst: `parseToml` 5123 lines (has assertion baseline; structural, out of scope). |
 | Files > 800 lines | 25 | Worst: `config/parser.zig` 9076, `exec/scheduler.zig` 3802. |
 | `usize` in wire/serialized structs | 0 | Checked lock.zig, cache stats, JSON-RPC modules — clean. |
-| Missing `//!` module headers | 183 / 228 | Sweep in progress (cycle 30): `doc-header` baseline entries now 183; next smallest: lsp/position, cli/context, lsp/diagnostics, cli/help. Cycle 30 also fixed the `DocumentStore.open` re-open leak (#195). |
+| Missing `//!` module headers | 176 / 228 | Sweep in progress (cycle 35): `doc-header` baseline entries now 176; next smallest: ci/templates/github_actions, context/json, plugin/builtin_env, cli/codeowners. Documented gaps to fix: `output/monitor.zig` never flushes its buffered stderr writer; `cli/upgrade.zig` ignores `--version`. 93 `std.debug.print` remain (user-facing progress; needs a writer seam). |
 | Modules with zero `assert(` | 21 / 27 | `cli/` largest gap (424 fns, 0 asserts). |
 
 None of this was audited to "clean" — it is what a grep-level pass found, not a proof of absence

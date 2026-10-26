@@ -1,7 +1,26 @@
 # zr — context
 
-last_seen_at: 2026-10-26T00:00:00Z
+last_seen_at: 2026-10-27T00:00:00Z
 rejected_plans: []
+
+## Cycle 35 — 2026-10-27 — STABILIZATION
+- Preflight: disk 45 GB; tree clean on `main`; CI green; no bugs; inbox clear (no comments since
+  watermark; #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0 → items 5-11
+  blocked.
+- Audit: 12 `catch unreachable` (proven), 1 `@panic` (`stdx.assert_always`), 16 `while (true)`
+  (event/prompt loops), 93 `std.debug.print` (user-facing progress; needs a writer seam, skipped),
+  180 files without `//!`. Took headers again (smallest diff).
+- Added `//!` headers to `cli/help`, `cli/upgrade`, `conformance/parser`, `output/monitor`;
+  removed 4 baseline entries (176 left); `cli/help.zig` trailing blank line fixed for fmt. PR #199
+  merged, 8/8 green (~14 min). Tests 1947/0, tidy 0 failing.
+- Found, documented in headers, not fixed: `output/monitor.zig` buffered stderr writer is never
+  flushed (live line shows late); `cli/upgrade.zig` parses `--version` but installs latest;
+  conformance parser skips mistyped fields silently.
+- Next: cycle 36 FEATURE; items 5-11 blocked → `/stabilize --one` (monitor flush fix, upgrade
+  `--version`, or more headers: ci/templates/github_actions, context/json, plugin/builtin_env,
+  cli/codeowners). Item 5 bumps to sailor v3.1.0 + zuda v3.x once tagged.
+- Gotchas: zsh expands `echo "====="` (`=word`); `python3 -I - <<EOF` ran fine here.
+- Open questions: none.
 
 ## Cycle 34 — 2026-10-26 — FEATURE
 - Preflight: disk 22 GB (gate passed); tree clean on `main`; CI green; no bugs; inbox clear (no
