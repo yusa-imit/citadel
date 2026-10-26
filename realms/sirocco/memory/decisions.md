@@ -40,3 +40,14 @@ leave the wheel node linked until the fiber runs and calls `sleep.disarm`, so `f
 a ready fiber: handlers must re-check the outcome before touching the fiber.
 **Consequences**: `Sched.timers` is gone; `Sched.init` needs `now_ns`; wall `sleep` is measured on
 `Clock.awake` (a wall-clock step does not move it); CPU clocks forward and still block the carrier.
+
+## ADR-NNN-less: plan 004 item 8b moved to plan 005 (cycle 67, 2026-10-27)
+
+**Context**: 8b (per-operation waiter node so an idle batch wakes on the poller, not on 2 ms wheel
+slices) was added to plan 004 by the item-8 PR #55, not by the human-approved plan PR #44.
+**Decision**: Not implemented; item 12 released v0.5.0 without it and plan 004 marks 8b `[~]` (moved
+to plan 005). Design sketch: `Registry` waiter lists hold a `Waiter` node (prev, next, fiber, outcome)
+instead of `*Fiber` (`Fiber.wait`); nodes come from a pool sized at `Runtime.init` (no allocation after
+init); `cancel`, `close_on_carrier`, `close_off_carrier`, `closing_finish` and `on_event` change with it.
+**Consequences**: an idle `batchAwait*` costs one `recvmsg` per op per slice and wakes within 2 ms.
+Needs an architect pass and its own PR round (epoll is CI-only); do not start it inside a release cycle.

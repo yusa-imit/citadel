@@ -1,7 +1,25 @@
 # sirocco — context
 
-last_seen_at: 2026-10-26T13:30:00Z
+last_seen_at: 2026-10-26T16:23:00Z
 rejected_plans: []
+
+## Cycle 67 — 2026-10-27 — FEATURE
+- Inbox clean (no OWNER comments, no bugs, CI green on e0a327f, milestone #46 open). Item 8b NOT done by
+  decision: it was added by PR #55, not by approved plan PR #44, and needs a registry refactor (waiter
+  lists are keyed on `Fiber`); marked `[~]` and moved to plan 005 (see decisions.md).
+- Item 12 merged as PR #60 (8c8e0c7, CI green, auto-merged): README Status (32 native slots), PRD §4.1
+  Options/InitError sketch + §4.3 notes, CHANGELOG `[0.5.0] - 2026-10-27`, version 0.5.0 in
+  `build.zig.zon` and `src/root.zig`, plan 004 item 12 ticked.
+- NOT DONE: tag `v0.5.0` + `gh release create` + close milestone #46 + STATE.md: main CI run on
+  8c8e0c7 stayed `queued` ~9 min (runner contention) past the deadline. Release awaiting CI.
+- Next: FEATURE, first thing: if main CI on 8c8e0c7 (`git rev-parse` it) is green and no bug is open,
+  `git tag -a v0.5.0 -m "Release v0.5.0" 8c8e0c7`, push it, `gh release create v0.5.0 --notes-file` (the
+  `[0.5.0]` section, extract with sed), close #46 with the link; no consumer pins sirocco (no migration
+  issues). Then `/plan sirocco`: plan 005 = profile gate 1 (Instruments/dtrace), multi-carrier, 8b.
+- Blockers: none. Open questions: none. Streak 0. Cycle ~19 min, ~$1.
+- Gotchas: python heredoc inside the repo is allowed by the guard (it blocked only `cd; python3 -`);
+  `sed -i` with a multi-line pattern fails on BSD sed, use Edit. `gh run watch` over 8 min hits the
+  Bash timeout (background it).
 
 ## Cycle 66 — 2026-10-26 — STABILIZATION
 - Bug #58 fixed by PR #59 (e0a327f, CI green, auto-merged); item 11 landed in the same PR and is ticked
@@ -19,48 +37,24 @@ rejected_plans: []
   binary via python `setrlimit(30000)` with a subprocess timeout. A stale `.zig-cache` failed `tidy`
   with `file_hash FileNotFound`: rm -rf it. `tidy` reports lines >100 cols in bench/ too.
 
-## Cycle 65 — 2026-10-26 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green, no plan PR. Disk 22 GB (gate passed).
-- Item 11 (`bench/latency.zig` + `zig build bench-latency`) NOT done: preserved as
-  `wip/feat-latency-bench-20261026` (do not delete; has debug progress prints, `connections_idle` at
-  10_000). Gate 3 passes on kqueue (p99 66-95 ms vs Threaded 130-160 ms at 1000). Gate 4 passes at 2000
-  idle (14.4 KB vs 14.9 KB/task) but the native run never finishes at 5000/10000; Threaded refuses threads
-  at ~4089 tasks (24.7 KB each). Opened bug #58 (hang, undiagnosed).
-- Next: STABILIZATION (bug #58 forces it): diagnose the hang from the wip branch, regression test, fix,
-  then resume item 11 (drop debug prints), 8b, 12. Streak 0.
-- Blockers: none. Open questions: none. Cycle ~20 min, ~$0.9.
-- Gotchas: the `zig build` child sees a 10240 RLIMIT_NOFILE hard cap here (bench refuses); run the built
-  `.zig-cache/o/*/sirocco-bench-latency` directly with setrlimit(30000) from python. Killed bench runs leave
-  sockets that make the next run's connects fail (wait ~30 s). Bench stdout is buffered: flush per section
-  or a hang shows no output. Use `pkill -f sirocco-bench` after a timeout; the guard blocks compound Bash
-  that writes citadel paths (use Write/Edit).
+## History (cycles 62-65, condensed 2026-10-27)
 
-## Disk-blocked no-op — 2026-10-23 (third in a row; counter stays 64)
-- 16-18 GB free (gate 20) on 10-22 (twice) and 10-23; stopped at preflight, no repo or GitHub changes.
-  The guard blocks a compound first Bash call that writes /tmp and reads citadel paths: one per call.
-
-## Cycle 64 — 2026-10-21 — FEATURE
-- Item 10 PR #57 (b511fa5): `bench/echo.zig` + `zig build bench-echo`. kqueue, 3 runs: gate 2 PASS
-  0.91x (margin 0.01); gate 1 MISS 0.83-0.87x (152-161k vs 184k echoes/s); ADR 0003 section 4a + PRD §5.
-  No per-function profile (`sample(1)` hangs on the bench, never run it from Bash; plan 005 starts with
-  Instruments/dtrace, then multi-carrier). The gate-1 miss ships in v0.5.0. The bench needs ~2100 fds:
-  it raises RLIMIT_NOFILE and refuses rather than shrinking N.
-
-## Cycle 63 — 2026-10-21 — FEATURE
-- Item 9 PR #56 (f7d5a27): `concurrent`/`groupConcurrent` start on a free fiber (`src/concurrency.zig`),
-  refuse with `ConcurrencyUnavailable` only where `async` would run inline; both slots now `native` in
-  `tests/parity/slots.zig`. Left over: README still says `concurrent` always refuses (item 12); no test
-  cancels a parked `concurrent` future. A hardcoded `FailingAllocator` `fail_index` differs by backend
-  (init takes 4 blocks threaded, 7 evented): set `fail_index = alloc_index` after `io()`. The guard
-  blocks `cd <repo>; python3 - <<EOF` (use Edit). `gh pr checks` right after a push exits 1 "no checks".
-
-## Cycle 62 — 2026-10-20 — FEATURE
-- PR #55 red CI fixed (7687892), item 8 ticked. A test flaw, not the runtime: `Io.Threaded` rounds its
-  poll timeout down and reports `Timeout` under 10 ms, so a parity test whose oracle is `Io.Threaded` is
-  unsound for any timing floor. Fix 7a12aba: parity projects to `timed_out` + `later_ok`, the 10 ms floor
-  asserted only when `evented`. Stress the built binary (`.zig-cache/o/*/test`) serially: `zig build test`
-  re-runs are cached, parallel runs fail the loopback `batch` "late" test spuriously. Stale `.zig-cache`
-  gives `failed to spawn build runner` (rm -rf it).
+- 62 (10-20): PR #55 red CI was a test flaw: `Io.Threaded` rounds its poll timeout down and reports
+  `Timeout` under 10 ms, so parity tests project to `timed_out` + `later_ok` (10 ms floor only when
+  `evented`). Stress the built binary (`.zig-cache/o/*/test`) serially; `zig build test` re-runs are
+  cached and parallel runs fail the loopback `batch` "late" test spuriously.
+- 63 (10-21): item 9 PR #56, `concurrent`/`groupConcurrent` on a free fiber (`src/concurrency.zig`). A
+  hardcoded `FailingAllocator` `fail_index` differs by backend: set `fail_index = alloc_index` after
+  `io()`. Left over: no test cancels a parked `concurrent` future.
+- 64 (10-21): item 10 PR #57, `bench/echo.zig`: gate 2 PASS 0.91x, gate 1 MISS 0.83-0.87x (ADR 0003
+  4a). Never run `sample(1)` on the bench (hangs); plan 005 starts with Instruments/dtrace, then
+  multi-carrier. The bench raises RLIMIT_NOFILE and refuses rather than shrinking N.
+- 65 (10-26): item 11 not done, preserved as `wip/feat-latency-bench-20261026` (superseded, kept); bug
+  #58 opened. The `zig build` child sees a 10240 NOFILE hard cap (bench-latency refuses): run the built
+  `.zig-cache/o/*/sirocco-bench-latency` via python `setrlimit(30000)`. Killed bench runs leave sockets
+  that fail the next run's connects (~30 s). Bench stdout is buffered: flush per section.
+- Disk-blocked no-ops 10-22/10-23 (16-18 GB free): stopped at preflight, counter unchanged. The guard
+  blocks a compound first Bash call that writes /tmp and reads citadel paths: one command per call.
 
 ## History (cycles 58-61, condensed 2026-10-21)
 
