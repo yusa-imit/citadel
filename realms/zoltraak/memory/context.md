@@ -1,7 +1,19 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-26T00:00:00Z
+last_seen_at: 2026-10-27T00:00:00Z
 rejected_plans: []
+
+## Cycle 36 — 2026-10-27 — FEATURE (all plan items blocked)
+- CI green on main (e068f18), no bugs, no OWNER comments, no open PRs; milestone #121 open.
+  zuda still v2.3.0 (sailor v3.1.0), so items 4-9, 12 stay blocked: ran `/stabilize --one`.
+- PR #159 (merged, auto-merged): `bloom.zig` scanDump round-trip test loop bounded by
+  `chunk_count_max` and asserts it finished. `while (true)` in `src/` now 2, both legit
+  (cli.zig:108 REPL, server.zig:575 connection loop). `zig build test` 1627/1627 except the 2
+  known signal-4 crashers; fmt clean. STATE.md updated.
+- Next: `== error.` -> exhaustive `switch (err)` (start `server.zig` ~578, then
+  `sorted_sets.zig`); `//!` headers (82 files); stash triage. Blockers: zuda v3.0.0. Questions: none.
+- Quirk: guard blocks `cd repo; ...` and python heredocs; run plain commands and use Edit.
+  `rm -rf .zig-cache` again fixed the `FileNotFound` build-runner error.
 
 ## Cycle 35 — 2026-10-26 — STABILIZATION (n % 5)
 - CI green on main (fbbc2a5), no bugs, no OWNER comments, no open PRs; milestone #121 open.
