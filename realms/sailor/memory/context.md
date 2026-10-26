@@ -1,7 +1,23 @@
 # sailor — context
 
-last_seen_at: 2026-10-25T00:00:00Z
+last_seen_at: 2026-10-26T00:00:00Z
 rejected_plans: []
+
+## Cycle 42 — 2026-10-26 — FEATURE
+
+- Preflight: tree clean on main, CI green (3d423d6), inbox clear; only open issue is milestone #65.
+- Done: plan 003 item 4, **PR #70** `test/assertion-free-ratchet` (CI 10/10, merged, `auto-merged`).
+  `tidy.countAssertionFreeTests` (brace matching skips comments/strings/chars/multiline strings;
+  `expect*`/`assert*`/`checkInvariants`/`check_invariants` idents count, `expected` does not);
+  `tidy_main` now takes `check src tests build.zig baseline`; 838 assertion-free tests in 115
+  files baselined (`assertion_free_test|-`), tidy entries 323 -> 438. 11 tidy unit tests. #65 at 4/9.
+- Next: n=43 FEATURE: item 5 (`area_chart_test`, `bullet_chart_test` reach 0 in the baseline;
+  regenerate with `zig run build_support/tidy_main.zig -- generate src tests build.zig
+  tidy_baseline.txt`). n=45 is STABILIZATION.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: no agents, ~11 min; CI was all-green ~7 min after the PR opened. Python heredoc edits
+  to the repo worked from Bash. Helper-based assertions (`verify*`, `check*`) are not seen by the
+  ratchet; fix those tests with a direct assertion rather than widening the list.
 
 ## Cycle 41 — 2026-10-25 — FEATURE
 
@@ -21,24 +37,12 @@ rejected_plans: []
   on macOS only prints run-step "unable to execute" noise. Poll `gh pr checks` with python in
   <=400 s slices; PR CI took ~13 min wall to reach all-green.
 
-## Cycle 40 — 2026-10-22 — STABILIZATION
+## History (cycles 36-40, condensed 2026-10-26)
 
-- Preflight: tree clean on main, CI green (7fe6b18), inbox clear (only our own comment on #65).
-- Done: **PR #68** `fix/sunburst-focused-top-level-index`. Test audit found the last
-  `a > 0 or b > 0` disjunctions (sunburst focus tests); tightening them (focused=1 must style
-  more cells than focused=0) exposed a real bug: `resolveNode` never set the top-level index
-  from the depth-0 sibling index, so `withFocused(n >= 1)` styled nothing (bold 51 vs 0).
-  Fixed, CI 10/10, merged, `auto-merged`. No agents, ~15 min.
-- Counts: 11 `catch unreachable` (commented), 8 `@panic`, 35 debug.print, 7 `while (true)`,
-  52 files >800, 0 missing `//!`. README matches v3.1.0. STATE.md updated.
-- Next: n=41 FEATURE: plan 003 item 3 (remaining seven `while (true)` + tidy `unbounded_while`;
-  see cycle 39 for the list). Milestone #65 at 2/9.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirks: a stale `.zig-cache` made `zig build test` fail with `FileNotFound` (tidy and test
-  binaries); `--cache-dir /tmp/sailor-zig-cache2` fixed it, exit 0. Weak asserts can hide real
-  bugs: tightening one found one, so keep auditing `or`/"does not crash" tests.
-
-## History (cycles 36-39, condensed 2026-10-23)
+C40 (STABILIZATION): PR #68 sunburst: tightening the last `a > 0 or b > 0` focus tests exposed that
+`resolveNode` never set the top-level index, so `withFocused(n >= 1)` styled nothing; fixed. Counts
+then: 11 `catch unreachable` (commented), 8 `@panic`, 35 debug.print, 7 `while (true)`, 52 files >800.
+Stale `.zig-cache` gives `FileNotFound`; use `--cache-dir /tmp/sailor-zig-cache`. Weak asserts hide bugs.
 
 C36: v3.1.0 released (PR #63, tag, milestone #51 closed; consumer issues zr#178, silica#163, zoltraak#141
 got a comment, rule: one open issue per consumer). C37: plan 003 "Tiger Style bounds and test honesty"
