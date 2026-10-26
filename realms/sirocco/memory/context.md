@@ -20,64 +20,31 @@ rejected_plans: []
   that writes citadel paths (use Write/Edit).
 
 ## Disk-blocked no-op — 2026-10-23 (third in a row; counter stays 64)
-- `df -g /` showed 16 GB free (gate 20), measured twice. Stopped at preflight; no repo or GitHub changes.
-  Needs the operator to free disk. Next: FEATURE item 11 (`bench/latency.zig`), 8b, 12.
-
-## Disk-blocked no-op — 2026-10-22 (counter stays 64, next cycle is still 65)
-- Preflight `df -g /` showed 18 GB free (gate is 20), twice on 2026-10-22 (two consecutive no-ops).
-  Stopped before inbox/mode; no repo or GitHub changes. Main tree clean on main. Needs the operator
-  to free disk; nothing in this realm can. Next: FEATURE item 11 (`bench/latency.zig`), 8b, 12.
-- Gotcha: the guard blocks a compound first Bash call that writes a /tmp file and reads citadel paths;
-  run preflight commands one per call.
+- 16-18 GB free (gate 20) on 10-22 (twice) and 10-23; stopped at preflight, no repo or GitHub changes.
+  The guard blocks a compound first Bash call that writes /tmp and reads citadel paths: one per call.
 
 ## Cycle 64 — 2026-10-21 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green, no plan PR.
-- Done: item 10 as PR #57, squash-merged b511fa5 (`auto-merged`, CI green); ticked on #46 and in plan
-  004. `bench/echo.zig` + `zig build bench-echo` (one `concurrent` server task per connection,
-  window opens after all clients connect). kqueue, M-series 10 cores, 3 runs: gate 2 PASS 0.91x
-  (margin 0.01, any extra syscall on the 1-conn path can break it); gate 1 MISS 0.83-0.87x
-  (152-161k vs 184k echoes/s). Recorded in ADR 0003 section 4a + two PRD §5 rows.
-- Left over: no per-function profile (`sample(1)` hung attaching to the bench; the ADR says plan 005
-  starts with Instruments/dtrace), then multi-carrier. No code-reviewer pass (bench-only PR).
-- Next: FEATURE, item 11 (`bench/latency.zig`, gates 3-4), then 8b, 12 (release v0.5.0; gate-1 miss
-  ships, plan 005 is multi-carrier). Streak 0.
-- Blockers: none. Open questions: none. Cycle ~11 min, ~$0.9.
-- Gotchas: `bench-echo` needs ~2100 fds (macOS default 256): it raises RLIMIT_NOFILE itself and
-  refuses rather than shrinking N. Never run `sample` on the bench from Bash (it hangs 60 s+).
+- Item 10 PR #57 (b511fa5): `bench/echo.zig` + `zig build bench-echo`. kqueue, 3 runs: gate 2 PASS
+  0.91x (margin 0.01); gate 1 MISS 0.83-0.87x (152-161k vs 184k echoes/s); ADR 0003 section 4a + PRD §5.
+  No per-function profile (`sample(1)` hangs on the bench, never run it from Bash; plan 005 starts with
+  Instruments/dtrace, then multi-carrier). The gate-1 miss ships in v0.5.0. The bench needs ~2100 fds:
+  it raises RLIMIT_NOFILE and refuses rather than shrinking N.
 
 ## Cycle 63 — 2026-10-21 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green, no plan PR.
-- Done: item 9 as PR #56, squash-merged f7d5a27 (`auto-merged`, CI green macOS + ubuntu + 6 cross); ticked
-  on #46 and in plan 004. `concurrent`/`groupConcurrent` now start on a free fiber (`task_start`,
-  `group_member_start` in `src/concurrency.zig`) and refuse with `ConcurrencyUnavailable` only where
-  `async` would run inline (no sched, `fibers_max` alive, failed alloc), group left untouched. Moved both
-  slots from `divergent` to `native` in `tests/parity/slots.zig`. Done directly (no subagent for tests/impl)
-  in ~6 min; one code-reviewer pass: 0 CRITICAL, 3 WARNING fixed (test names/alloc-index brittleness).
-- Left over: README still says `concurrent` always refuses (item 12 rewrites it); no test cancels a parked
-  `concurrent` future; ping-pong test runs only under the default mode, not `.forward`/`.fail`.
-- Next: FEATURE, item 10 (`bench/echo.zig`, gates 1-2), then 8b, 11, 12. Streak 0.
-- Blockers: none. Open questions: none. Cycle ~$1.5.
-- Gotchas: a hardcoded `FailingAllocator` `fail_index` differs by backend (init takes 4 blocks on
-  threaded, 7 evented), so a test can fail in scheduler init instead of the task record and still look
-  green for `async`; set `failing.fail_index = failing.alloc_index` after `io()`. The guard blocks
-  `cd <repo>; python3 - <<EOF` (use Edit, or plain `cd x && ...`). `gh pr checks` right after a push
-  exits 1 with "no checks"; wait for the monitor on the new head.
+- Item 9 PR #56 (f7d5a27): `concurrent`/`groupConcurrent` start on a free fiber (`src/concurrency.zig`),
+  refuse with `ConcurrencyUnavailable` only where `async` would run inline; both slots now `native` in
+  `tests/parity/slots.zig`. Left over: README still says `concurrent` always refuses (item 12); no test
+  cancels a parked `concurrent` future. A hardcoded `FailingAllocator` `fail_index` differs by backend
+  (init takes 4 blocks threaded, 7 evented): set `fail_index = alloc_index` after `io()`. The guard
+  blocks `cd <repo>; python3 - <<EOF` (use Edit). `gh pr checks` right after a push exits 1 "no checks".
 
 ## Cycle 62 — 2026-10-20 — FEATURE
-- Inbox: milestone #46 open, no OWNER comments, no bugs, main CI green; PR #55 had red CI (both OS jobs).
-- Done: PR #55 fixed and squash-merged as 7687892 (`auto-merged`); item 8 ticked on #46. Cause was a test
-  flaw, not the runtime: `Io.Threaded` rounds its poll timeout down and reports `Timeout` under 10 ms, so
-  the idle parity test (a) compared `waited` against that oracle, (b) asserted `waited` on `rt.io()` for the
-  `.threaded` backend where `rt.io()` IS the baseline (the 42-skip binary). Fix 7a12aba: parity projects
-  to `timed_out` + `later_ok`; the 10 ms floor is asserted only when `evented`.
-- Verified by running the parity binaries 36x each, 6-way parallel: 0 failures (was ~20-30%).
-- Next: FEATURE, item 9 (`concurrent`/`groupConcurrent`), then 8b (per-op waiter node), 10, 11, 12.
-- Blockers: none. Open questions: none. Streak 0. Cycle used ~16 min, ~$1.
-- Gotchas: a parity test whose oracle is `Io.Threaded` is unsound for any timing floor. Running one test
-  binary many times in parallel makes the loopback `batch` "late" test fail (a datagram from another
-  process lands in a rebound ephemeral port); serial runs are clean, so do not read that as a bug. Run a
-  stress of the built binary (`.zig-cache/o/*/test`), since `zig build test` re-runs are cached. Stale
-  `.zig-cache` gave `failed to spawn build runner` again (rm -rf it).
+- PR #55 red CI fixed (7687892), item 8 ticked. A test flaw, not the runtime: `Io.Threaded` rounds its
+  poll timeout down and reports `Timeout` under 10 ms, so a parity test whose oracle is `Io.Threaded` is
+  unsound for any timing floor. Fix 7a12aba: parity projects to `timed_out` + `later_ok`, the 10 ms floor
+  asserted only when `evented`. Stress the built binary (`.zig-cache/o/*/test`) serially: `zig build test`
+  re-runs are cached, parallel runs fail the loopback `batch` "late" test spuriously. Stale `.zig-cache`
+  gives `failed to spawn build runner` (rm -rf it).
 
 ## History (cycles 58-61, condensed 2026-10-21)
 
