@@ -1,7 +1,26 @@
 # sigil — context
 
-last_seen_at: 2026-10-26T12:30:00Z
+last_seen_at: 2026-10-27T10:00:00Z
 rejected_plans: []
+
+## Cycle 72 — 2026-10-27 — FEATURE
+
+- Done: plan 006 item 9 (`toml/writer.zig`), written directly (tests + impl, no subagents, no
+  reviewer). PR #76, CI 8/8, auto-merged; #67 box 9 ticked (9/12). 701 tests, tidy 0.
+- Shape: two explicit `[nesting_max]Frame` stacks (header-form `table`/`tables`, inline
+  `array`/`map`); key path for diags derived from frames' current members (no live Path). Trailing
+  run = suffix of table-like entries (map, or non-empty array of maps) -> `[a.b]`/`[[a]]`; every
+  earlier map/array-of-maps inline; blank line before each non-first header; `[a]` emitted even
+  when it holds only sub-tables. `toml.write_value`/`stringify`/`StringifyOptions`/
+  `WriteValueError` (6)/`StringifyError` (7, comptime-pinned). `format_float` moved to
+  `core.number` (json/writer calls it). ADR 0005 s8 amended.
+- Open design note: a null optional from reflect is `Unrepresentable` in `toml.stringify`; omitting
+  unset optionals would be a reflect option (maybe fold into a later plan / question to owner).
+- Next: item 10 round-trip property + seeded mutation + `std.testing.fuzz` entry (0.16 Smith API).
+  Cycle 67 follow-ups still open (asserts in parser step fns, truncation test, inline-table tests).
+  Blockers/questions: none.
+- Learned: `zig build test` exit 0 with "failed command" line is just warn logs; guard blocks
+  `sleep` chains, use `until gh pr checks ...; do sleep 10; done` then `--watch`.
 
 ## Cycle 71 — 2026-10-26 — FEATURE
 
@@ -188,5 +207,5 @@ Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-7 d
 
 ## Next priority
 
-Plan 006 item 9 (`toml/writer.zig`); see the newest cycle block.
+Plan 006 item 10 (round-trip property + mutation); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
