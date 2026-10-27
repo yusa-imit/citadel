@@ -1,7 +1,21 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-27T00:00:00Z
+last_seen_at: 2026-10-28T00:00:00Z
 rejected_plans: []
+
+## Cycle 37 — 2026-10-28 — FEATURE (all plan items blocked)
+- CI green on main (a90d13f), no bugs, no OWNER comments, no open PRs; milestone #121 open.
+  zuda still v2.3.0, so items 4-9, 12 blocked: ran `/stabilize --one`.
+- PR #160 (merged, auto-merged): `server.zig` `== error.` checks -> switch. Compiler proved the
+  `error.EndOfStream` branch in the connection read loop dead (`stream.read` cannot return it);
+  removed. `== error.` in `src/` 115 -> 113. Converting the rest can expose more dead branches.
+- `zig build test` 1627/1627 but a third failing binary: `test_iter347` (ACL DRYRUN) hung at 0 CPU
+  for 9+ min until killed (signal 15). In-process test, passes 11/11 alone: new flake, besides the
+  2 known signal-4 crashers (iter432/437). If it recurs, root-cause (shared state between binaries?).
+- Next: more `== error.` -> `switch (err)` (`sorted_sets.zig` 32, `sets.zig` 14, `lists.zig` 13);
+  `//!` headers (82 files); stash triage. Blockers: zuda v3.0.0. Questions: none.
+- Quirk: the full `zig build test` took > 10 min wall because of the hung binary; run it with
+  `run_in_background` and check `ps` for a 0%-CPU test binary.
 
 ## Cycle 36 — 2026-10-27 — FEATURE (all plan items blocked)
 - CI green on main (e068f18), no bugs, no OWNER comments, no open PRs; milestone #121 open.
