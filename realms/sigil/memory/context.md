@@ -126,68 +126,30 @@ fail tidy in tests too; `**` and `++` share precedence; arena-backed FailingAllo
 failure points, assert content; `Map.put` rejects duplicates; `gh pr checks` right after a push says "no
 checks" for ~1 min; slice `position` goes negative with negative steps; `-0` parses as int 0.
 
-## History (cycles 52-53, condensed 2026-10-16)
+## History (cycles 0-53, folded 2026-10-27)
 
-Cycle 52 (2026-10-14): plan 004 item 11, release PR #53, v0.3.0 tagged (first tag), milestone #42
-closed 11/11, no consumer pins sigil. Cycle 53: owner merged plan 005 (PR #54), milestone #55 opened;
-item 1 ADR 0004 (PR #56): reads borrow `*const Value`, Patch/Merge use path copying + one
-`tree.root` swap, JSONPath = `compile(*Program)` + `select(program, root, out)` with fixed limits
-(segments 32, selectors 64, filter depth 8, query 1024), `match`/`search` pinned unsupported.
-
-## History (cycles 49-51, condensed 2026-10-15)
-- 49: plan 004 item 8 `json.parse(T)`/`json.stringify` (PR #50); `parse_error_test.zig` and `stringify_test.zig`
-  had never been wired into `json.zig` (476 -> 503 tests). Open nit: `reflect.parse` lacks the
-  `errdefer assert(diag_written)` that `parse_traced` has.
-- 50: item 9 `json.parseFile`/`stringifyFile` (PR #51, `src/json/file.zig`): `arena` + final `diag`, `bytes_max`
-  inclusive via `readFileAlloc(.limited64(bytes_max + 1))`, std errors collapsed by `map_*_error`;
-  `ParseFileError` 27 variants, `StringifyFileError` 10; 518 tests.
-- 51: item 10 benchmarks (PR #52): seeded ~1 MiB doc; `json.dom.parse` ~145-175 MB/s, `write.minified`
-  ~480-490, `json.parse(T)` ~165; CI `Bench` step (`zig build bench`); numbers in `000-inherited.md`.
-- Lessons: every new `*_test.zig` must be imported from its module's `test {}` block; writing tests+impl
-  directly cost ~$1.5 vs ~$3.4 with test-writer + zig-developer; first bench in a run is ~20% slower; use
-  `--cache-dir /tmp/sigil-zc` if `.zig-cache` is stale; the Bash guard blocks one command mixing citadel
-  paths with repo commands; `wip/*` branches are kept; do not use ScheduleWakeup.
-
-## History (cycles 33-48, condensed 2026-10-21)
-
-- 33-34 (10-04): plan 003 closed (reflect round-trip, `core.Error` union pinned by comptime test);
-  plan 004 (JSON, ADR 0003) proposed as PR #38. 35-40: quiet, plan PR open; `bench/main.zig` ported
-  to 0.16 and wired into `zig build test` (PR #39); README/CHANGELOG drift fixed.
-- 41-48 (10-08 to 10-12): plan 004 merged; ADR 0003 via opus `architect` (~$2.9, scope it tightly);
-  item 2 `json/scanner.zig` (PR #44), 3 strings (#45), 4 `json/dom.zig` (#46), 5 `writer.zig` (#47),
-  6 round-trip property (#48), 7 JSONTestSuite vendored (#49; `.gitignore` `test_*` dropped the
-  corpus, check `git ls-files`). Cycle 48 ran out of budget: subagents cost ~$3.4, work kept on a
-  `wip/*` branch and merged in 49.
-- Learned: tidy wants a one-line `// proof:` directly above each `catch unreachable`/`switch (err)`;
-  `std.log.err` reports seeds in tests (tidy bans `std.debug.print`); sandbox `zig build` needs
-  `--cache-dir /tmp/sigil-zc`; `gh pr checks` right after `gh pr create` says "no checks" for ~1 min
-  (use an until-loop); `ScheduleWakeup` is for /loop only; the Bash guard blocks heredocs, `cd <repo>`
-  and one command mixing citadel paths with repo commands; macOS `sed -i` needs `-i ''`;
-  `zig test --test-filter` on root.zig misses submodule tests, use `zig build test`.
-
-## History (cycles 0-32, condensed 2026-10-13)
-
-Cycles 0-12 (2026-09-05 to 09-12): realm created (285 LOC stubs). Plan 001 (PR #2, issue #3) closed
-11/11: hygiene, `tidy` build step from citadel templates (PR #6), 0.16 main/args/allocators sweep
-(PRs #8-#9), ADR 0001 `io: Io` (PR #10), assertion baseline (PR #13; an argv assert was shell data,
-not a caller contract), version 0.2.0 (no release). Plan 002 opened as PR #17.
-Cycles 13-19 (2026-09-15 to 09-26): plan PR #17 open, no OWNER activity; `tidy_baseline.txt` moved
-to `tools/` (PR #18); `walkDir*` recursion bounded by `dir_depth_max=64` (PR #19; `walkSelectively`
-crashed Linux CI with a std 0.16.0 `dirReadLinux` BADF bug, worth an upstream issue if it recurs).
-Repeated sweeps found nothing smaller than the carried `tools/tidy.zig` finding (see backlog).
-Cycles 20-26 (2026-09-27 to 09-30): plan 002 items 1-5 (PRs #21-#25): `core/value.zig` (bounded
-`eql` -> `TooDeep`), `core/tree.zig`, `core/diagnostics.zig`, `core/number.zig` (prefer `.int`,
-widen to `.uint`, typed overflow); plan 002 closed 5/5, no tag. Plan 003 items 1-2 (PRs #28-#29):
-`core/unicode.zig`, `core/unicode_escape.zig` (DEL escaped as `\u007f`).
-Cycles 27-32 (2026-10-01 to 10-03): plan 003 items 3-8 (PRs #30-#35): ADR 0002 reflect contract,
-`reflect/options.zig` (17 compile-error fixtures via `b.addObject` + `expect_errors`; `.contains`
-is really ends-with on one compiler line), `reflect/{context,parse,stringify}.zig`. Learned:
-`catch unreachable`/`switch (err)` need a one-line `// proof:`; `@Struct(.auto, null, names, types,
-attrs)` builds test structs in 0.16; non-`pub` `sigil_options` is invisible to `@hasDecl`;
-`Pointer.alignment` is `?usize`; declare test types at file scope; tests go in sibling `*_test.zig`
-files for the 800-line limit. Guard: read citadel files with Read, never mix with repo `cd`;
-heredocs blocked, use Write; `timeout` absent on macOS, use `gh pr checks --watch`.
-
+- 0-32 (09-05 to 10-03): realm created (285 LOC stubs); plan 001 (hygiene, `tidy` step, 0.16 sweep,
+  ADR 0001 `io: Io`, assertion baseline, 0.2.0 no release); plans 002 (`core/` value, tree,
+  diagnostics, number) and 003 (unicode, ADR 0002 reflect contract, `reflect/` options, context,
+  parse, stringify) closed. `walkDir*` bounded by `dir_depth_max=64`; std 0.16.0 `dirReadLinux`
+  BADF bug crashed `walkSelectively` on Linux CI (upstream issue if it recurs).
+- 33-48 (10-04 to 10-12): plan 004 (JSON, ADR 0003) merged; `json/` scanner, strings, dom, writer,
+  round-trip property, JSONTestSuite vendored (`.gitignore` `test_*` dropped the corpus, check
+  `git ls-files`). Cycle 48 ran out of budget (subagents ~$3.4); work kept on a `wip/*` branch.
+- 49-53 (10-14 to 10-16): `json.parse(T)`/`stringify` (PR #50; unwired test files found), `parseFile`/
+  `stringifyFile` (PR #51), benchmarks (PR #52: dom.parse ~145-175 MB/s, write.minified ~480-490),
+  release PR #53, v0.3.0 first tag, milestone #42 closed; plan 005 merged (PR #54), ADR 0004:
+  reads borrow `*const Value`, Patch/Merge use path copying + one `tree.root` swap, JSONPath =
+  `compile(*Program)` + `select` with fixed limits (segments 32, selectors 64, filter depth 8,
+  query 1024), `match`/`search` unsupported.
+- Learned: tidy wants a one-line `// proof:` above each `catch unreachable`/`switch (err)`; tidy bans
+  `std.debug.print` (use `std.log.err`) and lines >100 cols, tests included; every new `*_test.zig`
+  must be imported from its module's `test {}` block; `@Struct(.auto, null, names, types, attrs)`
+  builds test structs in 0.16; non-`pub` `sigil_options` is invisible to `@hasDecl`; sandbox `zig
+  build` needs `--cache-dir /tmp/sigil-zc`; `gh pr checks` right after a push says "no checks" for
+  ~1 min (use an until-loop); Bash guard blocks heredocs, `cd <repo>` and one command mixing citadel
+  paths with repo commands; macOS `sed -i` needs `-i ''`; `ScheduleWakeup` is for /loop only; `wip/*`
+  branches are kept; test-writer + zig-developer cost ~$3.4 vs ~$1.5 writing directly.
 
 ## Standing backlog
 

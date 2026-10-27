@@ -119,64 +119,24 @@ lines mixing git/grep/writes or citadel reads; run steps as separate Bash calls.
   CI build-and-test ~10.5 min; a poll loop of `sleep 10` x40 stays under the 590s tool timeout.
   Guard blocks `cd citadel/...; python heredoc` compound lines: use Write/Edit for memory files.
 
-## History (cycles 27-28, condensed 2026-10-18)
+## History (cycles 19-28, folded 2026-10-27)
 
-Cycle 28 (2026-10-10): line-length batch 5c, PR #169 (auto-merged, CI 7/7): finished the wip
-cli+tui work (20 grown functions extracted back under baseline; `showTableSchema`/`dumpTable` share
-`printCreateTable`); `line_length:` baseline 4 -> 2 files (engine 1186, executor 598).
-Cycle 27 (2026-10-09): batch 5b, PR #168: catalog + parser wrapped, baseline 6 -> 4 files. Wrapping
-cli/tui grew 20 baselined functions past `function_length:`, so tidy went red; preserved on
-`wip/line-length-cli-tui-20261009` (superseded by #169, never delete wip).
-Learned: tell wrapping agents up front that baselined functions may not grow; concurrent `zig build`
-needs separate `--cache-dir`; CI ~12 min, `gh pr checks --watch` times out at 590s, poll instead.
-Next: engine.zig (split over 2 cycles) then executor.zig. Blockers: zuda v3.0.0.
-
-## History (cycles 25-26, condensed 2026-10-16)
-
-Cycle 26 (2026-10-08): line-length batch 5a, PR #167 (11 -> 6 files, one zig-developer subagent).
-Tooling: no `timeout` binary on macOS; `sleep N; cmd` chains are blocked; merge with `gh pr merge N
--R yusa-imit/silica --squash --delete-branch` then `gh pr edit N --add-label auto-merged`; CI ~10
-min, so subagent work must finish within ~8 min.
-Cycle 25: STABILIZATION (n%5==0), PR #166 (auto-merged, CI 7/7): the 18 `catch unreachable` sites in
-`toCharTimestamp` were baselined as unjustified because the shared SAFETY comment sat outside the
-tidy 3-line window; a short `// SAFETY:` on each `var buf` line removed the
-`catch_unreachable_no_safety:src/sql/executor.zig:18` baseline entry. Put SAFETY comments on the
-line above within the window; trailing comments risk the line_length ratchet. @panic hits in
-replication/{slot,sync}.zig are test-only. Remaining tidy classes: debug_print_in_lib
-(server.zig 8, engine 2), std_time_in_lib (17 files, blocked on the 0.16 clock migration).
-
-## History (cycles 23-24, condensed 2026-10-09)
-
-Cycle 24 (2026-10-06): line-length batch 4 (PR #165): 11 files wrapped, baseline 22 -> 11;
-pattern_match.zig gained 3 private helpers because wrapping pushed functions past limits. Guard hook
-rejects compound `cd; cmd` and env-assign lines; `gh pr checks --watch` backgrounds past 480s.
-Cycle 23 (2026-10-05): line-length batch 3 (PR #164, auto-merged): 12 files wrapped, `line_length:`
-baseline 34 -> 22 files; two baselined functions (watchFileInotify, parseConfigFile) needed blank-line
-or comment trims to stay under function_length limits. Remaining 22 files (engine 1186, executor 598,
-cli 262, parser 207, ...) go in batch 4, smallest first. Migration (#163 + plan 001 rest) waits for
-zuda v3.0.0. `zig build test` may need `--cache-dir /tmp/silica-zc-tidy`.
-
-## History (cycles 21-22, condensed 2026-10-08)
-
-Cycles 21-22 (2026-10-03 to 10-04, FEATURE): plan 001 tidy part 2, line-length batches 1-2 (PRs
-#161, #162, CI 7/7, auto-merged): 26 files wrapped, `line_length:` baseline 60 -> 34 files. Next:
-batch 3 (files with 13-30 long lines: server/server, wire, transport, config/file, overflow, lock,
-mvcc, selectivity, crash_test, gist/hash_index, pattern_match, parser_fuzz...). Rest of plan 001
-blocked_by zuda/sailor v3.0.0. Learned: tidy counts BYTES, so `// ── X ───` banners (3-byte dashes)
-trip the gate, trim the dash run instead of wrapping; a python script with an explicit line-number
-replacement table worked well; `gh pr checks` right after `gh pr create` says "no checks", retry;
-guard blocks compound `cd repo; cmd` lines. Open questions unchanged (buffer-pool LRU
-contradiction; WAL concurrent connections; tidy scans textual).
-
-## History (cycles 19-20, condensed 2026-10-07)
-
-Cycle 20 (STABILIZATION, 2026-10-02): hygiene clean, deps at newest tags (sailor v2.99.0, zuda
-v2.3.0), 0 `expect(true)`. PR #160 added `//!` headers to 17 files. Guard hook rejects compound
-`gh pr view; gh pr merge` lines; run the merge as its own command with `-R yusa-imit/silica`.
-Cycle 19 (2026-10-01): plan 001 tidy part 2, PR #159: `line_too_long` ratchets per file via
-`line_length:<path>:<max_line_count>` baseline entries (60 files, 3,620 long lines); `run_tidy` is
-a dependency of `test_step`. Guard hook blocks Bash lines that touch other repos or mix writes;
-BSD `sed -i` misparsed, use python. Rest of plan 001 blocked_by zuda/sailor v3.0.0.
+Plan 001 tidy part 2 (2026-10-01 to 10-10), one PR per cycle, all auto-merged with CI 7/7:
+`line_too_long` ratchets per file via `line_length:<path>:<max>` baseline entries (#159, 60 files /
+3,620 long lines), then wrap batches 1-5c (#161-#169) took the baseline 60 -> 2 files (engine 1186,
+executor 598 left; split over 2 cycles, smallest first). #160 added `//!` headers to 17 files.
+Wrapping cli/tui grew 20 baselined functions past `function_length:` (tidy red); preserved on
+`wip/line-length-cli-tui-20261009`, finished in #169 (never delete wip). #166: put a short `// SAFETY:`
+on the line above each `catch unreachable` (inside tidy's 3-line window; trailing comments risk the
+line_length ratchet). Remaining tidy classes: debug_print_in_lib (server.zig 8, engine 2),
+std_time_in_lib (17 files, blocked on the 0.16 clock migration). Rest of plan 001 and #163 wait for
+zuda v3.0.0.
+Learned: tidy counts BYTES, so `// ── X ───` banners trip the gate (trim the dash run); tell wrapping
+agents baselined functions may not grow; concurrent `zig build` needs separate `--cache-dir`
+(`/tmp/silica-zc-tidy`); CI ~10-15 min, `gh pr checks --watch` backgrounds past 480s, poll instead; no
+`timeout` on macOS; `sleep N; cmd` chains, compound `cd repo; cmd` lines and view-then-merge lines
+are blocked by the guard, run the squash merge as its own command with `-R yusa-imit/silica`, then
+add the `auto-merged` label; BSD `sed -i` misparses, use python or Edit.
 
 ## History (cycle 18 and earlier, folded 2026-10-13)
 

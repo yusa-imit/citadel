@@ -124,69 +124,34 @@ rejected_plans: []
 - Tool notes: no `timeout` on macOS; use `gh pr checks --watch`. Start the test-writer within
   5 min of preflight; test-writer + developer cost ~$2.5 per item.
 
-## Cycles 53-54 (2026-10-14..15), folded
-- Older per-cycle detail dropped to keep this file under 200 lines; the record is the merged
-  PRs #54-#58 (v0.4.0 release, plan 004 and ADR-008) and the milestone issues on GitHub.
-
-## Cycles 51-52 (2026-10-13..14), folded
-- 51: item 11 (Tiger Style baseline re-measure) via PR #53, docs only; README status "Phase 2
-  implemented"; CHANGELOG `Changed` carries the numbers.
-- 52: item 12 release v0.4.0 via PR #54 (tag + GitHub release, README install tag bumped, Phase 2
-  ticked in `000-inherited.md`); #39 closed. PR #55 ticked the plan 003 checkbox (the plan skill
-  stops while the newest plan has unchecked items). `/plan`: plan 004 (Phase 3 simulation
-  harness, 12 items, MINOR -> v0.5.0) via `planner`, PR #56 (label `plan`).
-- Open suggestions: `catch unreachable` in `driver.poll`, `@errorCast` in receive/propose (narrow
-  the `step_message`/`step_propose` error sets in node.zig); Phase 1 boxes in `000-inherited.md`
-  still unticked though done.
-- Tool notes: guard blocks `cd <path>;`, `python3 - <<heredoc` in repo (write script to /tmp, run
-  `python3 -I /tmp/x.py`), any command mixing citadel paths with repo writes (split Bash calls),
-  heredocs into citadel (use Write/Edit); `sleep` blocked, use `gh pr checks --watch`;
-  `gh pr merge` has no `-q`; `gh pr create --label plan` works; SendMessage resumes a finished
-  test-writer.
-
-## Cycles 44-50 (2026-10-11..13), folded
-- 44, 47: no-op cycles. 45 (item 6b, #47): `leader.zig` `step_response`, probe round timeout is
-  `heartbeat_ticks`. 46 (item 7, #48): `raft/follower.zig` `step_append`. 48 (item 8, #49):
-  `raft/commit.zig`, effect slots `peers_max + 7` (ADR-007 amended). 49: review of item 8 (#50)
-  and item 9 (#51) `raft/cluster_test.zig` (3/5 nodes, 500 seeds, partition churn, 4 oracles;
-  review caught vacuity). 50: item 10 (`driver.zig`, #52): one-pass `execute` (persist, one sync,
-  send, apply), `stopped` fail-stop, `RestoreLogFull`. 495 tests.
-- Open suggestions: clear a slot's records on `on_timeout`; restored entries not checked against
-  `entry_bytes_max`; no `truncate` fault test; `deinit` lacks a precondition doc; `notify_max`
-  duplicates an ADR-007 fact.
-
-## Cycles 38-43 (2026-10-08..10), folded
-Each plan 003 item = one squash-merged PR (7/7 CI, `auto-merged`, milestone #39 ticked); a
-test-writer + developer + reviewer item costs ~$2-3.4 of $4, the per-cycle ceiling.
-- 38-39: milestone #39 opened (12 items). ADR-007 (`docs/adr/0007-raft-node-contract.md`, #40;
-  architect has no Write, the main session writes the file): one ordered `Effects` list (persist
-  -> send -> apply -> notify); `Input = message | tick | propose`; node owns entry bytes; `Restore`
-  struct; driver does persist -> one `sync()` -> send -> apply, any Fault is fail-stop. Item 2
-  (#41): tidy `is_core_purity_file` matches `src/raft/*.zig`; `node.zig` skeleton.
-- 40 (#42): `raft/election.zig` (campaign, request_vote grant/refuse). 41 (#43): PreVote,
-  `note_leader`. 42 (#44): internal `raft/progress.zig` (32 B `Progress`, bounded inflight, seeded
-  model vs naive reference). 43 (#46): `raft/leader.zig` send side; `node.zig` 786 lines (cap 800).
-  Reviews fixed peer-reachable asserts (term zero, `prev == 0`, `matched == maxInt`) and term wrap.
-- Standing todo: heartbeats gated by `Progress.can_send` leave a probing peer with a lost round
-  silent until the round expires (spurious pre-vote); keep `inflight_count` == live records.
-- Open suggestions: `is_member` includes learners for `request_vote`; `votes_len` not cleared in
-  `term_adopt`; `node.*` dangling after `RestoreLogFull`; `assert_config` lacks
-  `election_ticks <= maxInt(u32)/2`; `become_leader` swallowing `LogFull` untested.
-- Tool notes: `zig build test` exits 0 even with tidy-fixture stderr noise (check `$?`);
-  code-reviewer cannot run tests (global zig is 0.15.2) — use
-  `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all`; `rm -rf .zig-cache` fixes
-  `build runner FileNotFound`; an architect call costs ~$0.85-1.40, skip it when a doc comment
-  already specifies the contract.
-
-## Cycles 24-37 (2026-10-01 to 10-07), folded
-- 24: camelCase renames (#30); release v0.3.0 (#31), milestone #20 closed; plan 003 proposed
-  (#33). 25-30: one `/stabilize --one` each while #33 waited (snake_case, CHANGELOG drift, every
-  `MemoryStore.check_invariants` and `MessageLogPositionInvalid` branch provoked). 31-37: no-op
-  memory-only cycles awaiting the OWNER's merge of #33 (one Discord heartbeat/day).
-- Lessons: a blind rename can push lines past 100 cols — run `zig build tidy` too. `gh pr create
-  --label stabilize` fails (label absent); `gh pr merge` has no `--label` (use `gh pr edit
-  --add-label`). Guard blocks `sed -i`, `echo > /tmp` mixed with citadel paths, greps over sibling
-  repos (use `gh api`); zsh does not word-split `$var` in for loops (use `${=var}`).
+## Cycles 24-54 (2026-10-01..16), folded 2026-10-27
+- 24-37: camelCase renames (#30); v0.3.0 (#31); plan 003 proposed (#33), then `/stabilize --one`
+  or no-op cycles until the OWNER merged it. 38-50: plan 003 items 1-10, one squash-merged PR each
+  (#40-#52, CI 7/7, `auto-merged`; ~$2-3.4 of $4 per item): ADR-007 (one ordered `Effects` list
+  persist -> send -> apply -> notify; `Input = message | tick | propose`; node owns entry bytes;
+  driver does persist -> one `sync()` -> send -> apply, any Fault is fail-stop), `raft/election.zig`,
+  PreVote, `progress.zig` (32 B `Progress`, bounded inflight), `leader.zig` (probe round timeout is
+  `heartbeat_ticks`), `follower.zig`, `commit.zig` (effect slots `peers_max + 7`), `cluster_test.zig`
+  (3/5 nodes, 500 seeds, partition churn, 4 oracles), `driver.zig` (one-pass `execute`, `stopped`
+  fail-stop, `RestoreLogFull`); 495 tests. Reviews fixed peer-reachable asserts (term zero, `prev ==
+  0`, `matched == maxInt`) and term wrap.
+- 51-54: Tiger Style re-measure (#53), v0.4.0 (#54), plan 004 (Phase 3 simulation, 12 items) via
+  PR #56, ADR-008 (#58). 55-56: item 3 `sim/invariants.zig` `Checker` (#60), item 4
+  `sim/simulation.zig` (#61); `node.zig` is at the 800-line cap, sizing lives in `raft/node_init.zig`.
+- Open suggestions: heartbeats gated by `Progress.can_send` leave a probing peer with a lost round
+  silent until it expires (spurious pre-vote); clear a slot's records on `on_timeout`; restored
+  entries unchecked against `entry_bytes_max`; no `truncate` fault test; `is_member` includes
+  learners for `request_vote`; `votes_len` not cleared in `term_adopt`; `node.*` dangling after
+  `RestoreLogFull`; `catch unreachable` in `driver.poll`, `@errorCast` in receive/propose; `chosen_terms`
+  records the first observer's term; Phase 1 boxes in `000-inherited.md` unticked.
+- Tool notes: `zig build test` exits 0 even with tidy-fixture stderr noise (check `$?`); global zig
+  is 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all`; `rm -rf
+  .zig-cache` fixes `build runner FileNotFound`; guard blocks `cd <path>;`, `python3 - <<heredoc`
+  in repo (write to /tmp, run `python3 -I`), `sed -i`, greps over sibling repos (use `gh api`),
+  commands mixing citadel paths with repo writes; `sleep` blocked, use `gh pr checks --watch`;
+  no `chore`/`stabilize` labels in synod; label with `gh pr edit --add-label`; architect has no
+  Write (main session writes ADRs, ~$0.85-1.40 per call, skip if a doc comment specifies it); a blind
+  rename can push lines past 100 cols, run `zig build tidy`; start the test-writer within 5 min.
 
 ## History (cycles 0-23)
 - 0-9 (2026-09-05..12): realm created; plan 001 (Zig 0.16 migration + Tiger Style baseline)
