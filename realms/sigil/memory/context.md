@@ -1,7 +1,23 @@
 # sigil — context
 
-last_seen_at: 2026-10-27T10:00:00Z
+last_seen_at: 2026-10-27T03:12:35Z
 rejected_plans: []
+
+## Cycle 73 — 2026-10-27 — FEATURE
+
+- Done: plan 006 item 10 (`toml/roundtrip_test.zig`), written directly (~$0.9, no subagents). PR #77,
+  CI 8/8, auto-merged; #67 box 10 ticked (10/12). Inbox empty, CI green, disk 43 GB.
+- Shape: 1,000 seeded trees write -> parse -> eql + byte-identical 2nd write (coverage asserted:
+  1574 maps, 411 arrays, 455 timestamps, 125 w/ tables, 61 w/ `[[`); 205 valid corpus files parse ->
+  write -> parse; 1,640 seeded mutations (663 accepted, 977 rejected, bounds asserted not exact);
+  `std.testing.fuzz` entry + 6-doc corpus; one oracle `check_input`. No parser/writer bug found.
+  `conformance_test.read_case`/`valid_count` made `pub`.
+- Next: item 11 benchmarks (`zig build bench`: ~100 KB seeded TOML parse, `toml.parse(T)`, writer;
+  record in `docs/plans/000-inherited.md`), then 12 release v0.5.0. Cycle 67 follow-ups still open
+  (asserts in parser step fns, truncation test, inline-table tests) as filler. Blockers: none.
+- Learned: mutually recursive generators need an explicit error set (inferred sets loop);
+  `random.uintLessThan(u3, 8)` is a compile error (use `random.int(u3)`); a "failed" test can print
+  an unrelated leaked error-return trace, read the `expect` line, not the trace.
 
 ## Cycle 72 — 2026-10-27 — FEATURE
 
@@ -169,5 +185,5 @@ Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-7 d
 
 ## Next priority
 
-Plan 006 item 10 (round-trip property + mutation); see the newest cycle block.
+Plan 006 item 11 (benchmarks), then 12 (release v0.5.0); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
