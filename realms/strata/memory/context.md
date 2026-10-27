@@ -137,53 +137,33 @@ rejected_plans: []
   PR as the item; ask architect for a tight ADR (opus ADR cost ~$2.3); macOS sed has no `0,/re/`.
 
 
-## Cycles 42-44 (2026-10-10..11, condensed 2026-10-14)
-- Plan 003 items 6-8 merged (#40, #41, #42; CI 7/7, auto-merged, reviewer 0 critical each).
-  Item 6 `PageManager.allocate/free/sync` (`page/manager.zig`): `allocate` returns a reused page
-  with stale bytes until written, grown pages read `Unwritten`, `free` uses `wal_lsn` as page lsn,
-  deeper-trunk double free is the caller's problem, `page_count_max` bounds growth only.
-  Item 7 CLOCK `BufferPool` (`cache/buffer_pool.zig`): all allocation in `init`, `PoolExhausted`,
-  table tombstone `rehash` every `frames_max` evictions. Item 8 `cache/guard.zig` `PageGuard`,
-  `fetchForUpdate/flushAll/discardAll`, `Stats.writebacks`, `WriteBackError`; write-back runs in
-  `victim_evict` before `table.remove`, a failed write keeps the frame resident and dirty.
-- Follow-ups not blocking: no `stdx.assert_always` (plain asserts are ReleaseSafe only);
-  `BufferPool.frame_bytes/mark_dirty/Frame` are pub only for guard.zig; no `fetchNew` for a
-  freshly allocated page (needed before the B+Tree); `flushAll` cleans pinned frames, so a later
-  edit through an old slice needs `markDirty`.
-- Gotchas: `fixtures.id_of` asserts raw < 64; tidy density counts test helpers; `assert(x.remove())`
-  is a side-effect-in-assert trap; Bash guard rejects `;`/`$VAR` chains, one command per call;
-  `git pull --ff-only` after checking out main to avoid editor "changed on disk".
-
-## Cycles 25-41 (2026-10-01..10, condensed 2026-10-16)
-- 25-26: plan 002 items 5-6: `src/file/file.zig` (`File` leaf value, no cached io; `direct` =>
-  `UnsupportedDirectIo`; `sync` exhaustive on `SyncPolicy`), `preallocate`, `lock`/`tryLock`;
-  `src/file/platform.zig` is the only os-branching file; `file.zig` is 788/800 lines, new `File`
-  methods go in a new file. 28: `FaultIo` must forward `checkCancel` (Linux `sync_data` calls it);
-  any new `Io` wrapper forwards every slot `File`/`platform` reach; compile-check Linux with
-  `zig test src/root.zig -target x86_64-linux --test-no-exec`.
-- 29-30: `src/testing/truncation_matrix_test.zig` (CRC32C-framed records, every cut 8..64 KiB; swap
-  in the real WAL frame decoder when it lands); `bench/main.zig` codec baseline (crc hw 5.3 GB/s,
-  sw 0.58, xxhash 26.2, varint enc 198 M/s, dec 151 M/s; in `000-inherited.md`).
-- 31-32: v0.3.0 tagged, milestone #17 closed; plan 003 proposed (#28): trunk-list freelist only,
-  bitmap deferred. `src/main.zig` returns the stdout flush error (#29); 412 asserts / 197 fns.
-- 36-37: `allocator:` -> `gpa` in `tools/tidy/*.zig` (#33); plan 003 approved, milestone #34,
-  item 1 tidy ADR-0001 `Io` guards (#35; `Io.Threaded`/`Evented`/`global_single_threaded` banned
-  in `src/`).
-- 38: ADR-0002 page format v1 (#36): 24-byte header, CRC32C seeded with u64 page id, `Id =
-  enum(u32)` 0 = null, page 0 = ordinary page + 48-byte file header, all-zero page ->
-  `Unwritten`, decode order magic/version/checksum/type, trunk-only freelist. 39: `page/header.zig`
-  (#37). 40: `page/freelist.zig` (#38). 41: `PageManager` create/open/read/write (#39):
-  exclusive tryLock, short/foreign file -> Corrupted, EOF inside a page -> TornWrite, page-0 bad
-  CRC -> ChecksumMismatch; `create` does not enforce `page_count_max` (allocate does).
+## Cycles 25-44 (2026-10-01..11, folded 2026-10-27)
+- 25-32: plan 002 items 5-6: `file/file.zig` (`File` leaf value, no cached io; `direct` =>
+  `UnsupportedDirectIo`), `preallocate`, `lock`/`tryLock`; `file/platform.zig` is the only
+  os-branching file; `file.zig` is 788/800 lines, new `File` methods go in a new file. `FaultIo`
+  must forward `checkCancel` and every slot `File`/`platform` reach; Linux compile check:
+  `zig test src/root.zig -target x86_64-linux --test-no-exec`. `testing/truncation_matrix_test.zig`
+  (every cut 8..64 KiB; swap in the real WAL frame decoder), codec bench baseline (crc hw 5.3 GB/s,
+  xxhash 26.2, varint enc 198 M/s, in `000-inherited.md`). v0.3.0 tagged, plan 003 proposed (#28).
+- 36-41: plan 003 approved, tidy ADR-0001 `Io` guards (#35; `Io.Threaded`/`Evented`/
+  `global_single_threaded` banned in `src/`). ADR-0002 page format v1 (#36): 24 B header, CRC32C
+  seeded with u64 page id, `Id = enum(u32)` 0 = null, all-zero page -> `Unwritten`, trunk-only
+  freelist. `page/header.zig` (#37), `page/freelist.zig` (#38), `PageManager` create/open/read/
+  write (#39): exclusive tryLock, short/foreign file -> Corrupted, EOF inside a page -> TornWrite;
+  `create` does not enforce `page_count_max` (allocate does).
+- 42-44: items 6-8 (#40-#42, CI 7/7): `PageManager.allocate/free/sync` (reused page keeps stale
+  bytes until written; `free` uses `wal_lsn` as page lsn), CLOCK `BufferPool` (all allocation in
+  `init`, `PoolExhausted`, tombstone `rehash` every `frames_max` evictions), `cache/guard.zig`
+  `PageGuard` (write-back runs before `table.remove`; a failed write keeps the frame resident and
+  dirty). Follow-ups: no `fetchNew` for a fresh page (needed before the B+Tree); `flushAll` cleans
+  pinned frames, so a later edit through an old slice needs `markDirty`.
 - Notes: tidy density counts `assert(` per fn per file incl. test helpers; `mem.indexOf` banned
-  (`findScalar`); tidy bans `catch unreachable`; `fixtures.id_of` asserts raw < 64; tidy line
-  limit is 100 cols for comments too; Bash guard rejects compound commands and `$VAR` paths into
-  citadel (one simple command per call); PATH zig is 0.15.2, use
-  `/Users/fn/.zr/toolchains/zig/0.16.0/zig` with `--cache-dir /tmp/strata-zc`; macOS `sed -i`
-  needs `''`; `gh pr checks --watch` right after PR create may say "no checks reported".
-- Remaining audit sweeps: `std.debug.assert` alias across `tools/` (~65, tidy ban check does not
-  flag it); assertion density in `tools/` (density gate covers `src/` only); camelCase public API
-  in `src/file/file.zig` (needs a plan).
+  (`findScalar`); `catch unreachable` banned; `fixtures.id_of` asserts raw < 64; 100 cols applies to
+  comments; `assert(x.remove())` is a side-effect trap; Bash guard rejects compound commands and
+  `$VAR` paths into citadel; PATH zig is 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`
+  with `--cache-dir /tmp/strata-zc`; macOS `sed -i` needs `''`.
+- Remaining audit sweeps: `std.debug.assert` alias across `tools/` (~65); assertion density in
+  `tools/`; camelCase public API in `src/file/file.zig` (needs a plan).
 
 ## History
 - Cycles 21-35 (2026-09-30..10-06): plan 002 approved (#16); `tools/tidy.zig` split into
