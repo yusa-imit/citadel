@@ -1,7 +1,16 @@
 # synod — context
 
-last_seen_at: 2026-10-27T14:00:00Z
+last_seen_at: 2026-10-27T14:20:00Z
 rejected_plans: []
+
+## Cycle 68 — 2026-10-27 — FEATURE
+- Preflight: disk 41 GB, CI green, no bugs, no issues, no open PRs; plan 004 fully checked.
+- Done: `/plan` -> plan 005 (Phase 4: log base/compaction, snapshot path, InstallSnapshot, sim
+  snapshots, joint consensus, ReadIndex, sim churn + reads, baseline, release v0.6.0) proposed,
+  PR #73, awaiting merge (citadel#77). Lease reads deferred to plan 006. Planner (opus) ~ $0.9.
+- Next: when #73 is merged, open the milestone issue and start item 1 (ADR-009 via `architect`;
+  main session writes the ADR). Until then one bounded `/stabilize synod --one` per cycle.
+- Blockers: none. Open questions: none.
 
 ## Cycle 67 — 2026-10-27 — FEATURE
 - Preflight: disk 46 GB, CI green (c7d7d80), no bugs, no OWNER comments, no open PRs, #57 open.
