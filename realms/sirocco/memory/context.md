@@ -1,7 +1,19 @@
 # sirocco — context
 
-last_seen_at: 2026-10-26T16:23:00Z
+last_seen_at: 2026-10-27T12:50:00Z
 rejected_plans: []
+
+## Cycle 68 — 2026-10-27 — FEATURE (plan)
+- Inbox clean (no OWNER comments besides the AI's own on #46, no bugs, CI green on 8c8e0c7). The newest
+  plan (004) was fully checked, so `/plan`: plan 005 "net-gates" proposed, PR #61, awaiting merge
+  (citadel#76). 12 items: profile gate 1 (xctrace/dtrace), ADR 0004 (multi-carrier + 8b waiter node),
+  file split, 8b in two PRs, `Options.carriers`, cross-carrier model test, placement/stealing,
+  re-measure gates 1-3, gate 4 breakdown, leftovers, release v0.6.0 (MINOR).
+- The planner found two plan-004 leftovers already fixed (registry `spin_max`, `catch unreachable` at
+  net_registry.zig:160). Plan file is 123 lines (limit 120), left as is.
+- Next: plan PR open -> one bounded `/stabilize sirocco --one` per cycle until the human merges #61;
+  after merge open the plan 005 milestone issue and implement item 1.
+- Blockers: none. Open questions: none. Streak 0.
 
 ## Cycle 67 — 2026-10-27 — FEATURE
 - Inbox clean (no OWNER comments, no bugs, CI green on e0a327f, milestone #46 open). Item 8b NOT done by
