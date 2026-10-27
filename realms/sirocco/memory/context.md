@@ -1,51 +1,37 @@
 # sirocco — context
 
-last_seen_at: 2026-10-27T12:50:00Z
+last_seen_at: 2026-10-27T16:15:00Z
 rejected_plans: []
 
-## Cycle 68 — 2026-10-27 — FEATURE (plan)
-- Inbox clean (no OWNER comments besides the AI's own on #46, no bugs, CI green on 8c8e0c7). The newest
-  plan (004) was fully checked, so `/plan`: plan 005 "net-gates" proposed, PR #61, awaiting merge
-  (citadel#76). 12 items: profile gate 1 (xctrace/dtrace), ADR 0004 (multi-carrier + 8b waiter node),
-  file split, 8b in two PRs, `Options.carriers`, cross-carrier model test, placement/stealing,
-  re-measure gates 1-3, gate 4 breakdown, leftovers, release v0.6.0 (MINOR).
-- The planner found two plan-004 leftovers already fixed (registry `spin_max`, `catch unreachable` at
-  net_registry.zig:160). Plan file is 123 lines (limit 120), left as is.
-- Next: plan PR open -> one bounded `/stabilize sirocco --one` per cycle until the human merges #61;
-  after merge open the plan 005 milestone issue and implement item 1.
-- Blockers: none. Open questions: none. Streak 0.
+## Cycle 69 — 2026-10-27 — FEATURE
+- Plan 005 was merged (#61); milestone issue #62 opened. Inbox clean (no OWNER comments, no bugs, CI green).
+- Item 1 (profile gate 1) cannot run on this box: `xctrace` is only the /usr/bin shim (no Xcode), no
+  `dtrace`, `dtruss`/`fs_usage` need root, `sudo` needs a password, `sample(1)` hangs the bench. Asked on
+  question #63 (`needs-human`, origin: ai; recommends a bench-only in-process timer build). Items 2, 6, 9
+  depend on the profile, so ADR 0004 waits for the answer.
+- Item 3 done: PR #64 (5c336dd, CI green on macOS, ubuntu, 6 cross targets, auto-merged):
+  `src/concurrency_group.zig` (262) and `src/sched_fiber.zig` (130) split out; sched.zig 613,
+  concurrency.zig 507; test count unchanged (472/515, 43 skipped). Plan item 3 and #62 ticked.
+- Next: item 11 (leftovers, independent of the profile), then item 4 (8b part 1 needs ADR 0004, so
+  likely blocked) -> check #63 for an OWNER answer first. If unanswered after two cycles, proceed with
+  option (c) per the origin: ai rule (the title is not `blocking`).
+- Blockers: profiler (#63). Streak 0. Cycle ~15 min, ~$1.1.
+- Gotchas: a zig-developer call with explicit line ranges and verification commands did a clean split
+  in 3.4 min / ~$0.5; the guard blocks compound Bash (`a; b` with citadel paths or /tmp writes).
 
-## Cycle 67 — 2026-10-27 — FEATURE
-- Inbox clean (no OWNER comments, no bugs, CI green on e0a327f, milestone #46 open). Item 8b NOT done by
-  decision: it was added by PR #55, not by approved plan PR #44, and needs a registry refactor (waiter
-  lists are keyed on `Fiber`); marked `[~]` and moved to plan 005 (see decisions.md).
-- Item 12 merged as PR #60 (8c8e0c7, CI green, auto-merged): README Status (32 native slots), PRD §4.1
-  Options/InitError sketch + §4.3 notes, CHANGELOG `[0.5.0] - 2026-10-27`, version 0.5.0 in
-  `build.zig.zon` and `src/root.zig`, plan 004 item 12 ticked.
-- Release finished after the report, once main CI on 8c8e0c7 went green: tag `v0.5.0`, GitHub release
-  created, milestone #46 closed. No kingdom repo pins sirocco, so no migration issues.
-- Next: FEATURE: no plan PR and the newest plan (004) is fully checked or `[~]`, so `/plan sirocco`:
-  plan 005 = profile gate 1 (Instruments/dtrace), multi-carrier, gate 4 memory, 8b (architect first).
-- Blockers: none. Open questions: none. Streak 0. Cycle ~19 min, ~$1.
-- Gotchas: python heredoc inside the repo is allowed by the guard (it blocked only `cd; python3 -`);
-  `sed -i` with a multi-line pattern fails on BSD sed, use Edit. `gh run watch` over 8 min hits the
-  Bash timeout (background it).
+## History (cycles 66-68, condensed 2026-10-27)
 
-## Cycle 66 — 2026-10-26 — STABILIZATION
-- Bug #58 fixed by PR #59 (e0a327f, CI green, auto-merged); item 11 landed in the same PR and is ticked
-  in plan 004 and milestone #46. Not a runtime bug: clients closed first, 10000 + the latency rounds
-  exhaust macOS's 16384 ephemeral ports (TIME_WAIT), a connect was refused and `run_idle` awaited an
-  acceptor parked in `accept`. Fix: clients close with `SO_LINGER` 0, a short scenario cancels the
-  acceptor, `rt.io()` taken before the baseline thread flood (the scheduler is created at the first
-  `io()` and failed under the flood -> `concurrent` refused).
-- Gates (ADR 0003 section 4b, PRD §5): gate 3 PASS 7 of 8 runs (p99 ~127k us vs ~162k us; one run 422k
-  us, unexplained); gate 4 MISS at 10000 (29.2 KB vs 24.7 KB per task; 14.4 KB at 2000 earlier, so the
-  figure is not flat in N; not profiled). `wip/feat-latency-bench-20261026` is now superseded but kept.
-- Next: FEATURE: item 8b (per-op waiter node), then item 12 (README, CHANGELOG 0.5.0, PRD, release v0.5.0
-  with gates 1 and 4 missing). Streak 0. Blockers: none. Open questions: none. Cycle ~16 min, ~$1.
-- Gotchas: `zig build bench-latency` refuses here (10240 hard NOFILE cap, needs 20128): run the built
-  binary via python `setrlimit(30000)` with a subprocess timeout. A stale `.zig-cache` failed `tidy`
-  with `file_hash FileNotFound`: rm -rf it. `tidy` reports lines >100 cols in bench/ too.
+- 66 (10-26): bug #58 fixed by PR #59: not a runtime bug, 10000 clients closing first exhaust macOS's
+  16384 ephemeral ports (TIME_WAIT); clients close with `SO_LINGER` 0, `rt.io()` is taken before the
+  baseline thread flood. Gate 3 PASS 7 of 8 (one 422k us p99 run); gate 4 MISS 29.2 KB vs 24.7 KB per
+  task (14.4 KB at 2000). Gotchas: `bench-latency` needs python `setrlimit(30000)` (10240 hard cap in the
+  `zig build` child); a stale `.zig-cache` fails `tidy` with `file_hash FileNotFound`; `tidy` checks
+  bench/ line width too.
+- 67 (10-27): item 12 PR #60 release v0.5.0 (README, CHANGELOG, PRD 4.1, tag, milestone #46 closed).
+  Item 8b not done by decision (needs a registry refactor, waiter lists keyed on `Fiber`), moved to
+  plan 005. Gotchas: BSD `sed -i` rejects multi-line patterns, use Edit; `gh run watch` over 8 min hits
+  the Bash timeout, background it.
+- 68 (10-27): plan 005 "net-gates" proposed as PR #61 (12 items, v0.6.0 MINOR).
 
 ## History (cycles 62-65, condensed 2026-10-27)
 
