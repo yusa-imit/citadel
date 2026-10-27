@@ -1,7 +1,26 @@
 # sailor — context
 
-last_seen_at: 2026-10-26T00:00:00Z
+last_seen_at: 2026-10-27T00:00:00Z
 rejected_plans: []
+
+## Cycle 43 — 2026-10-27 — FEATURE
+
+- Preflight: tree clean on main, CI green (37c2fa1), inbox clear; only open issue is milestone #65.
+- Done: plan 003 item 5, **PR #71** `test/honest-area-bullet-chart` (CI 10/10, merged,
+  `auto-merged`). Two parallel test-writer agents (sonnet, ~$0.9 total, ~4 min) gave 14 + 29
+  assertion-free tests exact-cell assertions; both files left the tidy baseline. Tightening exposed
+  a real bug: `BulletChart` `show_values` never drew text (`text_x` always past the right edge);
+  fixed, bar now reserves `len+1` cells via `valueTextReserve`, text dropped if no bar cell
+  would remain. #65 at 5/9.
+- Next: n=44 FEATURE: item 6 ADR 0001 paragraph wrap and bidi (architect, opus; PR is an ADR doc
+  under `docs/adr/`). n=45 is STABILIZATION.
+- Noticed, unfixed: `BulletChart` target == `max_value` draws no tick (`target_col == bar_width`
+  fails `target_col < bar_width`); pick up in stabilization or a small fix PR.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: guard blocks Bash `cd <repo>; python3 - <<EOF` heredoc edits (use Edit/Write; `cd repo &&
+  zig ...` without writes is fine); raising a `function_length` baseline entry is not allowed,
+  so extract a helper (render 124 lines must not grow); `/tmp/af.py` lists assertion-free tests
+  per file (recreate with Write if gone); do not call ScheduleWakeup in a /cycle session.
 
 ## Cycle 42 — 2026-10-26 — FEATURE
 
