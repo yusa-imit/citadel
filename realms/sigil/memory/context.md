@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-10-27T03:12:35Z
+last_seen_at: 2026-10-28T00:00:00Z
 rejected_plans: []
+
+## Cycle 74 — 2026-10-28 — FEATURE
+
+- Done: plan 006 item 11 (TOML benchmarks), written directly (~$0.7, no subagents). PR #78, CI 8/8,
+  auto-merged; #67 box 11 ticked (11/12). Inbox empty, CI green, disk 38 GB.
+- Shape: `bench/main.zig` got `Format {json, toml}` per `Bench`, a seeded ~100 KB `[[records]]`
+  document (`generate_toml_document`, seed 0x7031), 256 iterations, `ms/iter` column for TOML rows.
+  ReleaseFast: `toml.parse_value` 0.44 ms (~228 MB/s, arena 4.73 B/B), `toml.parse(T)` 0.48 ms (~208
+  MB/s, 8.53 B/B), `toml.write_value` 0.17 ms (~591 MB/s). PRD <1 ms met. Recorded in
+  `docs/plans/000-inherited.md`; CHANGELOG bullet added. Plan-file boxes 7-10 were unticked, ticked here.
+- Next: item 12 release v0.5.0 (`/release`: tick 3A in 000-inherited, CHANGELOG [0.5.0], zon +
+  `sigil.version` 0.4.0 -> 0.5.0, tag, `gh release create`, close #67). Then `/plan`; cycle 67
+  follow-ups (asserts in parser step fns, truncation test, inline-table tests) still open. Blockers: none.
+- Learned: guard blocks a command mixing `git checkout -b` with `git push` (and `sed -i` chains with
+  them): run branch/commit and push as separate Bash calls; no `timeout` binary on macOS.
 
 ## Cycle 73 — 2026-10-27 — FEATURE
 
