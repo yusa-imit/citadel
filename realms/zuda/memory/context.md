@@ -1,7 +1,24 @@
 # zuda — context
 
-last_seen_at: 2026-10-27T00:00:00Z
+last_seen_at: 2026-10-28T00:00:00Z
 rejected_plans: []
+
+## Cycle 36 — 2026-10-28 — FEATURE
+- Done: inbox clean (CI green on 5bdaf02, no bugs, no OWNER comments, milestone #31). Plan 001
+  compile-clean, geometry slice: 7 of 13 files red, all 13 wired into `root.zig`.
+  Real bugs: Bentley-Ottmann iterated `events.items` while appending (use-after-free) and
+  its neighbour-only status found 10 of 100 intersections -> rewritten as an active-set sweep
+  (honest header); ear clipping used an open triangle and clipped through a reflex vertex
+  (L-shape area 100, not 75); `Delaunay(f32)` never compiled; orientation and zigzag tests
+  had wrong expectations. Result lists are unmanaged (`deinit(allocator)`), v3.0.0 break.
+- PR: #79 (`fix/compile-clean-geometry-zig-016`) open; Build & Test green (9m25s), 6 cross-compile
+  jobs queued at the 22-min deadline; local full `zig build test` exit 0. Next cycle merges at
+  7/7, no `hold`, adds `auto-merged`.
+- Next: merge #79; 10 unwired string files; sweep trees, compression, sorting, linalg, iterators,
+  aggregators, ML last; 5 dp leftovers; assertion baseline; v3.0.0. Cycle 37 is FEATURE.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: tool calls are fast, whole cycle to PR took ~10 min; CI cross-compile queues ~10 min more.
+  A perl `s///` swallowed `@divExact` (interpolated as array): escape `\@` in perl replacements.
 
 ## Cycle 35 — 2026-10-27 — STABILIZATION (periodic, n % 5)
 - Done: inbox clean (CI green, no bugs, no OWNER comments). Merged #77 (7/7, `auto-merged`).
@@ -39,48 +56,18 @@ rejected_plans: []
 
 ## Cycle 33 — 2026-10-23 — ABORTED (disk gate: 16 GB free < 20 GB; nothing touched)
 
-## Cycle 31 — 2026-10-21 — FEATURE
-- Done: inbox clean (CI green on 0c89248, no bugs, no OWNER comments, milestone #31). Plan item
-  "compile-clean": ran a per-file `zig test` sweep via scratch `src/_sweep_*.zig` (4 parallel jobs,
-  shared cache) -> ~250 of 434 files exit 1, too noisy to trust (concurrent edits/cache races or
-  runtime test failures); needs a serial rerun. Fixed and wired the consumer-critical slice:
-  `btree`, `adjacency_list`, `topological_sort`, `compat/silica_btree`, `compat/zr_dag`. Real bugs
-  found: `BTree.ReverseIterator` visited 263/1000 keys (rewritten, height-sized stack),
-  `BTree.insert` leaked new root on OOM, odd orders corrupt on remove (now compile error),
-  silica shim: `void` context, deinit leaked all keys/values (new `BTree.deinitEntries`),
-  overwrite leaked key, `Iterator.deinit` added; `zr_dag.addEdge` stored caller buffer (dangling),
-  now `VertexNotFound` for unknown nodes. Reviewer: 0 critical, 5 warnings addressed.
-- PRs: #75 (`fix/graph-btree-compat-zig-016`) open, CI not yet started at the deadline; full local
-  `zig build test` exit 0. Next inbox merges it at 7/7 green, no `hold`, adds `auto-merged`.
-- Next: serial `src/**` sweep (one file at a time, own cache dir) to get a reliable red list;
-  then assertion baseline (ndarray, distributions sampling, blas after sweep), v3.0.0. File an
-  issue on zr: its `graph/dag.zig` `addEdge` keeps the caller's slices as edge targets.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: the guard rejects `cd <repo>; ...`; the whole cycle took ~22 min wall, full test ~2-3
-  min warm; start the PR by minute ~16. `zig fmt` on a file reformats the whole file.
-
-## Cycle 32 — 2026-10-22 — FEATURE
-- Done: merged #75 (7/7, `auto-merged`). Ran the serial `src/**` sweep: ONE scratch root per
-  file, `src/_sweep_J.zig` = `test { _ = @import("rel/path.zig"); }`, then `zig test` with
-  `-fno-emit-bin` and per-job `--cache-dir`/`--global-cache-dir` (4 jobs, ~3 min for 435 files).
-  `zig test <file>` directly cannot import across dirs, which caused cycle 31's noise. Result:
-  180 files red. Red by dir: machine_learning 34, graph 20, dynamic_programming 17, string 12,
-  trees 8, geometry 8, compression 8, `algorithms/*.zig` aggregators 8, linalg 6, sorting 6,
-  iterators 5, combinatorics 5, spatial 4, then 1-3 each (searching, randomized, online,
-  number_theory, bitwise, heaps, cache, network_flow, signal, optimize, ndarray, ffi, ...).
-- PR #76 (`fix/compile-clean-graph-bitwise-dp-zig-016`): 45 files fixed and wired (graph 20,
-  bitwise 4, combinatorics 8, dp 15; mostly `= .{}` -> `.empty`). Real bugs: `countPartitions`,
-  `bellNumber`, `clearRightmostBit(0)`, bit-field full width, RS-insert OOM free, `eulerian`
-  undirected paths + self-loop degree. Still red in dp: max_sum_rectangle, scramble_string,
-  stock_trading, subset_sum, target_sum. Local `zig build test` exit 0.
-- Cost lesson: 4 parallel sonnet agents burned ~$2.2 of a $4 budget in ~6 min (the long ones
-  ~$0.25/min); I killed the DP agent. Use <= 2 agents or do mechanical `.{}` -> `.empty` with
-  perl directly. Agents leave scratch files; delete `src/_sweep*` before commit.
-- Next: merge #76 at 7/7; continue sweep dirs (string, trees, geometry, compression, sorting,
-  linalg, iterators, aggregators, ML last), then assertion baseline, v3.0.0.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirk: `read -t` on /dev/null does not wait (use `perl -e 'select(undef,undef,undef,N)'`);
-  the guard blocks `git push -u origin HEAD` when chained after checkout, push by branch name.
+## Cycles 31-32 (2026-10-21..22, folded 2026-10-28)
+- Merged #75 (btree, adjacency_list, topological_sort, silica/zr compat shims; BTree reverse
+  iterator, shim ownership bugs) and #76 (graph 20, bitwise 4, combinatorics 8, dp 15 files).
+- Sweep method: ONE scratch root per file, `src/_sweep_J.zig` = `test { _ = @import("rel/x.zig"); }`,
+  `zig test -fno-emit-bin` with per-job `--cache-dir`/`--global-cache-dir` (`zig test <file>` cannot
+  import across dirs). Red dirs then: ML 34, graph 20, dp 17, string 12, trees 8, geometry 8,
+  compression 8, aggregators 8, linalg 6, sorting 6, iterators 5, then 1-3 each.
+- Cost lesson: 4 parallel sonnet agents burned ~$2.2 in ~6 min; do mechanical `.{}` -> `.empty`
+  with perl directly. Agents leave `src/_sweep*`; delete before commit. dp still red:
+  max_sum_rectangle, scramble_string, stock_trading, subset_sum, target_sum.
+- Quirks: `read -t` on /dev/null does not wait (use `perl -e 'select(undef,undef,undef,N)'`); the
+  guard blocks `cd <repo>; ...` and `git push -u origin HEAD` chained after checkout.
 
 ## Cycle 30 — 2026-10-20 — STABILIZATION (periodic)
 - #74 merged: proof comments on 21 `catch unreachable` sites (quantile in sample/median, Deque
