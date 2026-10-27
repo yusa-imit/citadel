@@ -1,7 +1,20 @@
 # synod — context
 
-last_seen_at: 2026-10-27T14:20:00Z
+last_seen_at: 2026-10-28T10:30:00Z
 rejected_plans: []
+
+## Cycle 69 — 2026-10-28 — FEATURE
+- Preflight: disk 38 GB, CI green, no bugs/issues; plan 005 (#73) was merged -> opened milestone
+  issue #74.
+- Done: item 1 ADR-009 (`docs/adr/0009-phase4-node-contract.md`) drafted by `architect` (opus, ~11
+  min, ~$3), PR #75 (docs only) opened; CI Build & Test was still pending at ~17 min, so NOT merged
+  and item 1 NOT ticked. Next cycle: merge #75 if green (label `auto-merged`), tick item 1 in plan
+  005 + #74. The ADR's "Notes for implementers" flags: item 3 must first move Config..InvariantError
+  to `src/raft/contract.zig`; learners get no replication today; `trailing` is `snapshot_trailing`;
+  effect slots become `peers_max + 9`.
+- Next: item 2 (`log.Log` base index) after #75 merges.
+- Blockers: none. Open questions: none. Budget: the architect run cost most of the $4 cap; brief
+  narrower or write ADR sections yourself.
 
 ## Cycle 68 — 2026-10-27 — FEATURE
 - Preflight: disk 41 GB, CI green, no bugs, no issues, no open PRs; plan 004 fully checked.
