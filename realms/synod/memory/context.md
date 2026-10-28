@@ -1,7 +1,22 @@
 # synod — context
 
-last_seen_at: 2026-10-28T10:30:00Z
+last_seen_at: 2026-10-29T10:30:00Z
 rejected_plans: []
+
+## Cycle 71 — 2026-10-29 — FEATURE
+- Preflight: disk 38 GB, CI green (2641a34), no bugs, no open PRs, milestone #74 open. Cycle 70 left
+  no context entry; #75 (ADR-009) and #77 (item 2, `log.Log` base) are merged, items 1-2 ticked.
+- Done: item 3 (node compaction policy) NOT finished. test-writer (~$0.9) wrote
+  `src/raft/node_snapshot_test.zig` (21 tests, verified red, mutants killed in a scratch copy);
+  zig-developer (~$0.9) wrote `raft/contract.zig`, `raft/snapshot.zig`, base-aware arithmetic in
+  commit/follower/leader/node_init, Config fields in sim/driver. Killed at the 22-min deadline;
+  tests never confirmed green. Preserved as `wip/feat-node-compaction-20261029` (pushed, no PR).
+- Next: `git checkout -b feat/node-compaction-2 wip/feat-node-compaction-20261029`; run `zig build
+  test --summary all`, `zig fmt --check src build.zig tools bench`, `zig build tidy`, `zig build sim
+  -Dseeds=1000`; fix; code-reviewer; PR; tick item 3 + #74. Start the developer by minute 3 and
+  expect ~15 min of developer time for items of this size; consider splitting item 3 (contract.zig
+  move first as its own PR).
+- Blockers: none. Open questions: none. Budget: ~$2.1 of $4 used.
 
 ## Cycle 69 — 2026-10-28 — FEATURE
 - Preflight: disk 38 GB, CI green, no bugs/issues; plan 005 (#73) was merged -> opened milestone
@@ -73,37 +88,17 @@ rejected_plans: []
 - Tool notes: error-return traces in failing tests are polluted by earlier tests; print stats
   temporarily to find the failing `expect` (remove before commit: tidy bans `std.debug.print`).
 
-## Cycles 62-64 — 2026-10-22..23 — PREFLIGHT ABORT (disk)
-- Disk gate failed three cycles in a row: `df -g /` 18 -> 17 -> 16 GB free (< 20). No inbox, no CI check,
-  no feature work. The box loses ~1 GB per day; synod's own `.zig-cache` + `zig-out` are only ~160 MB, so
-  the OWNER or a cleanup job must free space (other realms' caches, old toolchains, Xcode/Docker data).
-- Repo: clean, on `wip/feat-sim-kv-workload-2-20261022` (pushed, preserved, do not delete; holds item 10
-  KV workload: `workload.zig`, new `workload_hooks.zig`, `sim_node.zig`, `simulation.zig`, 2 test files;
-  tests never run on it; an earlier attempt left `wip/feat-sim-kv-workload-20261021`).
-- Next: once disk >= 20 GB, continue item 10 from that wip branch on `feat/sim-kv-workload-3`; reviewer
-  contract is in the cycle 61 block. Blockers: low disk. Open questions: none.
-- Tool notes: guard blocks `START=$(date ...)` chained with citadel paths; split calls.
-
-## Cycle 61 — 2026-10-20 — FEATURE
-- Inbox: no OWNER comments, no bugs, CI green (f3eacad), milestone #57 open, no open PRs.
-- Preflight: cycle 60's item 9 WIP (stub + 4 test files) was uncommitted on
-  `feat/sim-linearizability`; preserved to `wip/feat-sim-linearizability-20261020` (pushed, do
-  not delete); continued on `feat/sim-linearizability-2`.
-- Done: item 9 via PR #67 (squash-merged, 7/7 CI, `auto-merged`): `sim/linearizability.zig`
-  `HistoryChecker` (Wing-Gong per key, explicit stack, alloc in `init`). 799 tests. Milestone
-  #57 items 1-9 ticked. `code-reviewer`: 0 CRITICAL; fixed W3 (factorial search over pending
-  puts: skip a pending put unless a completed get can observe it) with a regression test.
-  Cost ~ $1.1 of $4, 13 min (zig-developer ~$0.35, reviewer ~$0.2).
-- Next: item 10 (KV workload in the sim). Contract from the reviewer: retire a client index when
-  its op goes pending (pending stays outstanding for the one-op-per-client assert); put never
-  writes 0; invoke < complete strictly; out-of-range key is a typed workload error, not passed
-  to `check`.
-- Blockers: none. Open questions: none.
-- Open suggestions: client assert skipped above 256 ops; `check` is O(n) per step; ADR-008 says
-  `options: *const` but `init` takes by value; sim-nightly first scheduled run not yet observed
-  (only dispatch runs exist; watch for the 120 min cap).
-- Tool notes: `.zig-cache` corrupts (`FileNotFound`): `rm -rf .zig-cache`. The `branch -b` name
-  clash: wip branch names persist, so `-2` suffix for continuation branches.
+## Cycles 61-66 (2026-10-20..26), folded
+- 61: item 9 PR #67 `sim/linearizability.zig` `HistoryChecker` (Wing-Gong, explicit stack). 62-64: PREFLIGHT
+  ABORT (disk < 20 GB; box loses ~1 GB/day). 65: item 10 PR #68 KV workload (continued from wip; `calm`
+  needed a 256-entry log: no compaction in Phase 3). 66: item 11 PR #69 baseline, review fixes PR #70.
+  Kept `wip/feat-sim-kv-workload-*` and `wip/feat-sim-linearizability-*` branches (do not delete).
+- Open suggestions: `Workload.check_invariants` only in `check(.linearizability)`; `op_id_next` bounded
+  by width; sim-nightly first scheduled run unobserved (120 min cap).
+- Tool notes: `.zig-cache` corrupts (`FileNotFound`): `rm -rf .zig-cache`; wip branch names persist, use a
+  `-2` suffix for continuation branches; foreground `sleep` blocked, use `python3 -I -c "import time;
+  time.sleep(N)"`; `gh pr checks --watch` right after push may say "no checks", retry after ~20 s;
+  error traces in failing tests are polluted: print counters temporarily (tidy bans `std.debug.print`).
 
 ## Cycles 59-60 (2026-10-19), folded
 - C59: item 7 PR #64 `tools/sim.zig` + `zig build sim -Dseeds/-Dseed/-Dseed_start/-Dplant` (ReleaseSafe;
