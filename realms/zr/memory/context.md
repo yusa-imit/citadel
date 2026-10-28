@@ -1,7 +1,21 @@
 # zr — context
 
-last_seen_at: 2026-10-27T00:00:00Z
+last_seen_at: 2026-10-29T00:00:00Z
 rejected_plans: []
+
+## Cycle 36 — 2026-10-29 — FEATURE
+- Preflight: disk 33 GB; tree was dirty on `fix/monitor-flush-stderr` (unfinished monitor flush
+  fix) -> preserved to `wip/fix-monitor-flush-stderr-20261029` (pushed), then main. CI green, no
+  bugs, inbox clear. zuda still v2.3.0 (sailor v3.1.0) -> items 5-11 blocked -> one stabilize.
+- Done: `output/monitor.zig` flush fix: `renderLive`/`renderSummary` extracted from
+  `monitorDisplay` (97 -> 56 lines) and flush; 3 tests via a draining sink; header updated; stale
+  baseline entry `monitorDisplay` removed. Local tests 1950/0, tidy 0 failing. PR #200 opened.
+- Deadline hit before CI finished (full rebuild after `rm -rf .zig-cache` + a hung first test run
+  cost ~10 min). **Next cycle: merge #200 if CI green** (inbox step 8), then more stabilize.
+- Lesson: a test `std.Io.Writer` drain must write `buffer[0..end]` first and set `end = 0`,
+  else `flush` spins forever (hangs `zig build test` with no output after the test name).
+- Next: cycle 37 FEATURE; upgrade `--version` ignored; more headers; items 5-11 blocked.
+- Open questions: none.
 
 ## Cycle 35 — 2026-10-27 — STABILIZATION
 - Preflight: disk 45 GB; tree clean on `main`; CI green; no bugs; inbox clear (no comments since
