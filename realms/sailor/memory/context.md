@@ -1,7 +1,26 @@
 # sailor — context
 
-last_seen_at: 2026-10-27T00:00:00Z
+last_seen_at: 2026-10-28T00:00:00Z
 rejected_plans: []
+
+## Cycle 44 — 2026-10-28 — FEATURE
+
+- Preflight: tree clean on main, CI green (b1e19cd), inbox clear; only open issue was milestone #65.
+- Done: plan 003 item 6, **PR #72** `docs/adr-0001-paragraph-wrap-bidi` (docs only, CI 10/10,
+  merged, `auto-merged`). One architect agent (opus, ~$2.5, 12.5 min: too slow, brief it to stay
+  under ~5 min next time). ADR decisions: stack `RowScratch` 512 columns in new
+  `paragraph_wrap.zig`; width via `unicode.zig`; `scroll` = visual rows; wrap first, then per-row
+  run-based bidi (UAX #9 subset); `.word` stays default; `Paragraph.rowCount(area)` added;
+  `render()` signature unchanged (MINOR). Item 8 also widens `charType`/`detectDirection`/
+  `charWidth`. #65 at 6/9.
+- Found: **bug #73** `Dialog.render` (dialog.zig:175) builds `Paragraph{.text,.style}` fields that
+  do not exist; never referenced so build stays green. Fix before item 7.
+- Next: n=45 STABILIZATION (forced by n%5): fix #73 (and why dialog tests never compile), BulletChart
+  target==max_value tick. Then item 7 (wrap per ADR test list), item 8, release v3.2.0.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: PR CI (incl. Windows + benchmarks) takes ~14 min; start the PR by minute ~7 to merge in
+  budget. Foreground `sleep` is blocked; wait with a background loop. Architect agent probe left
+  `/tmp/adr_probe`.
 
 ## Cycle 43 — 2026-10-27 — FEATURE
 
