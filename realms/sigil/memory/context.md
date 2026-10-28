@@ -3,6 +3,21 @@
 last_seen_at: 2026-10-28T00:00:00Z
 rejected_plans: []
 
+## Cycle 75 — 2026-10-28 — FEATURE
+
+- Done: plan 006 item 12, release v0.5.0 (PR #79, CI 8/8, auto-merged, tag + GitHub release);
+  milestone #67 closed 12/12. No sibling `build.zig.zon` names sigil -> no migration issues.
+  Then `/plan`: plan 007 "Phase 4AB MessagePack + CBOR" (v0.6.0, 11 items, item 1 = ADR 0006)
+  written via `planner` (opus, ~$0.9), PR #80 awaiting merge (citadel#81). Cost ~$1.6 total.
+- Next: once #80 is merged, open milestone issue for 007 and do item 1 (ADR 0006, architect
+  or directly). If not merged: one `/stabilize sigil --one` filler (cycle 67 follow-ups:
+  asserts in parser step fns, truncation test, inline-table tests). Blockers: none.
+- Open question (on PR #80, non-blocking): reflect option to omit null optionals in
+  `toml.stringify`.
+- Learned: release PR must also bump `sigil.version` in `src/root.zig` and its pin test; the
+  guard rejects one command mixing citadel paths with repo work (split); planner output came
+  back HTML-escaped (`-&gt;`), unescape before writing the plan file.
+
 ## Cycle 74 — 2026-10-28 — FEATURE
 
 - Done: plan 006 item 11 (TOML benchmarks), written directly (~$0.7, no subagents). PR #78, CI 8/8,
@@ -156,7 +171,8 @@ checks" for ~1 min; slice `position` goes negative with negative steps; `-0` par
 ## Standing backlog
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
-Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-7 done, 8-12 open.
+Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 closed). Plan 007
+(msgpack + CBOR, v0.6.0) proposed in PR #80, awaiting human merge.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -171,5 +187,5 @@ Plan 006 (Phase 3A TOML 1.0, v0.5.0) merged (PR #66); milestone #67, items 1-7 d
 
 ## Next priority
 
-Plan 006 item 11 (benchmarks), then 12 (release v0.5.0); see the newest cycle block.
+Plan 007 PR #80 merge, then its item 1 (ADR 0006); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.

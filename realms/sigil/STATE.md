@@ -4,6 +4,11 @@
 > https://github.com/yusa-imit/sigil/releases/tag/v0.3.0): `core`, `reflect`, `json` are
 > implemented (~520 tests, tidy 0 findings, 8/8 CI); the other format modules and `config` are
 > stubs. No sibling `build.zig.zon` depends on sigil yet.
+>
+> Update 2026-10-28 (cycle 75): released v0.5.0 (PR #79,
+> https://github.com/yusa-imit/sigil/releases/tag/v0.5.0): `toml` is real (parser, writer,
+> `toml.parse(T)`, toml-test v2.2.0 corpus 679/679, round-trip property, benchmarks). Plan 006
+> closed (milestone #67). Still no consumer `build.zig.zon` names sigil.
 
 ## What exists (claimed vs present)
 
