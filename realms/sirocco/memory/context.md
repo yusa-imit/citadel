@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-10-27T16:15:00Z
+last_seen_at: 2026-10-29T01:25:00Z
 rejected_plans: []
+
+## Cycle 70 — 2026-10-29 — FEATURE
+- Preflight found cycle 69's interrupted item-11 tree dirty on `fix/leftovers-plan-005`; preserved as
+  `wip/fix-leftovers-plan-005-20261029` (pushed, do not delete). Main CI green, #63 still unanswered.
+- Two of three leftovers are written and the registry unit tests pass: `submit.zig` `wait_err`
+  switches list every member; `lease_release(fd, generation)` with `Lease = union(enum) {held: u32}`.
+- The third (parity test, tests/parity/concurrency.zig) hangs: a read parked in `concurrent` (also
+  with `io.async`) canceled from the main thread never returns from `parked.cancel(io)`, so
+  `zig build test` hangs forever. `Parked` (write, net_data.zig:645) and `read_cancel` (cancel from
+  a fiber) pass. Real cancel bug on a parked read, or a test flaw: undiagnosed.
+- Fast loop: write `pub const backend = "kqueue";` to /tmp/pc/parity_config.zig, then `zig test --dep
+  sirocco --dep parity_config -Mroot=tests/parity/root.zig -Msirocco=src/root.zig
+  -Mparity_config=/tmp/pc/parity_config.zig -fno-omit-frame-pointer --test-filter "<name>"
+  -femit-bin=/tmp/pc/t --test-no-exec`, run /tmp/pc/t under a python timeout. Test prints do not
+  reach `zig build` output (listen mode).
+- Next: diagnose the hang (compare with `read_cancel`), fix test or runtime, open the PR for
+  item 11 from the wip tree. Then check #63. No PR this cycle. Cycle ~21 min, ~$0.65.
 
 ## Cycle 69 — 2026-10-27 — FEATURE
 - Plan 005 was merged (#61); milestone issue #62 opened. Inbox clean (no OWNER comments, no bugs, CI green).
