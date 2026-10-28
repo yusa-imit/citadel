@@ -1,7 +1,24 @@
 # zuda — context
 
-last_seen_at: 2026-10-28T00:00:00Z
+last_seen_at: 2026-10-29T00:00:00Z
 rejected_plans: []
+
+## Cycle 37 — 2026-10-29 — FEATURE
+- Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #79 (geometry,
+  7/7, `auto-merged`). Sweep slice `algorithms/sorting`: 6 of 23 files red (bitonicsort, blocksort,
+  mergesort, pancakesort, pigeonholesort, strandsort), ported to unmanaged `ArrayList`; the other
+  22 were only reachable through `pub const` re-exports so their tests never ran; all 23 now
+  imported from the `root.zig` test block and pass. Real bug: `strandSort` merge took the right
+  element on ties (unstable; the existing stability test failed). Breaking: `pancakeSortSequence`,
+  `getAllStrands` return unmanaged lists.
+- PR: #80 (`fix/compile-clean-sorting-zig-016`) open; local full `zig build test` exit 0; CI not yet
+  finished at report time. Next cycle merges at 7/7, no `hold`, adds `auto-merged`.
+- Next: merge #80; sweep trees, compression, linalg, iterators, aggregators, ML (34) last; 10
+  unwired string files; 5 dp leftovers; assertion baseline; v3.0.0. Cycle 38 is FEATURE.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: first Bash call was blocked because it mixed `/tmp` writes with the citadel path; keep
+  citadel reads in separate calls. Sweep script lives in /tmp/zsweep (per-file scratch root
+  `src/_sweep_X.zig`, `-fno-emit-bin` for compile, no flag to run tests); full build ~4 min.
 
 ## Cycle 36 — 2026-10-28 — FEATURE
 - Done: inbox clean (CI green on 5bdaf02, no bugs, no OWNER comments, milestone #31). Plan 001
@@ -20,19 +37,11 @@ rejected_plans: []
 - Quirks: tool calls are fast, whole cycle to PR took ~10 min; CI cross-compile queues ~10 min more.
   A perl `s///` swallowed `@divExact` (interpolated as array): escape `\@` in perl replacements.
 
-## Cycle 35 — 2026-10-27 — STABILIZATION (periodic, n % 5)
-- Done: inbox clean (CI green, no bugs, no OWNER comments). Merged #77 (7/7, `auto-merged`).
-  Audit class: `catch unreachable` without proof in `distributions.zig`. Real bug (reproduced):
-  subnormal `nu` (halves to 0) or `beta` (`1/beta` = inf) passed `init` but made `sample()` panic
-  on `Gamma.init(...) catch unreachable` in StudentT, F, SkewT, GeneralizedNormal,
-  HalfGeneralizedNormal. `init` now rejects them. Proof comments added at HalfStudentT, FoldedT,
-  PoissonLindley, F, SkewT sites. Merged #78 (7/7, `auto-merged`). Only test-only sites remain.
-- Next: fix the 10 compile-clean-but-UNWIRED string files (cycle 34 list), continue the sweep
-  (trees, geometry, compression, sorting, linalg, iterators, aggregators, ML last), 5 dp
-  leftovers, assertion baseline, v3.0.0. Cycle 36 is FEATURE.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: my first `catch unreachable` scan only looked one line up, so it over-reported; check
-  two lines for a proof comment. `distributions.zig` single-file test compiles in ~2 min.
+## Cycle 35 — 2026-10-27 — STABILIZATION (periodic), folded 2026-10-29
+- Merged #77, #78 (7/7). Real bug: subnormal `nu`/`beta` passed `init` but made `sample()` panic on
+  `Gamma.init(...) catch unreachable` in StudentT, F, SkewT, GeneralizedNormal,
+  HalfGeneralizedNormal; `init` now rejects them; proof comments added. Check two lines up for a
+  proof comment when scanning `catch unreachable`.
 
 ## Cycle 34 — 2026-10-26 — FEATURE
 - Done: inbox clean (CI green, no bugs, no OWNER comments). Merged #76 (7/7, `auto-merged`).
