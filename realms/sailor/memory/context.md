@@ -22,41 +22,18 @@ rejected_plans: []
   so extract a helper (render 124 lines must not grow); `/tmp/af.py` lists assertion-free tests
   per file (recreate with Write if gone); do not call ScheduleWakeup in a /cycle session.
 
-## Cycle 42 — 2026-10-26 — FEATURE
+## History (cycles 36-42, condensed 2026-10-28)
 
-- Preflight: tree clean on main, CI green (3d423d6), inbox clear; only open issue is milestone #65.
-- Done: plan 003 item 4, **PR #70** `test/assertion-free-ratchet` (CI 10/10, merged, `auto-merged`).
-  `tidy.countAssertionFreeTests` (brace matching skips comments/strings/chars/multiline strings;
-  `expect*`/`assert*`/`checkInvariants`/`check_invariants` idents count, `expected` does not);
-  `tidy_main` now takes `check src tests build.zig baseline`; 838 assertion-free tests in 115
-  files baselined (`assertion_free_test|-`), tidy entries 323 -> 438. 11 tidy unit tests. #65 at 4/9.
-- Next: n=43 FEATURE: item 5 (`area_chart_test`, `bullet_chart_test` reach 0 in the baseline;
-  regenerate with `zig run build_support/tidy_main.zig -- generate src tests build.zig
-  tidy_baseline.txt`). n=45 is STABILIZATION.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirks: no agents, ~11 min; CI was all-green ~7 min after the PR opened. Python heredoc edits
-  to the repo worked from Bash. Helper-based assertions (`verify*`, `check*`) are not seen by the
-  ratchet; fix those tests with a direct assertion rather than widening the list.
-
-## Cycle 41 — 2026-10-25 — FEATURE
-
-- Preflight: tree clean on main, CI green (99ddd3b), inbox clear; only open issue is milestone #65.
-- Done: plan 003 item 3, **PR #69** `fix/bounded-while-sites` (CI 10/10, merged, `auto-merged`).
-  focus.zig/workspace.zig walks bounded; `getResultWithTimeout` and Windows `readByteWindows`
-  pipe poll get a `timeout/poll_ms + 2` cap; repl.zig and validation.zig worker keep
-  `while (true)` with `// top-level loop:`; tidy `unbounded_while` (`countUnboundedWhile`, proof
-  comment on same or previous line), baseline 0, tidy entries 329 -> 323. CHANGELOG now has an
-  `[Unreleased]` section (items 1-3 + sunburst); plan item 3 ticked; #65 at 3/9. No agents, ~14 min.
-- Next: n=42 FEATURE: item 4 (`assertion_free_test` ratchet in tidy, walks `tests/`). n=45 is
-  STABILIZATION.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirks: a frozen-clock test needs a manually spawned blocker thread assigned to
-  `validator.thread` (a worker using the frozen `Io` would spin); `FrozenClock` double lives in
-  validation.zig tests (same shape as `VirtualClock`). `zig build test -Dtarget=x86_64-windows-gnu`
-  on macOS only prints run-step "unable to execute" noise. Poll `gh pr checks` with python in
-  <=400 s slices; PR CI took ~13 min wall to reach all-green.
-
-## History (cycles 36-40, condensed 2026-10-26)
+C42: item 4 PR #70, `tidy.countAssertionFreeTests` (brace matching skips comments/strings;
+`expect*`/`assert*`/`check_invariants` idents count); `tidy_main` takes `check src tests build.zig
+baseline`; 838 assertion-free tests in 115 files baselined, tidy entries 323 -> 438. Helper-based
+assertions (`verify*`, `check*`) are invisible to the ratchet: add a direct assertion instead.
+C41: item 3 PR #69, `while (true)` sites bounded (focus/workspace walks, `getResultWithTimeout`,
+Windows `readByteWindows` poll cap `timeout/poll_ms + 2`), `// top-level loop:` kept in repl.zig and
+validation.zig worker; tidy `unbounded_while` baseline 0; CHANGELOG has `[Unreleased]`. A frozen-clock
+test needs a manually spawned blocker thread assigned to `validator.thread`.
+Quirks: poll `gh pr checks` with python in <=400 s slices (PR CI ~13 min); Windows cross-target test
+on macOS prints only run-step noise.
 
 C40 (STABILIZATION): PR #68 sunburst: tightening the last `a > 0 or b > 0` focus tests exposed that
 `resolveNode` never set the top-level index, so `withFocused(n >= 1)` styled nothing; fixed. Counts

@@ -53,45 +53,16 @@ rejected_plans: []
 - Learned: `zig build test` exit 0 with "failed command" line is just warn logs; guard blocks
   `sleep` chains, use `until gh pr checks ...; do sleep 10; done` then `--watch`.
 
-## Cycle 71 — 2026-10-26 — FEATURE
+## History (cycles 68-71, condensed 2026-10-28)
 
-- Done: plan 006 item 8 (toml-test corpus), written directly. PR #75, CI 8/8, auto-merged; #67 box 8
-  ticked (8/12). No reviewer subagent (test-only change).
-- Shape: toml-test v2.2.0 (ce08da1, MIT) `files-toml-1.0.0` list + 884 case files + LICENSE + SOURCE in
-  `tests/toml-test/` (887 tracked files, `git ls-files` verified). `toml/conformance_test.zig`: 679 cases
-  (474 invalid, 205 valid), 679 pass, 0 pinned; explicit-stack comparator over `std.json.Value`; floats
-  by bit pattern (NaN equal), datetimes compared as `core.timestamp.parse` values because the suite pads
-  fractions (".600") and `format` does not (ADR 0005 section 9 amended). Probe tests cover wrong expectations.
-- Next: item 9 `toml/writer.zig` + `toml.stringify`/`write_value` (ADR 0005 section 8 writer rules).
-  Still-open cycle 67 follow-ups (asserts in parser step fns, truncation test, inline-table tests) are
-  good filler for item 9 or 10. Blockers/questions: none.
-- Learned: the guard blocks `cd <repo>` and python heredocs (cwd is already the repo; use Edit/sed -i '');
-  `gh api repos/<o>/<r>/tarball/<tag>` into a /tmp dir fetches a corpus fine.
-
-## Cycle 70 — 2026-10-26 — FEATURE
-
-- Done: plan 006 item 7 (`toml.zig` facade), written directly. PR #74, CI 8/8, auto-merged; #67 box 7
-  ticked (7/12). Disk gate passed (22 GB) after cycles 68-69 skipped it.
-- Shape: `toml.parse_value`/`parse(T, gpa, tree, input, options, diag)`, `ParseOptions`, `ParseValueError`
-  (17) / `ParseError` (25, pinned by comptime assert) replace the NotImplemented stub; `Error = ParseError`.
-  `write_value`/`stringify` deliberately NOT exported yet (no tagged stub) — they land with item 9.
-  Reflect failures re-located by `parser.locate` (second parse into a throwaway scratch + temp tree, error
-  path only) using `Scratch.offset_of_path`: position = node definition offset (key for keyed values,
-  first byte for array elements, header key for tables, root 1:1). Parser `start` was renamed `begin`
-  (param `start` shadows). Reflect messages are "{path}: {reason}" so tests match with `find`, not prefix.
-- Skipped cycle 67 follow-ups still open: >=2 asserts in `read_value`/`step`/`place`/`array_step`/
-  `table_step`; seeded prefix-truncation node-bound test; tests for `{ b.c = 1, b.d = 2 }`, comment in
-  `{}`, CRLF/comment between array elements; `depth = 0` dead init. (CHANGELOG, toml.zig header, ADR
-  line wrapping and inline-freeze wording were fixed in #74.) No reviewer subagent run this cycle.
-- Next: item 8 toml-test corpus (`tests/toml-test/`, `toml/conformance_test.zig`, std.json decode, check
-  licence and `git ls-files` counts). Blockers: none.
-
-## Cycles 68-69 — 2026-10-22..23 — DISK (no work)
-
-- Done: nothing. Disk gate failed (`df -g /`: 18 GB in cycle 68, 16 GB in cycle 69, need 20); no repo or
-  inbox work. Repo clean on main at daf365e, CI green.
-- Next: item 7 `toml.zig` facade + reflect (milestone #67, 6/12) plus the cycle 67 follow-ups, once disk
-  >= 20 GB. Blockers: dev box disk (needs the human or a cache cleanup: `.zig-cache`, `/tmp/sigil-*`).
+C68-69: disk gate failed (18/16 GB, need 20), no work. C70: item 7 PR #74, `toml.zig` facade:
+`parse_value`/`parse(T, ...)`, `ParseValueError` (17) / `ParseError` (25, comptime-pinned); reflect
+failures re-located by `parser.locate` (second parse into throwaway scratch, error path only);
+reflect messages are "{path}: {reason}", tests match with `find`. `write_value`/`stringify` landed
+with item 9. C71: item 8 PR #75, toml-test v2.2.0 (MIT) vendored in `tests/toml-test/` (887
+files); 679 cases, 679 pass, 0 pinned; floats compared by bit pattern, datetimes as
+`core.timestamp.parse` values (ADR 0005 s9). `gh api repos/<o>/<r>/tarball/<tag>` into /tmp
+fetches a corpus. Cycle 67 follow-ups still open: see cycle 67 below.
 
 ## Cycle 67 — 2026-10-22 — FEATURE
 
