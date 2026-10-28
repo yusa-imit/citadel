@@ -1,7 +1,18 @@
 # sigil — context
 
-last_seen_at: 2026-10-28T00:00:00Z
+last_seen_at: 2026-10-29T06:00:00Z
 rejected_plans: []
+
+## Cycle 76 — 2026-10-29 — FEATURE
+
+- Done: plan PR #80 still open (no owner comments), no milestone issue -> `/stabilize --one`: ADR 0005
+  docs fix (4 lines >100 cols wrapped; section 4 now says inline state is set at `{`, as the code does).
+  PR #81, CI 8/8, auto-merged. Cycle 67 ADR follow-ups (line 97, inline-state wording, `depth = 0`
+  dead init check) -> ADR ones done. CI green, inbox empty, disk 38 GB. Cost ~$0.5, no subagents.
+- Next: once #80 is merged, open milestone issue for 007 and do item 1 (ADR 0006). Else another
+  `/stabilize --one`: asserts in parser step fns, prefix-truncation test, inline-table tests;
+  docs lines >100 cols remain in PRD.md (33), plans/000-inherited.md (6), README (2). Blockers: none.
+- Learned: the guard blocks `cd <repo> && ...` in a compound with `;` too — use `git -C`/absolute paths.
 
 ## Cycle 75 — 2026-10-28 — FEATURE
 
