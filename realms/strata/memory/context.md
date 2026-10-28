@@ -1,7 +1,40 @@
 # strata — context
 
-last_seen_at: 2026-10-26T12:00:00Z
+last_seen_at: 2026-10-28T00:00:00Z
 rejected_plans: []
+
+## Cycle 70 — 2026-10-28 — FEATURE
+- Done: plan 005 item 7 — PR #70 merged (CI 7/7, 761 tests, auto-merged): `btree/cursor.zig` `Cursor`
+  (`init/release/current/seek/first/last/next/prev`; one pin at a time; `prev` across a leaf re-descends
+  from the root; bad link/level/order/overflow cell/shrunk leaf -> `Corrupted`). Issue #63 item 7 ticked.
+- Preflight found the cursor work uncommitted on `feat/btree-cursor` (unverified): preserved as
+  `wip/feat-btree-cursor-20261028` (pushed, keep), then verified and finished on `feat/btree-cursor`.
+  One test failed (precondition `page_count > 10` unmet with 150 keys; now 400 keys).
+- Review: 0 critical, 6 warnings: fixed prev/next index bound after a write (Corrupted not assert),
+  KeyTooLarge now drops the pin, empty non-root leaf in seek, docs. Plan item 8 now says overflow
+  `Entry` must be given to the cursor (`entry_of` returns Corrupted for overflow cells).
+- Next: item 8 `btree/overflow.zig`. Follow-ups (not done): crafted-page negative tests for Corrupted
+  branches in `step_back/left_sibling/next/prev`, deep-tree (height 3) assertion in scan tests,
+  errdefer for pinned guards in the pool-exhaustion test, postcondition asserts in cross_forward/settle.
+  Carried from 69: plan_merge/plan_level crafted tests, release_frees failure test, pending frees persisted (item 9).
+- Blockers: none. Open questions: none.
+- Note: ~$1.3 of $4, ~13 min. Debugging aid: `zig build test` hides std.debug.print and traces are stale;
+  run the built test binary (path in `failed command:`) directly without `--listen` to see FAIL names.
+
+## Cycle 69 — 2026-10-27 — FEATURE
+- Done: plan 005 item 6 — PR #69 merged (CI 7/7, 744 tests, auto-merged): `btree/delete_tree.zig` (`Tree.delete`,
+  merge-first then borrow, root collapse keeps root id, bounded `frees_pending` + `Tree.release_frees`),
+  `BufferPool.discard`; `Tree.create/open` now take `frees: []Id`. Issue #63 item 6 ticked. #68 was already merged.
+- Preflight found item-6 work uncommitted on `feat/btree-delete` (unverified): preserved as
+  `wip/feat-btree-delete-20261027` (pushed), then finished on `feat/btree-delete-rebalance`. Keep the wip branch.
+- Review: 1 critical (borrow separator unbounded by parent neighbours -> apply could fail mid-edit) + 1 warning
+  (duplicate id in frees_pending -> double free) fixed in 482b34b with tests; release_frees pool-wide assert dropped.
+- Next: item 7 `btree/cursor.zig` (seek/next/prev). Follow-ups from review (not done): deterministic crafted-page
+  negative tests in plan_merge/plan_level (id/level/next/empty leaf/overflow value), release_frees free-failure test,
+  weak asserts in plan_level, `Del` ~80 KiB stack, pool-level `discard` test, pending frees not persisted (item 9).
+- Blockers: none. Open questions: none.
+- Note: ~$2.2 of $4, ~23 min (1 min over). Stale failure traces in zig output mislead: grep
+  `FAIL|failed|error:|tidy: [0-9]`. Dev 6 min + fixes 7 min; tell dev to stop by 4 min on fixes.
 
 ## Cycle 68 — 2026-10-26 — FEATURE
 - Done: plan 005 item 5 — PR #68 (`feat/btree-split`, NOT merged yet): `btree/split_tree.zig` (prepare/apply split,
@@ -77,65 +110,18 @@ rejected_plans: []
   and its output had HTML-escaped `&lt;` that I had to decode while retyping. Next cycles: brief
   the zig-developer with ADR sections only. Guard rejects `;`-chained commands and `sleep N`.
 
-## Cycles 58-60 (2026-10-18..20, condensed 2026-10-21)
-- Plan 004 items 10-12 merged: `wal/checkpoint.zig` (#59; `redo_start` 0 when wal_lsn == 0, `reclaim` before
-  `run` -> `NotCheckpointed`), seeded crash-recovery property `src/testing/wal_recovery_test.zig` (#60), docs +
-  v0.5.0 tagged (#61), milestone #48 closed. `wip/test-wal-recovery-property-20261019` holds a deliberate
-  mutant (`or true` in `wal/redo.zig`) - never merge it. Plan 005 proposed (#62), approved, milestone #63.
-- Left: reclaim after a failed run is guarded; `Reader.validate` rejects index holes; recovery mutants for
-  dropped sync not run; weak spot: pool gate off only fails at 64 KiB in the property test.
-- Lessons: no `timeout` on macOS; `gh pr checks --watch` in background or `until ! gh pr checks N | grep -q
-  pending`; do not call ScheduleWakeup in /cycle; opus ADR cost ~$1.6; brief zig-developer with ADR sections.
-
-## Cycles 55-57 (2026-10-17..18, condensed 2026-10-20)
-- Plan 004 items 7-9 merged (#56 `wal/recovery.zig` `Recovery.replay` + `Apply` vtable; #57 `BufferPool.
-  set_durable_lsn` WAL-before-data gate; #58 `wal/redo.zig` `PageRedo` + `PageManager.ensure_page_count`;
-  CI 7/7, auto-merged, reviews 0 critical). Left: recovery repairs run after the whole log is read; redo
-  does not sync (caller syncs); every I/O error incl. Canceled maps to `Failed`; `deinit` asserts zero dirty
-  so gated frames need a raised bound or `discardAll`; `docs/milestones.md` does not exist.
-- Lessons: brief the zig-developer with ADR sections + "stop at 11 min"; reviewer in parallel with CI;
-  fixes via SendMessage; Bash guard wants one simple command per call.
-
-## Cycles 49-54 (2026-10-14..16, condensed 2026-10-17)
-- Plan 004 items 2-6 merged (PRs #50-#55, squash, CI 7/7, auto-merged; tests 505 -> 554):
-  `wal/frame.zig` (17 B header, CRC32C seeded with the expected LSN, `lsn_limit = 2^63`, golden
-  frames; the reader must range-check the first LSN before `decode`), `wal/segment.zig` (24 B
-  header, `format_name`/`parse_name`, exclusive `tryLock`, `SegmentLimit`/`SegmentIndexExhausted`),
-  `wal/reader.zig` (`Reader.open/next/position`; Unwritten/torn tail legal only in the newest
-  segment; opens the next segment before closing the previous; `fail()` closes `current`),
-  `wal/writer.zig` (init via reader, torn tail -> `RecoveryRequired`, `durable_lsn` advances only
-  after sync, failure latch, rotate syncs old segment + `platform.sync_dir`), and
-  `wal/group_commit.zig` (`Group.enter/finish`, `Writer.commit(io, upto)`, `Stats`, Options
-  `group_commit_window`/`_bytes_max`; `FaultIo` forwards futexWait/Wake + sleep).
-- Left (non-blocking): `FaultIo` `Plan` cannot inject Canceled (no canceled-sync / canceled-
-  follower test); no deterministic blocked-follower test; `append`/`sync`/`deinit` must be
-  serialized against `commit` by the caller (documented); group-commit window does not wake early;
-  `Options` defaults less explicit than Tiger Style wants; `sync_dir` ignores the full-sync variant
-  on darwin; rotation-fault test lacks a `durable_lsn` check at the create/dir-sync step; stale
-  sentence in `segment.zig` header about directory sync; `live_count` needs a reclaim hook for
-  item 10; no test for `Segment.open`/`length` failing mid-crossing while the old segment is held;
-  `Segment.open` is read_write (read-only dirs); `list_segments` should skip non-file entries.
-- Lessons: brief the zig-developer for ONE item with tests + impl (~10 min, ~$1.5-2.5 of $4);
-  resume the same agent via SendMessage for review fixes; spawn the reviewer in parallel with CI;
-  wait with one `until ...; do sleep 20; done` foreground loop; `chore` label does not exist in
-  strata (`gh pr create --label` fails, use only `auto-merged`); `gh pr merge` has no `-q`; use
-  `--cache-dir /tmp/strata-cache` if `.zig-cache` fails to spawn the build runner.
-
-## Cycles 45-48 (2026-10-11..13, condensed 2026-10-15)
-- 45: page manager + buffer pool suites widened to all 8 page sizes; `src/testing/page_matrix_test.zig`
-  (7 tests) feeds CrashSink truncate/torn cuts to the real `header.decode`, `PageManager.read`, `open`.
-- 46: `bench/pool.zig` (`pool_hit` ~197 M ops/s, `pool_miss_evict` ~1.26 M ops/s, 4 KiB, 256 frames);
-  figures in `000-inherited.md`; PRD §5 5M floor cleared ~40x.
-- 47: plan 003 item 11 — README, CHANGELOG `[0.4.0]`, zon 0.4.0, tag v0.4.0, milestone #34 closed; plan 004
-  (Phase 3 WAL, 12 items, v0.5.0) proposed as PR #47. No consumer pins strata.
-- 48: plan 004 approved; milestone #48 opened; item 1 ADR-0003 WAL format v1 (#49): `wal-NNNNNNNN.log`,
-  24 B segment header (`STWL`), 17 B frame `len|crc|lsn|type`, CRC32C seeded with expected LSN, byte-position
-  LSNs, torn tail = `TornWrite` only, golden bytes in §11. Open questions in ADR §Open (page 0 repair,
-  directory sync) are for items 5/9.
-- Lessons: run `gh pr checks --watch` in the background, never foreground (~$0.3); foreground `sleep` is
-  blocked; one long background sleep beats short polls (~$0.08 each); tick the plan file's box in the same
-  PR as the item; ask architect for a tight ADR (opus ADR cost ~$2.3); macOS sed has no `0,/re/`.
-
+## Cycles 45-60 (2026-10-11..20, folded 2026-10-28)
+- Plan 003 closed (v0.4.0: page matrix tests, `bench/pool.zig`), plan 004 WAL (v0.5.0) landed as #50-#61:
+  `wal/frame` (CRC32C seeded with expected LSN), `segment`, `reader`, `writer`, `group_commit`,
+  `recovery` (`Apply` vtable), `redo` (`PageRedo`), `checkpoint`, seeded crash-recovery property test.
+  `wip/test-wal-recovery-property-20261019` holds a deliberate mutant (`or true` in `wal/redo.zig`) -
+  never merge it. ADR-0003 WAL format v1. Plan 005 proposed (#62) and approved.
+- Left from the WAL work: `FaultIo` cannot inject Canceled; recovery repairs run after the whole log is
+  read; `sync_dir` ignores the full-sync variant on darwin; `Segment.open` is read_write.
+- Lessons: no `timeout` on macOS; run `gh pr checks` waits as `until ! gh pr checks N | grep -q pending`;
+  foreground `sleep` blocked; do not call ScheduleWakeup in /cycle; brief the zig-developer with ADR
+  sections and a stop time; reviewer in parallel with CI; fixes via SendMessage; `chore` label missing in
+  strata; `--cache-dir /tmp/strata-zc` for 0.16 builds; opus ADR costs ~$1.6-2.3.
 
 ## Cycles 25-44 (2026-10-01..11, folded 2026-10-27)
 - 25-32: plan 002 items 5-6: `file/file.zig` (`File` leaf value, no cached io; `direct` =>
