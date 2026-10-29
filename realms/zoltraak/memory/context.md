@@ -1,7 +1,17 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-29T00:00:00Z
+last_seen_at: 2026-10-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 39 — 2026-10-30 — FEATURE (all plan items blocked)
+- CI green on main (5e7a385), no bugs, no OWNER comments, no open PRs; milestone #121 open.
+  zuda still v2.3.0, so items 4-9, 12 blocked: ran `/stabilize --one`.
+- PR #162 (merged, auto-merged): `sets.zig` 14 `err == error.WrongType` -> `switch (err)` (same
+  perl multi-line regex as lists). `== error.` in `src/` 100 -> 86. `zig build test` 1627/1627
+  except the 2 known signal-4 crashers; fmt clean. `rm -rf .zig-cache` was needed again first.
+- Next: `hashes.zig` 11, `sentinel.zig` 8, `strings.zig` 7, `sorted_sets.zig` 32; `//!` headers
+  (82 files); stash triage. Blockers: zuda v3.0.0. Questions: none.
+- Quirk: wait for the full test with a foreground `until grep -q 'Build Summary' log` loop.
 
 ## Cycle 38 — 2026-10-29 — FEATURE (all plan items blocked)
 - CI green on main (c5b36d9), no bugs, no OWNER comments, no open PRs; milestone #121 open.
