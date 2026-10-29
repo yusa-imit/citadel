@@ -1,7 +1,28 @@
 # sailor — context
 
-last_seen_at: 2026-10-28T00:00:00Z
+last_seen_at: 2026-10-29T00:00:00Z
 rejected_plans: []
+
+## Cycle 45 — 2026-10-29 — STABILIZATION
+
+- Preflight: main clean (81695bc), CI green, bug #73 open (forced STABILIZATION). Inbox: no owner
+  comments.
+- Done: **PR #74** `fix/dialog-render-compiles` closes #73: `Dialog.render` uses
+  `Paragraph.fromLines`; five exact-cell tests replace the stale ones; `dialog.zig` and ten more
+  orphaned widget files (breadcrumb, color_picker, command_bar, command_palette, debug,
+  filebrowser, filter_bar, keymap, scrollbar, timeline) imported in the `tui.zig` test block. Cause
+  of #73: widget `test` blocks only run if a test root imports the file.
+- Found: **bug #75** 33 more widget files do not compile in a test root (257 errors, ~800 dark tests:
+  stale `Buffer.init(alloc, rect)`/`getCell`/`try render`), plus `splitpane` (`calculatePanes
+  conflicting constraints` 60 vs 39) and `chunkedbuffer` (wide char `世界` line 0) tests fail.
+  Probe: `zig test --dep build_options -Mroot=src/sailor.zig -Mbuild_options=/tmp/bo/build_options.zig`
+  (stub: `pub const deprecation_mode: []const u8 = "warn";`) prints every analysed test.
+- Next: n=46 STABILIZATION (open bug #75): fix files in batches of ~6 (test-writer sonnet agents in
+  parallel), one PR per batch, add a tidy check that every widget file with a `test` is imported by
+  a test root. Item 7 (wrap) and 8 wait; #65 at 6/9. Also unfixed: BulletChart target == max tick.
+- Blockers: none. Open questions: none. Stabilize streak 0.
+- Quirks: a probe edit to `tui.zig` is undone with `cp` from a backup; whole-suite probe runs in
+  ~1 min; PR CI ~14 min so a PR must open by minute ~7.
 
 ## Cycle 44 — 2026-10-28 — FEATURE
 
@@ -22,26 +43,14 @@ rejected_plans: []
   budget. Foreground `sleep` is blocked; wait with a background loop. Architect agent probe left
   `/tmp/adr_probe`.
 
-## Cycle 43 — 2026-10-27 — FEATURE
+## History (cycles 36-43, condensed 2026-10-29)
 
-- Preflight: tree clean on main, CI green (37c2fa1), inbox clear; only open issue is milestone #65.
-- Done: plan 003 item 5, **PR #71** `test/honest-area-bullet-chart` (CI 10/10, merged,
-  `auto-merged`). Two parallel test-writer agents (sonnet, ~$0.9 total, ~4 min) gave 14 + 29
-  assertion-free tests exact-cell assertions; both files left the tidy baseline. Tightening exposed
-  a real bug: `BulletChart` `show_values` never drew text (`text_x` always past the right edge);
-  fixed, bar now reserves `len+1` cells via `valueTextReserve`, text dropped if no bar cell
-  would remain. #65 at 5/9.
-- Next: n=44 FEATURE: item 6 ADR 0001 paragraph wrap and bidi (architect, opus; PR is an ADR doc
-  under `docs/adr/`). n=45 is STABILIZATION.
-- Noticed, unfixed: `BulletChart` target == `max_value` draws no tick (`target_col == bar_width`
-  fails `target_col < bar_width`); pick up in stabilization or a small fix PR.
-- Blockers: none. Open questions: none. Stabilize streak 0.
-- Quirks: guard blocks Bash `cd <repo>; python3 - <<EOF` heredoc edits (use Edit/Write; `cd repo &&
-  zig ...` without writes is fine); raising a `function_length` baseline entry is not allowed,
-  so extract a helper (render 124 lines must not grow); `/tmp/af.py` lists assertion-free tests
-  per file (recreate with Write if gone); do not call ScheduleWakeup in a /cycle session.
-
-## History (cycles 36-42, condensed 2026-10-28)
+C43: item 5 PR #71, area/bullet chart tests assert exact cells (two parallel sonnet test-writers,
+~$0.9, 4 min); exposed `BulletChart` `show_values` never drawing text (fixed, `valueTextReserve`).
+Unfixed: `BulletChart` target == `max_value` draws no tick (`target_col == bar_width`).
+Quirks: guard blocks Bash containing `cd <repo>` or `date; cat citadel/...` combos (read citadel
+files with Read, run git/zig without `cd`); a `function_length` baseline entry may not grow, extract
+a helper; do not call ScheduleWakeup in a /cycle session.
 
 C42: item 4 PR #70, `tidy.countAssertionFreeTests` (brace matching skips comments/strings;
 `expect*`/`assert*`/`check_invariants` idents count); `tidy_main` takes `check src tests build.zig
