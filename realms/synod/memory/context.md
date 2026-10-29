@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-10-29T11:00:00Z
+last_seen_at: 2026-10-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 73 — 2026-10-30 — FEATURE
+- Preflight: disk 34 GB, CI green (d07300d), no bugs, milestone #74 open. #79 (tick) was merged.
+- Done: PR #80 was DIRTY (based on the pre-merge wip, no CI ran); cherry-picked its review commit onto
+  `fix/node-compaction-review-2` from main -> PR #81 (938 tests, fmt, tidy, 7/7 CI), merged
+  `auto-merged`; #80 closed, branch kept. Item 4 (driver snapshot path): test-writer (~$1.0, 12 min)
+  wrote `src/driver_snapshot_test.zig` (29 tests, 26 red) + one import line in `src/driver.zig`;
+  preserved as `wip/feat-driver-snapshot-20261030` (pushed, no PR). Implementation not started.
+- Next: `git checkout -b feat/driver-snapshot-2 wip/feat-driver-snapshot-20261030`; start zig-developer
+  by minute 3. API the tests assume: buffer = `config.message_limits.snapshot_bytes_max` allocated in
+  `Driver.init`; `Fault.SnapshotTooLarge`; on `snapshot_due`: sm snapshot, `save_snapshot`, `sync`, then
+  `node.step(.snapshot_saved)` with empty Effects; `Driver.init` loads the store snapshot, restores the
+  state machine, builds the node with `Restore.snapshot: log.Base` (new), tail check `last - base <=
+  log_entries_max`; `init_bytes_max` grows by `snapshot_bytes_max`; init error set gains restore and
+  `load_snapshot` errors. Then reviewer, PR, tick item 4 + #74.
+- Blockers: none. Open questions: none. Budget: ~$1.6 of $4 used.
+- Tool notes: a wip branch left unmerged goes stale when a continuation branch merges; never leave a
+  review-fix PR based on the wip, base it on main. Test-writer took 12 min: brief it narrower.
 
 ## Cycle 72 — 2026-10-29 — FEATURE
 - Preflight: disk 36 GB, CI green (2641a34), no bugs, milestone #74 open, no open PRs.
@@ -73,37 +91,6 @@ rejected_plans: []
 - Tool notes: guard blocks `cd <repo>;` and `grep` over sibling repos even read-only: use `gh api
   repos/yusa-imit/<r>/contents/build.zig.zon`. CI Build & Test now ~7 min; release cycle used
   ~20 of 22 min, plan the release PR first thing.
-
-## Cycle 66 — 2026-10-26 — FEATURE
-- Preflight: disk 42 GB, CI green (1c9723f), no bugs, no OWNER comments, milestone #57 open.
-- Done: item 11 via PR #69 (docs only, 7/7 CI): Phase 3 baseline re-measured (all sim fns <= 68
-  lines, simulation.zig 870 non-test lines), README sim row implemented, 000-inherited Phase 3
-  ticked, milestone item 11 ticked. Reviewed #68 (code-reviewer): 1 CRITICAL + 6 WARNING fixed via
-  PR #70 (corrupt KV entry -> typed `WorkloadInvariant`, `WorkloadInvalid` branches tested, ADR-008
-  amended; 878 tests, 7/7 CI). Both `auto-merged`.
-- `zig build test` now ~105 s locally (workload/sim model tests dominate).
-- Next: item 12 release v0.5.0 (`/release synod minor`; gate: 0 bugs, 6 cross targets green).
-- Blockers: none. Open questions: none.
-- Open suggestions: `Workload.check_invariants` runs only in `check(.linearizability)`, not per event;
-  `op_id_next` bounded by width not an option; `else =>` arms in `node_fault`/`propose_draw`
-  (simulation.zig) non-exhaustive; sim-nightly first scheduled run still unobserved.
-- Tool notes: foreground `sleep` is blocked; use `python3 -I -c "import time; time.sleep(N)"` while
-  waiting for a background agent. `gh pr checks --watch` right after push may say "no checks":
-  retry after ~20 s. Spawning reviewer (read-only) and doing the docs item in parallel worked well.
-
-## Cycle 65 — 2026-10-26 — FEATURE
-- Preflight: disk 24 GB (gate ok), CI green (f09957c), no bugs, no OWNER comments, milestone #57 open.
-- Done: item 10 via PR #68 (squash-merged, 7/7 CI, `auto-merged`, 860 tests): continued the
-  preserved wip (`feat/sim-kv-workload-3`); the WIP compiled but 3 tests failed: churn commit bound
-  ignored workload ops (`committed_bound` now adds `workload.ops_invoked`), and `calm` needed a
-  256-entry log (Phase 3 has no compaction, a 64-entry log caps ops at 63). `zig build sim
-  -Dseeds=1000` green; `-Dplant=ack_uncommitted` red. Milestone #57 items 1-10 ticked.
-- NOT code-reviewed (deadline at 20 of 22 min; CI Build&Test takes 6m22s). Review #68 first next
-  cycle (reviewer contract in the cycle 61 block), fix findings in a small PR.
-- Next: item 11 (re-measure Tiger Style baseline, docs), then item 12 release v0.5.0.
-- Blockers: none. Open questions: none. `wip/feat-sim-kv-workload-*` branches stay (do not delete).
-- Tool notes: error-return traces in failing tests are polluted by earlier tests; print stats
-  temporarily to find the failing `expect` (remove before commit: tidy bans `std.debug.print`).
 
 ## Cycles 61-66 (2026-10-20..26), folded
 - 61: item 9 PR #67 `sim/linearizability.zig` `HistoryChecker` (Wing-Gong, explicit stack). 62-64: PREFLIGHT
