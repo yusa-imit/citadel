@@ -20,7 +20,7 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 
 | Realm | 0.16 errors (probe) | Effort | Blocked by | Version impact |
 |---|---|---|---|---|
-| sigil | 1 | trivial | — | none (0.1 → 0.2) — **done**, zon bumped to 0.2.0 (2026-09-12); plans 002-004 released v0.3.0 (2026-10-13, PR #53, first tag); plan 005 released v0.4.0 (2026-10-18, PR #65) |
+| sigil | 1 | trivial | — | none (0.1 → 0.2) — **done**, zon bumped to 0.2.0 (2026-09-12); plans 002-004 released v0.3.0 (2026-10-13, PR #53, first tag); plan 005 released v0.4.0 (2026-10-18, PR #65); plan 006 released v0.5.0 (2026-10-28, PR #79) |
 | strata | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-16, PR #15); plan 002 released v0.3.0 (2026-10-04, PR #27); plan 003 released v0.4.0 (2026-10-12, PR #45); plan 004 released v0.5.0 (2026-10-19, PR #61) |
 | synod | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-15, PR #15); plan 002 released v0.3.0 (2026-09-30, PR #31); plan 003 released v0.4.0 (2026-10-13, PR #54); plan 004 released v0.5.0 (2026-10-27, PR #71) |
 | sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10); plan 002 released v0.3.0 (2026-10-06, PR #30); plan 003 released v0.4.0 (2026-10-11, PR #43); plan 004 released v0.5.0 (2026-10-26, PR #60) |
