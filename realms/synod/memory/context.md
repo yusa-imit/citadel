@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-10-29T10:30:00Z
+last_seen_at: 2026-10-29T11:00:00Z
 rejected_plans: []
+
+## Cycle 72 — 2026-10-29 — FEATURE
+- Preflight: disk 36 GB, CI green (2641a34), no bugs, milestone #74 open, no open PRs.
+- Done: item 3 (node compaction policy) from the cycle-71 wip, on `feat/node-compaction-2`: 926 tests,
+  fmt, tidy, `zig build sim -Dseeds=1000` all green; PR #78 merged (7/7 CI, `auto-merged`), #74
+  item 3 ticked. code-reviewer (~$0.3) found nonzero-base follower/leader paths untested (sim never
+  confirms a snapshot, so base stays 0 there).
+- PRs open at the 22-min deadline (CI pending): #79 `docs/tick-plan-005-item3` (plan tick),
+  #80 `fix/node-compaction-review` (zig-developer: `src/raft/node_base_test.zig` 12 tests, term check
+  at base in `replicate_below_base`, `snapshot_saved` returns empty Effects, 938 tests green locally).
+- Next: merge #79 and #80 when CI is green (label `auto-merged`), then item 4 (driver snapshot path;
+  driver currently ignores `snapshot_due`). Review notes for items 4/5: a peer with `first < base`
+  gets no heartbeat in `send_slot` (liveness gap until InstallSnapshot, item 5);
+  `SnapshotDue.configuration` is the latest config, must be as-of-index once item 8 lands.
+- Blockers: none. Open questions: none. Budget: ~$1.6 of $4 used.
+- Tool notes: background `zig build test` takes ~105 s; use a worktree in /tmp for docs ticks while
+  a developer owns the repo tree; cut CHANGELOG lines at 100 columns.
 
 ## Cycle 71 — 2026-10-29 — FEATURE
 - Preflight: disk 38 GB, CI green (2641a34), no bugs, no open PRs, milestone #74 open. Cycle 70 left
