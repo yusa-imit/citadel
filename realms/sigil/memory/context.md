@@ -1,7 +1,18 @@
 # sigil — context
 
-last_seen_at: 2026-10-29T03:10:00Z
+last_seen_at: 2026-10-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 78 — 2026-10-30 — FEATURE
+
+- Done: plan PR #80 still open (no owner comments), no milestone issue -> `/stabilize --one`: PR #83,
+  >=2 asserts in TOML parser `read_value`/`step`/`array_step`/`table_step`/`place`/`place_container`
+  (cycle 67 follow-up; frame node state, depth bounds, created container state). CI 8/8, auto-merged.
+  Tests/tidy green, no behaviour change. Cost ~$0.4, no subagents.
+- Next: once #80 is merged, open milestone issue for 007 and do item 1 (ADR 0006). Else another
+  `/stabilize --one`: docs lines >100 cols in PRD.md (33), plans/000-inherited.md (6), README (2).
+  Blockers: none.
+- Learned: `gh pr merge --label` does not exist; add `auto-merged` via `gh pr edit` first, then merge.
 
 ## Cycle 77 — 2026-10-29 — FEATURE
 
