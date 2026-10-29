@@ -1,7 +1,26 @@
 # strata — context
 
-last_seen_at: 2026-10-28T00:00:00Z
+last_seen_at: 2026-10-29T00:00:00Z
 rejected_plans: []
+
+## Cycle 71 — 2026-10-29 — FEATURE
+- Done: plan 005 item 8 — PR #71 merged (CI 7/7, 778 tests, auto-merged): `btree/overflow.zig`
+  (`write/walk/read/collect_ids`, chain of type-18 pages), `Tree.get/insert/delete/validate` and `Cursor`
+  handle overflow cells via caller-provided `value_buf` (new required param of `Tree.create/open`).
+  Issue #63 item 8 ticked. Overwrite reserves old+new chain slots in `frees_pending`.
+- Preflight found item-8 work uncommitted on `feat/btree-overflow` (it already passed 771 tests):
+  preserved as `wip/feat-btree-overflow-20261029` (pushed, keep), then finished on `feat/btree-overflow`
+  (local branch reused; it sat at main). Faster than a fresh implement: ~13 min, ~$1.3 of $4.
+- Review: 0 critical, 5 warnings fixed: error after `prepare_value` now via `fail_put`, shared chain ids vs
+  `frees_pending` -> Corrupted (`Tree.pending_has_any`), boundary and failure-path tests in new
+  `overflow_fail_test.zig`. Not tested: fail_put after `cell_bytes` error (unreachable on valid pages).
+- Next: item 9 WAL integration (one `page_images` frame per op, `set_lsn`, `release_frees` waits for
+  durable_lsn, `PageRedo` type 16, pending frees persisted, id reserve). Big: split across cycles if needed;
+  brief developer with ADR-0004 §8, §9, §13 and Rule C. Follow-ups from 69/70 still open (crafted-page
+  negative tests in cursor/plan_merge, release_frees failure test). Review suggestions open: overflow `walk`
+  does not check header page id == id; `value_buf` limit also rejects inline values.
+- Blockers: none. Open questions: none.
+- Note: tick `chore` label missing; `find -mmin` takes ints only on macOS - poll with `stat -f %m`.
 
 ## Cycle 70 — 2026-10-28 — FEATURE
 - Done: plan 005 item 7 — PR #70 merged (CI 7/7, 761 tests, auto-merged): `btree/cursor.zig` `Cursor`
