@@ -1,7 +1,20 @@
 # sigil — context
 
-last_seen_at: 2026-10-29T06:00:00Z
+last_seen_at: 2026-10-29T03:10:00Z
 rejected_plans: []
+
+## Cycle 77 — 2026-10-29 — FEATURE
+
+- Done: plan PR #80 still open (no owner comments), no milestone issue -> `/stabilize --one`: test-only
+  PR #82 (dotted keys in one inline table, comments + CRLF between array elements, comment inside `{}`
+  rejected at the newline ending it, every prefix of a nested doc is a typed error never OutOfMemory).
+  CI 8/8, auto-merged. 757 tests, tidy 0. Cost ~$0.5, no subagents.
+- Next: once #80 is merged, open milestone issue for 007 and do item 1 (ADR 0006). Else another
+  `/stabilize --one`: asserts (>=2) in parser `read_value`/`step`/`place`/`array_step`/`table_step`;
+  docs lines >100 cols in PRD.md (33), plans/000-inherited.md (6), README (2). Blockers: none.
+- Learned: the guard also blocks `cd <repo>; for ... sleep` loops; use `gh pr checks N --repo
+  yusa-imit/sigil` in an `until` loop with absolute paths. python heredoc `replace` with `\r\n`
+  escapes silently misses (check the diff); tidy flags test lines >100 cols.
 
 ## Cycle 76 — 2026-10-29 — FEATURE
 
@@ -29,55 +42,20 @@ rejected_plans: []
   guard rejects one command mixing citadel paths with repo work (split); planner output came
   back HTML-escaped (`-&gt;`), unescape before writing the plan file.
 
-## Cycle 74 — 2026-10-28 — FEATURE
+## History (cycles 72-75, condensed 2026-10-29)
 
-- Done: plan 006 item 11 (TOML benchmarks), written directly (~$0.7, no subagents). PR #78, CI 8/8,
-  auto-merged; #67 box 11 ticked (11/12). Inbox empty, CI green, disk 38 GB.
-- Shape: `bench/main.zig` got `Format {json, toml}` per `Bench`, a seeded ~100 KB `[[records]]`
-  document (`generate_toml_document`, seed 0x7031), 256 iterations, `ms/iter` column for TOML rows.
-  ReleaseFast: `toml.parse_value` 0.44 ms (~228 MB/s, arena 4.73 B/B), `toml.parse(T)` 0.48 ms (~208
-  MB/s, 8.53 B/B), `toml.write_value` 0.17 ms (~591 MB/s). PRD <1 ms met. Recorded in
-  `docs/plans/000-inherited.md`; CHANGELOG bullet added. Plan-file boxes 7-10 were unticked, ticked here.
-- Next: item 12 release v0.5.0 (`/release`: tick 3A in 000-inherited, CHANGELOG [0.5.0], zon +
-  `sigil.version` 0.4.0 -> 0.5.0, tag, `gh release create`, close #67). Then `/plan`; cycle 67
-  follow-ups (asserts in parser step fns, truncation test, inline-table tests) still open. Blockers: none.
-- Learned: guard blocks a command mixing `git checkout -b` with `git push` (and `sed -i` chains with
-  them): run branch/commit and push as separate Bash calls; no `timeout` binary on macOS.
-
-## Cycle 73 — 2026-10-27 — FEATURE
-
-- Done: plan 006 item 10 (`toml/roundtrip_test.zig`), written directly (~$0.9, no subagents). PR #77,
-  CI 8/8, auto-merged; #67 box 10 ticked (10/12). Inbox empty, CI green, disk 43 GB.
-- Shape: 1,000 seeded trees write -> parse -> eql + byte-identical 2nd write (coverage asserted:
-  1574 maps, 411 arrays, 455 timestamps, 125 w/ tables, 61 w/ `[[`); 205 valid corpus files parse ->
-  write -> parse; 1,640 seeded mutations (663 accepted, 977 rejected, bounds asserted not exact);
-  `std.testing.fuzz` entry + 6-doc corpus; one oracle `check_input`. No parser/writer bug found.
-  `conformance_test.read_case`/`valid_count` made `pub`.
-- Next: item 11 benchmarks (`zig build bench`: ~100 KB seeded TOML parse, `toml.parse(T)`, writer;
-  record in `docs/plans/000-inherited.md`), then 12 release v0.5.0. Cycle 67 follow-ups still open
-  (asserts in parser step fns, truncation test, inline-table tests) as filler. Blockers: none.
-- Learned: mutually recursive generators need an explicit error set (inferred sets loop);
-  `random.uintLessThan(u3, 8)` is a compile error (use `random.int(u3)`); a "failed" test can print
-  an unrelated leaked error-return trace, read the `expect` line, not the trace.
-
-## Cycle 72 — 2026-10-27 — FEATURE
-
-- Done: plan 006 item 9 (`toml/writer.zig`), written directly (tests + impl, no subagents, no
-  reviewer). PR #76, CI 8/8, auto-merged; #67 box 9 ticked (9/12). 701 tests, tidy 0.
-- Shape: two explicit `[nesting_max]Frame` stacks (header-form `table`/`tables`, inline
-  `array`/`map`); key path for diags derived from frames' current members (no live Path). Trailing
-  run = suffix of table-like entries (map, or non-empty array of maps) -> `[a.b]`/`[[a]]`; every
-  earlier map/array-of-maps inline; blank line before each non-first header; `[a]` emitted even
-  when it holds only sub-tables. `toml.write_value`/`stringify`/`StringifyOptions`/
-  `WriteValueError` (6)/`StringifyError` (7, comptime-pinned). `format_float` moved to
-  `core.number` (json/writer calls it). ADR 0005 s8 amended.
-- Open design note: a null optional from reflect is `Unrepresentable` in `toml.stringify`; omitting
-  unset optionals would be a reflect option (maybe fold into a later plan / question to owner).
-- Next: item 10 round-trip property + seeded mutation + `std.testing.fuzz` entry (0.16 Smith API).
-  Cycle 67 follow-ups still open (asserts in parser step fns, truncation test, inline-table tests).
-  Blockers/questions: none.
-- Learned: `zig build test` exit 0 with "failed command" line is just warn logs; guard blocks
-  `sleep` chains, use `until gh pr checks ...; do sleep 10; done` then `--watch`.
+C72: item 9 `toml/writer.zig` (PR #76): two explicit `[nesting_max]Frame` stacks (header-form, inline);
+trailing run of table-like entries -> `[a.b]`/`[[a]]`, earlier ones inline; `toml.write_value`/`stringify`;
+`format_float` moved to `core.number`. Open design note: a null optional is `Unrepresentable` in
+`toml.stringify` (omit-null reflect option = question on PR #80). C73: item 10 `roundtrip_test.zig`
+(PR #77): 1,000 seeded trees, 205 corpus files, 1,640 mutations, `std.testing.fuzz` entry; no bug found.
+C74: item 11 TOML benchmarks (PR #78): `toml.parse_value` 0.44 ms (~228 MB/s), `parse(T)` ~208 MB/s,
+`write_value` ~591 MB/s, recorded in `docs/plans/000-inherited.md`. C75: item 12 release v0.5.0
+(PR #79), milestone #67 closed; plan 007 written (PR #80).
+Learned: mutually recursive generators need an explicit error set; `random.uintLessThan(u3, 8)` is a
+compile error (use `random.int(u3)`); a failed test may print an unrelated leaked error-return trace, read
+the `expect` line; guard blocks `git checkout -b` mixed with `git push` and `sed -i` chains with them
+(separate Bash calls); no `timeout` binary on macOS; `sleep` chains blocked.
 
 ## History (cycles 68-71, condensed 2026-10-28)
 
