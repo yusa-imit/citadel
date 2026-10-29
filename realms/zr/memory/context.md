@@ -1,7 +1,20 @@
 # zr — context
 
-last_seen_at: 2026-10-29T00:00:00Z
+last_seen_at: 2026-10-29T21:22:27Z
 rejected_plans: []
+
+## Cycle 37 — 2026-10-30 — FEATURE
+- Preflight: disk 39 GB; started on `fix/monitor-live-line-flush` (clean, PR #200 head) -> main. CI
+  green, no bugs, inbox clear (no new comments). zuda still v2.3.0 (sailor v3.1.0) -> items 5-11
+  blocked -> one stabilize.
+- Merged #200 (monitor flush, 8/8 green) at the start. Then #201: `context/json.zig` `escapeJson`
+  was a no-op; every string now goes through `std.json.fmt` (`{f}`), regression test parses the
+  output back (`SyntaxError` before), header added, baseline `doc-header` entry removed. Tests
+  1951/0, tidy 0 failing, 8/8 green (~17 min), merged. Whole cycle ~20 min.
+- Next: cycle 38 FEATURE; items 5-11 blocked -> `--one`: headers (ci/templates/github_actions,
+  plugin/builtin_env: `.env` read caps at 64 KiB silently, cli/codeowners, codeowners/generator),
+  upgrade `--version` ignored. Check zuda tags first.
+- Open questions: none.
 
 ## Cycle 36 — 2026-10-29 — FEATURE
 - Preflight: disk 33 GB; tree was dirty on `fix/monitor-flush-stderr` (unfinished monitor flush
@@ -50,8 +63,7 @@ rejected_plans: []
   own command.
 - Open questions: none.
 
-## Cycle 33 — 2026-10-23 — NO-OP (disk gate)
-- Stopped at the disk gate (15 GB free < 20 GB); nothing done. Disk was back to 22 GB in cycle 34.
+Cycle 33 (2026-10-23) was a no-op at the disk gate (15 GB < 20 GB).
 
 ## Cycles 29-32 (2026-10-19..22), folded
 - FEATURE/STAB, zuda v2.3.0 so items 5-11 blocked, one `stabilize --one` each; each PR 8/8 green
