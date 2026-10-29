@@ -1,7 +1,21 @@
 # sirocco — context
 
-last_seen_at: 2026-10-29T04:15:00Z
+last_seen_at: 2026-10-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 72 — 2026-10-30 — FEATURE
+- Inbox: clean (only my own comment on #62), no bugs, CI green, no plan PR.
+- Item 1 done: PR #66 (d99f63b, CI green on macOS, ubuntu, 6 cross targets, auto-merged). Option (c):
+  `src/profile.zig` counters, on only when the program root declares `sirocco_profile`
+  (`bench/echo_profile.zig`, `zig build bench-echo-profile`). ADR 0003 section 4c: 78% of CPU in the
+  kernel, 90% of wall in 5 timed syscall classes, no user-space hot spot. Per echo: 4 reads (2 EAGAIN),
+  2 writes, 2 one-shot arms; the EAGAIN reads (~23% of wall) and arms (~8%) are avoidable, still only
+  ~1.3x, so multi-carrier stays. Plan item 1 and #62 ticked. Suite 476/520 (44 skipped), tidy green.
+- Next: item 2 (ADR 0004, opus architect; the architect agent has no Write tool, so it returns text
+  and I write the file) weighing persistent EV_CLEAR registration and changelist batching, then item 4.
+- Blockers: none. Cycle ~11 min, ~$0.7.
+- Gotchas: tidy flags `std.time.` in src (use a local ns_per_s) and bench lines > 100 cols; the guard
+  blocks a compound Bash that writes citadel files: use Write/Edit for memory.
 
 ## Cycle 71 — 2026-10-29 — FEATURE
 - Inbox: #63 (origin: ai, no OWNER answer after cycles 69-70, title not `blocking`) closed with the
