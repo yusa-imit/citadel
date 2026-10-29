@@ -1,7 +1,24 @@
 # strata — context
 
-last_seen_at: 2026-10-29T00:00:00Z
+last_seen_at: 2026-10-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 72 — 2026-10-30 — FEATURE
+- Done: plan 005 item 9 split (plan + issue #63 now list 9a/9b). 9a log side merged as #72 (CI 7/7, 803 tests,
+  auto-merged): `Type.page_images`=16 + `payload_valid`, `PageRedo` whole-frame-validated idempotent redo
+  (single grow before any write), `PageManager.free_at(io,id,lsn)` (`free` = `free_at(..,0)`),
+  `Writer.append_parts` (gather). `frame.seal` added; tests in `*_images_test.zig`, `writer_parts_test.zig`.
+- Review: 0 critical, 2 warnings NOT fixed (deadline): (1) `freelist.allocate` re-stamps head trunk with
+  `wal_lsn`, which can LOWER a trunk stamped by `free_at(L)` -> reopens rule B path (c); fix in 9b with test
+  `free_at(L)` then `allocate` then lsn >= L. (2) `free_at` tests lack a full-head-trunk case (new trunk with `next`).
+  Suggestions: `frame_test.zig:281` still lists type 16 as reserved; vacuous tautology at
+  `frame_images_test.zig:232`; midway-fault redo test only injects at call 0 (`redo_images_test.zig:235`).
+- Next: 9b tree side (`btree/`): one `page_images` frame per op (<= 2*height_max+1 pages), `set_lsn`, pins held
+  until stamp, `release_frees` waits `durable_lsn` using `free_at`, `attach(writer)`, reserve ids with sync (rule A),
+  overflow chains first (rule C, use `append_parts`), `discardAll` on append failure. Brief dev with ADR §9, §13.
+  Consider splitting 9b again (attach+logged insert first). Fix the two review warnings first.
+- Blockers: none. Open questions: none.
+- Note: ~$1.9 of $4, ~19 min. zig-developer took 13 min (asked for 9) -> brief a hard stop at 7 min.
 
 ## Cycle 71 — 2026-10-29 — FEATURE
 - Done: plan 005 item 8 — PR #71 merged (CI 7/7, 778 tests, auto-merged): `btree/overflow.zig`
