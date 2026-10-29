@@ -89,55 +89,28 @@ stabilization fix; every PR merged with CI green and `auto-merged`; milestone #1
   repo>`; run them alone. BSD sed `-i` needs `-i ''`; anchor patterns (`sed '/storage\/blocking.zig/d'`
   also deleted the real `pub const blocking` line in main.zig); use Edit for mutation checks.
 
-## Cycles 25-28 (2026-10-13..15, condensed 2026-10-17)
-- All `/stabilize --one`, zuda still v2.3.0 (items 4-9, 12 blocked). Each wired a file into the
-  `src/main.zig` reachability test after fixing it; `zig build test` 1344 -> 1519, only the 2 known
-  signal-4 crashers fail. #149 cuckoo (test ignored `insert`'s bool, compile error); #150 tdigest
-  (`cdf` mid-point convention like Redis; stale merge test pinned replace semantics); #151 real
-  leak in `SentinelState.resetMaster` (ids never freed, now `SentinelInfo.deinit`; `zuda` import
-  added to the unit-test root in build.zig); #152 `LFUCounter` seeded from the wall clock, now
-  `initWithSeed` + deterministic tests, eviction wired.
-- Lessons: wire by appending one `_ = @import` and running `zig build test`; use anchored sed
-  patterns (an unanchored delete removed the real `pub const blocking` line in main.zig); the
-  guard blocks python heredocs containing `rm -rf` and compound `cd repo; ...` (plain commands);
-  `./zig-out/bin/zoltraak` pid 80225 is not ours, left alone.
-
-## Cycles 23-24 (2026-10-11..12, condensed 2026-10-15)
-- Both FEATURE, all plan items blocked; each ran `/stabilize --one`: #147 fixed legacy JSON
-  paths (`.a.b` returned InvalidPathSyntax; `scan_start` helper in `storage/jsonpath.zig`;
-  `parse` keeps its 91-line tidy baseline) and wired jsonpath; #148 fixed bloom `LoadContext`
-  tests and wired bloom + functions.
-- Probe (`zig test src/storage/<f>.zig`) found cuckoo/tdigest/sentinel issues (done in 25-27);
-  search, cluster, config, tls_config, acl, timeseries, modules, pubsub do not compile
-  standalone (module path or stale tests). Deleting `.zig-cache` fixes the `FileNotFound`
-  build-runner error.
-
-## Cycles 21-22 (2026-10-09..10, condensed 2026-10-14)
-- Both FEATURE cycles had every plan item blocked (zuda still v2.3.0, items 4-9, 12), so each ran
-  one `/stabilize --one`: #145 wired encodings, listpack, memory_tracker, slowlog, intset, latency
-  into the `src/main.zig` reachability test (`zig build test` 1160 -> 1207); #146 fixed a real bug
-  (`CMS.INCRBY key item -9223372036854775808` trapped on `-delta`, now `@abs` and returns
-  CounterUnderflow, regression test first) and wired cms, scripting, json_value, vector, defrag
-  (1207 -> 1275). Only the 2 known signal-4 crashers fail locally. #144 (topk/heavykeeper) merged.
-- Probe trick: `zig test src/<f>.zig` standalone shows whether a file's tests compile; blocking,
-  lazyfree, notifications, aof, replication, persistence, eviction fail there (import outside
-  module path / `zuda`) and need build-module wiring, not a bare import-test.
-- Not mine: `./zig-out/bin/zoltraak` pid 80225 running for days; left alone.
-- Next: stash triage (stash@{0}); commands/*.zig stale tests. Blockers: zuda v3.0.0.
-
-## Cycles 18-20 (2026-10-06..08, condensed 2026-10-17)
-- 18: #142 `zoltraak-cli` printed via `std.debug.print` (stderr), so `--json/--csv/--raw` could
-  not be piped; now a buffered stdout writer, formatters take `*std.Io.Writer`, `run_repl`
-  extracted; `std.debug.print` in `src/` is 0. Issue #141 (`migration: sailor v3.0.0`) opened by
-  the release cycle: pin bump waits for the 0.16 toolchain, so items 4-9, 12 stay blocked.
-- 19: #143 bounded `TopKValue`/`HeavyKeeper` `heapifyDown` (`for (0..@bitSizeOf(usize))`).
-- 20 (STABILIZATION): finding that `src/` has 2659 `test` blocks but `zig build test` ran 1114;
-  Zig runs `test` blocks only for files something analyzes. #144 references topk + heavykeeper
-  from a `src/main.zig` test block (1160/1160). Bulk-referencing all 84 other files does not
-  compile (stale tests, e.g. commands/acl.zig arity, `**Storage`, a 32-arg format limit): wire one
-  file at a time; a full-tree error dump took >10 min, so grep one file.
-- Lessons: `gh pr create --label chore` fails (no label); `gh pr create` can hit a transient
-  GraphQL error, retry; the guard blocks chained `gh pr merge ...; ...`.
+## Cycles 18-28 (2026-10-06..15, folded 2026-10-29)
+- Every cycle here had plan items 4-9, 12 blocked on zuda v3.0.0 (zuda v2.3.0), so each ran one
+  `/stabilize --one`. Root finding (C20): `src/` has 2659 `test` blocks but `zig build test` ran
+  1114, because Zig runs `test` blocks only for files something analyzes. Fix pattern: wire one
+  file at a time with an `_ = @import` in the `src/main.zig` reachability test (1114 -> 1519 by
+  C28; only the 2 known signal-4 crashers fail). Bulk-wiring all 84 files does not compile.
+- PRs: #142 `zoltraak-cli` stdout writer (`std.debug.print` in `src/` now 0); #143 bounded
+  `heapifyDown`; #144 topk + heavykeeper wired; #145/#146 encodings, listpack, slowlog, cms,
+  scripting, vector, defrag wired (`CMS.INCRBY` with i64 min trapped on `-delta`, now `@abs` and
+  CounterUnderflow); #147 legacy JSON paths (`scan_start`); #148 bloom + functions; #149 cuckoo;
+  #150 tdigest `cdf`; #151 real leak in `SentinelState.resetMaster` (`SentinelInfo.deinit`);
+  #152 `LFUCounter` `initWithSeed`. Issue #141 (`migration: sailor v3.0.0`) waits for the 0.16
+  toolchain.
+- Probe: `zig test src/<f>.zig` standalone shows whether a file's tests compile; search, cluster,
+  config, tls_config, acl, timeseries, modules, pubsub, blocking, lazyfree, notifications, aof,
+  replication, persistence, eviction do not (module path / `zuda` / stale tests) and need
+  build-module wiring. Deleting `.zig-cache` fixes the `FileNotFound` build-runner error; a
+  full-tree error dump takes >10 min, grep one file.
+- Lessons: use anchored sed patterns (an unanchored delete removed the real `pub const blocking`
+  in main.zig); the guard blocks python heredocs containing `rm -rf`, chained merge commands, and
+  compound `cd repo; ...`; `gh pr create --label chore` fails (no label), GraphQL errors are
+  transient, retry; `./zig-out/bin/zoltraak` pid 80225 is not ours, left alone.
 
 ## History (cycles 13-17, condensed 2026-10-10)
 

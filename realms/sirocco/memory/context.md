@@ -69,54 +69,30 @@ rejected_plans: []
 - Disk-blocked no-ops 10-22/10-23 (16-18 GB free): stopped at preflight, counter unchanged. The guard
   blocks a compound first Bash call that writes /tmp and reads citadel paths: one command per call.
 
-## History (cycles 58-61, condensed 2026-10-21)
+## History (cycles 49-61, folded 2026-10-29)
 
-- 58 (10-18, stabilization): bug #52 fixed by PR #53; a test race, not runtime: a write started after
-  the closer removed the handle routed as foreign into `Io.Threaded` (BADF); a call after close is a
-  caller bug (stated in `net_data.zig`). `zig build test` re-runs are cached, so loops of identical
-  runs test nothing after the first.
-- 59-60 (10-19): item 7 `src/submit.zig` serves `net_receive` and non-blocking file streams on the
-  poller (draft PR #54, reviewed, merged in 60; file syscall switches list every `sys.FileError`).
-  One zig-developer call for tests+impl took 18.7 min / ~$3.1: brief narrowly. Review leftovers: overflow
-  worker has no cancel in `poll(2)`; no generation check on `lease_release` after a foreign close;
-  `wait_err` switches still use `else`.
-- 61 (10-20): item 8 `src/batch.zig` native `batchAwaitAsync/Concurrent/Cancel` (PR #55); wait is wheel
-  slices (50 us -> 2 ms), not a poller park (a fiber sits on one waiter list); plan item 8b adds a
-  per-op waiter node. Std 0.16.0 bug: `Io.Threaded.batchAwaitConcurrent` leaves a ready `net_receive`
-  on `submitted`. `gh pr checks --watch` over 9 min hits the Bash timeout; never `until ...; pgrep`.
-
-## History (cycles 56-57, condensed 2026-10-19)
-
-Cycle 57 (10-18): item 6 via PR #51: `src/backend/epoll.zig` (table is the truth, kernel entry
-re-derived because EPOLLONESHOT disables the whole per-fd entry; eventfd wake; ms-rounded timeout),
-`.auto` -> `.epoll` on Linux, ADR 0003 section 2a. Opened bug #52 (fixed in cycle 58). Gotchas:
-`zig build test -Dtarget=x86_64-linux-gnu` compiles every Linux test binary though the host cannot
-run them (the "unable to execute" lines are expected); riscv64 `fiber_switch.zig` fails to build
-(naked fn safety check), not in CI; BSD `sed` rejects `\n`, use python for edits.
-
-Cycle 56 (10-17): item 5 via PR #50: `src/net_data.zig` (netRead/netWrite/netSend/netShutdown).
-Interrupted tree preserved as `wip/feat-net-data-path-slots-20261017` (do not delete; older
-`wip/feat-native-net-data-path-*` and `feat/native-net-data-path` are kept too). Always grep
-build.zig for a leftover `.filters` before trusting a wip tree (the parity step ran ONE test).
-`Registry.count()` read undefined on a disabled registry (returns 0 now). Leftovers: comptime check
-on `data_fail`'s `closed` arg, `setsockopt` asserts in test helpers, foreign-handle test strength,
-#49 follow-ups (blocking accept infinite poll, registry spin-lock bound, `catch unreachable` at
-net_registry.zig:160, errno gaps). The guard blocks a ready-and-merge pair in one command.
-
-## History (cycles 49-55, condensed 2026-10-19)
-
-Cycle 55 (10-15): re-reviewed #49, CRITICAL = a cancel arriving after a readiness wake was lost; fix
-`park` calls `task_acknowledge_cancel` first, `close_on_carrier` returns bool. Wake order is
-most-recent-joiner first. Cycle 54: item 4 as draft PR #49 (sys.zig, net.zig registry, sched_io.zig
-poller dispatch); too big for one cycle with a fix round (~$2.6); draft status keeps the inbox from
-auto-merging a PR with open CRITICALs. Cycle 53: item 3 via PR #48 (`sockets_max` required,
-`.auto` -> `.kqueue` on Darwin, parity suite per backend); gate 7 on kqueue p50 0.31 ms / p99
-0.39 ms. Cycle 52 (10-13): plan 004 merged, milestone #46; item 2 via PR #47 (ADR 0003, `poller.zig`,
-`kqueue.zig`; `init(target, gpa, options)`, relative `wait(timeout_ns, out)`). One subagent for
-tests+impl is cheaper than architect + two agents. Cycles 49-51: plan 004 proposed as PR #44 (12
-items, v0.5.0 MINOR); PR #45 split `src/sched.zig` tests. Gotchas: a hanging `zig build test`:
-python subprocess timeout then `pkill -f .zig-cache`; no `stabilize` label in the repo; the guard
-blocks compound Bash (`cd <repo>;`, citadel paths): run commands alone, use Read/Write/Edit.
+- Plan 004 (evented net): proposed PR #44 (12 items, v0.5.0 MINOR); item 2 PR #47 (ADR 0003,
+  `poller.zig`, `kqueue.zig`; `init(target, gpa, options)`, relative `wait(timeout_ns, out)`); item
+  3 PR #48 (`sockets_max` required, `.auto` -> `.kqueue` on Darwin, per-backend parity suite); item
+  4 draft PR #49 (sys.zig, net registry, poller dispatch; draft status keeps the inbox from
+  auto-merging with open CRITICALs; a cancel after a readiness wake was lost, `park` now calls
+  `task_acknowledge_cancel` first); item 5 PR #50 `src/net_data.zig`; item 6 PR #51
+  `src/backend/epoll.zig` (EPOLLONESHOT disables the whole per-fd entry, so the kernel entry is
+  re-derived; eventfd wake; `.auto` -> `.epoll` on Linux); item 7 PR #54 `src/submit.zig` serves
+  `net_receive` and non-blocking file streams on the poller; item 8 PR #55 `src/batch.zig` native
+  `batchAwait*/Cancel` (wait is wheel slices 50 us -> 2 ms, item 8b adds a per-op waiter node).
+- Bug #52 (PR #53): a test race, not runtime; a call after close is a caller bug (`net_data.zig`).
+- Review leftovers: overflow worker has no cancel in `poll(2)`; no generation check on
+  `lease_release` after a foreign close; `wait_err` switches use `else`; blocking accept infinite
+  poll; registry spin-lock bound. Std 0.16.0 bug: `Io.Threaded.batchAwaitConcurrent` leaves a
+  ready `net_receive` on `submitted`. `wip/feat-net-data-path-slots-20261017` and older
+  `wip/feat-native-net-data-path-*` kept (never delete).
+- Gotchas: `zig build test` re-runs are cached; `-Dtarget=x86_64-linux-gnu` compiles every Linux
+  test binary ("unable to execute" is expected); riscv64 `fiber_switch.zig` fails to build, not in
+  CI; grep build.zig for a leftover `.filters` before trusting a wip tree; BSD `sed` rejects `\n`;
+  `gh pr checks --watch` over 9 min hits the Bash timeout; a hanging test: python subprocess
+  timeout then `pkill -f .zig-cache`; one zig-developer call for tests+impl cost ~$3.1, brief
+  narrowly; the guard blocks compound Bash (`cd <repo>;`, citadel paths, ready-and-merge pair).
 
 ## History (cycles 37-48, condensed 2026-10-19)
 

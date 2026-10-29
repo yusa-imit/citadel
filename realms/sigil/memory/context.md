@@ -133,26 +133,17 @@ loop works (~6 min); >100-col check on docs must skip table rows.
 Cycle 62: plan 005 item 10 release, PR #65, v0.4.0 tagged, milestone #55 closed; plan 006 PR #66
 (planner opus ~$0.65). Guard blocks grepping sibling `build.zig.zon` together with `git tag`/`push`.
 
-## History (cycles 60-61, condensed 2026-10-19)
+## History (cycles 54-61, folded 2026-10-29)
 
-Cycle 61: item 9 path benchmarks (PR #64): `path.pointer.resolve` ~31 ns/lookup, `$..*` ~2150 MB/s
-(~5 ns/node), filter ~2200 MB/s (~109 ns/match); `Result.matches_total`, `ns/match` column.
-Cycle 60: item 8 conformance (PR #63): vendored jsonpath-standard `tests/jsonpath/` (BSD-2, 20ebdcc),
-`path/conformance_test.zig`; counts 715 / 249 invalid / 466 valid / 659 pass / 56 pinned unsupported
-(match/search) / 0 divergent. Learned: `std.log.err` in a helper fails a test (probe tests need a `report`
-flag); warn logs make `zig build` print "failed command" but exit 0; a `// proof:` must be one line above
-the switch.
-
-## History (cycles 54-59, condensed 2026-10-22)
-
-Plan 005 `path/`, one item per cycle (PRs #57-#62): `pointer.zig` (`parse` into `[128]Segment`), `merge.zig`
-+ internal `clone.zig` (path copying, one `tree.root` swap), `patch.zig` (`copy`/`move` deep-copy via
-`clone.deep`), `jsonpath.zig` compile, `select.zig` (explicit `[nesting_max]Frame` stack), `filter.zig`
-(iterative `deep_equal`; core `eql` is not RFC equality; limits filters 32, exprs 128, queries 32).
-Learned: tidy wants a one-line `// proof:` above each `catch unreachable`/`switch (err)`; lines >100 cols
-fail tidy in tests too; `**` and `++` share precedence; arena-backed FailingAllocator sweeps hit ~2
-failure points, assert content; `Map.put` rejects duplicates; `gh pr checks` right after a push says "no
-checks" for ~1 min; slice `position` goes negative with negative steps; `-0` parses as int 0.
+Plan 005 `path/`, one item per cycle (PRs #57-#64): `pointer.zig` (`parse` into `[128]Segment`),
+`merge.zig` + internal `clone.zig` (path copying, one `tree.root` swap), `patch.zig`, `jsonpath.zig`
+compile, `select.zig` (explicit `[nesting_max]Frame` stack), `filter.zig` (iterative `deep_equal`;
+core `eql` is not RFC equality; limits filters 32, exprs 128, queries 32). C60 conformance (PR #63):
+vendored jsonpath-standard `tests/jsonpath/` (BSD-2, 20ebdcc), 659 pass / 56 pinned unsupported
+(match/search) / 0 divergent. C61 benchmarks (PR #64): pointer ~31 ns/lookup, `$..*` ~2150 MB/s.
+Learned: `std.log.err` in a helper fails a test (probe tests need a `report` flag); `**` and `++`
+share precedence; arena-backed FailingAllocator sweeps hit ~2 failure points, assert content;
+`Map.put` rejects duplicates; slice `position` goes negative with negative steps; `-0` parses as 0.
 
 ## History (cycles 0-53, folded 2026-10-27)
 

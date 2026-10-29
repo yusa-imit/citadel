@@ -97,39 +97,25 @@ src/sailor.zig --test-filter X` runs a new tui file's tests; tidy baseline 329 e
   tidy ratchet counts lines >100 in src (wrap new long lines); `@FieldType` exists in 0.16; the
   guard blocks Bash containing `cd <repo>`; PATH needs the 0.16 toolchain each call.
 
-## History (cycles 30-31, condensed 2026-10-16)
-- 30 (STABILIZATION): PR #55 metrics stats queries sort in place and `rebuildTypeStats` refills retained
-  capacity (4 `catch unreachable` gone, no API change); PR #56 `area_chart_test` fill_char tightened.
-  Tiger counts then: 7 bare `catch unreachable`, 8 `@panic`, 35 debug.print, 13 `while (true)`, 53 files
-  >800, 243 asserts.
-- 31: item 4 PR #57, `TerminalWidget.render` interprets CSI/SGR via `AnsiParseState.escapeLength`/
-  `applySgr`/`style`; style does not carry across scrollback lines; truncated seq ends the line.
-- Quirks: probe one tests/ file in ~10 s with `zig test --dep sailor -Mroot=tests/X_test.zig
-  -Msailor=src/sailor.zig --cache-dir /tmp/sailor-zig-cache`; `gh pr checks --watch` can exceed the 540 s
-  tool cap, poll with python `time.sleep`; guard blocks `cat >> file <<EOF` (use Edit/Write).
+## History (cycles 25-31, folded 2026-10-29)
 
-## History (cycles 27-29, condensed 2026-10-15)
-- 27: plan 002 item 1 (PR #52): eight widgets + `grapheme.wrapText`, `term/windows.parseAnsiSegments`,
-  `clipboard_demo`, `large_data_bench` moved off `ArrayList.init`; wip branch
-  `wip/fix-unbuilt-arraylist-sweep-20261009` kept. Fixed `MultiCursorEditor.insertCharAll`; `deleteCharAll`
-  has the same class of bug (shifts all cursors by 1), untested, NOT fixed.
-- 28: item 2 (PR #53): `zig build build-all` compiles every example and benchmark; CI runs it on all OSes
-  plus `zig fmt --check` on Linux. `examples/clipboard_demo.zig` rewritten.
-- 29: item 3 (PR #54): `zig fmt tests` touched 69 files (whitespace only); CI fmt covers `tests`.
-- Quirks: global `zig` is 0.15.2, put `/Users/fn/.zr/toolchains/zig/0.16.0` first on PATH; stale
-  `.zig-cache` gives bogus `FileNotFound` (use `--cache-dir /tmp/sailor-zig-cache`); tidy ratchet counts
-  `build.zig` line/function length, so new build code goes into helper fns; `sleep N; cmd` blocked by the
-  guard; `gh pr checks --watch` hits the 540s tool limit (Windows CI ~9 min), open the PR by minute ~8;
-  macOS `sed -i` needs `''`; no `timeout` binary; `gh pr create` has no `--json`.
-
-## History (cycles 25-26, condensed 2026-10-13)
-
-Cycle 26 (2026-10-07): plan 002 proposed (#50). Cycle 25 (STABILIZATION, 2026-10-06): Windows-only
-mindmap runner timeout on main was a flake (rerun green); PR #48 async_loop test callbacks off
-`catch unreachable`, PR #49 `Treemap` no longer blanks on NaN/+Inf items. Quirks: `gh` with `-R`
-must not share a Bash call with `cd <repo>`; subagent `isolation: worktree` is blocked by
-guard_write; always `gh run list -R yusa-imit/sailor` (without `-R` returns stale runs); no
-`zig build test -Dtest-filter`. Stray empty local branch `test/treemap-nonfinite-assertions`.
+- 25 (STABILIZATION): Windows-only mindmap runner timeout was a flake; PR #48 async_loop test
+  callbacks off `catch unreachable`; PR #49 `Treemap` no longer blanks on NaN/+Inf. 26: plan 002
+  proposed (#50). 27: plan 002 item 1 (PR #52) moved eight widgets, `grapheme.wrapText`,
+  `parseAnsiSegments` and two examples off `ArrayList.init`; `MultiCursorEditor.deleteCharAll`
+  shifts all cursors by 1, untested, NOT fixed. 28: item 2 (PR #53) `zig build build-all`
+  compiles every example and benchmark, CI runs it plus `zig fmt --check`. 29: item 3 (PR #54)
+  `zig fmt tests`, 69 files whitespace only.
+- 30 (STABILIZATION): PR #55 metrics stats sort in place (4 `catch unreachable` gone); PR #56
+  `area_chart_test` tightened. 31: item 4 PR #57, `TerminalWidget.render` interprets CSI/SGR via
+  `AnsiParseState`; style does not carry across scrollback lines.
+- Quirks: global `zig` is 0.15.2, put `/Users/fn/.zr/toolchains/zig/0.16.0` first on PATH; probe
+  one tests/ file with `zig test --dep sailor -Mroot=tests/X_test.zig -Msailor=src/sailor.zig
+  --cache-dir /tmp/sailor-zig-cache`; stale `.zig-cache` gives bogus `FileNotFound`; tidy ratchet
+  counts `build.zig` length, new build code goes into helper fns; `gh pr checks --watch` hits the
+  540 s tool cap (Windows CI ~9 min), poll with python `time.sleep`; guard blocks `sleep N; cmd`
+  and `cat >> file <<EOF`; always `gh run list -R yusa-imit/sailor`, never with `cd` in the same
+  Bash call; macOS `sed -i` needs `''`; no `timeout` binary; no `zig build test -Dtest-filter`.
 
 ## Cycle 24 — 2026-10-05 — FEATURE
 
