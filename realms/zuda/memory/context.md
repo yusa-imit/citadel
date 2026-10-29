@@ -1,7 +1,25 @@
 # zuda — context
 
-last_seen_at: 2026-10-29T00:00:00Z
+last_seen_at: 2026-10-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 38 — 2026-10-30 — FEATURE
+- Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #80 (sorting, 7/7,
+  `auto-merged`). Sweep slice `containers/trees`: 8 of 15 red (aa, avl, interval, radix,
+  scapegoat, splay, trie, wavelet), fixed (`.empty`, unmanaged lists, `swapRemove` on
+  `AutoArrayHashMapUnmanaged`); all 15 now imported from the `root.zig` test block.
+  Real bugs: `WaveletTree.rank0` subtracted all set bits, not those before `i`; `RadixTree`
+  `PrefixIterator`/`Iterator` read `frame.node` after `stack.pop()` (0.16 poisons the popped slot
+  with 0xaa: read before pop); `VanEmdeBoasTree` sized clusters and summary by sqrt(u), wrong
+  when log2(u) is odd (now `cluster_count = u / sqrt_u`, `u >= 2` comptime check).
+- PR: #81 (`fix/compile-clean-trees-zig-016`) merged at 7/7, `auto-merged`.
+- Next: compression (8 red: bwt, deflate, delta, huffman, lz77, lzss, rle, snappy; arithmetic,
+  lz4, zstd compile clean, check if wired), linalg 6, iterators 5, ML 34 last; 10 unwired string
+  files; 5 dp leftovers; assertion baseline; v3.0.0. Cycle 39 is FEATURE.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: perl `s///` with `@as(` eats `@as` (escape `\@`) — bit again; sweep scripts
+  `/tmp/zsweep/run.sh` (compile) and `runtest.sh` (run tests) work, take rel path under src;
+  CI Build&Test 9 min, cross-compile done ~17 min after push; whole cycle ~20 min.
 
 ## Cycle 37 — 2026-10-29 — FEATURE
 - Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #79 (geometry,
