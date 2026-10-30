@@ -1,6 +1,6 @@
 # sigil — context
 
-last_seen_at: 2026-10-30T00:00:00Z
+last_seen_at: 2026-10-30T12:00:00Z
 rejected_plans: []
 
 ## Cycle 78 — 2026-10-30 — FEATURE
@@ -14,29 +14,30 @@ rejected_plans: []
   Blockers: none.
 - Learned: `gh pr merge --label` does not exist; add `auto-merged` via `gh pr edit` first, then merge.
 
-## Cycle 77 — 2026-10-29 — FEATURE
+## Cycle 79 — 2026-10-30 — FEATURE
 
-- Done: plan PR #80 still open (no owner comments), no milestone issue -> `/stabilize --one`: test-only
-  PR #82 (dotted keys in one inline table, comments + CRLF between array elements, comment inside `{}`
-  rejected at the newline ending it, every prefix of a nested doc is a typed error never OutOfMemory).
-  CI 8/8, auto-merged. 757 tests, tidy 0. Cost ~$0.5, no subagents.
-- Next: once #80 is merged, open milestone issue for 007 and do item 1 (ADR 0006). Else another
-  `/stabilize --one`: asserts (>=2) in parser `read_value`/`step`/`place`/`array_step`/`table_step`;
-  docs lines >100 cols in PRD.md (33), plans/000-inherited.md (6), README (2). Blockers: none.
-- Learned: the guard also blocks `cd <repo>; for ... sleep` loops; use `gh pr checks N --repo
-  yusa-imit/sigil` in an `until` loop with absolute paths. python heredoc `replace` with `\r\n`
-  escapes silently misses (check the diff); tidy flags test lines >100 cols.
+- Done: plan PR #80 was merged -> opened milestone issue #84 ("007 binary-formats", 11 items) and did
+  item 1: ADR 0006 binary-format contract (written directly, no subagents), PR #85 (also amends PRD 4.3
+  msgpack/cbor rows), CI 8/8, auto-merged; #84 box 1 ticked (1/11). Cost ~$0.7.
+- ADR 0006 key pins: `uint` only above maxInt(i64) (round-trip exact in that normal form); keys string-only
+  (`NonStringKey`); `DuplicateKeyPolicy` moves to `core.value`, json re-exports; msgpack 11 / cbor 17 parse
+  errors; positions line 1, col = offset+1; CBOR indefinite via counting pass (bound = count of 5f 7f 9f bf
+  bytes), msgpack one pass; bomb rule vs remaining bytes; msgpack refuses timestamp with offset; CBOR tag 0
+  keeps offset, null offset -> tag 1; deterministic = keys sorted shorter-first then bytewise;
+  `sigil_options.bytes = .{"field"}` for `[]const u8` <-> `.bytes`; runners test-only (std.json for CBOR
+  Appendix A, line reader for msgpack-test-suite YAML, fallback hand-derived vectors.json).
+- Next: item 2 `msgpack/decoder.zig` reader (u32 offsets, per-first-byte tests, bomb `0xdd ffffffff`).
+  Move `DuplicateKeyPolicy` to core in item 3. Record deterministic CBOR bytes in `architecture.md` Formats
+  at item 7. Blockers: none.
+- Learned: `zig build test` exit code via `> log; echo $?` (a pipe to tail hides it; "failed command" line is
+  printed with exit 0 on warn logs).
 
-## Cycle 76 — 2026-10-29 — FEATURE
+## History (cycles 76-77, condensed 2026-10-30)
 
-- Done: plan PR #80 still open (no owner comments), no milestone issue -> `/stabilize --one`: ADR 0005
-  docs fix (4 lines >100 cols wrapped; section 4 now says inline state is set at `{`, as the code does).
-  PR #81, CI 8/8, auto-merged. Cycle 67 ADR follow-ups (line 97, inline-state wording, `depth = 0`
-  dead init check) -> ADR ones done. CI green, inbox empty, disk 38 GB. Cost ~$0.5, no subagents.
-- Next: once #80 is merged, open milestone issue for 007 and do item 1 (ADR 0006). Else another
-  `/stabilize --one`: asserts in parser step fns, prefix-truncation test, inline-table tests;
-  docs lines >100 cols remain in PRD.md (33), plans/000-inherited.md (6), README (2). Blockers: none.
-- Learned: the guard blocks `cd <repo> && ...` in a compound with `;` too — use `git -C`/absolute paths.
+While plan PR #80 waited: C76 PR #81 (ADR 0005 wrapped to 100 cols, inline state set at `{`); C77 PR #82
+(tests: inline-table dotted keys, array comments/CRLF, prefix truncation). Learned: guard blocks `cd <repo>;`
+compounds and `sleep` loops (use `git -C`, `gh pr checks N --repo yusa-imit/sigil` in an until loop);
+python heredoc `\r\n` replace silently misses; tidy flags test lines >100 cols.
 
 ## Cycle 75 — 2026-10-28 — FEATURE
 
@@ -163,7 +164,7 @@ share precedence; arena-backed FailingAllocator sweeps hit ~2 failure points, as
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
 Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 closed). Plan 007
-(msgpack + CBOR, v0.6.0) proposed in PR #80, awaiting human merge.
+(msgpack + CBOR, v0.6.0) merged; milestone #84, item 1 (ADR 0006) done.
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -178,5 +179,5 @@ Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 clo
 
 ## Next priority
 
-Plan 007 PR #80 merge, then its item 1 (ADR 0006); see the newest cycle block.
+Plan 007 item 2 (`msgpack/decoder.zig` reader); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
