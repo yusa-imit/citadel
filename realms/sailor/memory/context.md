@@ -126,82 +126,39 @@ src/sailor.zig --test-filter X` runs a new tui file's tests; tidy baseline 329 e
   and `cat >> file <<EOF`; always `gh run list -R yusa-imit/sailor`, never with `cd` in the same
   Bash call; macOS `sed -i` needs `''`; no `timeout` binary; no `zig build test -Dtest-filter`.
 
-## Cycle 24 — 2026-10-05 — FEATURE
+## History (cycles 0-24, folded 2026-10-30)
 
-- Done: preflight clean, CI green, inbox clear (only our own comments). Merged #45 (fmt.zig
-  assertion baseline, 10/10 CI) and ticked item 11. Item 12: PR #46 (README rewrite, PRD header
-  3.0.0/0.16.0, new CHANGELOG.md) merged; release PR #47 merged, tag v3.0.0 + GitHub release.
-  Migration issues zr#178, silica#163, zoltraak#141. Milestone #19 closed.
-- Next: n=25 STABILIZATION (periodic). Then `/plan` 002: doc-comment audit round 3 backlog
-  (terminal, pager, metrics_dashboard, richtext, paragraph), 8 orphaned widgets still on
-  `ArrayList(T).init` (bench-large-data, clipboard_demo don't build), ~78 files not
-  `zig fmt` clean, 52 files >800 lines. README claims "6 cross-compile" only via CI.
-- Blockers: none. Open questions: none.
-- Quirks: guard hook blocks bash writes to citadel (use Write/Edit); CI Windows ~7-9 min so a
-  release PR needs to open by minute ~11; zsh `echo == x` errors (quote it). The docs-only PR
-  still runs full CI (paths-ignore is push-only).
-
-## History (cycles 19-23, condensed 2026-10-07)
-
-Cycle 23 (2026-10-04): item 11 (5/5) `src/fmt.zig` assertion baseline, PR #45. Fixed `Table.render`
-segfault on alloc failure, `max_width = 0` infinite loop, short `alignments` OOB, unbounded width
-math (caps 2^20 config / 2^30 cell), `addNumber` nan/inf, unquoted CSV `\r`; new error values
-`InvalidConfig`/`CellTooLong`/`NonFiniteNumber` (consumers note in migration issues). Review caught
-`Csv.init` asserting on user config (added `csv_config_valid`). Pace: start CI by minute ~12.
-Cycle 22 (2026-10-03): item 11 (4/5) `tui/layout.zig`, PR #44. `Rect` u16 overflow and `split`
-fixes; behavior change: a lone `.min` larger than the span is honored, others squeezed to 0.
-One zig-developer agent for the whole TDD cycle (~$1.4, ~10 min) worked.
-Cycle 21 (2026-10-02): item 11 (3/5) `tui/buffer.zig`, PR #43; `Buffer.fill` u16 overflow, shared
-`src/stdx.zig` (`maybe`). Quirks: stale `.zig-cache` -> `--cache-dir /tmp/sailor-zig-cache`;
-"failed command: .../test --listen" is noise at exit 0; fast loop `zig test -Mroot=src/sailor.zig
---test-filter X`; macOS has no `timeout`; zsh `echo == x` errors (quote it).
-Cycle 20 (STABILIZATION, 2026-10-01): PR #42 regenerated `tidy_baseline.txt` post-0.16 (359->334).
-`gh run list --workflow CI --branch main` once returned a stale run; list without `--workflow`.
-Cycle 19 (STABILIZATION, 2026-09-30): main red on Windows only (wall-clock bounds after real
-`io.sleep`); PR #41 `VirtualClock` Io double, see [[patterns]]. Still real-time in
-`tests/error_recovery_test.zig`: `elapsed < 1ms`, `< 10ms` snapshot, async-hook sleeps (~L800).
-Guard quirk: run `gh` without `cd`; memory writes via Write/Edit, not heredocs.
-
-## Migration window
-
-- 2026-09-29 (sailor-migration, run 2): errors 207→0; PR #40 squash-merged (10/10 CI green),
-  #34 closed, plan 001 items 4, 6-10 ticked (#19). Landed: env access via `environ_map:
-  *const std.process.Environ.Map` (first param after the receiver, before `io`); time/sleep/
-  Mutex/fs/isatty via `io: std.Io` (long-lived structs cache `io` at `init`); `src/term/win32.zig`
-  shim for the console externs 0.16 std dropped (kernel32 BOOL returns `c_int`); `build_support/
-  tidy_main.zig` on `process.Init`; `zig fmt` applied to src+build.zig (reflow tripped the tidy
-  ratchet, fixed by tightening files, baseline untouched); examples/benchmarks/scripts migrated;
-  before/after table in `docs/API.md`. Local Windows check that works: `zig build test
-  -Dtarget=x86_64-windows-gnu` (msvc libc is unavailable locally; run-step failures are noise,
-  only `error:` lines from `compile test` count). Windows quirk: stat needs a read-access handle.
-- Not landed / follow-ups: widgets never referenced by any test still use removed
-  `ArrayList(T).init` (websocket, theme_editor, metricspanel, debugger, richtext, multicursor,
-  virtuallist, streaming_table) so `bench-large-data` and `examples/clipboard_demo.zig` fail to
-  build; `tests/*.zig` (~78 files) are not `zig fmt` clean; docs other than API.md still show old
-  signatures (item 12). v3.0.0 not tagged: needs items 11 (assertion baseline, 2/5) and 12.
-- Earlier run (2026-09-28): errors 696→207; mechanical renames, Io wave 1 sinks, started wave 2.
-
-## History (cycles 0-18, condensed 2026-10-10)
-
-- **Cycles 0-2 (2026-09-05/06)**: realm created; plan `001` merged (#18, tracking issue #19);
-  hygiene PR #20; `tidy` build step (`build_support/tidy.zig`, 30 TDD tests, 447-entry
-  `tidy_baseline.txt` ratchet) wired into `zig build test`. `wip/timeline-description-rendering`
-  preserved, finished as PR #22 (never delete `wip/*`).
-- **Cycles 3-5 (09-07 to 09-09)**: Windows-only CRLF bug in `countLongLines` (PR #21, see
-  [[debugging]]); flaky `avg_ns` perf assertion fixed (PR #23); `@panic` sites proof-commented
-  (PR #24); `crypto_random` tidy check (PR #25).
-- **Cycles 6-9 (09-10/11)**: read both stdlibs and split item 4: `DebugAllocator` and
-  `.link_libc = true` landed early (PR #26); `Io.Mutex`, env access, `posix.isatty`, `find*`
-  renames had no 0.15.2 spelling and waited for the toolchain switch. `ArrayList` `.empty` sweep
-  (PR #28). See [[patterns]] "check for a 0.15.2-compatible spelling".
-- **Cycles 10-15 (09-12 to 09-17)**: `//!` header sweeps (top-level, `tui/`, `tui/widgets/`;
-  baseline 446→359); `catch unreachable` proof comments; nested `ArrayList` sweep missed 65
-  sites (PR #35, see [[patterns]] "Caution on done mechanical sweeps"); question issue #34
-  filed on the migration branch vs long session.
-- **Cycles 16-18 (09-26 to 09-29)**: item 11 assertion baseline started (`term.zig` #38,
-  `arg.zig` #39); #34 got the OWNER's cron-exception reply (migration window ON). Reviewer
-  lesson: use `std.Io.Writer.fixed`, not `std.io.fixedBufferStream`; no tautological asserts.
-- **Backlog carried since cycle 0, still open**: v2.100.0 "Widget Doc-Comment Audit Round 3"
-  (`terminal.zig` `AnsiParseState`, `pager.zig` soft-wrap, `metrics_dashboard.zig`/`richtext.zig`
-  scope decisions, `paragraph.zig` wrap + RTL last); stale-doc and 52-files->800-lines hygiene
-  tracked in STATE.md; `zig fmt --check src` flags 78 old files (CI does not run it).
+- **Cycles 0-18 (2026-09-05..29)**: realm created; plan `001` merged (#18, tracking #19); `tidy`
+  build step (`build_support/tidy.zig`, `tidy_baseline.txt` ratchet) wired into `zig build test`;
+  `wip/timeline-description-rendering` finished as PR #22 (never delete `wip/*`). Windows-only CRLF
+  bug in `countLongLines` (PR #21, see [[debugging]]). 0.16 work split early: `DebugAllocator` and
+  `.link_libc = true` landed first, the rest waited for the toolchain switch ([[patterns]] "check
+  for a 0.15.2-compatible spelling"). A nested `ArrayList` sweep missed 65 sites (PR #35, see
+  [[patterns]] "Caution on done mechanical sweeps"). Reviewer lessons: `std.Io.Writer.fixed`, not
+  `std.io.fixedBufferStream`; no tautological asserts. Question #34 got the OWNER's cron-exception
+  reply (migration window ON).
+- **Migration (2026-09-28/29)**: errors 696→207→0; PR #40 merged (10/10 CI). Env access via
+  `environ_map: *const std.process.Environ.Map` (first param after the receiver, before `io`);
+  time/sleep/Mutex/fs/isatty via `io: std.Io` (long-lived structs cache `io` at `init`);
+  `src/term/win32.zig` shim for console externs 0.16 std dropped; `build_support/tidy_main.zig` on
+  `process.Init`; before/after table in `docs/API.md`. Local Windows check: `zig build test
+  -Dtarget=x86_64-windows-gnu` (run-step failures are noise, only `error:` lines from `compile
+  test` count); Windows stat needs a read-access handle.
+- **Cycles 19-23 (2026-09-30..10-04)**: 19 main red on Windows only (wall-clock bounds after real
+  `io.sleep`), PR #41 `VirtualClock` Io double ([[patterns]]); real-time asserts remain in
+  `tests/error_recovery_test.zig` (~L800). 20 PR #42 regenerated `tidy_baseline.txt` (359->334).
+  21-23 item 11 assertion baseline: `tui/buffer.zig` #43 (`Buffer.fill` u16 overflow, shared
+  `src/stdx.zig`), `tui/layout.zig` #44 (`Rect` u16 overflow; a lone `.min` larger than the span is
+  honored, others squeezed to 0), `fmt.zig` #45 (`Table.render` segfault on alloc failure,
+  `max_width = 0` loop, width caps 2^20 config / 2^30 cell, new errors `InvalidConfig`/
+  `CellTooLong`/`NonFiniteNumber`). Review caught `Csv.init` asserting on user config.
+- **Cycle 24 (2026-10-05)**: README rewrite + CHANGELOG (PR #46), release PR #47, tag v3.0.0;
+  migration issues zr#178, silica#163, zoltraak#141; milestone #19 closed.
+- Quirks: stale `.zig-cache` -> `--cache-dir /tmp/sailor-zig-cache`; "failed command: .../test
+  --listen" is noise at exit 0; fast loop `zig test -Mroot=src/sailor.zig --test-filter X`; CI
+  Windows ~7-9 min so a release PR must open by minute ~11 (docs-only PRs still run full CI);
+  `gh run list` without `--workflow` (a stale run once appeared); guard blocks bash writes to
+  citadel (use Write/Edit), `gh` with `cd`, and heredocs; zsh `echo == x` errors (quote it).
+- **Backlog since cycle 0**: v2.100.0 "Widget Doc-Comment Audit Round 3" (`terminal.zig`
+  `AnsiParseState`, `pager.zig`, `metrics_dashboard.zig`/`richtext.zig`, `paragraph.zig` last);
+  stale-doc and 52-files->800-lines hygiene tracked in STATE.md.

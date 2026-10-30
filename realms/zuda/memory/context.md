@@ -81,10 +81,13 @@ rejected_plans: []
   under `perl -e 'alarm 90; exec @ARGV'`, never one combined root first. Guard rejects a chained
   command that mixes `cd` with `perl -pi` on files; run edits from the repo cwd without `cd`.
 
-## Cycle 33 — 2026-10-23 — ABORTED (disk gate: 16 GB free < 20 GB; nothing touched)
-
-## Cycles 31-32 (2026-10-21..22, folded 2026-10-28)
-- Merged #75 (btree, adjacency_list, topological_sort, silica/zr compat shims; BTree reverse
+## Cycles 30-33 (2026-10-20..23, folded 2026-10-28)
+- 30 (STABILIZATION): #74 proof comments on 21 `catch unreachable` sites; ~24
+  `Gamma/StudentT/Lindley/GeneralizedNormal.init(self.param) catch unreachable` sites in
+  `distributions.zig` need the owner's init validation as proof. No `chore` label in the repo.
+- 33: ABORTED by the disk gate (16 GB free < 20 GB); nothing touched.
+- 31-32:
+  Merged #75 (btree, adjacency_list, topological_sort, silica/zr compat shims; BTree reverse
   iterator, shim ownership bugs) and #76 (graph 20, bitwise 4, combinatorics 8, dp 15 files).
 - Sweep method: ONE scratch root per file, `src/_sweep_J.zig` = `test { _ = @import("rel/x.zig"); }`,
   `zig test -fno-emit-bin` with per-job `--cache-dir`/`--global-cache-dir` (`zig test <file>` cannot
@@ -95,12 +98,6 @@ rejected_plans: []
   max_sum_rectangle, scramble_string, stock_trading, subset_sum, target_sum.
 - Quirks: `read -t` on /dev/null does not wait (use `perl -e 'select(undef,undef,undef,N)'`); the
   guard blocks `cd <repo>; ...` and `git push -u origin HEAD` chained after checkout.
-
-## Cycle 30 — 2026-10-20 — STABILIZATION (periodic)
-- #74 merged: proof comments on 21 `catch unreachable` sites (quantile in sample/median, Deque
-  iterator). Left: ~24 `Gamma/StudentT/Lindley/GeneralizedNormal.init(self.param) catch
-  unreachable` sites in `distributions.zig` need the owner's init validation as proof. The
-  `chore` label does not exist in the repo.
 
 ## Cycles 27-29 (2026-10-17..19, condensed 2026-10-21)
 - All merged by squash at 7/7 green, labeled `auto-merged`.
@@ -139,46 +136,32 @@ rejected_plans: []
   an allocator (note an exception), huffman stack-depth assert, `hamiltonian.zig` not OOM-
   audited, `dinic`/`edmonds_karp` not in the test graph, gmm per-point E-step alloc, deque resize
   concurrent with steal still unsafe (documented in header).
-- Quirks: the `zig` on PATH is 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`; stale
-  `.zig-cache` -> `--cache-dir /tmp/zuda-zcache`; `zig fmt --check src` lists ~160 pre-existing
-  unformatted files (check touched paths only); the guard rejects `cd X; ...`, `sleep N`, and
-  shell redirects in a command mentioning the citadel path; BSD sed lacks `\n` (use `perl -0pi`);
-  zsh expands `==`; a build-runner child can outlive `pkill` of its parent (kill by pid);
-  cross-compile CI jobs queue late (>15 min): open the PR by minute ~8.
+- Quirks: `zig` on PATH is 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`; BSD sed lacks `\n`
+  (use `perl -0pi`; escape `\@` in replacements); cross-compile CI jobs queue late (>15 min).
 
-## Cycles 16-19 (2026-10-01 to 10-08), folded
+## Cycles 10-19 (2026-10-01..10-08, folded 2026-10-30)
 All merged by squash with 7/7 checks, labeled `auto-merged`.
-- 16 (STABILIZATION, bug #53, PR #55): the *test* was wrong, not `findFirst` (it returns the first
-  match to complete); fixed the expectation, wired `aho_corasick.zig` into `root.zig` tests.
-- 17 (STABILIZATION, bug #57, PRs #58 #59): ILU init double free + sparse/preconditioner tests
-  wired in; `iterative.zig` tests had stale gmres/bicgstab arity, exposing a REAL GMRES bug (lucky
-  breakdown `h(j+1,j)~0` exited before rotating col j, so x never updated); CG read `norm2(r)`
-  after `free(r)`; zero pivot is `error.SingularMatrix`; ILU(0) asserts ascending CSR columns
-  (`CSR.fromCOO` requires sorted COO and does NOT sort). Question #56 (0.16 flip vs CI pinned
-  0.15.2) went unanswered; option 1 (big-bang flip) taken.
-- 18 (FEATURE): #60 flip to 0.16.0 + ndarray `Io.Dir`/`Io.Mutex`; #61 `mem.indexOf*` -> `find*`.
-  Many files outside `root.zig`'s test graph were still red on 0.16 (-> the sweep plan item).
-  `zig fmt --check src` lists ~160 unformatted files; CI has no fmt gate.
-- 19 (FEATURE, PR #62): interrupted work preserved as `wip/fix-backtracking-0.16-compile-20261008`;
-  all 9 `algorithms/backtracking/*` compile (sudoku hang, `isValidSudoku` OOB fixed); the OOM
-  harness found leaks in six files -> bug #63.
-- Stabilize leftovers: 3-4 type-fn tidy baseline entries grew (Cuckoo/RobinHood/
-  ConcurrentSkipList/ILUPreconditioner).
+- 10-15: seed injection finished (ADR 0001 D1); time -> `Io.Clock` (#49); tidy baseline to `tools/`
+  (#50); long fns fixed (#52); `deque.zig` tests found never running (#54). Recurring cause: files
+  reached only via nested `pub const` re-exports are invisible to `refAllDecls` (issue #38), so
+  probe with a scratch `src/scratch.zig` and wire fixed files into the test block.
+- 16 (bug #53, #55): the *test* was wrong, not `AhoCorasickASCII.findFirst` (first match to
+  complete); `aho_corasick.zig` wired into `root.zig`.
+- 17 (bug #57, #58 #59): ILU init double free; stale gmres/bicgstab arity in `iterative.zig`
+  tests exposed a REAL GMRES bug (lucky breakdown `h(j+1,j)~0` exited before rotating col j, so x
+  never updated); CG read `norm2(r)` after `free(r)`; zero pivot is `error.SingularMatrix`; ILU(0)
+  asserts ascending CSR columns (`CSR.fromCOO` does NOT sort). Question #56 (0.16 flip vs CI
+  pinned 0.15.2) went unanswered; option 1 (big-bang flip) taken.
+- 18: #60 flip to 0.16.0 + ndarray `Io.Dir`/`Io.Mutex`; #61 `mem.indexOf*` -> `find*`. Many files
+  outside `root.zig`'s test graph were still red on 0.16 (-> the sweep plan item).
+- 19 (#62): interrupted work preserved as `wip/fix-backtracking-0.16-compile-20261008`; all 9
+  `algorithms/backtracking/*` compile (sudoku hang, `isValidSudoku` OOB fixed); OOM harness found
+  leaks in six files -> bug #63.
+- Leftovers: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73 lines), 3-4 type-fn tidy
+  baseline entries grew (Cuckoo/RobinHood/ConcurrentSkipList/ILUPreconditioner).
 - Quirks: stale `.zig-cache` gives "failed to spawn build runner: FileNotFound" (use `--cache-dir
-  /tmp/zuda-zcache`); `zig build test` prints "failed command" noise yet exits 0 (trust the exit
-  code); zsh has no PIPESTATUS (`pipestatus`); guard rejects `cd <repo>; ...` and shell writes
-  into citadel (use Write/Edit); no `timeout` binary; CI Build & Test 7-9.5 min.
-
-## History cycles 14-15 (folded 2026-10-11)
-
-Cycles 14-15: time -> `Io.Clock` already done (#49); tidy baseline to `tools/` (#50); long fns
-fixed (#52); `deque.zig` tests found never running (#54); `AhoCorasickASCII.findFirst` red (#53).
-Leftovers: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73 lines).
-
-## History cycles 10-13 (folded 2026-10-05)
-Cycles 10-13: seed injection finished (ADR 0001 D1); #44/#46 fixed (#47, #48). Recurring
-cause: files reached only via nested `pub const` re-exports are invisible to `refAllDecls`
-(issue #38), so probe with a scratch `src/scratch.zig` and wire fixed files into the test block.
+  /tmp/zuda-zcache`); `zig build test` prints "failed command" noise yet exits 0; zsh has no
+  PIPESTATUS (`pipestatus`); no `timeout` binary; CI Build & Test 7-9.5 min.
 
 ## History (cycles 0-9, folded 2026-09-17 to keep this file under 200 lines)
 Realm created 2026-09-05; plan 001 (Zig 0.16 migration) merged, milestone issue #31 opened.

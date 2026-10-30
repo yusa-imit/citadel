@@ -109,51 +109,21 @@ lines removed; 58 -> 43 entries); #175 `jsonScalarToTextValue` (evalJsonExtract)
 gitignored (REALM.md note stale). Global zig is 0.15.2: use `std.mem.trimRight`. Guard rejects compound
 lines mixing git/grep/writes or citadel reads; run steps as separate Bash calls.
 
-## Cycle 31 — 2026-10-14 — FEATURE
-- Preflight: main clean, CI green (9c457f8), no bug/question issues, no open PRs, inbox nothing new
-  (only own comments on #137). zuda still v2.3.0, so migration items stay blocked.
-- Done: PR #172 (merged, `auto-merged`, CI 7/7): all 1,184 long lines in engine.zig wrapped; last
-  `line_length:` baseline entry dropped (baseline has none left); plan 001 tidy part 2 ticked.
-  Local tidy + fmt + `zig build test` (4772+500 passed) green. No subagents, ~$1.1.
-- Method (reusable): /tmp python splitter (not committed): break depth-0 call/struct-brace pairs one
-  arg per line, `++` string splits, `=>`/`=`/catch/orelse/and/or breaks, comment re-wrap; then
-  `zig fmt`; ~200 leftovers via an exact-line table. Only zero-indented non-test `fn` count for
-  function_length, so wrapping inside `Database` methods and tests is free. `zig fmt` re-joins
-  `X =>\n expr` when it fits; use `error.Name` instead of long qualified error names.
-- Next: zuda v3.0.0 not tagged, so migration items remain blocked. Fillers: shrink `function_length`
-  baseline (58 entries), `std_time_in_lib` waits on 0.16 clock. Consider ticking nothing else.
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: CI 10.6 min, cycle took ~21 min; poll loops with `sleep 10` x24 stay under tool timeout.
+## History (cycles 29-31, condensed 2026-10-30)
 
-## Cycle 30 — 2026-10-13 — STABILIZATION (n%5==0)
-- Preflight: main clean, CI green (993b6f5), no bug/question issues, no open PRs; inbox nothing new
-  (only own comment on #137). zuda still v2.3.0 (sailor v3.0.0 tagged), so migration stays blocked.
-- Done: PR #171 (merged, `auto-merged`, CI 7/7): the 10 `std.debug.print` sites in server.zig (8) and
-  engine.zig (2) became scoped `std.log` (warn for failures, info otherwise); both `debug_print_in_lib`
-  baseline entries dropped (tidy.zig keeps 3, those are its own test fixtures). No subagents, ~$0.4.
-- Remaining tidy baseline: `std_time_in_lib` (17 files, blocked on 0.16 clock migration), function_length
-  58 entries, `line_length:engine.zig` 1186, `catch_unreachable_no_safety:tidy.zig` 1.
-- Next: engine.zig line-length (1186; split over 2 cycles by line range, baselined functions may not
-  grow). Migration items wait for zuda v3.0.0.
-- Flake: `tx.jepsen_test` "non-repeatable read (SERIALIZABLE prevents)" aborted (signal 6) once in a
-  local `zig build test` on this change, then passed twice on rerun and in CI. Watch for recurrence.
-- Tooling: guard rejects `cd repo; cat > file <<EOF` compound lines; write helper scripts with Write to
-  /tmp then run `python3 -I` alone (cwd persists between Bash calls). CI ~10.5 min; cycle took ~19 min.
-
-## Cycle 29 — 2026-10-12 — FEATURE
-- Preflight: repo was dirty on `chore/line-length-executor` (executor.zig fully wrapped, baseline entry
-  dropped, untested). Preserved as `wip/line-length-executor-20261012` (21244a4, pushed), then main
-  pulled; CI green (791eb3d), no bug/question issues, inbox nothing new (only own comments on #137).
-- Done: PR #170 (merged, `auto-merged`, CI 7/7): executor.zig 598 long lines wrapped. Local tidy +
-  `zig build test` (4272+500 passed) + fmt green before commit. No subagents, ~$0.5.
-  `line_length:` baseline now only engine.zig (1186).
-- Preserved: `wip/line-length-executor-20261012` is superseded by #170 but stays (never delete wip).
-- Next: engine.zig line-length (1186 long lines; baselined functions may not grow, expect helper
-  extraction; consider 2 cycles split by line range). That finishes the tidy part-2 item.
-- Blockers: zuda v3.0.0 (still v2.3.0); migration items blocked. Open questions unchanged.
-- Tooling: a stale local branch `chore/line-length-executor` (== main) existed; reused via checkout.
-  CI build-and-test ~10.5 min; a poll loop of `sleep 10` x40 stays under the 590s tool timeout.
-  Guard blocks `cd citadel/...; python heredoc` compound lines: use Write/Edit for memory files.
+- 29 (10-12): executor.zig 598 long lines wrapped, PR #170; a dirty `chore/line-length-executor`
+  was preserved as `wip/line-length-executor-20261012` (superseded by #170, never delete wip).
+- 30 (10-13, STABILIZATION): the 10 `std.debug.print` sites in server.zig/engine.zig became scoped
+  `std.log`, PR #171. Flake: `tx.jepsen_test` "non-repeatable read (SERIALIZABLE prevents)" aborted
+  (signal 6) once locally, passed on rerun and in CI; watch for recurrence.
+- 31 (10-14): all 1,184 long lines in engine.zig wrapped, PR #172; baseline has no `line_length:`
+  entry left. Method: a /tmp python splitter (not committed) breaking depth-0 call/struct-brace
+  pairs one arg per line, `++` string splits, `=>`/`=`/catch/orelse/and/or breaks, then `zig fmt`;
+  only zero-indented non-test `fn` count for function_length, so wrapping inside `Database`
+  methods and tests is free; `zig fmt` re-joins `X =>\n expr` when it fits.
+- Tooling: CI ~10.5 min, cycle ~19 min; guard rejects `cd repo; cat > file <<EOF` compounds, write
+  helper scripts with Write to /tmp and run `python3 -I` alone; poll loops of `sleep 10` x40 stay
+  under the 590 s tool timeout.
 
 ## History (cycles 19-28, folded 2026-10-27)
 
