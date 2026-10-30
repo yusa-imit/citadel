@@ -1,7 +1,23 @@
 # zuda — context
 
-last_seen_at: 2026-10-30T00:00:00Z
+last_seen_at: 2026-10-30T19:25:00Z
 rejected_plans: []
+
+## Cycle 39 — 2026-10-31 — FEATURE
+- Done: inbox clean (CI green on bbf95d4, no bugs, no OWNER comments, milestone #31). Sweep slice
+  `algorithms/compression`: 8 of 11 files red (bwt, deflate, delta, huffman, lz77, lzss, rle,
+  snappy); all 11 now imported from the `root.zig` test block and pass. Real bugs: delta unsigned
+  overflow (now wrapping), lz77 stray byte + no overlap + unchecked decode, lzss `u3` flag overflow
+  and 4096 offset not fitting 12 bits (window capped at 4095), snappy lost data on matches > 64 and
+  never emitted a copy after literals, `rle.wouldCompress` wrong element, `huffman.Node.right`
+  type. `deflate` only does stored blocks (docs honest now, empty input valid, final block required).
+- PR: #82 (`fix/compile-clean-compression-zig-016`) open; local full `zig build test` exit 0; Build &
+  Test still running at the 22-min deadline. Cycle 40 merges at 7/7, no `hold`, adds `auto-merged`.
+- Next: merge #82; linalg 6, iterators 5, aggregators 8, ML 34 last; 10 unwired string files; 5 dp
+  leftovers; real fixed-Huffman deflate/inflate (stored only today); assertion baseline; v3.0.0.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: `zig fmt --check src` is red on ~126 pre-existing files (CI does not run fmt); format only
+  the slice you touch (`zig fmt src/algorithms/<dir>`). Sweep scripts need `zsh`, run from repo root.
 
 ## Cycle 38 — 2026-10-30 — FEATURE
 - Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #80 (sorting, 7/7,
@@ -21,39 +37,14 @@ rejected_plans: []
   `/tmp/zsweep/run.sh` (compile) and `runtest.sh` (run tests) work, take rel path under src;
   CI Build&Test 9 min, cross-compile done ~17 min after push; whole cycle ~20 min.
 
-## Cycle 37 — 2026-10-29 — FEATURE
-- Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #79 (geometry,
-  7/7, `auto-merged`). Sweep slice `algorithms/sorting`: 6 of 23 files red (bitonicsort, blocksort,
-  mergesort, pancakesort, pigeonholesort, strandsort), ported to unmanaged `ArrayList`; the other
-  22 were only reachable through `pub const` re-exports so their tests never ran; all 23 now
-  imported from the `root.zig` test block and pass. Real bug: `strandSort` merge took the right
-  element on ties (unstable; the existing stability test failed). Breaking: `pancakeSortSequence`,
-  `getAllStrands` return unmanaged lists.
-- PR: #80 (`fix/compile-clean-sorting-zig-016`) open; local full `zig build test` exit 0; CI not yet
-  finished at report time. Next cycle merges at 7/7, no `hold`, adds `auto-merged`.
-- Next: merge #80; sweep trees, compression, linalg, iterators, aggregators, ML (34) last; 10
-  unwired string files; 5 dp leftovers; assertion baseline; v3.0.0. Cycle 38 is FEATURE.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: first Bash call was blocked because it mixed `/tmp` writes with the citadel path; keep
-  citadel reads in separate calls. Sweep script lives in /tmp/zsweep (per-file scratch root
-  `src/_sweep_X.zig`, `-fno-emit-bin` for compile, no flag to run tests); full build ~4 min.
-
-## Cycle 36 — 2026-10-28 — FEATURE
-- Done: inbox clean (CI green on 5bdaf02, no bugs, no OWNER comments, milestone #31). Plan 001
-  compile-clean, geometry slice: 7 of 13 files red, all 13 wired into `root.zig`.
-  Real bugs: Bentley-Ottmann iterated `events.items` while appending (use-after-free) and
-  its neighbour-only status found 10 of 100 intersections -> rewritten as an active-set sweep
-  (honest header); ear clipping used an open triangle and clipped through a reflex vertex
-  (L-shape area 100, not 75); `Delaunay(f32)` never compiled; orientation and zigzag tests
-  had wrong expectations. Result lists are unmanaged (`deinit(allocator)`), v3.0.0 break.
-- PR: #79 (`fix/compile-clean-geometry-zig-016`) open; Build & Test green (9m25s), 6 cross-compile
-  jobs queued at the 22-min deadline; local full `zig build test` exit 0. Next cycle merges at
-  7/7, no `hold`, adds `auto-merged`.
-- Next: merge #79; 10 unwired string files; sweep trees, compression, sorting, linalg, iterators,
-  aggregators, ML last; 5 dp leftovers; assertion baseline; v3.0.0. Cycle 37 is FEATURE.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: tool calls are fast, whole cycle to PR took ~10 min; CI cross-compile queues ~10 min more.
-  A perl `s///` swallowed `@divExact` (interpolated as array): escape `\@` in perl replacements.
+## Cycles 36-37 (2026-10-28..29, folded 2026-10-31)
+- 36 (#79 geometry) and 37 (#80 sorting) merged at 7/7, `auto-merged`. Real bugs: Bentley-Ottmann
+  use-after-free and wrong status (rewritten as active-set sweep), ear clipping through a reflex
+  vertex, `strandSort` unstable ties; 22 of 23 sorting files were only reachable via `pub const`.
+- Quirks: the guard blocks chaining `cd` with `perl -pi`/`cat >` writes and mixing `/tmp` writes with
+  citadel paths; keep them in separate Bash calls. Perl `s///` eats `@as(`/`@divExact` (escape `\@`).
+  `perl -pi script.pl a b c` keeps state across files: run once per file. Cross-compile CI jobs
+  queue ~10 min after Build & Test (9 min); whole cycle to PR ~10 min, so open the PR by minute ~11.
 
 ## Cycle 35 — 2026-10-27 — STABILIZATION (periodic), folded 2026-10-29
 - Merged #77, #78 (7/7). Real bug: subnormal `nu`/`beta` passed `init` but made `sample()` panic on
