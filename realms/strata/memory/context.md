@@ -1,7 +1,24 @@
 # strata — context
 
-last_seen_at: 2026-10-30T00:00:00Z
+last_seen_at: 2026-10-31T00:00:00Z
 rejected_plans: []
+
+## Cycle 73 — 2026-10-31 — FEATURE
+- Done: plan 005 item 9b split again (9b-i insert, 9b-ii delete + frees; plan + #63 updated). 9b-i merged as
+  #73 (CI 7/7, 815 tests, auto-merged): `Tree.attach(writer, track)`, logged `insert` = one `page_images` frame
+  per op + `set_lsn`, chain logged first (rule C), `pages.sync` before frame when ids popped (rule A), append
+  failure -> `discardAll` + latch `Failed`; `BufferPool.track_begin/ids/reset/end` (tracked pages never evicted).
+  `freelist.allocate/free` keep max(old,new) trunk lsn (cycle-72 warning 1 fixed + tests).
+- Preflight found 9b-i work uncommitted on `feat/btree-wal-insert` (already green): preserved as
+  `wip/feat-btree-wal-insert-20261031` (pushed, keep), finished on `feat/btree-wal-insert`. Inbox: nothing new.
+- Review: 0 critical, 4 warnings fixed (named `LogError` set, no `@errorCast`; `release_frees` asserts
+  `writer == null`; tracker unit tests; ValueTooLarge + chain-sync-failure tests; attach needs frames >= track+ops+1).
+  Open suggestions: `track_has` linear (use per-frame flag), `insert` should assert `pool.gate_on`, document
+  no guard held across insert, double sync when chain and op both popped, `ops_max` helper (3 copies).
+- Next: 9b-ii logged `delete` (merge/borrow/root collapse in one frame), `release_frees` waits `durable_lsn`
+  and frees via `free_at` (rule B); lift the `delete`/`release_frees` asserts. Then items 10-12.
+- Blockers: none. Open questions: none.
+- Note: ~$1.3 of $4, ~15 min. Bash guard rejects `cd ... && ...` and `;` chains: run one command per call.
 
 ## Cycle 72 — 2026-10-30 — FEATURE
 - Done: plan 005 item 9 split (plan + issue #63 now list 9a/9b). 9a log side merged as #72 (CI 7/7, 803 tests,
