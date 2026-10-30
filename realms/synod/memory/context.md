@@ -1,7 +1,21 @@
 # synod — context
 
-last_seen_at: 2026-10-30T00:00:00Z
+last_seen_at: 2026-10-30T12:00:00Z
 rejected_plans: []
+
+## Cycle 74 — 2026-10-30 — FEATURE
+- Preflight: disk 41 GB, CI green (6b76395), no bugs, milestone #74 open, no open PRs.
+- Done: item 4 (driver snapshot path) on `feat/driver-snapshot-2` (from the cycle-73 wip): zig-developer
+  (~$1.1, 10 min) implemented it; 2 tests in `driver_snapshot_test.zig` were themselves wrong (buffer
+  size after restart; store_full replay fails stop again), fixed by main session. 955 tests, fmt, tidy
+  green locally. PR #82 opened, CI pending at the 22-min deadline; NOT merged, item 4 NOT ticked.
+- Flagged: `snapshot_entries_min == 0` now means compaction off (sim/fixture state machines cannot
+  snapshot until item 6); ADR-009 documents 1..log_entries_max-1, needs a one-line amendment; item 6
+  removes the sentinel. Not yet code-reviewed.
+- Next: merge #82 when green (label `auto-merged`), code-reviewer, tick item 4 + #74, ADR amendment,
+  then item 5 InstallSnapshot.
+- Blockers: none. Open questions: none. Budget: ~$1.6 of $4 used.
+- Tool notes: in report, chained Bash that writes citadel files is blocked; use Write/Edit tools.
 
 ## Cycle 73 — 2026-10-30 — FEATURE
 - Preflight: disk 34 GB, CI green (d07300d), no bugs, milestone #74 open. #79 (tick) was merged.
