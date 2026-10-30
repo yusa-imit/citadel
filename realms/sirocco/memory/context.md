@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-10-30T00:00:00Z
+last_seen_at: 2026-10-31T00:00:00Z
 rejected_plans: []
+
+## Cycle 73 — 2026-10-31 — FEATURE
+- Inbox: clean (no OWNER comments, no bugs, CI green, no open PRs, milestone #62 open).
+- Item 2 done: `docs/adr/0004-multi-carrier.md` (421 lines, architect/opus, returned as text and
+  written by me) merged as PR #67 (17b80c7; docs-only, so no CI run, merged with no checks).
+  Decisions: `Options.carriers` required, `carriers_max` 64, `fibers_max` per carrier, new
+  `batch_ops_max`; `concurrent` round robin (exactly 250 per carrier for 1000 at 4), `async`
+  creator-local; `fiber.wait.outcome` CAS is the claim, wake/cancel/birth go through per-carrier
+  inbox/mailbox + poller wake; one futex table; one shared registry with `table_lock` + per-slot
+  lock and `armed: [2]u64` mask; no work stealing; `Waiter` node pool per carrier, batch parks on
+  poller + wheel; `Runtime.init` allocates everything (`5N+4` blocks evented). Plan item 2 ticked.
+- Next: item 4 (8b part 1, registry holds `Waiter` nodes, behaviour unchanged, one epoll CI round
+  trip), then item 5. Blockers: none.
+- Gotchas: the architect call took 12 min and ~$1.5 (too broad, brief it narrower or split the
+  ADR); a background `until` loop on the agent's output file hit its time limit, wait for the
+  completion notification instead; the architect result arrives HTML-escaped (`&lt;` `&gt;`
+  `&amp;`), unescape before writing; the guard blocks compound Bash again (one command per call).
 
 ## Cycle 72 — 2026-10-30 — FEATURE
 - Inbox: clean (only my own comment on #62), no bugs, CI green, no plan PR.
@@ -17,40 +34,19 @@ rejected_plans: []
 - Gotchas: tidy flags `std.time.` in src (use a local ns_per_s) and bench lines > 100 cols; the guard
   blocks a compound Bash that writes citadel files: use Write/Edit for memory.
 
-## Cycle 71 — 2026-10-29 — FEATURE
-- Inbox: #63 (origin: ai, no OWNER answer after cycles 69-70, title not `blocking`) closed with the
-  recommendation: option (c), a bench-only in-process timer build for plan 005 item 1. No bugs, CI green.
-- Item 11 done: PR #65 (CI green on macOS, ubuntu, 6 cross targets, auto-merged), built on the preserved
-  wip tree: `lease_release(fd, generation)`, exhaustive `wait_err` switches, parity test that cancels a
-  parked `concurrent` read. Suite 474/518 (44 skipped), tidy green. Plan item 11 and #62 ticked.
-- The cycle 70 hang was a test flaw, not a runtime bug: sockets made off a fiber are not registered
-  (`net.route` needs a creator task), so the read fell to the offload pool, which cannot cancel a
-  blocking read. Make the pair in a fiber (`io.concurrent(connect_pair)`); `.fail` mode fails there
-  with NetworkDown, so use `net_data.init_rt()` (`.forward`) for such tests.
-- Next: item 1 with option (c) (counters build around kevent, socket syscalls, fiber switch; record
-  in ADR 0003 section 4c), then item 2 (ADR 0004, opus architect), item 4. Blockers: none. ~11 min, ~$0.85.
-- Gotchas: lldb attach hangs on this box (use debug prints + python subprocess timeout); a stale
-  `.zig-cache` again failed `zig build` with FileNotFound: `rm -rf .zig-cache`.
+## History (cycles 69-71, folded 2026-10-31)
 
-## History (cycle 70, 2026-10-29)
-- Preserved the interrupted item-11 tree as `wip/fix-leftovers-plan-005-20261029` (kept, never delete);
-  finished and merged in cycle 71 as PR #65.
-
-## Cycle 69 — 2026-10-27 — FEATURE
-- Plan 005 was merged (#61); milestone issue #62 opened. Inbox clean (no OWNER comments, no bugs, CI green).
-- Item 1 (profile gate 1) cannot run on this box: `xctrace` is only the /usr/bin shim (no Xcode), no
-  `dtrace`, `dtruss`/`fs_usage` need root, `sudo` needs a password, `sample(1)` hangs the bench. Asked on
-  question #63 (`needs-human`, origin: ai; recommends a bench-only in-process timer build). Items 2, 6, 9
-  depend on the profile, so ADR 0004 waits for the answer.
-- Item 3 done: PR #64 (5c336dd, CI green on macOS, ubuntu, 6 cross targets, auto-merged):
-  `src/concurrency_group.zig` (262) and `src/sched_fiber.zig` (130) split out; sched.zig 613,
-  concurrency.zig 507; test count unchanged (472/515, 43 skipped). Plan item 3 and #62 ticked.
-- Next: item 11 (leftovers, independent of the profile), then item 4 (8b part 1 needs ADR 0004, so
-  likely blocked) -> check #63 for an OWNER answer first. If unanswered after two cycles, proceed with
-  option (c) per the origin: ai rule (the title is not `blocking`).
-- Blockers: profiler (#63). Streak 0. Cycle ~15 min, ~$1.1.
-- Gotchas: a zig-developer call with explicit line ranges and verification commands did a clean split
-  in 3.4 min / ~$0.5; the guard blocks compound Bash (`a; b` with citadel paths or /tmp writes).
+- 69 (10-27): plan 005 merged (#61), milestone #62 opened. Item 1 blocked: no usable profiler on this
+  box (`xctrace` shim only, no `dtrace`, `sample(1)` hangs); question #63 opened. Item 3 PR #64 split
+  `sched_fiber.zig` and `concurrency_group.zig` out (a zig-developer call with explicit line ranges
+  and verification commands did it in 3.4 min / ~$0.5).
+- 70 (10-28): interrupted item 11 tree preserved as `wip/fix-leftovers-plan-005-20261029` (kept,
+  never delete); a parity test hung in `cancel`.
+- 71 (10-29): #63 closed after no OWNER answer, option (c) chosen. Item 11 PR #65: the hang was a test
+  flaw (sockets made off a fiber are not registered, `net.route` needs a creator task; make the pair
+  in a fiber via `io.concurrent(connect_pair)`, and use `net_data.init_rt()` (`.forward`) because `.fail`
+  mode fails there with NetworkDown). Gotchas: lldb attach hangs on this box; stale `.zig-cache`
+  gives FileNotFound, `rm -rf .zig-cache`.
 
 ## History (cycles 66-68, condensed 2026-10-27)
 
