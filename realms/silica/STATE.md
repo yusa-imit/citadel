@@ -55,7 +55,10 @@ later push, not a failure).
 
 ## Tiger Style gap table
 
-Refreshed by grep + `tidy_baseline.txt`, stabilization cycle 25 (2026-10-07, main `b63b71f`, `src/` 61 files).
+Refreshed by grep + `tidy_baseline.txt`, stabilization cycle 45 (2026-10-30, main `300af95`);
+rows not listed in the refresh line below are from cycle 25. Cycle 45 grep: `assert(` 145 (any
+spelling, incl. `std.debug.assert`), `catch unreachable` 210, `@panic(` 7 (all in tests), `std.debug.print`
+16, `while (true)` 104, `expect(true)` 0, function_length baseline 31.
 
 | Metric | Count | Note |
 |---|---|---|
@@ -72,7 +75,7 @@ Refreshed by grep + `tidy_baseline.txt`, stabilization cycle 25 (2026-10-07, mai
 | | | not top-level event loops — not yet reclassified per-site |
 | files > 800 lines | 42 | `engine.zig` 43,242 and `executor.zig` 35,712 both grew since |
 | | | last survey (scratch-DB tmpDir batches touched both heavily) |
-| functions > 70 lines | 38 baselined (`function_length` entries in `tidy_baseline.txt`) | worst: `sql/executor.zig:evalFunctionCall` ~3,758 lines; |
+| functions > 70 lines | 31 baselined (`function_length` entries in `tidy_baseline.txt`) | worst: `sql/executor.zig:evalFunctionCall` ~3,758 lines; |
 | | | `computeAggregate` 1,169; `engine.zig:execSQLUnlocked` 1,135 |
 | missing `//!` header | 0/61 | fixed by PR #160 (cycle 20); was 17/61 |
 | bare `usize` in wire/on-disk structs | 0 | all `usize` hits are local offset/loop vars in (de)serialize |
