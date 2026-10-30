@@ -101,50 +101,26 @@ rejected_plans: []
 - Three NOOP cycles: disk gate failed (18, 17, 16 GB free); nothing changed. Host disk later recovered to 25 GB.
   `/tmp/strata-zc` (1.9 GB) is the zig cache for 0.16 builds.
 
-## Cycle 63 — 2026-10-21 — FEATURE
-- Done: plan 005 item 3 — `src/btree/internal.zig` (`Internal`, `parse_internal(page, level)`, `parse_internal_raw`,
-  `format_internal`, `internal_insert/remove`, `set_child`, `set_right_child`, `child_index/child_at`,
-  `check_link/check_children/check_invariants`) + `src/btree/split.zig` `split_point(page, incoming_bytes, at)
-  ParseError!u16` (leaf: first index of right node; internal: index of cell that moves up). Merged #66 (CI 7/7,
-  683 tests, auto-merged), issue #63 item 3 ticked. ADR §11 internal golden matched first time.
-- Review: 1 critical (split_point asserted on page bytes -> now `Corrupted`; ADR §13 amended), 7 warnings fixed
-  (vacuous tests, sweep bias, added `set_child`). `node.zig` helpers (get16/put16/...) widened to `pub`.
-- Next: item 4 `btree/tree.zig` create/get/insert-into-root-leaf + `BufferPool.fetchNew`. Brief the developer with
-  ADR §8, §9, §13 and node/internal/split API. Blockers: none. Open questions: none.
-- Note: ~$2.4 of $4, ~20 min. Same pattern (dev ~7 min $0.9, reviewer parallel, fixes via SendMessage ~4.5 min).
-  `internal_test.zig` 692 / `split_test.zig` 397 lines; `internal.zig` 334.
-
-## Cycle 62 — 2026-10-21 — FEATURE
-- Done: plan 005 item 2 — `src/btree/node.zig` leaf codec (`parse_leaf`, `Leaf.entry/search/check_invariants/
-  check_link(id)`, `format_leaf`, `seal`, `set_next`, `leaf_insert`, `leaf_remove`; ADR-0004 §2 limits with
-  comptime asserts) + page types 16-18 in `page/header.zig`. Merged as #65 (squash, CI 7/7, auto-merged),
-  issue #63 item 2 ticked, 652 tests. ADR §11 golden bytes reproduced from the encoder (no erratum).
-- Deviations: own-id link rule is `Leaf.check_link(id)` (parse_leaf has no id); mutators are free fns over
-  `[]u8` that leave the CRC stale - caller ends with `seal(page, id, lsn)`; `leaf_insert` returns
-  `NodeFull`/`Corrupted` before the first write (count >= cell_count_max, neighbour order checked, not asserted).
-- Review: 0 critical, 5 warnings fixed pre-merge (insert mutated before erroring, asserts on page bytes, vacuous
-  sweep, missing negative tests). Left: model test uses 4 B keys/1 B varints only; `copyForwards/Backwards` fine on 0.16 CI.
-- Next: item 3 internal cells + `split_point`. `node.zig` is 453 lines and `header_test.zig` 794/800 - put
-  internal code in a new file (e.g. `btree/internal.zig`) and new header tests in a new test file.
-  Blockers: none. Open questions: none.
-- Note: ~$2.5 of $4, ~20 min. Pattern that worked: one zig-developer does tests+impl (9 min, ~$0.9), reviewer
-  in parallel while ticking plan/CHANGELOG, fixes via SendMessage (2.5 min), PR CI 1m.
-
-## Cycle 61 — 2026-10-20 — FEATURE
-- Done: plan 005 approved (#62 merged, no owner comments). Milestone issue #63 opened. Item 1
-  ADR-0004 B+Tree page format v1 merged as #64 (docs only, CI 7/7, auto-merged): types 16/17/18,
-  24 B header + `cell_count|level|reserved|link`, u16 payload offsets, dense ordered cells,
-  varint lengths, key_len_max <= 1024, height_max 16..7 by page size, frame type 16 `page_images`.
-- ADR adds work beyond the plan text, owned by item 9 (WAL integration): `PageManager.free_at`,
-  `BufferPool.discard`, id reserve with page-file sync before a frame references a popped id,
-  overflow chains logged in their own frames first, `PageRedo` handles frame type 16. Item 4
-  owns `BufferPool.fetchNew`. PRD §4.6 links the ADR; `parseLeaf` lost `page_size`.
-- Next: item 2 `btree/node.zig` leaf cells (+ register types in `page/header.zig`; ADR §11 golden
-  bytes are hand-derived, re-derive from the encoder and fix the ADR on mismatch).
-  Blockers: none. Open questions: none (ADR OQ 1-7 are recommendations).
-- Note: ~$2.7 of $4, ~14 min; the opus architect alone cost ~$1.6 and 11 min for a 325-line ADR,
-  and its output had HTML-escaped `&lt;` that I had to decode while retyping. Next cycles: brief
-  the zig-developer with ADR sections only. Guard rejects `;`-chained commands and `sleep N`.
+## Cycles 61-63 (2026-10-20..21, condensed 2026-10-30)
+- 61: plan 005 approved (#62), milestone #63 opened. Item 1 ADR-0004 B+Tree page format v1 (#64):
+  types 16/17/18, 24 B header, u16 payload offsets, dense ordered cells, varint lengths,
+  key_len_max <= 1024, height_max 16..7 by page size, frame type 16 `page_images`. Work the ADR
+  assigns to item 9 (WAL integration): `PageManager.free_at`, `BufferPool.discard`, id reserve with
+  page-file sync before a frame references a popped id, overflow chains logged in their own frames
+  first, `PageRedo` handles frame type 16. Item 4 owns `BufferPool.fetchNew`.
+- 62: item 2 `src/btree/node.zig` leaf codec (`parse_leaf`, `Leaf.entry/search/check_invariants/
+  check_link(id)`, `format_leaf`, `seal`, `set_next`, `leaf_insert`, `leaf_remove`; ADR-0004 §2
+  limits as comptime asserts), page types 16-18 in `page/header.zig`, #65. Mutators are free fns
+  over `[]u8` that leave the CRC stale: the caller ends with `seal(page, id, lsn)`; `leaf_insert`
+  returns `NodeFull`/`Corrupted` before the first write.
+- 63: item 3 `src/btree/internal.zig` (`parse_internal(page, level)`, `format_internal`,
+  `internal_insert/remove`, `set_child`, `set_right_child`, `child_index/child_at`, `check_link/
+  check_children/check_invariants`) and `btree/split.zig` `split_point(page, incoming_bytes, at)
+  ParseError!u16`, #66, 683 tests. Review: `split_point` asserted on page bytes, now `Corrupted`
+  (ADR §13 amended). `node.zig` helpers (get16/put16/...) are `pub`.
+- Pattern (~$2.5 of $4, ~20 min): one zig-developer does tests + impl (~8 min, ~$0.9), reviewer in
+  parallel while ticking plan/CHANGELOG, fixes via SendMessage (~3 min); an opus ADR costs
+  ~$1.6 (brief developers with ADR sections only). Guard rejects `;`-chained commands and `sleep N`.
 
 ## Cycles 45-60 (2026-10-11..20, folded 2026-10-28)
 - Plan 003 closed (v0.4.0: page matrix tests, `bench/pool.zig`), plan 004 WAL (v0.5.0) landed as #50-#61:
