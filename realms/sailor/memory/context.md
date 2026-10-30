@@ -1,7 +1,34 @@
 # sailor — context
 
-last_seen_at: 2026-10-29T00:00:00Z
+last_seen_at: 2026-10-30T00:00:00Z
 rejected_plans: []
+
+## Cycle 46 — 2026-10-30 — STABILIZATION
+
+- Preflight: main 1fbc0f7 CI green; bug #75 open (owner login = the AI's own account) forced
+  STABILIZATION. Inbox: only my own cycle-45 comment on #65, no owner actions.
+- Done: **PR #76** (batch 1 of #75, merged, CI 10/10, `auto-merged`): canvas, popup, scrollview,
+  sparkline, statusbar, tabs imported in the `tui.zig` test block and tests rewritten to exact
+  cells (three parallel sonnet test-writers, 2 files each, ~$1.3 total, ~3 min). Bugs fixed:
+  `Tabs.render` advanced by bytes not cells (`tests/tabs_test.zig` encoded it; positions now
+  7/4/18/26/8), `ScrollView` scrollbar column/underflow/u16 overflow, `Sparkline` max bar and
+  zero-max byte, `Canvas`/`Popup` render called removed `Buffer.setCell`. CHANGELOG updated.
+- Remaining in #75: 27 files (autocomplete barchart checkbox completion_popup configeditor
+  context_menu editable_table form heatmap histogram httpclient input linechart markdown menu
+  metrics_dashboard piechart profiler radio record_editor scatterplot select taskrunner terminal
+  textarea timeseries tree) plus failing tests in `splitpane`, `chunkedbuffer`; tidy check
+  "every widget file with a test is imported by a test root" not yet written.
+- Known unfixed: `StatusBar` `spansWidth`/`renderSpans` count bytes (non-ASCII mis-measured) and
+  skip the right section when its width >= area width; `popup.zig:112` line > 100 cols;
+  BulletChart target == max tick.
+- Next: n=47 STABILIZATION (bug #75 open, streak 1; escalate at 2): batch 2 of ~6-8 files, import
+  them in `tui.zig` first, then spawn agents. Item 7/8 and release still wait; #65 at 6/9.
+- Blockers: none. Open questions: none. Stabilize streak 1 (progress is real; escalation at 2
+  would only open a question issue, #75 is being worked).
+- Quirks: `zig test src/tui/widgets/X.zig` fails with "import outside module path": probe through
+  `src/sailor.zig` with the build_options stub (`/tmp/bo/build_options.zig`) and `--test-filter`;
+  agents each use their own `--cache-dir`; `statusbar` helper printed via `debug.print` and tripped
+  the tidy ratchet (use `expectEqual`). Full `zig build test` ~2 min.
 
 ## Cycle 45 — 2026-10-29 — STABILIZATION
 
