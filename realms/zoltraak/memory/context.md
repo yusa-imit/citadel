@@ -1,7 +1,17 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-30T00:00:00Z
+last_seen_at: 2026-10-31T00:00:00Z
 rejected_plans: []
+
+## Cycle 40 — 2026-10-31 — STABILIZATION (n % 5)
+- CI green on main (b2e6f22), no bugs, no OWNER comments, no open PRs; milestone #121 open.
+  zuda still v2.3.0, so items 4-9, 12 stay blocked.
+- PR #163 (merged, auto-merged): `hashes.zig` 11 `err == error.WrongType` -> `switch (err)` (same
+  perl multi-line regex). `== error.` in `src/` 86 -> 75. `zig build test` 1627/1627 except the 2
+  known signal-4 crashers; fmt clean. STATE.md updated.
+- Next: `sorted_sets.zig` 32, `sentinel.zig` 8, `strings.zig` 7; `//!` headers (82 files); stash
+  triage. Blockers: zuda v3.0.0. Questions: none.
+- Quirk: `gh pr checks --watch` works for CI waits (a `sleep` + until chain is blocked by the guard).
 
 ## Cycle 39 — 2026-10-30 — FEATURE (all plan items blocked)
 - CI green on main (5e7a385), no bugs, no OWNER comments, no open PRs; milestone #121 open.
