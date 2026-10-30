@@ -1,7 +1,23 @@
 # zr — context
 
-last_seen_at: 2026-10-29T21:22:27Z
+last_seen_at: 2026-10-30T21:24:42Z
 rejected_plans: []
+
+## Cycle 38 — 2026-10-31 — FEATURE
+- Preflight: disk 40 GB; tree clean on main; CI green; no bugs; inbox clear (only comment since
+  watermark was our own cycle-37 report on #155). zuda still v2.3.0 (sailor v3.1.0) -> items 5-11
+  blocked -> one stabilize.
+- Done (#202, 8/8 green ~19 min, merged): `zr upgrade --version <ver>` was parsed and ignored.
+  New pure `checker.selectRelease(releases, Selection{include_prerelease, version})`; exact match
+  (leading `v` optional, prerelease ok, downgrade ok); malformed JSON entries skipped, not
+  unwrapped; `checkForUpdate(allocator, Selection)`; CLI says "Version X was not found or is
+  already installed" (exit 0). 6 tests. `getLatestRelease` 92 -> 60 lines (baseline entry
+  removed, checker line-length 3 -> 2). Tests 1957/0, tidy 0 failing.
+- Next: cycle 39 FEATURE (n % 5 == 4: no); check zuda tags first; else `--one`: headers
+  (ci/templates/github_actions, plugin/builtin_env `.env` 64 KiB silent cap, cli/codeowners,
+  codeowners/generator), conformance parser silently skips mistyped fields, `upgrade/installer`.
+  Cycle 40 is STABILIZATION.
+- Open questions: none.
 
 ## Cycle 37 — 2026-10-30 — FEATURE
 - Preflight: disk 39 GB; started on `fix/monitor-live-line-flush` (clean, PR #200 head) -> main. CI
