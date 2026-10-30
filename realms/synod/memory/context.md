@@ -1,7 +1,28 @@
 # synod — context
 
-last_seen_at: 2026-10-30T12:00:00Z
+last_seen_at: 2026-10-30T18:30:00Z
 rejected_plans: []
+
+## Cycle 75 — 2026-10-30 — FEATURE
+- Preflight: disk 41 GB, CI green on main (6b76395), no bugs, milestone #74 open. PR #82 had Build & Test
+  RED: its branch predated #81, so main's `node_base_test.zig` ran against the new fixture default
+  (`snapshot_entries_min = 0`, compaction off) and 12 tests failed.
+- Done: merged main into `feat/driver-snapshot-2` (merge commit, no rebase), `config_of()` in
+  `node_base_test.zig` sets min 7 / trailing 3 explicitly; 967 tests, fmt, tidy green; #82 merged
+  (7/7 CI, `auto-merged`) = plan 005 item 4. #74 item 4 ticked. code-reviewer (~$0.3): 0 CRITICAL.
+- PR open at the deadline: #83 `docs/tick-plan-005-item4` (plan tick, CHANGELOG entry, ADR-009
+  compaction-off amendment); merge when CI is green, label `auto-merged`.
+- Next: item 5 InstallSnapshot. Fix the reviewer WARNING first (test first): `Driver.init` calls
+  `state_machine.restore` before store/node validation, leaving the caller's state machine dirty
+  on a failed init; move it after `node.init` or document. Suggestions: assert `snapshot_due` is
+  the last effect before `snapshot_save` (driver.zig ~280); `catch unreachable` proof at ~246;
+  `@intFromEnum(base.index)+1..` overflow/32-bit at ~117; `assert_config` should require
+  `snapshot_bytes_max > 0` when min > 0; item 6 must remove the min == 0 sentinel in
+  `src/sim/simulation.zig`.
+- Blockers: none. Open questions: none. Budget: ~$1.0 of $4 used.
+- Tool notes: before merging a long-lived feature branch, merge origin/main and re-run tests: a
+  test file landing on main can break the branch's config assumptions. Chained Bash that mixes
+  `$(date)` with repo writes is blocked; split calls.
 
 ## Cycle 74 — 2026-10-30 — FEATURE
 - Preflight: disk 41 GB, CI green (6b76395), no bugs, milestone #74 open, no open PRs.
