@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-10-30T12:00:00Z
+last_seen_at: 2026-10-31T12:00:00Z
 rejected_plans: []
+
+## Cycle 80 — 2026-10-31 — FEATURE
+
+- Done: milestone #84 item 2, `msgpack/decoder.zig` pull `Reader` (PR #86, CI 8/8, auto-merged; #84 box 2
+  ticked, 2/11). Written directly + one sonnet `code-reviewer` (0 critical, 4 warnings fixed: more tests for
+  signed ints, NaN signs, every length form, bomb forms; `///` docs). Cost ~$1.3.
+- Shape: `Reader.init/next(diag)`, `Token{offset,item}`, `Item` union (nil, bool, int, uint [only > maxInt(i64)],
+  float, str [UTF-8 checked], bin, ext{type,data}, array/map count, end); `ScanError` = UnexpectedEnd,
+  ReservedByte, InvalidUtf8; `input_len_max = maxInt(u32)-1`; bomb rule in u64; diag "byte N: reason",
+  line 1 col offset+1; `msgpack.decoder` exported, stub `Error` kept until item 4.
+- Next: item 3 msgpack tree on `[nesting_max]Frame` (ext -1 timestamps 32/64/96, NonStringKey, DuplicateKey;
+  move `DuplicateKeyPolicy` to `core.value`, json re-exports). Blockers: none.
+- Learned: the guard blocks one Bash call mixing citadel paths with repo work (split calls); `/tmp/sigil_start`
+  was stale, read `date +%s` directly; prefix-truncation tests must exclude container heads (a header alone
+  is valid once the bomb rule is met).
 
 ## Cycle 79 — 2026-10-30 — FEATURE
 
@@ -21,21 +36,12 @@ rejected_plans: []
 - Learned: `zig build test` exit code via `> log; echo $?` (a pipe to tail hides it; "failed command" line is
   printed with exit 0 on warn logs).
 
-## Cycle 78 — 2026-10-30 — FEATURE
-
-- Done: plan PR #80 still open (no owner comments), no milestone issue -> `/stabilize --one`: PR #83,
-  >=2 asserts in TOML parser `read_value`/`step`/`array_step`/`table_step`/`place`/`place_container`
-  (cycle 67 follow-up; frame node state, depth bounds, created container state). CI 8/8, auto-merged.
-  Tests/tidy green, no behaviour change. Cost ~$0.4, no subagents.
-- Next: once #80 is merged, open milestone issue for 007 and do item 1 (ADR 0006). Else another
-  `/stabilize --one`: docs lines >100 cols in PRD.md (33), plans/000-inherited.md (6), README (2).
-  Blockers: none.
-- Learned: `gh pr merge --label` does not exist; add `auto-merged` via `gh pr edit` first, then merge.
-
-## History (cycles 76-77, condensed 2026-10-30)
+## History (cycles 76-78, condensed 2026-10-31)
 
 While plan PR #80 waited: C76 PR #81 (ADR 0005 wrapped to 100 cols, inline state set at `{`); C77 PR #82
-(tests: inline-table dotted keys, array comments/CRLF, prefix truncation). Learned: guard blocks `cd <repo>;`
+(tests: inline-table dotted keys, array comments/CRLF, prefix truncation); C78 PR #83 (>=2 asserts in the
+TOML parser step fns; open stabilize filler: docs lines >100 cols in PRD.md 33, 000-inherited.md 6,
+README 2). Learned: `gh pr merge --label` does not exist (`gh pr edit --add-label` first); guard blocks `cd <repo>;`
 compounds and `sleep` loops (use `git -C`, `gh pr checks N --repo yusa-imit/sigil` in an until loop);
 python heredoc `\r\n` replace silently misses; tidy flags test lines >100 cols.
 
@@ -179,5 +185,5 @@ Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 clo
 
 ## Next priority
 
-Plan 007 item 2 (`msgpack/decoder.zig` reader); see the newest cycle block.
+Plan 007 item 3 (`msgpack/decoder.zig` tree); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
