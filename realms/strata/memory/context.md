@@ -1,7 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-10-31T00:00:00Z
+last_seen_at: 2026-10-31T00:20:00Z
 rejected_plans: []
+
+## Cycle 74 — 2026-10-31 — FEATURE
+- Done: plan 005 item 9b-ii merged as #74 (CI 7/7, 824 tests, auto-merged, issue #63 ticked): logged
+  `Tree.delete` = one `page_images` frame (merge/borrow/root collapse together; unlinked pages dropped from
+  the tracked set, then `pool.discard`ed after the frame), absent key logs nothing; `release_frees` with a
+  writer frees only when `writer.durable_lsn >= Tree.frees_lsn` (single scalar = conservative rule B), via
+  `free_at(durable_lsn)`; failed tree frees nothing. `finish()` shared by insert/delete (`Finish` enum).
+  `attach` asserts `frees_len == 0`. Tests in `tree_wal_delete_test.zig` (9), `tree_wal_test.zig` Env is pub.
+- Review: 1 CRITICAL fixed (an unlinked page edited by the delete stayed dirty with an old lsn, so
+  eviction/flushAll could write it before its frame was durable -> `discard_unlinked`), 5 warnings fixed.
+  Open: no test replays onto the LIVE file after `free_at` trunk stamps (rule B path c); release_frees
+  all-or-nothing against the latest op; `Env.frees` is 512 in tests.
+- Next: item 10 (4E seeded model tests, `src/testing/btree_model_test.zig`, 3 page sizes x fixed seeds, include
+  logged mode + crash/replay + release_frees), then 11 bench, 12 docs + release v0.6.0 (MINOR).
+- Blockers: none. Open questions: none.
+- Note: ~$1.8 of $4, ~17 min. Developer 6.5 min (red-first honoured), reviewer 2 min, fix round 2.5 min.
 
 ## Cycle 73 — 2026-10-31 — FEATURE
 - Done: plan 005 item 9b split again (9b-i insert, 9b-ii delete + frees; plan + #63 updated). 9b-i merged as
