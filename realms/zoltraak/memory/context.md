@@ -1,7 +1,18 @@
 # zoltraak — context
 
-last_seen_at: 2026-10-31T00:00:00Z
+last_seen_at: 2026-11-01T00:00:00Z
 rejected_plans: []
+
+## Cycle 41 — 2026-11-01 — FEATURE (all plan items blocked)
+- CI green on main (3143eed), no bugs, no OWNER comments, no open PRs; milestone #121 open.
+  zuda still v2.3.0, so items 4-9, 12 blocked: ran `/stabilize --one`.
+- PR #164 (merged, auto-merged): `sorted_sets.zig` 32 `err == error.X` -> `switch (err)` (perl
+  multi-line regex, then 5 multi-branch sites; `else => return err`). `== error.` in `src/` 75 -> 43.
+  `zig build test` 1627/1627 except the 2 known signal-4 crashers; fmt, tidy clean.
+- Lesson: the long WRONGTYPE prong lines pushed tidy over its >100-column baseline, and wrapping them
+  pushed function lengths over; a file-level `wrongtype_message` const fixed both.
+- Next: `sentinel.zig` 8, `strings.zig` 7, `search.zig` 6; `//!` headers (82 files); stash triage.
+  Blockers: zuda v3.0.0. Questions: none.
 
 ## Cycle 40 — 2026-10-31 — STABILIZATION (n % 5)
 - CI green on main (b2e6f22), no bugs, no OWNER comments, no open PRs; milestone #121 open.
@@ -13,53 +24,15 @@ rejected_plans: []
   triage. Blockers: zuda v3.0.0. Questions: none.
 - Quirk: `gh pr checks --watch` works for CI waits (a `sleep` + until chain is blocked by the guard).
 
-## Cycle 39 — 2026-10-30 — FEATURE (all plan items blocked)
-- CI green on main (5e7a385), no bugs, no OWNER comments, no open PRs; milestone #121 open.
-  zuda still v2.3.0, so items 4-9, 12 blocked: ran `/stabilize --one`.
-- PR #162 (merged, auto-merged): `sets.zig` 14 `err == error.WrongType` -> `switch (err)` (same
-  perl multi-line regex as lists). `== error.` in `src/` 100 -> 86. `zig build test` 1627/1627
-  except the 2 known signal-4 crashers; fmt clean. `rm -rf .zig-cache` was needed again first.
-- Next: `hashes.zig` 11, `sentinel.zig` 8, `strings.zig` 7, `sorted_sets.zig` 32; `//!` headers
-  (82 files); stash triage. Blockers: zuda v3.0.0. Questions: none.
-- Quirk: wait for the full test with a foreground `until grep -q 'Build Summary' log` loop.
-
-## Cycle 38 — 2026-10-29 — FEATURE (all plan items blocked)
-- CI green on main (c5b36d9), no bugs, no OWNER comments, no open PRs; milestone #121 open.
-  zuda still v2.3.0, so items 4-9, 12 blocked: ran `/stabilize --one`.
-- PR #161 (merged, auto-merged): `lists.zig` 13 `err == error.WrongType` -> `switch (err)` with
-  `else => return err` (perl multi-line regex did all 13). `== error.` in `src/` 113 -> 100.
-  `zig build test` 1627/1627 except the 2 known signal-4 crashers; fmt, tidy clean. The cycle 37
-  iter347 hang did not recur.
-- Next: `sets.zig` 14, `hashes.zig` 11, `sentinel.zig` 8, `strings.zig` 7, `sorted_sets.zig` 32;
-  `//!` headers (82 files); stash triage. Blockers: zuda v3.0.0. Questions: none.
-- Quirk: full `zig build test` takes ~8 min; output buffers until the end, so a log that is empty
-  or shows only the first crasher is not a hang. Use a Monitor on `Build Summary`.
-
-## Cycle 37 — 2026-10-28 — FEATURE (all plan items blocked)
-- CI green on main (a90d13f), no bugs, no OWNER comments, no open PRs; milestone #121 open.
-  zuda still v2.3.0, so items 4-9, 12 blocked: ran `/stabilize --one`.
-- PR #160 (merged, auto-merged): `server.zig` `== error.` checks -> switch. Compiler proved the
-  `error.EndOfStream` branch in the connection read loop dead (`stream.read` cannot return it);
-  removed. `== error.` in `src/` 115 -> 113. Converting the rest can expose more dead branches.
-- `zig build test` 1627/1627 but a third failing binary: `test_iter347` (ACL DRYRUN) hung at 0 CPU
-  for 9+ min until killed (signal 15). In-process test, passes 11/11 alone: new flake, besides the
-  2 known signal-4 crashers (iter432/437). If it recurs, root-cause (shared state between binaries?).
-- Next: more `== error.` -> `switch (err)` (`sorted_sets.zig` 32, `sets.zig` 14, `lists.zig` 13);
-  `//!` headers (82 files); stash triage. Blockers: zuda v3.0.0. Questions: none.
-- Quirk: the full `zig build test` took > 10 min wall because of the hung binary; run it with
-  `run_in_background` and check `ps` for a 0%-CPU test binary.
-
-## Cycle 36 — 2026-10-27 — FEATURE (all plan items blocked)
-- CI green on main (e068f18), no bugs, no OWNER comments, no open PRs; milestone #121 open.
-  zuda still v2.3.0 (sailor v3.1.0), so items 4-9, 12 stay blocked: ran `/stabilize --one`.
-- PR #159 (merged, auto-merged): `bloom.zig` scanDump round-trip test loop bounded by
-  `chunk_count_max` and asserts it finished. `while (true)` in `src/` now 2, both legit
-  (cli.zig:108 REPL, server.zig:575 connection loop). `zig build test` 1627/1627 except the 2
-  known signal-4 crashers; fmt clean. STATE.md updated.
-- Next: `== error.` -> exhaustive `switch (err)` (start `server.zig` ~578, then
-  `sorted_sets.zig`); `//!` headers (82 files); stash triage. Blockers: zuda v3.0.0. Questions: none.
-- Quirk: guard blocks `cd repo; ...` and python heredocs; run plain commands and use Edit.
-  `rm -rf .zig-cache` again fixed the `FileNotFound` build-runner error.
+## Cycles 36-39 (2026-10-27..30), folded
+Plan items 4-9, 12 blocked on zuda v3.0.0 each cycle, so each ran `/stabilize --one`; all PRs merged
+with CI green and `auto-merged`; `zig build test` 1627/1627 except the 2 known signal-4 crashers.
+- C36 PR #159: `bloom.zig` scanDump loop bounded; `while (true)` in `src/` now 2, both legit.
+- C37 PR #160: `server.zig` `== error.` -> switch; compiler proved an `EndOfStream` branch dead.
+  Flake: `test_iter347` (ACL DRYRUN) hung at 0 CPU once; did not recur in C38-41.
+- C38-39 PRs #161/#162: `lists.zig` 13, `sets.zig` 14 -> switch (perl multi-line regex).
+- Quirks: full `zig build test` takes ~8 min and buffers output; use `run_in_background` plus a
+  Monitor on `Build Summary`. `rm -rf .zig-cache` fixes the `FileNotFound` build-runner error.
 
 ## Cycle 35 — 2026-10-26 — STABILIZATION (n % 5)
 - CI green on main (fbbc2a5), no bugs, no OWNER comments, no open PRs; milestone #121 open.
