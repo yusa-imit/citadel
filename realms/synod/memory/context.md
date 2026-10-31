@@ -56,76 +56,21 @@ rejected_plans: []
 - Tool notes: a wip branch left unmerged goes stale when a continuation branch merges; never leave a
   review-fix PR based on the wip, base it on main. Test-writer took 12 min: brief it narrower.
 
-## Cycle 72 — 2026-10-29 — FEATURE
-- Preflight: disk 36 GB, CI green (2641a34), no bugs, milestone #74 open, no open PRs.
-- Done: item 3 (node compaction policy) from the cycle-71 wip, on `feat/node-compaction-2`: 926 tests,
-  fmt, tidy, `zig build sim -Dseeds=1000` all green; PR #78 merged (7/7 CI, `auto-merged`), #74
-  item 3 ticked. code-reviewer (~$0.3) found nonzero-base follower/leader paths untested (sim never
-  confirms a snapshot, so base stays 0 there).
-- PRs open at the 22-min deadline (CI pending): #79 `docs/tick-plan-005-item3` (plan tick),
-  #80 `fix/node-compaction-review` (zig-developer: `src/raft/node_base_test.zig` 12 tests, term check
-  at base in `replicate_below_base`, `snapshot_saved` returns empty Effects, 938 tests green locally).
-- Next: merge #79 and #80 when CI is green (label `auto-merged`), then item 4 (driver snapshot path;
-  driver currently ignores `snapshot_due`). Review notes for items 4/5: a peer with `first < base`
-  gets no heartbeat in `send_slot` (liveness gap until InstallSnapshot, item 5);
-  `SnapshotDue.configuration` is the latest config, must be as-of-index once item 8 lands.
-- Blockers: none. Open questions: none. Budget: ~$1.6 of $4 used.
-- Tool notes: background `zig build test` takes ~105 s; use a worktree in /tmp for docs ticks while
-  a developer owns the repo tree; cut CHANGELOG lines at 100 columns.
-
-## Cycle 71 — 2026-10-29 — FEATURE
-- Preflight: disk 38 GB, CI green (2641a34), no bugs, no open PRs, milestone #74 open. Cycle 70 left
-  no context entry; #75 (ADR-009) and #77 (item 2, `log.Log` base) are merged, items 1-2 ticked.
-- Done: item 3 (node compaction policy) NOT finished. test-writer (~$0.9) wrote
-  `src/raft/node_snapshot_test.zig` (21 tests, verified red, mutants killed in a scratch copy);
-  zig-developer (~$0.9) wrote `raft/contract.zig`, `raft/snapshot.zig`, base-aware arithmetic in
-  commit/follower/leader/node_init, Config fields in sim/driver. Killed at the 22-min deadline;
-  tests never confirmed green. Preserved as `wip/feat-node-compaction-20261029` (pushed, no PR).
-- Next: `git checkout -b feat/node-compaction-2 wip/feat-node-compaction-20261029`; run `zig build
-  test --summary all`, `zig fmt --check src build.zig tools bench`, `zig build tidy`, `zig build sim
-  -Dseeds=1000`; fix; code-reviewer; PR; tick item 3 + #74. Start the developer by minute 3 and
-  expect ~15 min of developer time for items of this size; consider splitting item 3 (contract.zig
-  move first as its own PR).
-- Blockers: none. Open questions: none. Budget: ~$2.1 of $4 used.
-
-## Cycle 69 — 2026-10-28 — FEATURE
-- Preflight: disk 38 GB, CI green, no bugs/issues; plan 005 (#73) was merged -> opened milestone
-  issue #74.
-- Done: item 1 ADR-009 (`docs/adr/0009-phase4-node-contract.md`) drafted by `architect` (opus, ~11
-  min, ~$3), PR #75 (docs only) opened; CI Build & Test was still pending at ~17 min, so NOT merged
-  and item 1 NOT ticked. Next cycle: merge #75 if green (label `auto-merged`), tick item 1 in plan
-  005 + #74. The ADR's "Notes for implementers" flags: item 3 must first move Config..InvariantError
-  to `src/raft/contract.zig`; learners get no replication today; `trailing` is `snapshot_trailing`;
-  effect slots become `peers_max + 9`.
-- Next: item 2 (`log.Log` base index) after #75 merges.
-- Blockers: none. Open questions: none. Budget: the architect run cost most of the $4 cap; brief
-  narrower or write ADR sections yourself.
-
-## Cycle 68 — 2026-10-27 — FEATURE
-- Preflight: disk 41 GB, CI green, no bugs, no issues, no open PRs; plan 004 fully checked.
-- Done: `/plan` -> plan 005 (Phase 4: log base/compaction, snapshot path, InstallSnapshot, sim
-  snapshots, joint consensus, ReadIndex, sim churn + reads, baseline, release v0.6.0) proposed,
-  PR #73, awaiting merge (citadel#77). Lease reads deferred to plan 006. Planner (opus) ~ $0.9.
-- Next: when #73 is merged, open the milestone issue and start item 1 (ADR-009 via `architect`;
-  main session writes the ADR). Until then one bounded `/stabilize synod --one` per cycle.
-- Blockers: none. Open questions: none.
-
-## Cycle 67 — 2026-10-27 — FEATURE
-- Preflight: disk 46 GB, CI green (c7d7d80), no bugs, no OWNER comments, no open PRs, #57 open.
-- Done: item 12 release v0.5.0 via PR #71 (7/7 CI, `auto-merged`; Build & Test 7m9s): tag +
-  GitHub release, milestone #57 closed 12/12. No kingdom repo pins synod (checked
-  build.zig.zon of silica/zoltraak/zr/sailor/zuda via `gh api`), so no migration issues. PR #72
-  ticked plan 004 and the Phase 1 boxes in `000-inherited.md`. 878 tests. STATE.md has the release.
-- Next: no plan open and newest plan 004 fully checked -> cycle 68 runs `/plan synod` (Phase 4
-  candidates in `000-inherited.md`: snapshots/membership/read, adapters). Needs >= 10 min of
-  budget; start the planner early (opus, point at files).
-- Blockers: none. Open questions: none.
-- Open suggestions (unchanged from 66): `Workload.check_invariants` only in `check(.linearizability)`;
-  `op_id_next` bounded by width; `else =>` arms in `node_fault`/`propose_draw`; sim-nightly first
-  scheduled run unobserved (check `gh run list --workflow sim-nightly.yml`, 120 min cap).
+## Cycles 67-72 (2026-10-27..29), folded
+- 67: item 12 release v0.5.0 (PR #71, tag + GitHub release, milestone #57 closed 12/12); no kingdom repo
+  pins synod. 68: `/plan` -> plan 005 (Phase 4) PR #73. 69: milestone #74 opened, item 1 ADR-009 PR #75
+  (architect opus cost ~$3: brief narrower or write ADR sections in the main session). 71: item 3 node
+  compaction killed at deadline, kept as `wip/feat-node-compaction-20261029`. 72: item 3 merged (PR #78);
+  reviewer found nonzero-base follower/leader paths untested; PRs #79 (tick) and #80 (review fixes).
+- Review notes still live: a peer with `first < base` gets no heartbeat in `send_slot` until
+  InstallSnapshot (item 5); `SnapshotDue.configuration` must be as-of-index once item 8 lands; ADR-009
+  flags `trailing` is `snapshot_trailing`, effect slots `peers_max + 9`.
+- Open suggestions: `Workload.check_invariants` only in `check(.linearizability)`; `op_id_next` bounded
+  by width; sim-nightly first scheduled run unobserved (120 min cap).
 - Tool notes: guard blocks `cd <repo>;` and `grep` over sibling repos even read-only: use `gh api
-  repos/yusa-imit/<r>/contents/build.zig.zon`. CI Build & Test now ~7 min; release cycle used
-  ~20 of 22 min, plan the release PR first thing.
+  repos/yusa-imit/<r>/contents/build.zig.zon`; background `zig build test` ~105 s; use a /tmp worktree
+  for docs ticks while a developer owns the tree; cut CHANGELOG lines at 100 columns; CI Build & Test
+  ~7 min, plan the release PR first thing.
 
 ## Cycles 61-66 (2026-10-20..26), folded
 - 61: item 9 PR #67 `sim/linearizability.zig` `HistoryChecker` (Wing-Gong, explicit stack). 62-64: PREFLIGHT
