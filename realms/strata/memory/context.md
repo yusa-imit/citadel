@@ -56,63 +56,24 @@ rejected_plans: []
 - Blockers: none. Open questions: none.
 - Note: tick `chore` label missing; `find -mmin` takes ints only on macOS - poll with `stat -f %m`.
 
-## Cycle 70 — 2026-10-28 — FEATURE
-- Done: plan 005 item 7 — PR #70 merged (CI 7/7, 761 tests, auto-merged): `btree/cursor.zig` `Cursor`
-  (`init/release/current/seek/first/last/next/prev`; one pin at a time; `prev` across a leaf re-descends
-  from the root; bad link/level/order/overflow cell/shrunk leaf -> `Corrupted`). Issue #63 item 7 ticked.
-- Preflight found the cursor work uncommitted on `feat/btree-cursor` (unverified): preserved as
-  `wip/feat-btree-cursor-20261028` (pushed, keep), then verified and finished on `feat/btree-cursor`.
-  One test failed (precondition `page_count > 10` unmet with 150 keys; now 400 keys).
-- Review: 0 critical, 6 warnings: fixed prev/next index bound after a write (Corrupted not assert),
-  KeyTooLarge now drops the pin, empty non-root leaf in seek, docs. Plan item 8 now says overflow
-  `Entry` must be given to the cursor (`entry_of` returns Corrupted for overflow cells).
-- Next: item 8 `btree/overflow.zig`. Follow-ups (not done): crafted-page negative tests for Corrupted
-  branches in `step_back/left_sibling/next/prev`, deep-tree (height 3) assertion in scan tests,
-  errdefer for pinned guards in the pool-exhaustion test, postcondition asserts in cross_forward/settle.
-  Carried from 69: plan_merge/plan_level crafted tests, release_frees failure test, pending frees persisted (item 9).
-- Blockers: none. Open questions: none.
-- Note: ~$1.3 of $4, ~13 min. Debugging aid: `zig build test` hides std.debug.print and traces are stale;
-  run the built test binary (path in `failed command:`) directly without `--listen` to see FAIL names.
-
-## Cycle 69 — 2026-10-27 — FEATURE
-- Done: plan 005 item 6 — PR #69 merged (CI 7/7, 744 tests, auto-merged): `btree/delete_tree.zig` (`Tree.delete`,
-  merge-first then borrow, root collapse keeps root id, bounded `frees_pending` + `Tree.release_frees`),
-  `BufferPool.discard`; `Tree.create/open` now take `frees: []Id`. Issue #63 item 6 ticked. #68 was already merged.
-- Preflight found item-6 work uncommitted on `feat/btree-delete` (unverified): preserved as
-  `wip/feat-btree-delete-20261027` (pushed), then finished on `feat/btree-delete-rebalance`. Keep the wip branch.
-- Review: 1 critical (borrow separator unbounded by parent neighbours -> apply could fail mid-edit) + 1 warning
-  (duplicate id in frees_pending -> double free) fixed in 482b34b with tests; release_frees pool-wide assert dropped.
-- Next: item 7 `btree/cursor.zig` (seek/next/prev). Follow-ups from review (not done): deterministic crafted-page
-  negative tests in plan_merge/plan_level (id/level/next/empty leaf/overflow value), release_frees free-failure test,
-  weak asserts in plan_level, `Del` ~80 KiB stack, pool-level `discard` test, pending frees not persisted (item 9).
-- Blockers: none. Open questions: none.
-- Note: ~$2.2 of $4, ~23 min (1 min over). Stale failure traces in zig output mislead: grep
-  `FAIL|failed|error:|tidy: [0-9]`. Dev 6 min + fixes 7 min; tell dev to stop by 4 min on fixes.
-
-## Cycle 68 — 2026-10-26 — FEATURE
-- Done: plan 005 item 5 — PR #68 (`feat/btree-split`, NOT merged yet): `btree/split_tree.zig` (prepare/apply split,
-  root id fixed, `HeightLimit`), `descend.zig`, `validate.zig`, `Tree.validate(io, gpa)`; `NodeFull` removed from
-  `InsertError`. Plan box + CHANGELOG ticked on the branch. Local 729 tests, fmt/tidy clean; first CI run 7/7.
-- Review: 1 critical (plan_leaf/plan_internal under-validated, apply could wipe a leaf then fail Corrupted) fixed
-  in c394acd (full `check_invariants` + separator bounds in prepare) + 6 negative/atomicity tests. CI on c394acd
-  was still pending at the deadline; PR comment left.
-- Next: FIRST check `gh pr checks 68`; if green and no `hold`, `gh pr merge 68 --squash --delete-branch`, label
-  `auto-merged` (already applied), tick #63 item 5. Then item 6 delete/merge/rebalance in new files.
-- Note: ~$3.2 of $4, ~24 min (overran). Developer wrote tests AFTER code despite the brief: demand red-first
-  (or use test-writer). The first dev run took 12.4 min, so brief "stop at 8 min". Pipe: dev 12 min, reviewer
-  3 min parallel with CI, fix 4 min. Blockers: none. Open questions: none.
-
-## Cycle 67 — 2026-10-26 — FEATURE
-- Done: plan 005 item 4 — `BufferPool.fetchNew(io, id)` (zeroed dirty frame, `FetchNewError`; ADR §13 line fixed)
-  + `src/btree/tree.zig` `Tree.create/open/get/insert/check_invariants` (root leaf only, unlogged; `open` returns
-  `Corrupted` for a bad root; `NodeFull` until item 5; overflow cell in root -> `Corrupted` until item 8).
-  Merged #67 (CI 7/7, 706 tests, auto-merged), issue #63 item 4 ticked.
-- Review: 1 critical (u32 underflow in `insert` overwrite path on a crafted valid-CRC page -> now `Corrupted`),
-  5 warnings fixed (vacuous lsn test, missing create/Corrupted tests, `open` assert -> error).
-- Next: item 5 split + `validate` (`tree.zig` is 206 lines, `tree_test.zig` 615: put split code in a new file
-  e.g. `btree/split_tree.zig`/tests in a new test file). Blockers: none. Open questions: none.
-- Note: ~$2.1 of $4, ~17 min. Disk gate passed again (25 GB). Pattern: dev 6.5 min, reviewer 3.5 min parallel
-  with CI, fixes via SendMessage 3.7 min. Reviewer cannot run 0.16 tests (PATH zig is 0.15.2).
+## Cycles 67-70 (2026-10-26..28), folded
+- Plan 005 B+Tree items 4-7, one PR each (CI 7/7, auto-merged, issue #63 ticked): 67 (#67)
+  `BufferPool.fetchNew`, `btree/tree.zig` root-leaf `Tree`; 68 (#68) `split_tree.zig`, `descend.zig`,
+  `validate.zig`; 69 (#69) `delete_tree.zig` (merge-first then borrow, bounded `frees_pending`,
+  `BufferPool.discard`; `Tree.create/open` take `frees: []Id`); 70 (#70) `btree/cursor.zig` (one pin at
+  a time; `prev` across a leaf re-descends; bad link/level/order -> `Corrupted`). 761 tests at 70.
+- Reviews found real defects each time (u32 underflow on a crafted page, under-validated split plan,
+  unbounded borrow separator, duplicate id in `frees_pending`): all fixed with tests.
+- Open follow-ups: crafted-page negative tests for `Corrupted` branches in plan_merge/plan_level and
+  cursor `step_back/left_sibling/next/prev`; deep-tree (height 3) assertion in scan tests;
+  `release_frees` free-failure test; pool-level `discard` test; `Del` ~80 KiB stack; pending frees
+  not persisted (item 9); plan item 8 overflow `Entry` must be handed to the cursor.
+- Tool notes: `zig build test` hides `std.debug.print` and traces are stale: run the built test binary
+  (path in `failed command:`) without `--listen`, grep `FAIL|failed|error:|tidy: [0-9]`; reviewer
+  cannot run 0.16 tests (PATH zig is 0.15.2); developer wrote tests after code despite the brief:
+  demand red-first or use test-writer; brief "stop at 8 min"; pipe: dev 6-12 min, reviewer 3 min in
+  parallel with CI, fix 4 min. Preflight found uncommitted work twice: preserved as `wip/*`, keep.
+- Cycles 64-66 were NOOPs at the disk gate (16-18 GB); `/tmp/strata-zc` is the 0.16 zig cache.
 
 ## Cycles 64-66 (2026-10-22..23, condensed 2026-10-26)
 - Three NOOP cycles: disk gate failed (18, 17, 16 GB free); nothing changed. Host disk later recovered to 25 GB.

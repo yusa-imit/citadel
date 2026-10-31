@@ -32,54 +32,19 @@ rejected_plans: []
   upgrade `--version` ignored. Check zuda tags first.
 - Open questions: none.
 
-## Cycle 36 — 2026-10-29 — FEATURE
-- Preflight: disk 33 GB; tree was dirty on `fix/monitor-flush-stderr` (unfinished monitor flush
-  fix) -> preserved to `wip/fix-monitor-flush-stderr-20261029` (pushed), then main. CI green, no
-  bugs, inbox clear. zuda still v2.3.0 (sailor v3.1.0) -> items 5-11 blocked -> one stabilize.
-- Done: `output/monitor.zig` flush fix: `renderLive`/`renderSummary` extracted from
-  `monitorDisplay` (97 -> 56 lines) and flush; 3 tests via a draining sink; header updated; stale
-  baseline entry `monitorDisplay` removed. Local tests 1950/0, tidy 0 failing. PR #200 opened.
-- Deadline hit before CI finished (full rebuild after `rm -rf .zig-cache` + a hung first test run
-  cost ~10 min). **Next cycle: merge #200 if CI green** (inbox step 8), then more stabilize.
-- Lesson: a test `std.Io.Writer` drain must write `buffer[0..end]` first and set `end = 0`,
-  else `flush` spins forever (hangs `zig build test` with no output after the test name).
-- Next: cycle 37 FEATURE; upgrade `--version` ignored; more headers; items 5-11 blocked.
-- Open questions: none.
-
-## Cycle 35 — 2026-10-27 — STABILIZATION
-- Preflight: disk 45 GB; tree clean on `main`; CI green; no bugs; inbox clear (no comments since
-  watermark; #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0 → items 5-11
-  blocked.
-- Audit: 12 `catch unreachable` (proven), 1 `@panic` (`stdx.assert_always`), 16 `while (true)`
-  (event/prompt loops), 93 `std.debug.print` (user-facing progress; needs a writer seam, skipped),
-  180 files without `//!`. Took headers again (smallest diff).
-- Added `//!` headers to `cli/help`, `cli/upgrade`, `conformance/parser`, `output/monitor`;
-  removed 4 baseline entries (176 left); `cli/help.zig` trailing blank line fixed for fmt. PR #199
-  merged, 8/8 green (~14 min). Tests 1947/0, tidy 0 failing.
-- Found, documented in headers, not fixed: `output/monitor.zig` buffered stderr writer is never
-  flushed (live line shows late); `cli/upgrade.zig` parses `--version` but installs latest;
-  conformance parser skips mistyped fields silently.
-- Next: cycle 36 FEATURE; items 5-11 blocked → `/stabilize --one` (monitor flush fix, upgrade
-  `--version`, or more headers: ci/templates/github_actions, context/json, plugin/builtin_env,
-  cli/codeowners). Item 5 bumps to sailor v3.1.0 + zuda v3.x once tagged.
-- Gotchas: zsh expands `echo "====="` (`=word`); `python3 -I - <<EOF` ran fine here.
-- Open questions: none.
-
-## Cycle 34 — 2026-10-26 — FEATURE
-- Preflight: disk 22 GB (gate passed); tree clean on `main`; CI green; no bugs; inbox clear (no
-  comments since watermark; #155 milestone, #178 informational). zuda still v2.3.0, sailor v3.1.0
-  → items 5-11 blocked → one `/stabilize --one`.
-- Fixed `analytics/json.zig` `generateJsonReport`: task names (task_stats, critical_path) and
-  time-series keys go through `std.json.fmt` (`{f}`); regression test parses the output back
-  (failed `SyntaxError` before the fix); header updated. PR #198 merged, 8/8 green (~16 min).
-  Tests 1947/0, tidy 0 failing.
-- Next: ~180 headers left (cli/help, cli/version, lsp/definition, lsp/hover); UTF-16 positions in
-  `lsp/position.zig`. Cycle 35 is STABILIZATION (n % 5). Item 5 bumps to sailor v3.1.0 + zuda v3.x.
-- Gotchas: stale `.zig-cache` again ("failed to spawn build runner") → `rm -rf .zig-cache` as its
-  own command.
-- Open questions: none.
-
-Cycle 33 (2026-10-23) was a no-op at the disk gate (15 GB < 20 GB).
+## Cycles 33-36 (2026-10-23..29), folded
+- 33: no-op at the disk gate (15 GB < 20 GB). 34 (#198): `analytics/json.zig` `generateJsonReport`
+  escapes task names and keys via `std.json.fmt` (`{f}`), regression test parses back. 35 (#199,
+  STABILIZATION): `//!` headers, 176 baseline entries left; audit: 12 proven `catch unreachable`, 16
+  `while (true)` event loops, 93 `std.debug.print` (needs a writer seam), 180 files without `//!`.
+  36 (#200): `output/monitor.zig` flush fix, `renderLive`/`renderSummary` extracted; tree was dirty at
+  preflight, preserved as `wip/fix-monitor-flush-stderr-20261029`.
+- Known, documented, not fixed: `cli/upgrade.zig` parses `--version` but installs latest; conformance
+  parser skips mistyped fields silently; `lsp/position.zig` uses UTF-8 byte columns, not UTF-16.
+- Lessons: a test `std.Io.Writer` drain must write `buffer[0..end]` and set `end = 0`, else `flush`
+  spins forever and `zig build test` hangs after the test name; stale `.zig-cache` ("failed to spawn
+  build runner") -> `rm -rf .zig-cache` as its own command; zsh expands `echo "====="`.
+- zuda was still v2.3.0 and sailor v3.1.0, so items 5-11 stayed blocked; one `stabilize --one` each.
 
 ## Cycles 29-32 (2026-10-19..22), folded
 - FEATURE/STAB, zuda v2.3.0 so items 5-11 blocked, one `stabilize --one` each; each PR 8/8 green
