@@ -1,7 +1,29 @@
 # sigil — context
 
-last_seen_at: 2026-10-31T13:00:00Z
+last_seen_at: 2026-10-31T15:19:00Z
 rejected_plans: []
+
+## Cycle 82 — 2026-11-01 — FEATURE
+
+- Done: milestone #84 item 4 (PR #88, CI 8/8, auto-merged; #84 box 4 and plan box ticked, 4/11).
+  Written directly + one sonnet `code-reviewer` (1 critical fixed: ADR s8 relocation was missing).
+  Cost ~$2.4, ~14 min.
+- Shape: `msgpack/encoder.zig` (`write`, `StringifyOptions{depth_max}`, 5-variant `WriteValueError`,
+  frame stack, shortest heads, f32 only when bit-exact, NaN = `ca 7fc00000`, ext 4/8/12 timestamps,
+  offset/local = `Unrepresentable`; `InputTooLarge` declared but never returned, over-long = Unrepresentable);
+  `msgpack.zig` facade; `msgpack/locate.zig` (`parse(T)` reflect errors -> "byte N: {reflect msg}",
+  line 1 col N+1, deepest reachable item on a miss); reflect `sigil_options.bytes` (`Entry.is_bytes`,
+  `Context.parse_bytes_child`/`stringify_bytes_child`, `options.bytes_capable`, 7 compile-error fixtures).
+  json/toml bytes-field refusal tests added.
+- Next: item 5 `cbor/decoder.zig` reader (heads 0-7, ai 0-27, 28-30 refused, indefinite + break, f16,
+  UTF-8 text; RFC 8949 App. A items and App. F classes). Blockers: none.
+- Reviewer suggestions not taken: bytes_child duplicates parse_child prologue; encoder `run` loop bound is
+  maxInt(usize); no reflect-level tests of `parse_bytes_value`/`stringify_bytes_value` (facade covers);
+  float subnormal and `local_time`/`local_datetime`/array-map `too_long` encoder cases untested.
+  Fold into a small test PR or item 9.
+- Learned: tidy flags test/build.zig lines >100 cols (also `.message` strings in build.zig); new
+  `sigil_options` key means updating the `unknown_option` message in build.zig; `/tmp/sigil_start` written
+  in preflight works.
 
 ## Cycle 81 — 2026-10-31 — FEATURE
 
