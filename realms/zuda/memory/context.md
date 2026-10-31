@@ -1,7 +1,23 @@
 # zuda — context
 
-last_seen_at: 2026-10-30T19:25:00Z
+last_seen_at: 2026-11-01T00:20:00Z
 rejected_plans: []
+
+## Cycle 40 — 2026-11-01 — STABILIZATION (periodic, n % 5 == 0)
+- Done: merged #82 (compression sweep, 7/7, `auto-merged`). Audit: `catch unreachable` in library code
+  0 unproven (the rest are in tests: `correlation.zig` 12, `lru_cache`, `crf`), `@panic` 0,
+  `std.debug.print` 1 (seed-report `errdefer` in an RBT test). Missing `//!` header: 277 of 436 files
+  (ML 67, dp 44, graph 21, string 18, sorting 18, trees 14). Docs drift fixed in README.
+- PRs: #83 `docs/readme-claims-match-code` (Zig 0.16, 209 distributions, ~22k test blocks, install note
+  v2.3.0=0.15.2 vs main=0.16.0, v2.0 roadmap ticked) and #84 `docs/compression-module-headers` (9 files).
+  Both merged this cycle at 7/7 (~17 min after push), no `hold`, `auto-merged`.
+- Next: `//!` headers slice by slice (ML 67 and dp 44 are the big ones); sweep: linalg 6, iterators 5,
+  aggregators 8, ML 34 last; 10 unwired string files; 5 dp leftovers; v3.0.0.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: a header is a prepend, not a rewrite: `/tmp/zhdr.sh` style (`//! ` prefix, end with blank
+  line); keep each line <= 100 columns (awk 'length>100' catches it). `zig test -fno-emit-bin <file>`
+  is a 20 s compile check for comment-only edits. Guard blocks one Bash call that mixes `cd` into
+  citadel with other commands: keep citadel reads in their own call.
 
 ## Cycle 39 — 2026-10-31 — FEATURE
 - Done: inbox clean (CI green on bbf95d4, no bugs, no OWNER comments, milestone #31). Sweep slice
@@ -46,31 +62,16 @@ rejected_plans: []
   `perl -pi script.pl a b c` keeps state across files: run once per file. Cross-compile CI jobs
   queue ~10 min after Build & Test (9 min); whole cycle to PR ~10 min, so open the PR by minute ~11.
 
-## Cycle 35 — 2026-10-27 — STABILIZATION (periodic), folded 2026-10-29
-- Merged #77, #78 (7/7). Real bug: subnormal `nu`/`beta` passed `init` but made `sample()` panic on
+## Cycles 34-35 (2026-10-26..27, folded 2026-11-01)
+- 34 (#76 string, 12 files ported; 8 wired): `longestCommonPrefixDivideConquer` returned a view of
+  its input; `lzw` leaked dictionary keys and double-freed `previous`; `trie`/`manacher` leaked.
+  Compile-clean but UNWIRED (their never-run tests fail, real bugs; fix each with TDD, then wire):
+  `boyer_moore` (hangs), `kmp` (`count` 3 not 2), `trie` (delete/size), `suffix_array` (search
+  finds 0), `manacher` (overflow panic), `metaphone`, `soundex`, `damerau_levenshtein`,
+  `jaro_winkler` (prefix length 4), `lzw` (ratio). Run per-file tests under `perl -e 'alarm 90; exec @ARGV'`.
+- 35 (STABILIZATION, #77 #78): subnormal `nu`/`beta` passed `init` but made `sample()` panic on
   `Gamma.init(...) catch unreachable` in StudentT, F, SkewT, GeneralizedNormal,
-  HalfGeneralizedNormal; `init` now rejects them; proof comments added. Check two lines up for a
-  proof comment when scanning `catch unreachable`.
-
-## Cycle 34 — 2026-10-26 — FEATURE
-- Done: inbox clean (CI green, no bugs, no OWNER comments). Merged #76 (7/7, `auto-merged`).
-  Sweep slice `algorithms/string`: 12 files ported to 0.16 (unmanaged `ArrayList`, `.empty`).
-  Real bugs: `longestCommonPrefixDivideConquer` returned a view of its input, not an owned copy;
-  `lzw` leaked dictionary keys on a failed put and double-freed `previous`; `trie`/`manacher`
-  leaked on append failure. Wired 8 passing files into `root.zig` (anagrams, double_metaphone,
-  glob_match, longest_common_prefix, rabin_karp, run_length_encoding, smith_waterman, z_algorithm).
-- PR: #77 (`fix/compile-clean-string-zig-016`) open; Build & Test green (7m27s), 6 cross-compile
-  jobs still queued at the 22-min deadline. Next cycle merges at 7/7, no `hold`, adds `auto-merged`.
-- Compile-clean but UNWIRED (never-run tests fail; real algorithm bugs): `boyer_moore` (hangs),
-  `kmp` (`count` returns 3, expected 2), `trie` (delete/size), `suffix_array` (search finds 0),
-  `manacher` (integer overflow panic), `metaphone`, `soundex`, `damerau_levenshtein`,
-  `jaro_winkler` (max prefix length 4), `lzw` (compression ratio). Fix each with TDD, then wire.
-- Next: merge #77; fix those 10 string files; continue sweep (trees, geometry, compression,
-  sorting, linalg, iterators, aggregators, ML last), 5 dp leftovers, assertion baseline, v3.0.0.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: a hung test binary (boyer_moore) burned 7 min of the cycle: always run per-file tests
-  under `perl -e 'alarm 90; exec @ARGV'`, never one combined root first. Guard rejects a chained
-  command that mixes `cd` with `perl -pi` on files; run edits from the repo cwd without `cd`.
+  HalfGeneralizedNormal; `init` rejects them. Look two lines up for a proof comment when scanning.
 
 ## Cycles 30-33 (2026-10-20..23, folded 2026-10-28)
 - 30 (STABILIZATION): #74 proof comments on 21 `catch unreachable` sites; ~24
