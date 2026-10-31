@@ -1,7 +1,26 @@
 # sigil — context
 
-last_seen_at: 2026-10-31T12:00:00Z
+last_seen_at: 2026-10-31T13:00:00Z
 rejected_plans: []
+
+## Cycle 81 — 2026-10-31 — FEATURE
+
+- Done: milestone #84 item 3, `msgpack/decoder.zig` `parse_value` tree build (PR #87, CI 8/8, auto-merged;
+  #84 box 3 ticked, 3/11; plan checkbox ticked in the PR). Written directly + one sonnet `code-reviewer`
+  (0 critical; fixed: ext-length-decides test, key-copy test, mixed array/map depth 128, prefix offsets,
+  OOM message). `core.DuplicateKeyPolicy` moved from json (re-exported). Cost ~$1.8. ~13 min used.
+- Shape: `ParseOptions{depth_max,bytes_max,duplicate_key}`, `BuildError` (8) + `ScanError` + `InputTooLarge`
+  = 11 `ParseValueError`; `Builder` with `[nesting_max]Frame{head,left,fill,key,slot,key_pending}`; empty
+  container finishes at once; `finish` closes full parents in a bounded loop; end-of-input inside a
+  container = `UnexpectedEnd` at the innermost open head; `TrailingBytes` checked via `reader.offset`
+  (no extra token read); `.last` skips `dupe_key`; ext length (4/8/12) decides the timestamp form, not the
+  head width; `set_diag` shared with `Reader.fail`.
+- Next: item 4 `msgpack/encoder.zig` + `msgpack.zig` facade (`parse_value`/`write_value`/`parse`/`stringify`,
+  shortest heads, `sigil_options.bytes` in reflect is item 4 too per plan; check the plan text). Blockers: none.
+- Reviewer suggestions not taken: `@splat(frame_empty)` costs ~13 KB memset per call (could use undefined;
+  benchmark in item 10 decides); `Map.put` rescans (3 scans per member; also item 10).
+- Learned: guard blocks `cd <repo>` mixed with chains; use `git -C` or one `cd X && cmd` (worked for zig
+  build); `sed -i ''` fine for single-file edits.
 
 ## Cycle 80 — 2026-10-31 — FEATURE
 
@@ -18,23 +37,14 @@ rejected_plans: []
   was stale, read `date +%s` directly; prefix-truncation tests must exclude container heads (a header alone
   is valid once the bomb rule is met).
 
-## Cycle 79 — 2026-10-30 — FEATURE
+## Cycle 79 (folded) — 2026-10-30
 
-- Done: plan PR #80 was merged -> opened milestone issue #84 ("007 binary-formats", 11 items) and did
-  item 1: ADR 0006 binary-format contract (written directly, no subagents), PR #85 (also amends PRD 4.3
-  msgpack/cbor rows), CI 8/8, auto-merged; #84 box 1 ticked (1/11). Cost ~$0.7.
-- ADR 0006 key pins: `uint` only above maxInt(i64) (round-trip exact in that normal form); keys string-only
-  (`NonStringKey`); `DuplicateKeyPolicy` moves to `core.value`, json re-exports; msgpack 11 / cbor 17 parse
-  errors; positions line 1, col = offset+1; CBOR indefinite via counting pass (bound = count of 5f 7f 9f bf
-  bytes), msgpack one pass; bomb rule vs remaining bytes; msgpack refuses timestamp with offset; CBOR tag 0
-  keeps offset, null offset -> tag 1; deterministic = keys sorted shorter-first then bytewise;
-  `sigil_options.bytes = .{"field"}` for `[]const u8` <-> `.bytes`; runners test-only (std.json for CBOR
-  Appendix A, line reader for msgpack-test-suite YAML, fallback hand-derived vectors.json).
-- Next: item 2 `msgpack/decoder.zig` reader (u32 offsets, per-first-byte tests, bomb `0xdd ffffffff`).
-  Move `DuplicateKeyPolicy` to core in item 3. Record deterministic CBOR bytes in `architecture.md` Formats
-  at item 7. Blockers: none.
-- Learned: `zig build test` exit code via `> log; echo $?` (a pipe to tail hides it; "failed command" line is
-  printed with exit 0 on warn logs).
+Plan PR #80 merged -> milestone #84 (007, 11 items); item 1 ADR 0006 (PR #85, written directly). Pins:
+`uint` only above maxInt(i64); string-only keys; msgpack 11 / cbor 17 parse errors; positions line 1, col =
+offset+1; CBOR indefinite via counting pass (bound = count of 5f 7f 9f bf); bomb rule vs remaining bytes;
+msgpack refuses timestamp with offset, CBOR tag 0 keeps it; deterministic CBOR = keys shorter-first then
+bytewise (record in `architecture.md` Formats at item 7); `sigil_options.bytes`; runners test-only.
+Learned: `zig build test` exit code via `> log; echo $?` (a pipe hides it).
 
 ## History (cycles 76-78, condensed 2026-10-31)
 
@@ -170,7 +180,7 @@ share precedence; arena-backed FailingAllocator sweeps hit ~2 failure points, as
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
 Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 closed). Plan 007
-(msgpack + CBOR, v0.6.0) merged; milestone #84, item 1 (ADR 0006) done.
+(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-3 done (3/11).
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
   tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
@@ -185,5 +195,5 @@ Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 clo
 
 ## Next priority
 
-Plan 007 item 3 (`msgpack/decoder.zig` tree); see the newest cycle block.
+Plan 007 item 4 (`msgpack/encoder.zig` + facade); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
