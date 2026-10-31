@@ -1,7 +1,24 @@
 # strata — context
 
-last_seen_at: 2026-10-31T00:20:00Z
+last_seen_at: 2026-11-01T00:20:00Z
 rejected_plans: []
+
+## Cycle 75 — 2026-11-01 — FEATURE
+- Done: plan 005 item 10 (4E) merged as #75 (CI 7/7, 830 tests, auto-merged, issue #63 ticked):
+  `src/testing/btree_model_test.zig` + `btree_model_fixtures.zig` (sorted-array `Model`, `Driver`).
+  Unlogged seeded runs 512 B/4 KiB/64 KiB x 3 seeds (get/insert/delete/seek/scan, validate, flushAll,
+  cold, release_frees); logged runs on `Env`/`Rebuilt` (crash, replay, replay twice = once) and a
+  torn variant cutting mid-frame. Mutants died: separator corrupted in `finish_parent`, redo lsn
+  always/never applied. Tests-only, no source change. Tests suite ~32 s Debug.
+- Review: 0 critical, 3 warnings fixed (torn variant could be a no-op; cut was at an op boundary; plan
+  text claimed a FaultIo/CrashSink variant -> amended: that durable-boundary variant is a follow-up
+  for the next plan). Open suggestions: dedupe the two logged test loops, `check_each` dead flag,
+  missing `///` on fixtures pub items.
+- Next: item 11 `bench/btree.zig` (floors: get >= 5M ops/s, seq insert >= 1M ops/s, 4 KiB ReleaseFast
+  unlogged; logged figure recorded), then 12 docs + release v0.6.0 (MINOR).
+- Blockers: none. Open questions: none.
+- Note: ~$1.6 of $4, ~14 min. Developer 7 min (mutants checked), reviewer 1 min. Monitor with
+  `until ! gh pr checks N | grep -q pending` works; sleep inside Monitor is fine.
 
 ## Cycle 74 — 2026-10-31 — FEATURE
 - Done: plan 005 item 9b-ii merged as #74 (CI 7/7, 824 tests, auto-merged, issue #63 ticked): logged
