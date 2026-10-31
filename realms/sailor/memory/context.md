@@ -1,7 +1,35 @@
 # sailor — context
 
-last_seen_at: 2026-10-30T00:00:00Z
+last_seen_at: 2026-10-31T00:00:00Z
 rejected_plans: []
+
+## Cycle 47 — 2026-10-31 — STABILIZATION
+
+- Preflight: main 4e4a9ab CI green; bug #75 open forced STABILIZATION (streak was 1). No owner
+  comments.
+- Done: **PR #77** (batch 2 of #75, merged, CI 10/10, `auto-merged`): checkbox, radio, histogram,
+  piechart, heatmap, input imported in the `tui.zig` test block; three parallel sonnet
+  test-writers (~$1.6 total, ~6 min), then fixed tidy hits (`catch unreachable` -> `catch
+  legend_buf[0..0]`, tidy counts BYTES >100 so a line with multibyte arrows needs a wrap).
+  Widget bugs fixed: byte-wise label drawing (checkbox/radio/piechart legend), area-clear u16
+  overflow, radio `.reversed` nonexistent field, histogram u64 overflow + lost max-bar value,
+  piechart radius spill/total overflow, heatmap all-negative range/ragged rows/empty row 0,
+  input far cursor / truncated UTF-8 panics. CHANGELOG updated.
+- Streak hit 2: opened question #78 (needs-human) asking whether to interleave item 7; bug #75 NOT
+  labelled needs-human so it keeps forcing STABILIZATION; streak reset to 0.
+- Remaining in #75: 21 files (autocomplete barchart completion_popup configeditor context_menu
+  editable_table form httpclient linechart markdown menu metrics_dashboard profiler record_editor
+  scatterplot select taskrunner terminal textarea timeseries tree) + failing `splitpane`,
+  `chunkedbuffer`. Tidy check "every widget file with a test is imported by a test root" unwritten.
+- Known unfixed: StatusBar byte widths; popup.zig:112 >100 cols; BulletChart target == max tick;
+  Heatmap `CellMode.numeric` draws blanks; Input draws CJK one cell per codepoint; piechart 355 deg
+  ray overdraws 0 deg column.
+- Next: n=48 STABILIZATION (#75 open): batch 3 of ~6 files; import in `tui.zig`, 3 agents; open
+  the PR by minute ~7 (CI ~14 min; this cycle merged at minute ~21). Check #78 for an owner reply.
+- Blockers: none. Open questions: #78 (non-blocking). Streak 0.
+- Quirks: guard blocks Bash starting with `cd <repo>` and `pgrep -c`; cwd persists after a `cd`
+  into a subdir (use absolute paths). Full `zig build test` ~90 s; tidy failures show only in the
+  summary tail, run `zig build tidy` for the message.
 
 ## Cycle 46 — 2026-10-30 — STABILIZATION
 
