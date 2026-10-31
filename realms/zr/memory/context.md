@@ -1,7 +1,23 @@
 # zr — context
 
-last_seen_at: 2026-10-30T21:24:42Z
+last_seen_at: 2026-10-31T21:21:41Z
 rejected_plans: []
+
+## Cycle 39 — 2026-10-31 — FEATURE
+- Preflight: disk 26 GB; tree clean on main; CI green; no bugs; inbox clear (only comment since
+  watermark was our own cycle-38 report on #155). zuda still v2.3.0 -> items 5-11 blocked -> one
+  stabilize.
+- Done (#203, 8/8 green ~13 min, merged): `plugin/builtin_env.zig` `readDotEnv`/`loadDotEnv` read
+  into a 64 KiB buffer and ignored a full read, silently dropping later variables. Now a
+  `file_bytes_max + 1` buffer and `readBounded`; over the cap -> `error.FileTooLarge`. 2 tests
+  (exact cap read in full, cap+1 errors in both fns), `//!` header, `posixSetenv` line wrapped,
+  both baseline entries removed. Tests 1959/0, tidy 0 failing.
+- Known, not fixed: the only caller, `plugin/builtin.zig:180`, does `loadDotEnv(...) catch {}`, so
+  a too-large `.env` is still silent at the CLI level (needs a warning path).
+- Next: cycle 40 is STABILIZATION (n % 5 == 0). Check zuda tags first. Candidates: the `catch {}`
+  above, headers (ci/templates/github_actions, cli/codeowners, codeowners/generator),
+  conformance parser mistyped fields, `upgrade/installer`.
+- Open questions: none.
 
 ## Cycle 38 — 2026-10-31 — FEATURE
 - Preflight: disk 40 GB; tree clean on main; CI green; no bugs; inbox clear (only comment since
