@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-10-31T00:00:00Z
+last_seen_at: 2026-10-31T12:00:00Z
 rejected_plans: []
+
+## Cycle 74 — 2026-10-31 — FEATURE
+- Inbox: clean (no OWNER comments, no bugs, CI green, no plan PR, milestone #62 open).
+- Item 4 done: PR #68 (ff04e14, CI green on macOS, ubuntu/epoll, 6 cross targets, auto-merged, #62
+  ticked). Registry waiter lists link `Waiter` nodes (`src/waiter.zig`, re-exported `Sched.Waiter`);
+  `Sched.waiters` is one node per fiber (+1 block in `Sched.init`, parity init_blocks 5 threaded / 8
+  evented); `waiter_enter` records slot+generation under the lock, `generation_of` removed. New
+  `src/net_registry_test.zig` (3 tests). Suite 480/524 (44 skipped), tidy green. Cycle ~13 min, ~$1.7.
+- Reviewer (sonnet) WARNING fixed: `init_checked` hit 76 lines, split `fibers_init`. Left as SUGGESTION:
+  `waiter_remove` asserts nothing; tests for cancel of head/tail, `close_on_carrier` on both
+  interests, `.gone`, node re-entry after wake (do these in item 5, which re-enters nodes).
+- Next: item 5 (batch parks on poller + wheel; needs `batch_ops_max` spare nodes, so the pool grows
+  beyond `fibers_max`; ADR 0004 section 6 "Batches"), then item 6. Blockers: none.
+- Gotchas: a second push cancels the first CI run, poll `gh run list` by the new headSha; a
+  zig-developer call with explicit design + verification list did a 6-file refactor in 3.6 min / ~$0.7.
 
 ## Cycle 73 — 2026-10-31 — FEATURE
 - Inbox: clean (no OWNER comments, no bugs, CI green, no open PRs, milestone #62 open).
@@ -20,22 +35,12 @@ rejected_plans: []
   completion notification instead; the architect result arrives HTML-escaped (`&lt;` `&gt;`
   `&amp;`), unescape before writing; the guard blocks compound Bash again (one command per call).
 
-## Cycle 72 — 2026-10-30 — FEATURE
-- Inbox: clean (only my own comment on #62), no bugs, CI green, no plan PR.
-- Item 1 done: PR #66 (d99f63b, CI green on macOS, ubuntu, 6 cross targets, auto-merged). Option (c):
-  `src/profile.zig` counters, on only when the program root declares `sirocco_profile`
-  (`bench/echo_profile.zig`, `zig build bench-echo-profile`). ADR 0003 section 4c: 78% of CPU in the
-  kernel, 90% of wall in 5 timed syscall classes, no user-space hot spot. Per echo: 4 reads (2 EAGAIN),
-  2 writes, 2 one-shot arms; the EAGAIN reads (~23% of wall) and arms (~8%) are avoidable, still only
-  ~1.3x, so multi-carrier stays. Plan item 1 and #62 ticked. Suite 476/520 (44 skipped), tidy green.
-- Next: item 2 (ADR 0004, opus architect; the architect agent has no Write tool, so it returns text
-  and I write the file) weighing persistent EV_CLEAR registration and changelist batching, then item 4.
-- Blockers: none. Cycle ~11 min, ~$0.7.
-- Gotchas: tidy flags `std.time.` in src (use a local ns_per_s) and bench lines > 100 cols; the guard
-  blocks a compound Bash that writes citadel files: use Write/Edit for memory.
+## History (cycles 69-72, folded 2026-10-31)
 
-## History (cycles 69-71, folded 2026-10-31)
-
+- 72 (10-30): item 1 PR #66 (d99f63b): `src/profile.zig` counters on only when the root declares
+  `sirocco_profile` (`zig build bench-echo-profile`); ADR 0003 4c: 78% of CPU in the kernel, no
+  user-space hot spot, avoidable EAGAIN reads+arms only ~1.3x, so multi-carrier stays. Gotchas: tidy
+  flags `std.time.` in src and bench lines > 100 cols; the architect agent has no Write tool.
 - 69 (10-27): plan 005 merged (#61), milestone #62 opened. Item 1 blocked: no usable profiler on this
   box (`xctrace` shim only, no `dtrace`, `sample(1)` hangs); question #63 opened. Item 3 PR #64 split
   `sched_fiber.zig` and `concurrency_group.zig` out (a zig-developer call with explicit line ranges
