@@ -1,7 +1,21 @@
 # strata — context
 
-last_seen_at: 2026-11-01T05:05:16Z
+last_seen_at: 2026-11-02T00:00:00Z
 rejected_plans: []
+
+## Cycle 77 — 2026-11-02 — FEATURE
+- Done: plan 005 item 12 merged as #77 (CI 7/7, main CI green): `btree.Error`/`NotImplemented` dropped,
+  README btree row Landed, CHANGELOG `[0.6.0]`, `.version = "0.6.0"`. Tagged + released **v0.6.0**
+  (annotated tag, `gh release create`); no sibling names strata -> no migration issues. Milestone #63
+  closed; plan 005 complete.
+- PR: plan 006 proposed (Phase 4b kv engine on the B+Tree, 12 items, MINOR -> v0.7.0), PR #78, awaiting
+  merge (citadel#91). Planner (opus) took ~6 min / ~$0.8-1.0; it flagged `FaultIo`/`CrashSink` cannot
+  drop unsynced bytes (own item), `bulk_load` deferred to plan 007.
+- Next: once #78 merges, open milestone issue and start item 1 (B+Tree durability debts); else one
+  `/stabilize strata --one`.
+- Blockers: none. Open questions: none.
+- Note: ~$2.3 of $4, ~16 min. Guard rejects `;`-chained commands (tag + push + release must be
+  separate calls). The Monitor tool works for CI waits but a plain `until` loop in Bash also works.
 
 ## Cycle 76 — 2026-11-01 — FEATURE
 - Done: plan 005 item 11 merged as #76 (CI 7/7, 837 tests, auto-merged, issue #63 ticked):
