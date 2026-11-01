@@ -1,7 +1,30 @@
 # sirocco — context
 
-last_seen_at: 2026-10-31T12:00:00Z
+last_seen_at: 2026-11-01T12:00:00Z
 rejected_plans: []
+
+## Cycle 75 — 2026-11-01 — FEATURE
+- Inbox: clean (no OWNER comments, no bugs, CI green on ff04e14, no plan PR, milestone #62 open).
+- Preflight found the tree dirty on `feat/batch-waiter-plumbing` (item 5 plumbing left by an
+  interrupted cycle 74 tail); preserved as `wip/feat-batch-waiter-plumbing-20261101` (kept, never
+  delete). It built and passed, so I branched `feat/batch-waiter-park` from it.
+- Item 5 implemented as PR #69 (NOT merged: CI pending at report time, ubuntu epoll is CI-only):
+  `src/batch_park.zig` (an all-net_receive batch parks on poller+wheel, one Waiter per op),
+  `src/batch_sweep.zig`, `src/batch_park_test.zig`; batches with a file op keep `wait_sliced`;
+  `served_task` forwards a batch needing > free spares+1 nodes to the baseline; `ops_max` 128.
+  Plan item 5 ticked in the PR, CHANGELOG `[Unreleased]` documents the required `batch_ops_max`.
+- Reviewer (sonnet) found 2 CRITICALs, both fixed in the second commit: a lost claim after a
+  `.gone`/`.resources` join left a stale `unpark_foreign` (now parks); `waiter_acquire().?` could
+  be null in round >= 2 (now naps 100 us and sweeps when the pool is short). The pool-short test
+  calls `batch_park.wait` directly (unreachable through the await on one carrier). No end-to-end
+  test of the foreign-close race (needs a hook, or item 6's second carrier).
+- Next: cycle 76 inbox merges #69 if CI is green and no `hold`; red -> fix on the branch (max 2
+  attempts). Then item 6 (`Options.carriers`). Add the item 4 SUGGESTION tests (cancel head/tail,
+  `.gone`, node re-entry) if cheap.
+- Gotchas: flaky ~1/40: parity test "64 idle sockets wake the batch when their datagrams arrive
+  later" panics inside std `Io.Batch.cancel` on the baseline side (union field 'submission' while
+  'unused' active); the test is from #55, likely pre-existing; rerun CI first if red. The guard
+  blocks `python3 - <<EOF` heredocs that touch citadel paths: use Edit/Write. Cycle ~$3.2.
 
 ## Cycle 74 — 2026-10-31 — FEATURE
 - Inbox: clean (no OWNER comments, no bugs, CI green, no plan PR, milestone #62 open).
