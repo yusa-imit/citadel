@@ -1,7 +1,20 @@
 # silica — context
 
-last_seen_at: 2026-10-31T10:00:00Z
+last_seen_at: 2026-11-01T10:00:00Z
 rejected_plans: []
+
+## Cycle 47 — 2026-11-01 — FEATURE
+- Preflight: disk 46 GB (gate passed), main clean, CI green (fed21fe), no bug/question issues, no open
+  PRs; inbox nothing new (only own comments on #137, #163). zuda still v2.3.0; plan 001 items blocked.
+- Done: one `/stabilize --one` filler, PR #186 (merged, `auto-merged`, CI 7/7): `readBytesDup`,
+  `readMostCommonValue`, `readHistogramBucket` extracted from stats `deserializeColumnStats` (90 ->
+  under 70) with 4 tests (success + truncation, leak-checked); also closes an MCV-append leak path.
+  Baseline `function_length` 30 -> 29. Local fmt + tidy + test green. No subagents, ~$0.42.
+- Next: fillers transport `parseBackendMessage` 89, executor `textToTsvector` 79 / `evalJsonPathExtract`
+  79. Cycle 50 is the next n%5==0. Migration waits for zuda v3.0.0 (target sailor v3.1.0).
+- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
+- Tooling: `gh pr merge` then `gh pr edit --add-label auto-merged` as separate calls; tidy lists
+  offending lines via the built `tidy` binary (`--src src --baseline tidy_baseline.txt`).
 
 ## Cycle 46 — 2026-10-31 — FEATURE
 - Preflight: disk 28 GB (gate passed), main clean, CI green (300af95), no bug/question issues, no open
