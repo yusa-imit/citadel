@@ -1,7 +1,27 @@
 # sigil — context
 
-last_seen_at: 2026-10-31T15:19:00Z
+last_seen_at: 2026-11-01T12:00:00Z
 rejected_plans: []
+
+## Cycle 83 — 2026-11-01 — FEATURE
+
+- Done: milestone #84 item 5 (PR #89, CI 8/8, auto-merged; #84 box 5 and plan box ticked, 5/11).
+  Written directly + one sonnet `code-reviewer` (0 critical; 4 warnings fixed: CHANGELOG, ADR wrap,
+  assertions, break-placement tests). Cost ~$1.7.
+- Shape: `cbor/decoder.zig` `Reader.init(input, depth_max)` / `next(diag)`; `Item` (null, bool, int, uint
+  [> maxInt(i64)], float, simple, text, bytes, array/map counts, array_indef/map_indef/bytes_indef/
+  text_indef, tag, stop, end); `ScanError` 7 = UnexpectedEnd, NotWellFormed, UnexpectedBreak,
+  InvalidIndefinite, InvalidUtf8, TooDeep, IntegerBelowMin. Reader keeps `[nesting_max]Frame`
+  {head,left,kind tag|definite|indef_array|indef_map} + string mode (indef string is a leaf, no level);
+  `complete()` pops finished tags/definite containers; EOF inside open item = UnexpectedEnd at innermost
+  open head; `simple` surfaces undefined/other simple values (tree item 6 raises UnsupportedSimple).
+  ADR 0006 s5 fixed: a scalar adds no level (root tagged scalar needs depth_max >= 1).
+- Next: item 6 `cbor/decoder.zig` tree and tags (counting pass for indefinite items per ADR s9, tags 0-3,
+  stop tokens close indefinite containers/strings; chunks concatenated). Blockers: none.
+- Reviewer suggestions not taken: none outstanding for cbor reader; msgpack ones from cycle 82 remain.
+- Learned: tidy requires the `// proof:` above `switch (err)` in `reason_of` (reviewer suggested deleting
+  it, wrong); `zig fmt` does not wrap long lines (tidy fails at >100 cols in tests); an RFC 7049 App. A
+  `f818` is not well-formed in 8949; a test failure's real message sits before a long leaked error trace.
 
 ## Cycle 82 — 2026-11-01 — FEATURE
 
