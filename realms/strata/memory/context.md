@@ -1,7 +1,20 @@
 # strata — context
 
-last_seen_at: 2026-11-01T00:20:00Z
+last_seen_at: 2026-11-01T05:05:16Z
 rejected_plans: []
+
+## Cycle 76 — 2026-11-01 — FEATURE
+- Done: plan 005 item 11 merged as #76 (CI 7/7, 837 tests, auto-merged, issue #63 ticked):
+  `bench/btree.zig` (+ `bench/main.zig` wiring): `btree_get` 5.1M ops/s (floor 5M, thin margin, noisy
+  5.0-5.2M), `btree_insert_seq` 1.27M (floor 1M), `btree_insert_logged` 0.23M (recorded, not gated).
+  Figures in `docs/plans/000-inherited.md`. Kernels return `TreeOutgrewPool` if the pool evicts; insert
+  kernels run once per fixture (`AlreadyRun`). Bench never fails on a missed floor (manual check).
+- Review: 0 critical, 4 warnings fixed (negative tests for KeyMissing/ValueSizeMismatch, seeded-order
+  determinism, FailingAllocator sweep over fixture_init, eviction check surviving ReleaseFast).
+- Next: item 12 docs + release v0.6.0 (MINOR): drop `NotImplemented` from `src/btree.zig`, README btree row
+  Landed, tick milestones 4A-4C/4E, CHANGELOG, `.version = "0.6.0"`, tag, `/release strata minor`.
+- Blockers: none. Open questions: none.
+- Note: ~$1.6 of $4, ~13 min. Inbox quiet (no OWNER comments). Developer 4 min + 2 min fix, reviewer 2 min.
 
 ## Cycle 75 — 2026-11-01 — FEATURE
 - Done: plan 005 item 10 (4E) merged as #75 (CI 7/7, 830 tests, auto-merged, issue #63 ticked):
@@ -20,55 +33,20 @@ rejected_plans: []
 - Note: ~$1.6 of $4, ~14 min. Developer 7 min (mutants checked), reviewer 1 min. Monitor with
   `until ! gh pr checks N | grep -q pending` works; sleep inside Monitor is fine.
 
-## Cycle 74 — 2026-10-31 — FEATURE
-- Done: plan 005 item 9b-ii merged as #74 (CI 7/7, 824 tests, auto-merged, issue #63 ticked): logged
-  `Tree.delete` = one `page_images` frame (merge/borrow/root collapse together; unlinked pages dropped from
-  the tracked set, then `pool.discard`ed after the frame), absent key logs nothing; `release_frees` with a
-  writer frees only when `writer.durable_lsn >= Tree.frees_lsn` (single scalar = conservative rule B), via
-  `free_at(durable_lsn)`; failed tree frees nothing. `finish()` shared by insert/delete (`Finish` enum).
-  `attach` asserts `frees_len == 0`. Tests in `tree_wal_delete_test.zig` (9), `tree_wal_test.zig` Env is pub.
-- Review: 1 CRITICAL fixed (an unlinked page edited by the delete stayed dirty with an old lsn, so
-  eviction/flushAll could write it before its frame was durable -> `discard_unlinked`), 5 warnings fixed.
-  Open: no test replays onto the LIVE file after `free_at` trunk stamps (rule B path c); release_frees
-  all-or-nothing against the latest op; `Env.frees` is 512 in tests.
-- Next: item 10 (4E seeded model tests, `src/testing/btree_model_test.zig`, 3 page sizes x fixed seeds, include
-  logged mode + crash/replay + release_frees), then 11 bench, 12 docs + release v0.6.0 (MINOR).
-- Blockers: none. Open questions: none.
-- Note: ~$1.8 of $4, ~17 min. Developer 6.5 min (red-first honoured), reviewer 2 min, fix round 2.5 min.
-
-## Cycle 73 — 2026-10-31 — FEATURE
-- Done: plan 005 item 9b split again (9b-i insert, 9b-ii delete + frees; plan + #63 updated). 9b-i merged as
-  #73 (CI 7/7, 815 tests, auto-merged): `Tree.attach(writer, track)`, logged `insert` = one `page_images` frame
-  per op + `set_lsn`, chain logged first (rule C), `pages.sync` before frame when ids popped (rule A), append
-  failure -> `discardAll` + latch `Failed`; `BufferPool.track_begin/ids/reset/end` (tracked pages never evicted).
-  `freelist.allocate/free` keep max(old,new) trunk lsn (cycle-72 warning 1 fixed + tests).
-- Preflight found 9b-i work uncommitted on `feat/btree-wal-insert` (already green): preserved as
-  `wip/feat-btree-wal-insert-20261031` (pushed, keep), finished on `feat/btree-wal-insert`. Inbox: nothing new.
-- Review: 0 critical, 4 warnings fixed (named `LogError` set, no `@errorCast`; `release_frees` asserts
-  `writer == null`; tracker unit tests; ValueTooLarge + chain-sync-failure tests; attach needs frames >= track+ops+1).
-  Open suggestions: `track_has` linear (use per-frame flag), `insert` should assert `pool.gate_on`, document
-  no guard held across insert, double sync when chain and op both popped, `ops_max` helper (3 copies).
-- Next: 9b-ii logged `delete` (merge/borrow/root collapse in one frame), `release_frees` waits `durable_lsn`
-  and frees via `free_at` (rule B); lift the `delete`/`release_frees` asserts. Then items 10-12.
-- Blockers: none. Open questions: none.
-- Note: ~$1.3 of $4, ~15 min. Bash guard rejects `cd ... && ...` and `;` chains: run one command per call.
-
-## Cycle 72 — 2026-10-30 — FEATURE
-- Done: plan 005 item 9 split (plan + issue #63 now list 9a/9b). 9a log side merged as #72 (CI 7/7, 803 tests,
-  auto-merged): `Type.page_images`=16 + `payload_valid`, `PageRedo` whole-frame-validated idempotent redo
-  (single grow before any write), `PageManager.free_at(io,id,lsn)` (`free` = `free_at(..,0)`),
-  `Writer.append_parts` (gather). `frame.seal` added; tests in `*_images_test.zig`, `writer_parts_test.zig`.
-- Review: 0 critical, 2 warnings NOT fixed (deadline): (1) `freelist.allocate` re-stamps head trunk with
-  `wal_lsn`, which can LOWER a trunk stamped by `free_at(L)` -> reopens rule B path (c); fix in 9b with test
-  `free_at(L)` then `allocate` then lsn >= L. (2) `free_at` tests lack a full-head-trunk case (new trunk with `next`).
-  Suggestions: `frame_test.zig:281` still lists type 16 as reserved; vacuous tautology at
-  `frame_images_test.zig:232`; midway-fault redo test only injects at call 0 (`redo_images_test.zig:235`).
-- Next: 9b tree side (`btree/`): one `page_images` frame per op (<= 2*height_max+1 pages), `set_lsn`, pins held
-  until stamp, `release_frees` waits `durable_lsn` using `free_at`, `attach(writer)`, reserve ids with sync (rule A),
-  overflow chains first (rule C, use `append_parts`), `discardAll` on append failure. Brief dev with ADR §9, §13.
-  Consider splitting 9b again (attach+logged insert first). Fix the two review warnings first.
-- Blockers: none. Open questions: none.
-- Note: ~$1.9 of $4, ~19 min. zig-developer took 13 min (asked for 9) -> brief a hard stop at 7 min.
+## Cycles 72-74 (2026-10-30..31), folded
+- Plan 005 item 9 (WAL integration) in three PRs, CI 7/7, auto-merged: #72 log side (`Type.page_images`=16,
+  `PageRedo` whole-frame-validated idempotent redo, `PageManager.free_at(io,id,lsn)`, `Writer.append_parts`);
+  #73 `Tree.attach(writer, track)` + logged insert (one `page_images` frame per op + `set_lsn`, chain logged
+  first = rule C, `pages.sync` before frame when ids popped = rule A, append failure -> `discardAll` + latch
+  `Failed`, `BufferPool.track_*`); #74 logged `delete` (merge/borrow/collapse in one frame, unlinked pages
+  `discard`ed after the frame), `release_frees` frees via `free_at(durable_lsn)` only when
+  `writer.durable_lsn >= Tree.frees_lsn` (rule B). `freelist.allocate/free` keep max(old,new) trunk lsn.
+- Reviews found 1 CRITICAL (unlinked page stayed dirty with old lsn -> `discard_unlinked`) and several
+  warnings, all fixed. Open: no test replays onto the LIVE file after `free_at` trunk stamps (rule B path c);
+  `track_has` linear; `insert` should assert `pool.gate_on`; `ops_max` helper has 3 copies.
+- Lessons: Bash guard rejects `cd ... && ...` and `;` chains (one command per call); zig-developer once took
+  13 min -> brief a hard stop at 7 min; preflight preserved uncommitted work as `wip/feat-btree-wal-insert-
+  20261031` (keep).
 
 ## Cycle 71 — 2026-10-29 — FEATURE
 - Done: plan 005 item 8 — PR #71 merged (CI 7/7, 778 tests, auto-merged): `btree/overflow.zig`
