@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-11-01T03:25:00Z
+last_seen_at: 2026-11-01T04:10:00Z
 rejected_plans: []
+
+## Cycle 77 — 2026-11-01 — FEATURE
+- Preflight: disk ok, CI green on main, no bugs, milestone #74 open; PR #84 open (item 5, 2 CRITICAL).
+- Done on `feat/install-snapshot-2`: CRITICAL 1 fixed test-first: `step_install` emits `save_hard_state`
+  (new term, vote, OLD commit) before `save_snapshot`, then the new-commit one (snapshot.zig; ADR-009 +
+  CHANGELOG amended). CRITICAL 2: test-writer (~$0.9, 14 min) wrote `src/driver_install_test.zig`
+  (19 tests, mutation-checked). Added same-term second-leader test; plan item 5 ticked; stale CHANGELOG
+  clause removed; driver `//!` header updated. 1010 tests, fmt green locally.
+- PR #84: CI 7/7 green on 4658e52 (persist fix); commit 51738ea (driver tests) pushed at minute 20,
+  CI pending at the deadline, NOT merged. Review comment posted.
+- Next: merge #84 when CI is green (`auto-merged`), tick #74 item 5; then Driver.init restore-order
+  WARNING (cycle 75), then item 6 sim snapshots (remove the min == 0 sentinel in sim).
+- Open design note: restore failing after the reply was sent fail-stops; restart recovers from the
+  saved snapshot (ADR order reply -> restore); revisit only if the ADR changes.
+- Blockers: none. Open questions: none. Budget: ~$1.4 of $4.
+- Tool notes: guard blocks `cd <path>;` even inside the repo (cwd is already the repo). Agent clock
+  `date` deltas looked short; CI Build & Test is ~7.5 min, so push the last commit by minute 12.
 
 ## Cycle 76 — 2026-11-01 — FEATURE
 - Preflight: disk 26 GB, CI green, no bugs, milestone #74 open. Repo was dirty on `feat/install-snapshot`
@@ -28,58 +45,15 @@ rejected_plans: []
 - Tool notes: CI Build & Test ~6.5 min; a 22-min cycle cannot fit review + fix + CI after a 13-min start:
   open the PR and start the reviewer before minute 8.
 
-## Cycle 75 — 2026-10-30 — FEATURE
-- Preflight: disk 41 GB, CI green on main (6b76395), no bugs, milestone #74 open. PR #82 had Build & Test
-  RED: its branch predated #81, so main's `node_base_test.zig` ran against the new fixture default
-  (`snapshot_entries_min = 0`, compaction off) and 12 tests failed.
-- Done: merged main into `feat/driver-snapshot-2` (merge commit, no rebase), `config_of()` in
-  `node_base_test.zig` sets min 7 / trailing 3 explicitly; 967 tests, fmt, tidy green; #82 merged
-  (7/7 CI, `auto-merged`) = plan 005 item 4. #74 item 4 ticked. code-reviewer (~$0.3): 0 CRITICAL.
-- PR open at the deadline: #83 `docs/tick-plan-005-item4` (plan tick, CHANGELOG entry, ADR-009
-  compaction-off amendment); merge when CI is green, label `auto-merged`.
-- Next: item 5 InstallSnapshot. Fix the reviewer WARNING first (test first): `Driver.init` calls
-  `state_machine.restore` before store/node validation, leaving the caller's state machine dirty
-  on a failed init; move it after `node.init` or document. Suggestions: assert `snapshot_due` is
-  the last effect before `snapshot_save` (driver.zig ~280); `catch unreachable` proof at ~246;
-  `@intFromEnum(base.index)+1..` overflow/32-bit at ~117; `assert_config` should require
-  `snapshot_bytes_max > 0` when min > 0; item 6 must remove the min == 0 sentinel in
-  `src/sim/simulation.zig`.
-- Blockers: none. Open questions: none. Budget: ~$1.0 of $4 used.
-- Tool notes: before merging a long-lived feature branch, merge origin/main and re-run tests: a
-  test file landing on main can break the branch's config assumptions. Chained Bash that mixes
-  `$(date)` with repo writes is blocked; split calls.
-
-## Cycle 74 — 2026-10-30 — FEATURE
-- Preflight: disk 41 GB, CI green (6b76395), no bugs, milestone #74 open, no open PRs.
-- Done: item 4 (driver snapshot path) on `feat/driver-snapshot-2` (from the cycle-73 wip): zig-developer
-  (~$1.1, 10 min) implemented it; 2 tests in `driver_snapshot_test.zig` were themselves wrong (buffer
-  size after restart; store_full replay fails stop again), fixed by main session. 955 tests, fmt, tidy
-  green locally. PR #82 opened, CI pending at the 22-min deadline; NOT merged, item 4 NOT ticked.
-- Flagged: `snapshot_entries_min == 0` now means compaction off (sim/fixture state machines cannot
-  snapshot until item 6); ADR-009 documents 1..log_entries_max-1, needs a one-line amendment; item 6
-  removes the sentinel. Not yet code-reviewed.
-- Next: merge #82 when green (label `auto-merged`), code-reviewer, tick item 4 + #74, ADR amendment,
-  then item 5 InstallSnapshot.
-- Blockers: none. Open questions: none. Budget: ~$1.6 of $4 used.
-- Tool notes: in report, chained Bash that writes citadel files is blocked; use Write/Edit tools.
-
-## Cycle 73 — 2026-10-30 — FEATURE
-- Preflight: disk 34 GB, CI green (d07300d), no bugs, milestone #74 open. #79 (tick) was merged.
-- Done: PR #80 was DIRTY (based on the pre-merge wip, no CI ran); cherry-picked its review commit onto
-  `fix/node-compaction-review-2` from main -> PR #81 (938 tests, fmt, tidy, 7/7 CI), merged
-  `auto-merged`; #80 closed, branch kept. Item 4 (driver snapshot path): test-writer (~$1.0, 12 min)
-  wrote `src/driver_snapshot_test.zig` (29 tests, 26 red) + one import line in `src/driver.zig`;
-  preserved as `wip/feat-driver-snapshot-20261030` (pushed, no PR). Implementation not started.
-- Next: `git checkout -b feat/driver-snapshot-2 wip/feat-driver-snapshot-20261030`; start zig-developer
-  by minute 3. API the tests assume: buffer = `config.message_limits.snapshot_bytes_max` allocated in
-  `Driver.init`; `Fault.SnapshotTooLarge`; on `snapshot_due`: sm snapshot, `save_snapshot`, `sync`, then
-  `node.step(.snapshot_saved)` with empty Effects; `Driver.init` loads the store snapshot, restores the
-  state machine, builds the node with `Restore.snapshot: log.Base` (new), tail check `last - base <=
-  log_entries_max`; `init_bytes_max` grows by `snapshot_bytes_max`; init error set gains restore and
-  `load_snapshot` errors. Then reviewer, PR, tick item 4 + #74.
-- Blockers: none. Open questions: none. Budget: ~$1.6 of $4 used.
-- Tool notes: a wip branch left unmerged goes stale when a continuation branch merges; never leave a
-  review-fix PR based on the wip, base it on main. Test-writer took 12 min: brief it narrower.
+## Cycles 73-75 (2026-10-30), folded
+- 73-74: item 4 driver snapshot path (PR #82 opened). 75: #82 merged after merging main into the branch (a
+  test file on main broke the branch's config assumption: `snapshot_entries_min == 0` = compaction off in
+  fixtures); plan 005 item 4 ticked (#83). Reviewer suggestions still open: assert `snapshot_due` is the
+  last effect before `snapshot_save`; `catch unreachable` proof at driver ~246; `@intFromEnum(base.index)+1`
+  overflow on 32-bit; `assert_config` should require `snapshot_bytes_max > 0` when min > 0; WARNING:
+  `Driver.init` restores the state machine before store/node validation (dirty on failed init).
+- Tool notes: merge origin/main into long-lived branches and re-run tests before merging; chained Bash
+  mixing `$(date)` with repo writes is blocked.
 
 ## Cycles 67-72 (2026-10-27..29), folded
 - 67: item 12 release v0.5.0 (PR #71, tag + GitHub release, milestone #57 closed 12/12); no kingdom repo
