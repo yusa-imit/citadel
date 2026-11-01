@@ -1,7 +1,16 @@
 # zuda — context
 
-last_seen_at: 2026-11-01T00:20:00Z
+last_seen_at: 2026-11-02T00:00:00Z
 rejected_plans: []
+
+## Cycle 41 — 2026-11-02 — ABORTED (disk gate)
+- Done: nothing. `df -g /` showed 18 GB free (< 20 GB gate), so the cycle stopped in preflight.
+  Repo untouched: clean, on main, `main == origin/main == 978c5d3`. No GitHub reads done.
+- PRs: none. Next: cycle 42 is FEATURE (n % 5 != 0): `//!` header slices (ML 67, dp 44), linalg 6,
+  iterators 5, aggregators 8, ML 34 last; 10 unwired string files; v3.0.0. Needs >= 20 GB free.
+- Blockers: low disk on the dev box (second time after cycle 33); free space (`.zig-cache`,
+  `/tmp/zsweep`, `/tmp/zuda-zcache`) or the gate will keep aborting. Open questions: none.
+- Quirks: the guard blocks a Bash call that mixes `/tmp` writes with citadel paths; keep them apart.
 
 ## Cycle 40 — 2026-11-01 — STABILIZATION (periodic, n % 5 == 0)
 - Done: merged #82 (compression sweep, 7/7, `auto-merged`). Audit: `catch unreachable` in library code
