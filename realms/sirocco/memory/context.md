@@ -3,6 +3,11 @@
 last_seen_at: 2026-11-01T12:00:00Z
 rejected_plans: []
 
+## Disk-blocked no-op — 2026-11-02 (counter stays 75)
+- Preflight: `df -g /` = 18 GB (19 Gi free) < 20 GB gate; stopped before inbox. Tree clean on
+  `feat/batch-waiter-park` (PR #69 head d8f0d8c, CI/merge state not checked this run).
+- Next: when disk is >= 20 GB, cycle 76 inbox merges #69 if CI green and no `hold`, then item 6.
+
 ## Cycle 75 — 2026-11-01 — FEATURE
 - Inbox: clean (no OWNER comments, no bugs, CI green on ff04e14, no plan PR, milestone #62 open).
 - Preflight found the tree dirty on `feat/batch-waiter-plumbing` (item 5 plumbing left by an
