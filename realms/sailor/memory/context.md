@@ -1,7 +1,30 @@
 # sailor — context
 
-last_seen_at: 2026-10-31T00:00:00Z
+last_seen_at: 2026-11-01T00:00:00Z
 rejected_plans: []
+
+## Cycle 48 — 2026-11-01 — STABILIZATION
+
+- Preflight: main 5334c02 CI green; bug #75 open forced STABILIZATION. No owner comments; #78
+  (needs-human, non-blocking) unanswered.
+- Done: **PR #79** (batch 3 of #75, merged at minute ~17, CI 10/10, `auto-merged`): autocomplete,
+  barchart, completion_popup, configeditor, context_menu, editable_table imported in the `tui.zig`
+  test block; three parallel sonnet test-writers (2 files each, ~$2.7 total, 5-8 min; cost was
+  higher than C47, budget is $4/cycle so use fewer files or smaller agents). Bugs fixed:
+  `ContextMenu.moveUp/Down` infinite loop, BarChart `setCell` nonexistent + u64/u16 overflow,
+  Autocomplete doc text after newline / fuzzy score / long candidates, CompletionPopup huge-item
+  panic, ConfigEditor byte-wise advance / 256-node cap / UTF-8 deleteChar, EditableTable border
+  overwrite. Removed two stale configeditor entries from `tidy_baseline.txt`. CHANGELOG updated.
+- Remaining in #75: form httpclient linechart markdown menu metrics_dashboard profiler
+  record_editor scatterplot select taskrunner terminal textarea timeseries tree (15) + failing
+  `splitpane`, `chunkedbuffer`.
+- Known unfixed: BarChart max==0 draws nothing (pinned by a test); `Block.renderTitle` cuts by
+  bytes (`block.zig`); ConfigEditor render ignores in-progress edit text; autocomplete `//!` doc
+  example shows a bare `setMaxVisible` call; plus C47 list.
+- Next: n=49 STABILIZATION (#75 open): batch 4 of ~4 files max (budget); open PR by minute ~7.
+- Blockers: none. Open questions: #78 (non-blocking). Streak 0.
+- Quirks: agent running `zig fmt src/tui/widgets/*.zig` touches siblings' files; tell agents to
+  fmt only their own. Cycle budget $4 tracked by harness; batch 3 used ~$3.4.
 
 ## Cycle 47 — 2026-10-31 — STABILIZATION
 
