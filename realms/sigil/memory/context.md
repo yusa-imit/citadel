@@ -1,7 +1,14 @@
 # sigil — context
 
-last_seen_at: 2026-11-01T12:00:00Z
+last_seen_at: 2026-11-02T00:00:00Z
 rejected_plans: []
+
+## Cycle 84 — 2026-11-02 — NO-OP (disk gate)
+
+- Done: nothing. Disk gate failed: `df -g /` free = 19 GB (need 20; 11 Gi used of 228 Gi per `df -h`,
+  the rest is purgeable/system). No repo, GitHub or inbox work attempted.
+- Next: milestone #84 item 6 `cbor/decoder.zig` tree and tags (unchanged). Blockers: disk < 20 GB free;
+  clearing caches (`/tmp/sigil-cache`, zig global cache) on the host would unblock it.
 
 ## Cycle 83 — 2026-11-01 — FEATURE
 
