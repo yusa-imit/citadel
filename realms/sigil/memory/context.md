@@ -77,20 +77,16 @@ README 2). Learned: `gh pr merge --label` does not exist (`gh pr edit --add-labe
 compounds and `sleep` loops (use `git -C`, `gh pr checks N --repo yusa-imit/sigil` in an until loop);
 python heredoc `\r\n` replace silently misses; tidy flags test lines >100 cols.
 
-## Cycle 75 — 2026-10-28 — FEATURE
+## History (cycles 67 and 75, folded 2026-11-01)
 
-- Done: plan 006 item 12, release v0.5.0 (PR #79, CI 8/8, auto-merged, tag + GitHub release);
-  milestone #67 closed 12/12. No sibling `build.zig.zon` names sigil -> no migration issues.
-  Then `/plan`: plan 007 "Phase 4AB MessagePack + CBOR" (v0.6.0, 11 items, item 1 = ADR 0006)
-  written via `planner` (opus, ~$0.9), PR #80 awaiting merge (citadel#81). Cost ~$1.6 total.
-- Next: once #80 is merged, open milestone issue for 007 and do item 1 (ADR 0006, architect
-  or directly). If not merged: one `/stabilize sigil --one` filler (cycle 67 follow-ups:
-  asserts in parser step fns, truncation test, inline-table tests). Blockers: none.
-- Open question (on PR #80, non-blocking): reflect option to omit null optionals in
-  `toml.stringify`.
-- Learned: release PR must also bump `sigil.version` in `src/root.zig` and its pin test; the
-  guard rejects one command mixing citadel paths with repo work (split); planner output came
-  back HTML-escaped (`-&gt;`), unescape before writing the plan file.
+C67: item 6 TOML arrays and inline tables (PR #73): `parser.zig` explicit `Frame` stack
+(`Need {first, after_comma, comma_or_close}`), `nodes_max = len/2 + 2 + depth_max`; tests split into
+`parser_fixtures.zig` + `parser_value_test.zig` (soft file limit 800). Its follow-ups were done in C76-78.
+C75: item 12 release v0.5.0 (PR #79), milestone #67 closed 12/12; plan 007 written via `planner`
+(PR #80). Open question on PR #80 (non-blocking): reflect option to omit null optionals in
+`toml.stringify`. Learned: a release PR also bumps `sigil.version` in `src/root.zig` and its pin test;
+planner output can come back HTML-escaped (unescape before writing); global `zig` is 0.15, use
+`PATH=/Users/fn/.zr/toolchains/zig/0.16.0:$PATH` and `--cache-dir /tmp/sigil-cache`.
 
 ## History (cycles 72-75, condensed 2026-10-29)
 
@@ -117,27 +113,6 @@ with item 9. C71: item 8 PR #75, toml-test v2.2.0 (MIT) vendored in `tests/toml-
 files); 679 cases, 679 pass, 0 pinned; floats compared by bit pattern, datetimes as
 `core.timestamp.parse` values (ADR 0005 s9). `gh api repos/<o>/<r>/tarball/<tag>` into /tmp
 fetches a corpus. Cycle 67 follow-ups still open: see cycle 67 below.
-
-## Cycle 67 — 2026-10-22 — FEATURE
-
-- Done: item 6 (TOML arrays and inline tables), written directly. PR #73, CI 8/8, auto-merged; #67 box 6
-  ticked (6/12). Reviewer (finished after merge): 0 critical; fuzz of ~965k inputs found no node-bound
-  OutOfMemory. Follow-ups to fold into the item 7 PR (or a small fix PR first): CHANGELOG `[Unreleased]`
-  item 6 bullet and drop "follow in item 6"; `toml.zig` header says items 6-7 pending; >=2 asserts in
-  `read_value`/`step`/`place`/`array_step`/`table_step`; seeded prefix-truncation test for the node
-  bound (ADR/`scratch.zig` argument is amortised, not "2 bytes per node"); tests for `{ b.c = 1,
-  b.d = 2 }`, comment inside `{}` rejected, CRLF/comment between array elements; ADR 0005 line 97
-  is 123 cols, and section 4 says inline state set at `}` (code sets it at `{`); `depth = 0` dead init.
-- Shape: `parser.zig` explicit `Frame` stack (`Need {first, after_comma, comma_or_close}`), `step` ->
-  `array_step`/`table_step`, `place(Target{keyed|element}, token)`, `key_path` shared with statements.
-  `scratch.append_scalar`/`append_container`; `nodes_max = len/2 + 2 + depth_max` (open `[`/`{` cost one
-  byte; ADR 0005 amended). Keyed TooDeep points at the key, element TooDeep at the `[`/`{` token.
-  Tests split: `parser_fixtures.zig` (shared helpers) + `parser_value_test.zig` (soft file limit 800).
-- Next: item 7 `toml.zig` facade + reflect (ADR 0005 (f)). Blockers/questions: none.
-- Learned: global `zig` is 0.15; use `PATH=/Users/fn/.zr/toolchains/zig/0.16.0:$PATH` and
-  `--cache-dir /tmp/sigil-cache` (repo-local cache failed to spawn the build runner); BSD `sed -i ''`;
-  the guard blocks one command mixing citadel paths with python heredocs (use Edit/Write there);
-  `check_maps` test helper stack is 512 values (keep generated arrays small).
 
 ## History (cycles 63-66, condensed 2026-10-23)
 
