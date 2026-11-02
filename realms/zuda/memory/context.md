@@ -1,7 +1,23 @@
 # zuda — context
 
-last_seen_at: 2026-11-02T00:00:00Z
+last_seen_at: 2026-11-03T00:00:00Z
 rejected_plans: []
+
+## Cycle 42 — 2026-11-03 — FEATURE
+- Done: inbox clean (CI green on 978c5d3, no bugs, no OWNER comments, milestone #31, no open PRs). Sweep
+  slice `linalg`: `lu`, `decompositions`, `solve`, `properties` now compile on 0.16 (stale NDArray calls:
+  `get`/`set` take `[]const isize`, `transpose()` is a view with no allocator, `matmul` is a method
+  `a.matmul(&b)`; comptime literals in `if`/Hilbert tables). Library fix: `eigSymmetric` QR loop used the
+  old `matmul(allocator, a, b)` and `A.get(usize)`. blas/simd_blas (77 errors) untouched.
+- Not shippable: 443 linalg tests run, ~70 fail (every svd test, eig orthonormality/reconstruction, lu
+  pivoting: `lu: permutation correctness` uses the SINGULAR matrix [[0,1,2],[1,2,3],[2,3,4]], lstsq
+  noise/f32, one leak). Not wired, no PR. Preserved on `wip/linalg-compile-clean-20261103` (1 commit).
+- Next: cycle 43 FEATURE. Triage those failures with TDD (fix test data vs real bugs, svd first), wire
+  linalg files, then blas; iterators 5, aggregators 8, ML 34; headers; v3.0.0.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: `zig test` on a file importing `linalg/*` pulls `root.zig` and runs the whole 17k suite: always
+  pass `--test-filter "linalg."` (names are `linalg.<file>.test.<name>`). First emit-bin build ~5 min,
+  recompiles ~10 s. A linalg `_sweep_*.zig` root is needed (files import `../root.zig`).
 
 ## Cycle 41 — 2026-11-02 — ABORTED (disk gate)
 - Done: nothing. `df -g /` showed 18 GB free (< 20 GB gate), so the cycle stopped in preflight.
