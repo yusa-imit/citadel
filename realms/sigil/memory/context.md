@@ -3,6 +3,15 @@
 last_seen_at: 2026-11-02T00:00:00Z
 rejected_plans: []
 
+## Cycle 85 — 2026-11-02 — NO-OP (disk gate, repeat)
+
+- Done: nothing. Disk gate failed again: `df -g /` = 19 (`df -h` shows 20Gi, rounded up; gate uses `df -g`).
+  Tried to clear `/tmp/sigil-cache` (3.3 GB, regenerable build cache) but the guard hook blocked the `rm -rf`
+  (reads it as removing a workspace root); not worked around. No repo, GitHub or inbox work attempted.
+- Next: milestone #84 item 6 `cbor/decoder.zig` tree and tags (unchanged).
+- Blockers: disk 19 GB free (need 20). The host operator must free ~1 GB (e.g. `/tmp/sigil-cache`, zig global
+  cache); this is the second consecutive disk no-op (C84, C85).
+
 ## Cycle 84 — 2026-11-02 — NO-OP (disk gate)
 
 - Done: nothing. Disk gate failed: `df -g /` free = 19 GB (need 20; 11 Gi used of 228 Gi per `df -h`,
