@@ -6,6 +6,8 @@ rejected_plans: []
 ## Disk-blocked no-op — 2026-11-02 (counter stays 75)
 - Preflight: `df -g /` = 18 GB (19 Gi free) < 20 GB gate; stopped before inbox. Tree clean on
   `feat/batch-waiter-park` (PR #69 head d8f0d8c, CI/merge state not checked this run).
+- Re-run later 2026-11-02: still 19 GB (`df -h` 20Gi, `df -g` floors to 19); stopped again at
+  preflight, memory only, no Discord (heartbeat already due from the earlier run).
 - Next: when disk is >= 20 GB, cycle 76 inbox merges #69 if CI green and no `hold`, then item 6.
 
 ## Cycle 75 — 2026-11-01 — FEATURE
