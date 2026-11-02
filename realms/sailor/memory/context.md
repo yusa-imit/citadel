@@ -5,56 +5,19 @@ rejected_plans: []
 
 ## Cycle 48 — 2026-11-01 — STABILIZATION
 
-- Preflight: main 5334c02 CI green; bug #75 open forced STABILIZATION. No owner comments; #78
-  (needs-human, non-blocking) unanswered.
-- Done: **PR #79** (batch 3 of #75, merged at minute ~17, CI 10/10, `auto-merged`): autocomplete,
-  barchart, completion_popup, configeditor, context_menu, editable_table imported in the `tui.zig`
-  test block; three parallel sonnet test-writers (2 files each, ~$2.7 total, 5-8 min; cost was
-  higher than C47, budget is $4/cycle so use fewer files or smaller agents). Bugs fixed:
-  `ContextMenu.moveUp/Down` infinite loop, BarChart `setCell` nonexistent + u64/u16 overflow,
-  Autocomplete doc text after newline / fuzzy score / long candidates, CompletionPopup huge-item
-  panic, ConfigEditor byte-wise advance / 256-node cap / UTF-8 deleteChar, EditableTable border
-  overwrite. Removed two stale configeditor entries from `tidy_baseline.txt`. CHANGELOG updated.
-- Remaining in #75: form httpclient linechart markdown menu metrics_dashboard profiler
-  record_editor scatterplot select taskrunner terminal textarea timeseries tree (15) + failing
-  `splitpane`, `chunkedbuffer`.
-- Known unfixed: BarChart max==0 draws nothing (pinned by a test); `Block.renderTitle` cuts by
-  bytes (`block.zig`); ConfigEditor render ignores in-progress edit text; autocomplete `//!` doc
-  example shows a bare `setMaxVisible` call; plus C47 list.
-- Next: n=49 STABILIZATION (#75 open): batch 4 of ~4 files max (budget); open PR by minute ~7.
-- Blockers: none. Open questions: #78 (non-blocking). Streak 0.
-- Quirks: agent running `zig fmt src/tui/widgets/*.zig` touches siblings' files; tell agents to
-  fmt only their own. Cycle budget $4 tracked by harness; batch 3 used ~$3.4.
+- Done: PR #79 (batch 3 of bug #75, CI 10/10, auto-merged): autocomplete, barchart, completion_popup,
+  configeditor, context_menu, editable_table imported in the `tui.zig` test block; fixed
+  `ContextMenu.moveUp/Down` infinite loop, BarChart overflow, CompletionPopup huge-item panic,
+  ConfigEditor 256-node cap, EditableTable border overwrite. Three parallel sonnet test-writers cost
+  ~$2.7 (budget $4/cycle: use fewer files per batch).
+- Remaining in #75: form httpclient linechart markdown menu metrics_dashboard profiler record_editor
+  scatterplot select taskrunner terminal textarea timeseries tree (15) + failing `splitpane`,
+  `chunkedbuffer`. Known unfixed: BarChart max==0 draws nothing; `Block.renderTitle` cuts by bytes.
+- Next: n=49 STABILIZATION (#75 open): batch 4 of ~4 files; open the PR by minute ~7. Blockers: none.
+  Open question #78 (needs-human, non-blocking). Streak 0.
+- Quirks: agents running `zig fmt src/tui/widgets/*.zig` touch siblings' files (fmt only own files).
 
-## Cycle 47 — 2026-10-31 — STABILIZATION
-
-- Preflight: main 4e4a9ab CI green; bug #75 open forced STABILIZATION (streak was 1). No owner
-  comments.
-- Done: **PR #77** (batch 2 of #75, merged, CI 10/10, `auto-merged`): checkbox, radio, histogram,
-  piechart, heatmap, input imported in the `tui.zig` test block; three parallel sonnet
-  test-writers (~$1.6 total, ~6 min), then fixed tidy hits (`catch unreachable` -> `catch
-  legend_buf[0..0]`, tidy counts BYTES >100 so a line with multibyte arrows needs a wrap).
-  Widget bugs fixed: byte-wise label drawing (checkbox/radio/piechart legend), area-clear u16
-  overflow, radio `.reversed` nonexistent field, histogram u64 overflow + lost max-bar value,
-  piechart radius spill/total overflow, heatmap all-negative range/ragged rows/empty row 0,
-  input far cursor / truncated UTF-8 panics. CHANGELOG updated.
-- Streak hit 2: opened question #78 (needs-human) asking whether to interleave item 7; bug #75 NOT
-  labelled needs-human so it keeps forcing STABILIZATION; streak reset to 0.
-- Remaining in #75: 21 files (autocomplete barchart completion_popup configeditor context_menu
-  editable_table form httpclient linechart markdown menu metrics_dashboard profiler record_editor
-  scatterplot select taskrunner terminal textarea timeseries tree) + failing `splitpane`,
-  `chunkedbuffer`. Tidy check "every widget file with a test is imported by a test root" unwritten.
-- Known unfixed: StatusBar byte widths; popup.zig:112 >100 cols; BulletChart target == max tick;
-  Heatmap `CellMode.numeric` draws blanks; Input draws CJK one cell per codepoint; piechart 355 deg
-  ray overdraws 0 deg column.
-- Next: n=48 STABILIZATION (#75 open): batch 3 of ~6 files; import in `tui.zig`, 3 agents; open
-  the PR by minute ~7 (CI ~14 min; this cycle merged at minute ~21). Check #78 for an owner reply.
-- Blockers: none. Open questions: #78 (non-blocking). Streak 0.
-- Quirks: guard blocks Bash starting with `cd <repo>` and `pgrep -c`; cwd persists after a `cd`
-  into a subdir (use absolute paths). Full `zig build test` ~90 s; tidy failures show only in the
-  summary tail, run `zig build tidy` for the message.
-
-## History (cycles 45-46, folded 2026-11-01)
+## History (cycles 45-47, folded 2026-11-02)
 
 C45: PR #74 closed bug #73 (`Dialog.render` uses `Paragraph.fromLines`; ten orphaned widget files
 imported in the `tui.zig` test block). Cause: widget `test` blocks only run if a test root imports
@@ -62,11 +25,18 @@ the file. Found bug #75: 33 more widget files do not compile in a test root (sta
 `Buffer.init(alloc, rect)`/`getCell`/`try render`), plus failing `splitpane` and `chunkedbuffer` tests.
 Probe: `zig test --dep build_options -Mroot=src/sailor.zig -Mbuild_options=/tmp/bo/build_options.zig`
 (stub: `pub const deprecation_mode: []const u8 = "warn";`) prints every analysed test.
-C46: PR #76 batch 1 of #75 (canvas, popup, scrollview, sparkline, statusbar, tabs; three parallel sonnet
-test-writers, ~$1.3). Fixed `Tabs.render` advancing by bytes not cells, `ScrollView` scrollbar
-underflow, `Sparkline` max bar. Quirks: `zig test src/tui/widgets/X.zig` fails with "import outside
-module path" (probe through `src/sailor.zig` with `--test-filter`); agents each use their own
-`--cache-dir`; helpers must not `debug.print` (tidy ratchet); PR CI ~14 min so open the PR by minute ~7.
+C46: PR #76 batch 1 (canvas, popup, scrollview, sparkline, statusbar, tabs; ~$1.3): fixed `Tabs.render`
+advancing by bytes not cells, `ScrollView` scrollbar underflow, `Sparkline` max bar. C47: PR #77
+batch 2 (checkbox, radio, histogram, piechart, heatmap, input; ~$1.6): byte-wise label drawing, u16/u64
+overflows, input far-cursor/truncated UTF-8 panics. Streak hit 2, opened question #78 asking whether to
+interleave plan item 7; #75 is not labelled needs-human so it keeps forcing STABILIZATION.
+Known unfixed: StatusBar byte widths; popup.zig:112 >100 cols; BulletChart target == max tick; Heatmap
+`CellMode.numeric` draws blanks; Input draws CJK one cell per codepoint.
+Quirks: `zig test src/tui/widgets/X.zig` fails with "import outside module path" (probe through
+`src/sailor.zig` with `--test-filter`); agents each use their own `--cache-dir`; tidy counts BYTES
+>100 (multibyte arrows need a wrap) and shows failures only in the summary tail (run `zig build tidy`);
+helpers must not `debug.print`; PR CI ~14 min so open the PR by minute ~7; guard blocks Bash starting
+with `cd <repo>` and `pgrep -c`.
 
 ## Cycle 44 — 2026-10-28 — FEATURE
 
