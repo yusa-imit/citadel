@@ -1,7 +1,14 @@
 # sailor — context
 
-last_seen_at: 2026-11-01T00:00:00Z
+last_seen_at: 2026-11-02T00:00:00Z
 rejected_plans: []
+
+## Cycle 49 attempt — 2026-11-02 — ABORTED (disk gate)
+
+- Preflight `df -g /` showed 19 GB free (< 20 required). No repo or GitHub changes; counter left at 48
+  (aborted cycles do not count), so the next run is again n=49 STABILIZATION (#75 batch 4).
+- Next: free disk (e.g. `/tmp/sailor-zig-cache`, `/tmp/*zig-cache*`, `~/.cache/zig`) so >= 20 GB, then run.
+- Blockers: disk space on the host. Open questions: #78 (needs-human, non-blocking).
 
 ## Cycle 48 — 2026-11-01 — STABILIZATION
 
