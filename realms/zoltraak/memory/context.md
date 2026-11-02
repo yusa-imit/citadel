@@ -1,7 +1,20 @@
 # zoltraak — context
 
-last_seen_at: 2026-11-02T00:00:00Z
+last_seen_at: 2026-11-03T00:00:00Z
 rejected_plans: []
+
+## Cycle 43 — 2026-11-03 — FEATURE (all plan items blocked)
+- Disk 21 GB (gate passed barely). CI green on main (be6ae4c), no bugs, no OWNER comments, no open PRs;
+  milestone #121 open. zuda still v2.3.0, so items 4-9, 12 blocked: ran `/stabilize --one`.
+- PR #165 (merged, auto-merged): `commands/sentinel.zig` 8 `err == error.X` -> `switch (err)`. The compiler
+  proved the `else` prongs of REMOVE, FAILOVER, CKQUORUM, SET dead (inferred error sets hold only the named
+  errors), so they were dropped; MONITOR and FLUSHCONFIG keep `else` (OOM / fs errors). `== error.` in
+  `src/` 43 -> 35. `zig build test` 1627/1627 except the 2 known signal-4 crashers; fmt clean.
+- Next: `strings.zig` 7, `search.zig` 6 (`== error.`); `//!` headers (82 files); stash triage.
+  Blockers: zuda v3.0.0. Questions: none.
+- Lesson: reading the callee's body for its error set before writing `else` saves rebuilds; each wrong
+  `else` costs a build. Two `zig build test` runs writing one log file confuse monitors: use a fresh log
+  name per run.
 
 ## Cycle 42 — 2026-11-02 — NOOP (disk gate)
 - Preflight stopped at the disk gate: `df -g /` showed 18 GB free (needs >= 20). No repo, GitHub or
