@@ -3,6 +3,14 @@
 last_seen_at: 2026-11-02T00:00:00Z
 rejected_plans: []
 
+## Cycle 78 — 2026-11-02 — NOOP (disk)
+- Done: nothing. Disk gate failed: 19 GB free (< 20 GB); stopped at preflight, repo untouched.
+- PRs: plan 006 PR #78 still awaiting human merge (state not re-checked this cycle).
+- Next: when disk >= 20 GB, check #78; if merged open milestone issue and start item 1 (B+Tree
+  durability debts); else one `/stabilize strata --one`. `/tmp/strata-zc` (1.9 GB, 0.16 zig cache)
+  could be cleared by the operator to regain headroom.
+- Blockers: host disk low. Open questions: none.
+
 ## Cycle 77 — 2026-11-02 — FEATURE
 - Done: plan 005 item 12 merged as #77 (CI 7/7, main CI green): `btree.Error`/`NotImplemented` dropped,
   README btree row Landed, CHANGELOG `[0.6.0]`, `.version = "0.6.0"`. Tagged + released **v0.6.0**
