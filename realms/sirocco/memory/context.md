@@ -1,39 +1,36 @@
 # sirocco — context
 
-last_seen_at: 2026-11-01T12:00:00Z
+last_seen_at: 2026-11-03T00:00:00Z
 rejected_plans: []
 
-## Disk-blocked no-op — 2026-11-02 (counter stays 75)
-- Preflight: `df -g /` = 18 GB (19 Gi free) < 20 GB gate; stopped before inbox. Tree clean on
-  `feat/batch-waiter-park` (PR #69 head d8f0d8c, CI/merge state not checked this run).
-- Re-run later 2026-11-02: still 19 GB (`df -h` 20Gi, `df -g` floors to 19); stopped again at
-  preflight, memory only, no Discord (heartbeat already due from the earlier run).
-- Next: when disk is >= 20 GB, cycle 76 inbox merges #69 if CI green and no `hold`, then item 6.
+## Cycle 76 — 2026-11-03 — FEATURE
+- Preflight: disk 24 GB (gate OK), tree clean on `feat/batch-waiter-park`; CI green on main, no
+  bugs, no OWNER comments, no plan PR; milestone #62 open.
+- Done: merged PR #69 (item 5, CI green, `auto-merged`). Item 6 as PR #70 (1707113, CI green,
+  auto-merged): `Options.carriers` required (`carriers_max` 64), `src/carriers.zig` builds
+  carriers-1 peer `Sched`s (own poller/wheel/thread, `Sched.serve` idles until `rt.stop`),
+  `Sched.notify` lifted from `unpark_foreign`; `rt.sched` stays carrier 0; placement unchanged so
+  peers idle. Parity suite runs at 1 and 2 carriers (`parity_config.carriers`); allocation-index
+  tests use `init_allocs`/`peers_allocs` in `fixtures.zig`.
+- Item 6 left UNCHECKED: gate 5 and gate 7 at 2 carriers not measured. Tick it in the next PR.
+- Reviewer (sonnet): 0 CRITICAL. WARNINGs: `.auto` not swept under a failing allocator; spawn
+  failure unwind has no test seam; `tests/parity/concurrency.zig` ~493/513 land on init allocs on
+  evented. Peers have no `events`/`expiry` handlers (item 7/8 must wire them before placement).
+- Next: cycle 77 re-run gates 5/7 at 2 carriers, tick item 6, then item 7 (cross-carrier futex
+  wake, await, cancel, close; seeded model test at 4 carriers). Make `run_until`'s stop atomic.
+- Gotchas: one flaky ABRT seen once in `batch` "64 idle sockets" at carriers=2 (known ~1/40 flake).
+  `gh pr create` can hit a transient GraphQL 500: check `gh pr list --head`, retry. Cycle ~$1.5.
 
-## Cycle 75 — 2026-11-01 — FEATURE
-- Inbox: clean (no OWNER comments, no bugs, CI green on ff04e14, no plan PR, milestone #62 open).
-- Preflight found the tree dirty on `feat/batch-waiter-plumbing` (item 5 plumbing left by an
-  interrupted cycle 74 tail); preserved as `wip/feat-batch-waiter-plumbing-20261101` (kept, never
-  delete). It built and passed, so I branched `feat/batch-waiter-park` from it.
-- Item 5 implemented as PR #69 (NOT merged: CI pending at report time, ubuntu epoll is CI-only):
-  `src/batch_park.zig` (an all-net_receive batch parks on poller+wheel, one Waiter per op),
-  `src/batch_sweep.zig`, `src/batch_park_test.zig`; batches with a file op keep `wait_sliced`;
-  `served_task` forwards a batch needing > free spares+1 nodes to the baseline; `ops_max` 128.
-  Plan item 5 ticked in the PR, CHANGELOG `[Unreleased]` documents the required `batch_ops_max`.
-- Reviewer (sonnet) found 2 CRITICALs, both fixed in the second commit: a lost claim after a
-  `.gone`/`.resources` join left a stale `unpark_foreign` (now parks); `waiter_acquire().?` could
-  be null in round >= 2 (now naps 100 us and sweeps when the pool is short). The pool-short test
-  calls `batch_park.wait` directly (unreachable through the await on one carrier). No end-to-end
-  test of the foreign-close race (needs a hook, or item 6's second carrier).
-- Next: cycle 76 inbox merges #69 if CI is green and no `hold`; red -> fix on the branch (max 2
-  attempts). Then item 6 (`Options.carriers`). Add the item 4 SUGGESTION tests (cancel head/tail,
-  `.gone`, node re-entry) if cheap.
-- Gotchas: flaky ~1/40: parity test "64 idle sockets wake the batch when their datagrams arrive
-  later" panics inside std `Io.Batch.cancel` on the baseline side (union field 'submission' while
-  'unused' active); the test is from #55, likely pre-existing; rerun CI first if red. The guard
-  blocks `python3 - <<EOF` heredocs that touch citadel paths: use Edit/Write. Cycle ~$3.2.
+## History (cycles 69-75, folded 2026-11-03)
 
-## History (cycles 69-74, folded 2026-11-02)
+- 75 (11-01): item 5 PR #69 (`src/batch_park.zig`, `batch_sweep.zig`: an all-net_receive batch parks
+  on poller+wheel, one Waiter per op; file-op batches keep `wait_sliced`; `ops_max` 128). Reviewer
+  CRITICALs fixed: a lost claim after `.gone`/`.resources` now parks; pool-short round naps 100 us
+  and sweeps. No end-to-end test of the foreign-close race. Preserved interrupted tree as
+  `wip/feat-batch-waiter-plumbing-20261101` (kept). Flaky ~1/40 parity test "64 idle sockets wake
+  the batch" panics in std `Io.Batch.cancel` on the baseline side (pre-existing, from #55).
+  Guard blocks `python3 - <<EOF` heredocs touching citadel paths: use Edit/Write.
+- Disk-blocked no-ops 11-02 (18-19 GB free): stopped at preflight, counter unchanged.
 
 - 74 (10-31): item 4 PR #68 (ff04e14, auto-merged): registry waiter lists link `Waiter` nodes
   (`src/waiter.zig`, `Sched.Waiter`), one node per fiber; `waiter_enter` records slot+generation
