@@ -31,39 +31,19 @@ rejected_plans: []
   'unused' active); the test is from #55, likely pre-existing; rerun CI first if red. The guard
   blocks `python3 - <<EOF` heredocs that touch citadel paths: use Edit/Write. Cycle ~$3.2.
 
-## Cycle 74 — 2026-10-31 — FEATURE
-- Inbox: clean (no OWNER comments, no bugs, CI green, no plan PR, milestone #62 open).
-- Item 4 done: PR #68 (ff04e14, CI green on macOS, ubuntu/epoll, 6 cross targets, auto-merged, #62
-  ticked). Registry waiter lists link `Waiter` nodes (`src/waiter.zig`, re-exported `Sched.Waiter`);
-  `Sched.waiters` is one node per fiber (+1 block in `Sched.init`, parity init_blocks 5 threaded / 8
-  evented); `waiter_enter` records slot+generation under the lock, `generation_of` removed. New
-  `src/net_registry_test.zig` (3 tests). Suite 480/524 (44 skipped), tidy green. Cycle ~13 min, ~$1.7.
-- Reviewer (sonnet) WARNING fixed: `init_checked` hit 76 lines, split `fibers_init`. Left as SUGGESTION:
-  `waiter_remove` asserts nothing; tests for cancel of head/tail, `close_on_carrier` on both
-  interests, `.gone`, node re-entry after wake (do these in item 5, which re-enters nodes).
-- Next: item 5 (batch parks on poller + wheel; needs `batch_ops_max` spare nodes, so the pool grows
-  beyond `fibers_max`; ADR 0004 section 6 "Batches"), then item 6. Blockers: none.
-- Gotchas: a second push cancels the first CI run, poll `gh run list` by the new headSha; a
-  zig-developer call with explicit design + verification list did a 6-file refactor in 3.6 min / ~$0.7.
+## History (cycles 69-74, folded 2026-11-02)
 
-## Cycle 73 — 2026-10-31 — FEATURE
-- Inbox: clean (no OWNER comments, no bugs, CI green, no open PRs, milestone #62 open).
-- Item 2 done: `docs/adr/0004-multi-carrier.md` (421 lines, architect/opus, returned as text and
-  written by me) merged as PR #67 (17b80c7; docs-only, so no CI run, merged with no checks).
-  Decisions: `Options.carriers` required, `carriers_max` 64, `fibers_max` per carrier, new
-  `batch_ops_max`; `concurrent` round robin (exactly 250 per carrier for 1000 at 4), `async`
-  creator-local; `fiber.wait.outcome` CAS is the claim, wake/cancel/birth go through per-carrier
-  inbox/mailbox + poller wake; one futex table; one shared registry with `table_lock` + per-slot
-  lock and `armed: [2]u64` mask; no work stealing; `Waiter` node pool per carrier, batch parks on
-  poller + wheel; `Runtime.init` allocates everything (`5N+4` blocks evented). Plan item 2 ticked.
-- Next: item 4 (8b part 1, registry holds `Waiter` nodes, behaviour unchanged, one epoll CI round
-  trip), then item 5. Blockers: none.
-- Gotchas: the architect call took 12 min and ~$1.5 (too broad, brief it narrower or split the
-  ADR); a background `until` loop on the agent's output file hit its time limit, wait for the
-  completion notification instead; the architect result arrives HTML-escaped (`&lt;` `&gt;`
-  `&amp;`), unescape before writing; the guard blocks compound Bash again (one command per call).
-
-## History (cycles 69-72, folded 2026-10-31)
+- 74 (10-31): item 4 PR #68 (ff04e14, auto-merged): registry waiter lists link `Waiter` nodes
+  (`src/waiter.zig`, `Sched.Waiter`), one node per fiber; `waiter_enter` records slot+generation
+  under the lock; `src/net_registry_test.zig`. Suite 480/524, tidy green. Open SUGGESTIONs: `waiter_remove`
+  asserts nothing; tests for cancel head/tail, `close_on_carrier` both interests, `.gone`, node
+  re-entry. A second push cancels the first CI run: poll `gh run list` by the new headSha.
+- 73 (10-31): item 2 `docs/adr/0004-multi-carrier.md` (architect/opus, 12 min / ~$1.5, brief it
+  narrower; result arrives HTML-escaped, unescape before writing) merged as PR #67. Decisions:
+  `Options.carriers` required, `carriers_max` 64, `fibers_max` per carrier, new `batch_ops_max`;
+  `concurrent` round robin, `async` creator-local; `fiber.wait.outcome` CAS is the claim; one futex
+  table; one shared registry (`table_lock` + per-slot lock, `armed: [2]u64`); no work stealing;
+  `Runtime.init` allocates everything (`5N+4` blocks evented).
 
 - 72 (10-30): item 1 PR #66 (d99f63b): `src/profile.zig` counters on only when the root declares
   `sirocco_profile` (`zig build bench-echo-profile`); ADR 0003 4c: 78% of CPU in the kernel, no
@@ -193,13 +173,6 @@ implication asserts (`tools/tidy.zig` has no compound-assert check).
   `slots.zig` hardcode a delegated sample slot, pick the first still-delegated one;
   `expectEqualDeep` on a deliberate mismatch prints noise; no `timeout` or `sleep` in Bash
   (python subprocess timeout, `until` loops); zsh expands `echo "== x"` as `=cmd`.
-
-Standing backlog / next-work order after milestone 001 closes (from old
-`.claude/memory/project-context.md`; `docs/plans/NNN-*.md` is the source of truth, not the
-nonexistent `docs/milestones.md` this line originally named — corrected cycle 13):
-1A completion/queue types → 1B kqueue backend → 1C epoll backend → 1D timing wheel → 1E loop
-dispatch → 1F integration tests. Do not build Phase 1 against the pre-ADR kqueue-abstraction
-design; the rewritten PRD (`docs/adr/0001-std-io-vtable.md`) is what Phase 1 implements.
 
 ## Recurring gotchas
 - Bash guard hook text-matches commands, not paths: a commit/PR/issue body that spells out a

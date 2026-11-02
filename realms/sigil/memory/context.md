@@ -52,39 +52,17 @@ rejected_plans: []
   `sigil_options` key means updating the `unknown_option` message in build.zig; `/tmp/sigil_start` written
   in preflight works.
 
-## Cycle 81 — 2026-10-31 — FEATURE
+## History (cycles 80-81, folded 2026-11-02)
 
-- Done: milestone #84 item 3, `msgpack/decoder.zig` `parse_value` tree build (PR #87, CI 8/8, auto-merged;
-  #84 box 3 ticked, 3/11; plan checkbox ticked in the PR). Written directly + one sonnet `code-reviewer`
-  (0 critical; fixed: ext-length-decides test, key-copy test, mixed array/map depth 128, prefix offsets,
-  OOM message). `core.DuplicateKeyPolicy` moved from json (re-exported). Cost ~$1.8. ~13 min used.
-- Shape: `ParseOptions{depth_max,bytes_max,duplicate_key}`, `BuildError` (8) + `ScanError` + `InputTooLarge`
-  = 11 `ParseValueError`; `Builder` with `[nesting_max]Frame{head,left,fill,key,slot,key_pending}`; empty
-  container finishes at once; `finish` closes full parents in a bounded loop; end-of-input inside a
-  container = `UnexpectedEnd` at the innermost open head; `TrailingBytes` checked via `reader.offset`
-  (no extra token read); `.last` skips `dupe_key`; ext length (4/8/12) decides the timestamp form, not the
-  head width; `set_diag` shared with `Reader.fail`.
-- Next: item 4 `msgpack/encoder.zig` + `msgpack.zig` facade (`parse_value`/`write_value`/`parse`/`stringify`,
-  shortest heads, `sigil_options.bytes` in reflect is item 4 too per plan; check the plan text). Blockers: none.
-- Reviewer suggestions not taken: `@splat(frame_empty)` costs ~13 KB memset per call (could use undefined;
-  benchmark in item 10 decides); `Map.put` rescans (3 scans per member; also item 10).
-- Learned: guard blocks `cd <repo>` mixed with chains; use `git -C` or one `cd X && cmd` (worked for zig
-  build); `sed -i ''` fine for single-file edits.
-
-## Cycle 80 — 2026-10-31 — FEATURE
-
-- Done: milestone #84 item 2, `msgpack/decoder.zig` pull `Reader` (PR #86, CI 8/8, auto-merged; #84 box 2
-  ticked, 2/11). Written directly + one sonnet `code-reviewer` (0 critical, 4 warnings fixed: more tests for
-  signed ints, NaN signs, every length form, bomb forms; `///` docs). Cost ~$1.3.
-- Shape: `Reader.init/next(diag)`, `Token{offset,item}`, `Item` union (nil, bool, int, uint [only > maxInt(i64)],
-  float, str [UTF-8 checked], bin, ext{type,data}, array/map count, end); `ScanError` = UnexpectedEnd,
-  ReservedByte, InvalidUtf8; `input_len_max = maxInt(u32)-1`; bomb rule in u64; diag "byte N: reason",
-  line 1 col offset+1; `msgpack.decoder` exported, stub `Error` kept until item 4.
-- Next: item 3 msgpack tree on `[nesting_max]Frame` (ext -1 timestamps 32/64/96, NonStringKey, DuplicateKey;
-  move `DuplicateKeyPolicy` to `core.value`, json re-exports). Blockers: none.
-- Learned: the guard blocks one Bash call mixing citadel paths with repo work (split calls); `/tmp/sigil_start`
-  was stale, read `date +%s` directly; prefix-truncation tests must exclude container heads (a header alone
-  is valid once the bomb rule is met).
+- C80 (10-31): milestone #84 item 2, `msgpack/decoder.zig` pull `Reader` (PR #86): `Token{offset,item}`,
+  `Item` union, `ScanError` = UnexpectedEnd, ReservedByte, InvalidUtf8; `input_len_max = maxInt(u32)-1`;
+  bomb rule in u64; diag "byte N: reason", line 1 col offset+1. Prefix-truncation tests must exclude
+  container heads (a header alone is valid once the bomb rule is met).
+- C81 (10-31): item 3 `parse_value` tree build (PR #87): `ParseOptions{depth_max,bytes_max,duplicate_key}`,
+  11 `ParseValueError`; `Builder` on `[nesting_max]Frame`; end of input inside a container = `UnexpectedEnd`
+  at the innermost open head; ext length (4/8/12) decides the timestamp form; `core.DuplicateKeyPolicy`
+  moved from json (re-exported). Open: `@splat(frame_empty)` ~13 KB memset per call and `Map.put`
+  rescans (item 10 benchmarks decide). Guard blocks `cd <repo>` mixed with chains: use `git -C`.
 
 ## Cycle 79 (folded) — 2026-10-30
 
@@ -204,11 +182,9 @@ share precedence; arena-backed FailingAllocator sweeps hit ~2 failure points, as
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
 Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 closed). Plan 007
-(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-3 done (3/11).
+(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-5 done (5/11).
 
-- Housekeeping: populate the empty performance-targets table once a module is benchmarkable;
-  tick 1A/1B in `docs/plans/000-inherited.md` (missed at plan 002's close, folded into plan
-  003's last item rather than a standalone PR).
+- Housekeeping: populate the empty performance-targets table once a module is benchmarkable.
 - Carried stabilization finding (not fixed, sized for a full stabilize cycle or its own plan
   item — confirmed across cycles 15-18 it does not decompose into a smaller safe slice):
   `tools/tidy.zig` (1860+ lines) self-exempt from its own file-length/function-length/ban-list
@@ -219,5 +195,5 @@ Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 clo
 
 ## Next priority
 
-Plan 007 item 4 (`msgpack/encoder.zig` + facade); see the newest cycle block.
+Plan 007 item 6 (`cbor/decoder.zig` tree and tags); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
