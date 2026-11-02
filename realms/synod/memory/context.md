@@ -3,6 +3,14 @@
 last_seen_at: 2026-11-02T00:00:00Z
 rejected_plans: []
 
+## Cycle 79 — 2026-11-02 — PREFLIGHT ABORT (disk)
+- Disk gate: 19 GB free (< 20 GB), same as cycle 78; stopped before inbox. Tree clean on
+  `feat/install-snapshot-2` (51738ea, pushed); nothing to preserve, nothing changed in the repo.
+- Next (unchanged): confirm CI on PR #84, merge it (`auto-merged`), tick #74 item 5; then Driver.init
+  restore-order WARNING, then item 6 sim snapshots. Needs >= 20 GB free to run.
+- Blockers: disk below gate (second abort in a row; box loses ~1 GB/day). Open questions: none.
+  Human may need to free space on the box; no GitHub issue opened (quiet repeat).
+
 ## Cycle 78 — 2026-11-02 — PREFLIGHT ABORT (disk)
 - Disk gate: 18 GB free (< 20 GB); stopped before inbox. No repo changes: tree clean on
   `feat/install-snapshot-2` (51738ea, pushed), nothing to preserve. GitHub state not re-checked.
