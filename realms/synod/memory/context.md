@@ -1,7 +1,27 @@
 # synod — context
 
-last_seen_at: 2026-11-02T00:00:00Z
+last_seen_at: 2026-11-03T00:00:00Z
 rejected_plans: []
+
+## Cycle 80 — 2026-11-03 — FEATURE
+- Preflight: disk 23 GB, CI green, no bugs, no new OWNER comments, milestone #74 open. Tree clean.
+- Done: PR #84 (item 5 InstallSnapshot, 7/7 CI green on 51738ea) squash-merged as f5ea558, labelled
+  `auto-merged`; #74 checklist item 5 ticked (plan file already ticked in the PR).
+- Item 6 (sim snapshots): test-writer (~$1.0 of the budget, ~20 min, too slow) wrote 67 tests in
+  `src/sim/{workload,crash_store,network,invariants_digest,simulation}_snapshot_test.zig`, 52 fail by
+  design against minimal stubs (52 fail, 932 old pass). Preserved, not merged, on
+  `wip/feat-sim-snapshots-20261103` (37ee643, pushed; do not delete).
+- Next: continue on `feat/sim-snapshots-2` from that wip branch: zig-developer makes the tests pass
+  (KV "SKV1" snapshot/restore, CrashStore snapshot op journalled, Network owns snapshot bytes,
+  Checker.state_digest, Simulation compaction on + Plant.restore_drops_key + Stats.snapshots/installs,
+  remove `snapshot_entries_min == 0` sentinel in sim). Then Driver.init restore-order WARNING.
+- Decisions the tests assume (confirm in the developer step): failed `restore` leaves values
+  unchanged; truncated stream = `StateMachineSnapshotInvalid` or `EndOfStream`; checker `applied()`
+  demands consecutive indexes, but an install jumps the applied index (needs handling); crash stub
+  borrows the source snapshot in `copy_store`.
+- Blockers: none. Open questions: none. Budget: ~$1.9 of $4.
+- Tool notes: split the test-writer brief per file group (it took 19 min for 5 files); a message to a
+  running agent lands only at its next tool round.
 
 ## Cycle 79 — 2026-11-02 — PREFLIGHT ABORT (disk)
 - Disk gate: 19 GB free (< 20 GB), same as cycle 78; stopped before inbox. Tree clean on
