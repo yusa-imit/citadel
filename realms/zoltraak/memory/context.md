@@ -1,7 +1,19 @@
 # zoltraak — context
 
-last_seen_at: 2026-11-03T00:00:00Z
+last_seen_at: 2026-11-04T00:00:00Z
 rejected_plans: []
+
+## Cycle 44 — 2026-11-04 — FEATURE (all plan items blocked)
+- CI green on main (54d65b1), no bugs, no OWNER comments, no open PRs; milestone #121 open. zuda still
+  v2.3.0 (sailor is v3.1.0), so items 4-9, 12 blocked: ran `/stabilize --one`.
+- PR #166 (merged, auto-merged): `commands/strings.zig` 7 `err == error.WrongType` -> `switch (err)` with a
+  file-level `wrongtype_message` const. `== error.` in `src/` 35 -> 28. `zig build test` 1627/1627 except
+  the 2 known signal-4 crashers; fmt and `zig build tidy` clean.
+- Next: `search.zig` 6 (`== error.`); `//!` headers (82 files); stash triage. Blockers: zuda v3.0.0.
+  Questions: none.
+- Quirks: `gh pr create` and `gh pr merge` hit transient GraphQL errors; retry (check `gh pr view` state
+  first, the merge may not have happened). `rm -rf .zig-cache` was needed again for `FileNotFound`. The
+  guard blocks writing `/tmp` start-time files in a compound command with citadel paths.
 
 ## Cycle 43 — 2026-11-03 — FEATURE (all plan items blocked)
 - Disk 21 GB (gate passed barely). CI green on main (be6ae4c), no bugs, no OWNER comments, no open PRs;
