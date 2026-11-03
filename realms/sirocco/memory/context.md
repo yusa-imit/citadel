@@ -1,7 +1,28 @@
 # sirocco — context
 
-last_seen_at: 2026-11-03T04:40:00Z
+last_seen_at: 2026-11-04T05:00:00Z
 rejected_plans: []
+
+## Cycle 78 — 2026-11-04 — FEATURE
+- Preflight: disk 23 GB, tree clean on main, CI green, no bugs, no OWNER comments, no plan PR;
+  milestone #62 open.
+- PR #73 (feat/sched-post-mailbox, c6f6789) OPEN, CI pending at the deadline, comment says merge
+  next cycle: `src/mail.zig` (`Mail`, `Mailbox`, `post`, `drain`, `serve` moved out of
+  `sched.zig`, which was at 791/800 lines and is now 776). `run_loop` drains mail next to the
+  inbox; a peer `serve` runs the fibers it is mailed. Pending FIFO when all fibers are alive;
+  `outstanding_max` 65536. Tests in `src/mail_test.zig` (futex and poller idle, FIFO with no
+  free fiber, mail while a fiber is parked, 3 producer threads, empty after stop). Item 7 stays
+  UNCHECKED; plan note and CHANGELOG updated.
+- Reviewer (sonnet): 0 CRITICAL. Fixed: plain load before the Xchg, carrier 0 contract
+  documented (mail posted to a `run`-only carrier can be stranded), stale header. Open: serve
+  drops mail left at stop; `idle_wait` is now pub.
+- Next: cycle 79 merges #73 if CI is green (no `hold`), then item 7 remainder: claim CAS on
+  `wait.outcome`, join word, cancel mail, `Table.wake` routing by home, close from another
+  carrier, seeded 4-carrier model test, 1000 serial runs. Make `run_until`'s stop atomic.
+- Gotchas: the newest `.zig-cache/o/*/test` is often the parity binary (196 tests, has the known
+  `batch` "64 idle sockets" flake, slow); the library binary has ~134 tests. Identify it by
+  running it, not by `strings`. A 300-run loop of it overran the 500 s Bash timeout: background
+  it. Cycle spent ~$1.3 and hit the 22 min deadline before CI finished.
 
 ## Cycle 77 — 2026-11-03 — FEATURE
 - Preflight: disk 24 GB, tree clean on main, CI green, no bugs, no OWNER comments, no plan PR;
