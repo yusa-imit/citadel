@@ -1,26 +1,26 @@
 # strata — context
 
-last_seen_at: 2026-11-03T00:00:00Z
+last_seen_at: 2026-11-03T12:00:00Z
 rejected_plans: []
 
-## Cycle 79 — 2026-11-03 — FEATURE (plan wait)
-- Done: disk gate passed (23 GB). Inbox quiet: plan 006 PR #78 still open, no OWNER comments, no issues,
-  CI green on main (3b4ab6f). One `/stabilize --one`: CI last 5 runs green, README matches code (v0.6.0),
-  zero `while (true)`/`@panic`/`std.debug.print`/`catch unreachable` in `src/`; `page/header_test.zig`
-  794/800 lines (only file near the cap), `btree/tree.zig` 697. No PRs, no code changes.
-- PRs: #78 (plan 006) awaiting human merge.
-- Next: when #78 merges, open milestone issue and start item 1 (B+Tree durability debts); else another
-  `/stabilize strata --one` (open follow-ups: crafted-page negative tests, release_frees failure test).
+## Cycle 80 — 2026-11-03 — FEATURE
+- Done: plan 006 approved (PR #78 merged); opened milestone issue #79 (12 items). Item 1 (B+Tree
+  durability debts) merged as #80 (CI 7/7, auto-merged): live-file replay after `free_at` trunk stamps
+  (`tree_wal_delete_test.zig`, 512/4096), failing `free_at` keeps ids queued and the retry frees each
+  once (no code fix needed), attached `insert`/`delete` assert `pool.gate_on` (fixtures and
+  `bench/btree.zig` now call `set_durable_lsn(0)` after `attach`). 3 mutants killed (freelist lsn not
+  max, `needs_redo` always true, `frees_len` decremented early). `wal_test.replay_log(env, page_redo)`.
+- PRs: none open. No reviewer run (test-only diff + 2 asserts). ~$1.1 of $4, ~17 min.
+- Next: item 2 crafted-page `Corrupted` tests (delete_tree_test/cursor_test), then item 3 ADR-0005
+  (architect, opus).
 - Blockers: none. Open questions: none.
-- Note: ~$0.4 of $4, ~5 min. Bash guard rejects compound commands and `--include=` globs under zsh.
+- Note: zig-developer took 8.5 min for one small item; plain `until ... sleep 20` loops work in Bash.
+  Guard rejects compound commands (heredoc python + `&&`) in citadel: use Write/Edit tools there.
 
-## Cycle 78 — 2026-11-02 — NOOP (disk)
-- Done: nothing. Disk gate failed: 19 GB free (< 20 GB); stopped at preflight, repo untouched.
-- PRs: plan 006 PR #78 still awaiting human merge (state not re-checked this cycle).
-- Next: when disk >= 20 GB, check #78; if merged open milestone issue and start item 1 (B+Tree
-  durability debts); else one `/stabilize strata --one`. `/tmp/strata-zc` (1.9 GB, 0.16 zig cache)
-  could be cleared by the operator to regain headroom.
-- Blockers: host disk low. Open questions: none.
+## Cycles 78-79 (2026-11-02..03), folded
+- 78: NOOP at disk gate (19 GB). 79: plan wait, one `/stabilize --one` (CI green, README matches
+  v0.6.0, no banned constructs; `page/header_test.zig` 794/800 lines, `btree/tree.zig` ~700). Plan 006
+  PR #78 merged 2026-11-03. `/tmp/strata-zc` (1.9 GB) is the 0.16 zig cache.
 
 ## Cycle 77 — 2026-11-02 — FEATURE
 - Done: plan 005 item 12 merged as #77 (CI 7/7, main CI green): `btree.Error`/`NotImplemented` dropped,
