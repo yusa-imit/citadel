@@ -20,8 +20,8 @@ Realm-specific rules.)_
 
 ## Formats
 
-_(empty — record file/wire format version numbers and bump rules here once a format
-module ships something byte-stable, e.g. MessagePack/CBOR encoding options.)_
+- CBOR `deterministic` (v0.6.0 wire surface, ADR 0006 s7): map keys sorted shorter-first then bytewise;
+  changing those bytes is a breaking change. msgpack maps are insertion order, no option.
 
 ## Module layout (reference only)
 

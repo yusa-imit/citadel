@@ -1,65 +1,38 @@
 # sigil — context
 
-last_seen_at: 2026-11-02T00:00:00Z
+last_seen_at: 2026-11-03T03:30:00Z
 rejected_plans: []
 
-## Cycle 85 — 2026-11-02 — NO-OP (disk gate, repeat)
+## Cycle 86 — 2026-11-03 — FEATURE
 
-- Done: nothing. Disk gate failed again: `df -g /` = 19 (`df -h` shows 20Gi, rounded up; gate uses `df -g`).
-  Tried to clear `/tmp/sigil-cache` (3.3 GB, regenerable build cache) but the guard hook blocked the `rm -rf`
-  (reads it as removing a workspace root); not worked around. No repo, GitHub or inbox work attempted.
-- Next: milestone #84 item 6 `cbor/decoder.zig` tree and tags (unchanged).
-- Blockers: disk 19 GB free (need 20). The host operator must free ~1 GB (e.g. `/tmp/sigil-cache`, zig global
-  cache); this is the second consecutive disk no-op (C84, C85).
+- Done: milestone #84 items 6 and 7 (7/11). Found PR #90 (item 6, cbor tree) open, CI 8/8, left by an
+  interrupted session: labelled auto-merged and merged. Then item 7, PR #91 (CI 8/8, merged): written
+  directly + one sonnet `code-reviewer` (0 critical, 2 warnings fixed). Cost ~$2.1, ~13 min.
+- Shape: `cbor/encoder.zig` (`write`, `StringifyOptions{depth_max, deterministic}`, shortest heads, f16/f32/f64
+  by bit-exact test, NaN = `f9 7e00`, deterministic = selection sort shorter-first then bytewise, tag 0 text
+  when offset else tag 1 int / exact f64; a timestamp counts as one depth level like the decoder's tag;
+  `Refusal` local_kind/text_range/fraction); `cbor.zig` facade; `cbor/locate.zig` (reader-depth based
+  `skip_item`, indefinite maps/keys, tags folded into the item offset). ADR 0006 s8 now says a locate miss
+  stops at the deepest item (not 1:1).
+- Next: item 8 official test vectors (vendor RFC 8949 Appendix A + msgpack-test-suite subset with SOURCE and
+  license, runners per ADR s10, assert counts). Blockers: none (disk gate passed at 25 GB).
+- Learned: `core.value.eql` compares maps in insertion order, so a sorted (deterministic) round trip needs a
+  byte-compare, not `eql`; disk gate recovered (C84-85 no-ops were disk).
+- Reviewer suggestions not taken: empty key under deterministic, empty array at depth_max, 128-level decode of
+  encoder output, locate first-match under `.last` duplicate policy untested.
 
-## Cycle 84 — 2026-11-02 — NO-OP (disk gate)
+## History (cycles 84-85, 2026-11-02)
 
-- Done: nothing. Disk gate failed: `df -g /` free = 19 GB (need 20; 11 Gi used of 228 Gi per `df -h`,
-  the rest is purgeable/system). No repo, GitHub or inbox work attempted.
-- Next: milestone #84 item 6 `cbor/decoder.zig` tree and tags (unchanged). Blockers: disk < 20 GB free;
-  clearing caches (`/tmp/sigil-cache`, zig global cache) on the host would unblock it.
+Disk gate no-ops (19 GB free, need 20); nothing done.
 
-## Cycle 83 — 2026-11-01 — FEATURE
+## History (cycles 82-83, folded 2026-11-03)
 
-- Done: milestone #84 item 5 (PR #89, CI 8/8, auto-merged; #84 box 5 and plan box ticked, 5/11).
-  Written directly + one sonnet `code-reviewer` (0 critical; 4 warnings fixed: CHANGELOG, ADR wrap,
-  assertions, break-placement tests). Cost ~$1.7.
-- Shape: `cbor/decoder.zig` `Reader.init(input, depth_max)` / `next(diag)`; `Item` (null, bool, int, uint
-  [> maxInt(i64)], float, simple, text, bytes, array/map counts, array_indef/map_indef/bytes_indef/
-  text_indef, tag, stop, end); `ScanError` 7 = UnexpectedEnd, NotWellFormed, UnexpectedBreak,
-  InvalidIndefinite, InvalidUtf8, TooDeep, IntegerBelowMin. Reader keeps `[nesting_max]Frame`
-  {head,left,kind tag|definite|indef_array|indef_map} + string mode (indef string is a leaf, no level);
-  `complete()` pops finished tags/definite containers; EOF inside open item = UnexpectedEnd at innermost
-  open head; `simple` surfaces undefined/other simple values (tree item 6 raises UnsupportedSimple).
-  ADR 0006 s5 fixed: a scalar adds no level (root tagged scalar needs depth_max >= 1).
-- Next: item 6 `cbor/decoder.zig` tree and tags (counting pass for indefinite items per ADR s9, tags 0-3,
-  stop tokens close indefinite containers/strings; chunks concatenated). Blockers: none.
-- Reviewer suggestions not taken: none outstanding for cbor reader; msgpack ones from cycle 82 remain.
-- Learned: tidy requires the `// proof:` above `switch (err)` in `reason_of` (reviewer suggested deleting
-  it, wrong); `zig fmt` does not wrap long lines (tidy fails at >100 cols in tests); an RFC 7049 App. A
-  `f818` is not well-formed in 8949; a test failure's real message sits before a long leaked error trace.
-
-## Cycle 82 — 2026-11-01 — FEATURE
-
-- Done: milestone #84 item 4 (PR #88, CI 8/8, auto-merged; #84 box 4 and plan box ticked, 4/11).
-  Written directly + one sonnet `code-reviewer` (1 critical fixed: ADR s8 relocation was missing).
-  Cost ~$2.4, ~14 min.
-- Shape: `msgpack/encoder.zig` (`write`, `StringifyOptions{depth_max}`, 5-variant `WriteValueError`,
-  frame stack, shortest heads, f32 only when bit-exact, NaN = `ca 7fc00000`, ext 4/8/12 timestamps,
-  offset/local = `Unrepresentable`; `InputTooLarge` declared but never returned, over-long = Unrepresentable);
-  `msgpack.zig` facade; `msgpack/locate.zig` (`parse(T)` reflect errors -> "byte N: {reflect msg}",
-  line 1 col N+1, deepest reachable item on a miss); reflect `sigil_options.bytes` (`Entry.is_bytes`,
-  `Context.parse_bytes_child`/`stringify_bytes_child`, `options.bytes_capable`, 7 compile-error fixtures).
-  json/toml bytes-field refusal tests added.
-- Next: item 5 `cbor/decoder.zig` reader (heads 0-7, ai 0-27, 28-30 refused, indefinite + break, f16,
-  UTF-8 text; RFC 8949 App. A items and App. F classes). Blockers: none.
-- Reviewer suggestions not taken: bytes_child duplicates parse_child prologue; encoder `run` loop bound is
-  maxInt(usize); no reflect-level tests of `parse_bytes_value`/`stringify_bytes_value` (facade covers);
-  float subnormal and `local_time`/`local_datetime`/array-map `too_long` encoder cases untested.
-  Fold into a small test PR or item 9.
-- Learned: tidy flags test/build.zig lines >100 cols (also `.message` strings in build.zig); new
-  `sigil_options` key means updating the `unknown_option` message in build.zig; `/tmp/sigil_start` written
-  in preflight works.
+C82 item 4 (PR #88): `msgpack/encoder.zig` shortest heads, f32 only when bit-exact, NaN `ca 7fc00000`,
+`msgpack/locate.zig`, reflect `sigil_options.bytes`. C83 item 5 (PR #89): `cbor/decoder.zig` `Reader` (frame
+stack `{head,left,kind}`, string mode, `complete()` pops finished tags/definite containers; `ScanError` 7).
+Learned: tidy flags test/build.zig lines >100 cols and requires `// proof:` above `switch (err)`; `zig fmt`
+does not wrap long lines; a test failure's real message sits before a long leaked error trace; a new
+`sigil_options` key means updating the `unknown_option` message in build.zig.
 
 ## History (cycles 80-81, folded 2026-11-02)
 
@@ -191,7 +164,7 @@ share precedence; arena-backed FailingAllocator sweeps hit ~2 failure points, as
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
 Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 closed). Plan 007
-(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-5 done (5/11).
+(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-7 done (7/11).
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable.
 - Carried stabilization finding (not fixed, sized for a full stabilize cycle or its own plan
@@ -204,5 +177,5 @@ Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 clo
 
 ## Next priority
 
-Plan 007 item 6 (`cbor/decoder.zig` tree and tags); see the newest cycle block.
+Plan 007 item 8 (official test vectors); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
