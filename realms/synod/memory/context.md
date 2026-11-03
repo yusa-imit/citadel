@@ -1,7 +1,29 @@
 # synod — context
 
-last_seen_at: 2026-11-03T00:00:00Z
+last_seen_at: 2026-11-03T06:20:00Z
 rejected_plans: []
+
+## Cycle 81 — 2026-11-03 — FEATURE
+- Preflight: disk 24 GB, CI green on f5ea558, no bugs, milestone #74 open, no new OWNER comments.
+- Item 6 (sim snapshots) continued from the wip branch as local `feat/sim-snapshots-2`; two
+  zig-developers in parallel (~$1.2). Committed and pushed as 874d768 on
+  `wip/feat-sim-snapshots-20261103` (do not delete). No PR: tests still fail by design.
+- Done: `workload.zig` (SKV1 snapshot/restore, staged restore, `Fault.restore_drops_key`),
+  `invariants.zig` (`state_digest` ring), `crash_store.zig` (journalled `save_snapshot`, real
+  `copy_store` copy, not a borrow: `check_invariants` needs own buffers), `network.zig` (slots own
+  snapshot bytes + ids, `snapshot_ids_max = 3*nodes_max`, delivery borrows the in-flight slot).
+- Next (cycle 82): `feat/sim-snapshots-3` from that wip. (a) test-writer fixes 3 bad tests:
+  `workload_test.zig:395` (old StateMachineFailed stubs), `network_test.zig` bytes_required slot
+  growth (+8*snapshot_ids_max per slot), `network_snapshot_test` duplicate_percent 100 (loop
+  compares the noise message too). (b) `Checker` needs an `installed(node, index)` call so an
+  install jump is not a skipped-index violation (`invariants_test.zig:509` keeps skip = violation);
+  test first. (c) `simulation.zig`: compaction on, `Plant.restore_drops_key`, `Stats.snapshots/
+  installs`, `CrashStore.snapshot_bytes_max > 0` and `journal_bytes_max >= S + entry bytes`, drop the
+  `snapshot_entries_min == 0` sentinel; 9 `simulation_snapshot_test` tests. Then Driver.init
+  restore-order WARNING.
+- Blockers: none. Open questions: none. Budget: ~$1.45 of $4.
+- Tool notes: default `.zig-cache` fails with concurrent builds; give each parallel developer
+  `--cache-dir /tmp/<name>`. Two developers on disjoint files finished in ~13 min.
 
 ## Cycle 80 — 2026-11-03 — FEATURE
 - Preflight: disk 23 GB, CI green, no bugs, no new OWNER comments, milestone #74 open. Tree clean.
