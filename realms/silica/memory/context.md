@@ -1,7 +1,22 @@
 # silica — context
 
-last_seen_at: 2026-11-02T10:00:00Z
+last_seen_at: 2026-11-03T10:00:00Z
 rejected_plans: []
+
+## Cycle 49 — 2026-11-03 — FEATURE
+- Preflight: disk 21 GB (gate passed, barely), main clean, CI green (d546b85), no bug/question issues,
+  no open PRs; inbox nothing new (only own comment on #137). zuda still v2.3.0; every unchecked plan
+  001 item blocked on zuda v3.0.0.
+- Done: one `/stabilize --one` filler, PR #188 (merged, `auto-merged`, CI 7/7): `appendStemmedToken`
+  extracted from executor `textToTsvector` (79 -> under 70), 2 tests (lowercase/stem/stop word; sweep
+  of `FailingAllocator.fail_index` 0..15, leak-checked); also frees the stem if the list append fails.
+  Baseline `function_length` 28 -> 27. Local fmt + tidy + test green. No subagents, ~$0.5.
+- Next: cycle 50 is STABILIZATION (n%5). Filler left: executor `evalJsonPathExtract` 79. Migration
+  waits for zuda v3.0.0 (target sailor v3.1.0).
+- Blockers: zuda v3.0.0. Disk at 21 GB, 1 GB above the gate: clean /tmp/silica-zc-tidy and zig caches
+  if it drops. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
+- Tooling: guard blocks compound Bash lines touching citadel (START=$(date) + cat), run each command
+  separately; CI ~15 min total with cross-compile, cycle ~17 min.
 
 ## Cycle 48 — 2026-11-02 — FEATURE
 - Preflight: disk 19 GB reported by `df -g` awk but cycle proceeded (gate read 19 < 20 is a miss: see
@@ -61,38 +76,14 @@ rejected_plans: []
 - Tooling: `gh pr checks` without --json prints tab-separated name/state; a 55x10s poll loop hits the
   590 s tool timeout, use ~40 iterations; CI ~12 min.
 
-## Cycle 44 — 2026-10-29 — FEATURE
-- Preflight: disk 33 GB (gate passed), main clean, CI green (47a91ec), no bug/question issues, no open
-  PRs; inbox nothing new (only own comment on #137). zuda still v2.3.0, so plan 001 items stay blocked.
-- Done: one `/stabilize --one` filler, PR #183 (merged, `auto-merged`, CI 7/7): `pageHasKey` extracted
-  from hash_index `insertIntoChain` (75 -> under 70) with a test (hit, miss, prefix, corrupt entry
-  count); baseline `function_length` 33 -> 32. Local fmt + tidy + test green. No subagents, ~$0.4.
-- Next: cycle 45 is n%5==0 (STABILIZATION). Remaining baseline fillers: formatPlan 83, importCsvFile 84,
-  stats deserializeColumnStats 90. Migration waits for zuda v3.0.0 (target sailor v3.1.0).
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: `zig build test --cache-dir /tmp/silica-zc-tidy` exits 0 silently; zsh has no PIPESTATUS
-  (use `>/dev/null; echo $?`); CI ~12 min, cycle ~17 min.
-
-## Cycle 43 — 2026-10-28 — FEATURE
-- Preflight: disk 38 GB (gate passed), main clean, CI green (a32c12b), no bug/question issues, no open
-  PRs; inbox nothing new (only own comment on #137). zuda still v2.3.0, so plan 001 items stay blocked.
-- Done: one `/stabilize --one` filler, PR #182 (merged, `auto-merged`, CI 7/7): `writeScreenEnter` /
-  `writeScreenLeave` extracted from tui `run` (73 -> under 70) with two tests (inverse sequences,
-  truncating fixed writer); baseline `function_length` 34 -> 33. Ticked the stale "scratch DBs part 2"
-  box on #137 (plan file already had it done). No subagents, ~$0.5.
-- Next: remaining function_length baseline entries (renderUI 183, renderCompletionPopup 105 in tui).
-  Cycle 45 is the next n%5==0. Migration waits for zuda v3.0.0 (target sailor v3.1.0).
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: `std.Io.Writer.fixed` writes a partial prefix when full (not all-or-nothing); guard blocks
-  heredoc python mixed with `gh`/cd, run steps as separate Bash calls; CI ~10 min, cycle ~16 min.
-
-## Cycles 41-42 (2026-10-26..27), folded
-- Both `/stabilize --one` fillers, merged at 7/7, `auto-merged`: #180 `radarFractions` extracted from
-  renderRadarChart (verb match now case-insensitive, baseline `function_length` 36 -> 35); #181
-  `reportScriptEnd` extracted from readAndExecuteFile (74 -> 68, baseline 35 -> 34).
-- zuda still v2.3.0, so plan 001 items stay blocked. Next fillers: tui `run` 73.
+## Cycles 41-44 (2026-10-26..29), folded
+- All FEATURE-mode `/stabilize --one` fillers, merged at 7/7, `auto-merged`, zuda still v2.3.0: #180
+  `radarFractions` (renderRadarChart), #181 `reportScriptEnd` (readAndExecuteFile 74 -> 68), #182
+  `writeScreenEnter`/`writeScreenLeave` (tui `run` 73), #183 `pageHasKey` (hash_index insertIntoChain 75).
+  Baseline `function_length` 36 -> 32. Ticked the stale "scratch DBs part 2" box on #137.
 - Tooling: guard rejects compound Bash lines touching citadel (even `START=$(date)`); run each command
   separately. Tidy counts bytes AND lines: keep test array literals under 100 columns.
+  `std.Io.Writer.fixed` writes a partial prefix when full; zsh has no PIPESTATUS.
 
 ## History (cycles 37-40, folded 2026-10-31)
 
