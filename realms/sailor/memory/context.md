@@ -1,14 +1,23 @@
 # sailor — context
 
-last_seen_at: 2026-11-02T00:00:00Z
+last_seen_at: 2026-11-03T00:00:00Z
 rejected_plans: []
 
-## Cycle 49 attempt — 2026-11-02 — ABORTED (disk gate)
+## Cycle 49 — 2026-11-03 — STABILIZATION
 
-- Preflight `df -g /` showed 19 GB free (< 20 required). No repo or GitHub changes; counter left at 48
-  (aborted cycles do not count), so the next run is again n=49 STABILIZATION (#75 batch 4).
-- Next: free disk (e.g. `/tmp/sailor-zig-cache`, `/tmp/*zig-cache*`, `~/.cache/zig`) so >= 20 GB, then run.
-- Blockers: disk space on the host. Open questions: #78 (needs-human, non-blocking).
+- Done: **PR #80** (batch 4 of bug #75, CI 10/10, auto-merged, `cfb8cb7`): select, tree, scatterplot,
+  timeseries imported in the `tui.zig` test block (116 tests). Fixed Select/Tree byte-wise drawing,
+  scroll_offset panic, Tree indent u16 overflow and 256-node cap (recursion -> bounded walk, depth 64),
+  scatterplot multi-char/truncated markers and NaN/Inf, timeseries i64 range/calendar overflow and
+  marker overwrite, out-of-buffer area u16 overflow in both charts. Two sonnet zig-developers (2 files
+  each) cost ~$1.0 total, ~4 min: this split is the sweet spot. Earlier abort (disk 19 GB) is resolved.
+- Tidy: growing `render` past its baseline fails `zig build tidy`; extracted `plotPoints` and `drawXAxis`.
+- Remaining in #75: form httpclient linechart markdown menu metrics_dashboard profiler record_editor
+  taskrunner terminal textarea (11) + failing `splitpane`, `chunkedbuffer`. Known unfixed: long
+  `y_axis_label` overwrites mid Y label (scatterplot, timeseries); BarChart max==0; `Block.renderTitle` bytes.
+- Next: n=50 STABILIZATION (n%5 and #75 open): batch 5, 4 files via 2 agents; open the PR by minute ~7
+  (PR CI took ~13 min; merged at minute ~21). Blockers: none. Open question #78 (needs-human, no reply,
+  non-blocking). Streak 0.
 
 ## Cycle 48 — 2026-11-01 — STABILIZATION
 
