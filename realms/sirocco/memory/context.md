@@ -1,7 +1,26 @@
 # sirocco — context
 
-last_seen_at: 2026-11-03T00:00:00Z
+last_seen_at: 2026-11-03T04:40:00Z
 rejected_plans: []
+
+## Cycle 77 — 2026-11-03 — FEATURE
+- Preflight: disk 24 GB, tree clean on main, CI green, no bugs, no OWNER comments, no plan PR;
+  milestone #62 open. Periodic stabilization off, so FEATURE.
+- PR #71 (auto-merged): `bench/timer.zig` now also runs a 2-carrier runtime and gates on it. Gate 7
+  at 2 carriers: p99 316792 ns (1 carrier 317167 ns, Io.Threaded 8.01 ms). Item 6 ticked in the
+  plan and on #62 (items 5 and 6 now `[x]`).
+- PR #72 (auto-merged, 854/941 tests): item 7 first steps, item stays UNCHECKED. `Sched.index`
+  (peers get `i+1` in `carriers.start`), `Fiber.home`, threadlocal `Sched.here()` replacing
+  `carrier_active`, futex expiry and poller `events` installed on peer scheds.
+- Remaining for item 7: `Sched.post`/mailbox + birth mail, `serve` running a fiber loop (atomic
+  `run_until` stop), claim CAS on `wait.outcome`, join word, cancel mail, `Table.wake` routing by
+  home, close from another carrier, seeded 4-carrier model test, 1000 serial runs. No way to put
+  a fiber on a peer yet, so cross-carrier tests need `post` first.
+- Next: cycle 78 builds `post`/mailbox and a serving peer loop (brief zig-developer narrowly, it
+  is a big step; ~$0.9 spent this cycle by hand).
+- Gotchas: after squash-merging a PR, cherry-pick follow-up commits onto a fresh branch from
+  origin/main. A `Fiber` literal in tests needs `.home`. `/tmp/sirocco_start` clock read 1 min; the
+  budget, not wall time, was the real limit.
 
 ## Cycle 76 — 2026-11-03 — FEATURE
 - Preflight: disk 24 GB (gate OK), tree clean on `feat/batch-waiter-park`; CI green on main, no
