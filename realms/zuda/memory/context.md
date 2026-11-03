@@ -1,32 +1,33 @@
 # zuda — context
 
-last_seen_at: 2026-11-03T00:00:00Z
+last_seen_at: 2026-11-04T00:00:00Z
 rejected_plans: []
 
-## Cycle 42 — 2026-11-03 — FEATURE
-- Done: inbox clean (CI green on 978c5d3, no bugs, no OWNER comments, milestone #31, no open PRs). Sweep
-  slice `linalg`: `lu`, `decompositions`, `solve`, `properties` now compile on 0.16 (stale NDArray calls:
-  `get`/`set` take `[]const isize`, `transpose()` is a view with no allocator, `matmul` is a method
-  `a.matmul(&b)`; comptime literals in `if`/Hilbert tables). Library fix: `eigSymmetric` QR loop used the
-  old `matmul(allocator, a, b)` and `A.get(usize)`. blas/simd_blas (77 errors) untouched.
-- Not shippable: 443 linalg tests run, ~70 fail (every svd test, eig orthonormality/reconstruction, lu
-  pivoting: `lu: permutation correctness` uses the SINGULAR matrix [[0,1,2],[1,2,3],[2,3,4]], lstsq
-  noise/f32, one leak). Not wired, no PR. Preserved on `wip/linalg-compile-clean-20261103` (1 commit).
-- Next: cycle 43 FEATURE. Triage those failures with TDD (fix test data vs real bugs, svd first), wire
-  linalg files, then blas; iterators 5, aggregators 8, ML 34; headers; v3.0.0.
+## Cycle 43 — 2026-11-04 — FEATURE
+- Done: inbox clean (CI green on 978c5d3, no bugs, no OWNER comments, milestone #31). Sweep slice
+  `linalg` (decompositions, lu, solve, properties) compile-clean, wired into the `root.zig` test block:
+  443 tests pass. Real bugs: svd dropped the sign of negative bidiagonal entries (identity gave -I),
+  replaced by one-sided Jacobi (60 sweeps max, U completed for zero singular values); eig QR stopped at
+  1e-8 (now cyclic Jacobi); `solveOverdetermined` double free + absolute pivot threshold (now relative).
+  Many wrong tests: singular data in lu, verifier `A=PLU` vs contract `PA=LU`, pinv OOB indexing, wrong
+  Cholesky entry, 1e10-scale absolute tolerances, `pivots` is LAPACK swap record not a permutation.
+- PR: #85 `fix/compile-clean-linalg-zig-016` open; local `zig build test` exit 0, Build & Test green
+  (9m35s); 6 cross-compile jobs still pending at the deadline. Next cycle merges at 7/7, no `hold`,
+  adds `auto-merged`. Branch contains the earlier wip commit (squash merge hides it).
+- Next: merge #85; `linalg/blas.zig` + `simd_blas.zig` (77 errors, OutOfMemory escaping NDArray.Error,
+  `clone` missing); iterators 5, aggregators 8, ML 34; `//!` headers (ML 67, dp 44); assertion baseline;
+  v3.0.0.
 - Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: `zig test` on a file importing `linalg/*` pulls `root.zig` and runs the whole 17k suite: always
-  pass `--test-filter "linalg."` (names are `linalg.<file>.test.<name>`). First emit-bin build ~5 min,
-  recompiles ~10 s. A linalg `_sweep_*.zig` root is needed (files import `../root.zig`).
+- Quirks: the guard blocks `cd <repo> && git checkout ...` chains; use plain `git` in the cwd. A
+  leaking test aborts the whole `zig test` run (ABRT) and hides later failures: fix leaks first.
+  linalg run: `zig test src/_sweep_linalg.zig --test-filter "linalg."` takes ~1 min warm.
 
-## Cycle 41 — 2026-11-02 — ABORTED (disk gate)
-- Done: nothing. `df -g /` showed 18 GB free (< 20 GB gate), so the cycle stopped in preflight.
-  Repo untouched: clean, on main, `main == origin/main == 978c5d3`. No GitHub reads done.
-- PRs: none. Next: cycle 42 is FEATURE (n % 5 != 0): `//!` header slices (ML 67, dp 44), linalg 6,
-  iterators 5, aggregators 8, ML 34 last; 10 unwired string files; v3.0.0. Needs >= 20 GB free.
-- Blockers: low disk on the dev box (second time after cycle 33); free space (`.zig-cache`,
-  `/tmp/zsweep`, `/tmp/zuda-zcache`) or the gate will keep aborting. Open questions: none.
-- Quirks: the guard blocks a Bash call that mixes `/tmp` writes with citadel paths; keep them apart.
+## Cycles 41-42 (2026-11-02..03, folded 2026-11-04)
+- 41: ABORTED by the disk gate (18 GB < 20 GB); nothing touched.
+- 42: first linalg pass on `wip/linalg-compile-clean-20261103` (lu, decompositions, solve, properties
+  compile; ~70 tests red) finished in cycle 43 (#85). Quirk: `zig test` on a file importing `linalg/*`
+  pulls `root.zig` and runs the whole suite: always pass `--test-filter "linalg."`; a `_sweep_*.zig` root
+  is needed (files import `../root.zig`).
 
 ## Cycle 40 — 2026-11-01 — STABILIZATION (periodic, n % 5 == 0)
 - Done: merged #82 (compression sweep, 7/7, `auto-merged`). Audit: `catch unreachable` in library code
