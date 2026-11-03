@@ -42,34 +42,13 @@ rejected_plans: []
   conformance parser mistyped fields, `upgrade/installer`.
 - Open questions: none.
 
-## Cycle 38 — 2026-10-31 — FEATURE
-- Preflight: disk 40 GB; tree clean on main; CI green; no bugs; inbox clear (only comment since
-  watermark was our own cycle-37 report on #155). zuda still v2.3.0 (sailor v3.1.0) -> items 5-11
-  blocked -> one stabilize.
-- Done (#202, 8/8 green ~19 min, merged): `zr upgrade --version <ver>` was parsed and ignored.
-  New pure `checker.selectRelease(releases, Selection{include_prerelease, version})`; exact match
-  (leading `v` optional, prerelease ok, downgrade ok); malformed JSON entries skipped, not
-  unwrapped; `checkForUpdate(allocator, Selection)`; CLI says "Version X was not found or is
-  already installed" (exit 0). 6 tests. `getLatestRelease` 92 -> 60 lines (baseline entry
-  removed, checker line-length 3 -> 2). Tests 1957/0, tidy 0 failing.
-- Next: cycle 39 FEATURE (n % 5 == 4: no); check zuda tags first; else `--one`: headers
-  (ci/templates/github_actions, plugin/builtin_env `.env` 64 KiB silent cap, cli/codeowners,
-  codeowners/generator), conformance parser silently skips mistyped fields, `upgrade/installer`.
-  Cycle 40 is STABILIZATION.
-- Open questions: none.
-
-## Cycle 37 — 2026-10-30 — FEATURE
-- Preflight: disk 39 GB; started on `fix/monitor-live-line-flush` (clean, PR #200 head) -> main. CI
-  green, no bugs, inbox clear (no new comments). zuda still v2.3.0 (sailor v3.1.0) -> items 5-11
-  blocked -> one stabilize.
-- Merged #200 (monitor flush, 8/8 green) at the start. Then #201: `context/json.zig` `escapeJson`
-  was a no-op; every string now goes through `std.json.fmt` (`{f}`), regression test parses the
-  output back (`SyntaxError` before), header added, baseline `doc-header` entry removed. Tests
-  1951/0, tidy 0 failing, 8/8 green (~17 min), merged. Whole cycle ~20 min.
-- Next: cycle 38 FEATURE; items 5-11 blocked -> `--one`: headers (ci/templates/github_actions,
-  plugin/builtin_env: `.env` read caps at 64 KiB silently, cli/codeowners, codeowners/generator),
-  upgrade `--version` ignored. Check zuda tags first.
-- Open questions: none.
+## Cycles 37-38 (2026-10-30..31), folded
+- 37 (#201): `context/json.zig` `escapeJson` was a no-op; all strings now go through `std.json.fmt`
+  (`{f}`), regression test parses the output back; also merged #200 (monitor flush).
+- 38 (#202): `zr upgrade --version <ver>` was parsed and ignored; new pure
+  `checker.selectRelease(releases, Selection{include_prerelease, version})` (leading `v` optional,
+  downgrade ok, malformed JSON entries skipped), `getLatestRelease` 92 -> 60 lines.
+- zuda still v2.3.0 and sailor v3.1.0, so items 5-11 stayed blocked; one `stabilize --one` each.
 
 ## Cycles 33-36 (2026-10-23..29), folded
 - 33: no-op at the disk gate (15 GB < 20 GB). 34 (#198): `analytics/json.zig` `generateJsonReport`

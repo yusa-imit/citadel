@@ -36,35 +36,15 @@ rejected_plans: []
 - Note: ~$2.3 of $4, ~16 min. Guard rejects `;`-chained commands (tag + push + release must be
   separate calls). The Monitor tool works for CI waits but a plain `until` loop in Bash also works.
 
-## Cycle 76 — 2026-11-01 — FEATURE
-- Done: plan 005 item 11 merged as #76 (CI 7/7, 837 tests, auto-merged, issue #63 ticked):
-  `bench/btree.zig` (+ `bench/main.zig` wiring): `btree_get` 5.1M ops/s (floor 5M, thin margin, noisy
-  5.0-5.2M), `btree_insert_seq` 1.27M (floor 1M), `btree_insert_logged` 0.23M (recorded, not gated).
-  Figures in `docs/plans/000-inherited.md`. Kernels return `TreeOutgrewPool` if the pool evicts; insert
-  kernels run once per fixture (`AlreadyRun`). Bench never fails on a missed floor (manual check).
-- Review: 0 critical, 4 warnings fixed (negative tests for KeyMissing/ValueSizeMismatch, seeded-order
-  determinism, FailingAllocator sweep over fixture_init, eviction check surviving ReleaseFast).
-- Next: item 12 docs + release v0.6.0 (MINOR): drop `NotImplemented` from `src/btree.zig`, README btree row
-  Landed, tick milestones 4A-4C/4E, CHANGELOG, `.version = "0.6.0"`, tag, `/release strata minor`.
-- Blockers: none. Open questions: none.
-- Note: ~$1.6 of $4, ~13 min. Inbox quiet (no OWNER comments). Developer 4 min + 2 min fix, reviewer 2 min.
-
-## Cycle 75 — 2026-11-01 — FEATURE
-- Done: plan 005 item 10 (4E) merged as #75 (CI 7/7, 830 tests, auto-merged, issue #63 ticked):
-  `src/testing/btree_model_test.zig` + `btree_model_fixtures.zig` (sorted-array `Model`, `Driver`).
-  Unlogged seeded runs 512 B/4 KiB/64 KiB x 3 seeds (get/insert/delete/seek/scan, validate, flushAll,
-  cold, release_frees); logged runs on `Env`/`Rebuilt` (crash, replay, replay twice = once) and a
-  torn variant cutting mid-frame. Mutants died: separator corrupted in `finish_parent`, redo lsn
-  always/never applied. Tests-only, no source change. Tests suite ~32 s Debug.
-- Review: 0 critical, 3 warnings fixed (torn variant could be a no-op; cut was at an op boundary; plan
-  text claimed a FaultIo/CrashSink variant -> amended: that durable-boundary variant is a follow-up
-  for the next plan). Open suggestions: dedupe the two logged test loops, `check_each` dead flag,
-  missing `///` on fixtures pub items.
-- Next: item 11 `bench/btree.zig` (floors: get >= 5M ops/s, seq insert >= 1M ops/s, 4 KiB ReleaseFast
-  unlogged; logged figure recorded), then 12 docs + release v0.6.0 (MINOR).
-- Blockers: none. Open questions: none.
-- Note: ~$1.6 of $4, ~14 min. Developer 7 min (mutants checked), reviewer 1 min. Monitor with
-  `until ! gh pr checks N | grep -q pending` works; sleep inside Monitor is fine.
+## Cycles 75-76 (2026-11-01), folded
+- 75 (#75, plan 005 item 10): seeded model test `src/testing/btree_model_test.zig` + fixtures (sorted-array
+  `Model`; unlogged 512 B/4 KiB/64 KiB x 3 seeds; logged crash/replay/torn variants); mutants died. Open
+  suggestions: dedupe the two logged test loops, `check_each` dead flag, `///` on fixtures pub items; the
+  FaultIo/CrashSink durable-boundary variant is a follow-up for the next plan.
+- 76 (#76, item 11): `bench/btree.zig`: `btree_get` 5.1M ops/s (floor 5M, thin margin), `btree_insert_seq`
+  1.27M (floor 1M), `btree_insert_logged` 0.23M (recorded). Figures in `docs/plans/000-inherited.md`; the
+  bench never fails on a missed floor (manual check).
+- Tool note: `until ! gh pr checks N | grep -q pending` works for CI waits.
 
 ## Cycles 72-74 (2026-10-30..31), folded
 - Plan 005 item 9 (WAL integration) in three PRs, CI 7/7, auto-merged: #72 log side (`Type.page_images`=16,

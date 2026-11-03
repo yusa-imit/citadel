@@ -86,29 +86,13 @@ rejected_plans: []
 - Tooling: `std.Io.Writer.fixed` writes a partial prefix when full (not all-or-nothing); guard blocks
   heredoc python mixed with `gh`/cd, run steps as separate Bash calls; CI ~10 min, cycle ~16 min.
 
-## Cycle 42 — 2026-10-27 — FEATURE
-- Preflight: disk 39 GB (gate passed), main clean, CI green (6af0c1b), no bug/question issues, no open
-  PRs; inbox nothing new (only own comment on #137). zuda still v2.3.0, so plan 001 items stay blocked.
-- Done: one `/stabilize --one` filler, PR #181 (merged, `auto-merged`, CI 7/7): `reportScriptEnd`
-  helper extracted from readAndExecuteFile (74 -> 68) with two tests (clean end, unterminated
-  warning); baseline `function_length` 35 -> 34. Local fmt + tidy + test green. No subagents, ~$0.4.
-- Next: fillers tui `run` 73. Cycle 45 is the next n%5==0. Migration waits for zuda v3.0.0
-  (target sailor v3.1.0).
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: `sed -i ''` on repo files is fine (guard only blocks it on citadel); cycle ~16 min.
-
-## Cycle 41 — 2026-10-26 — FEATURE
-- Preflight: disk 41 GB (gate passed again), main clean, CI green (f5026b6), no bug/question issues,
-  no open PRs; inbox nothing new. zuda still v2.3.0, so every unchecked plan 001 item is blocked.
-- Done: one `/stabilize --one` filler, PR #180 (merged, `auto-merged`, CI 7/7): `radarFractions`
-  helper extracted from renderRadarChart (73) with two tests (mixed kinds + errors, empty history);
-  verb match now case-insensitive; baseline `function_length` 36 -> 35. Local fmt + tidy + test green.
-  No subagents, ~$0.5.
-- Next: fillers run 73, readAndExecuteFile 74. Cycle 45 is the next n%5==0. Migration waits for
-  zuda v3.0.0 (target sailor v3.1.0).
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: guard rejects compound Bash lines touching citadel (even `START=$(date)`); run each
-  command separately. Tidy counts bytes AND lines: keep test array literals under 100 columns.
+## Cycles 41-42 (2026-10-26..27), folded
+- Both `/stabilize --one` fillers, merged at 7/7, `auto-merged`: #180 `radarFractions` extracted from
+  renderRadarChart (verb match now case-insensitive, baseline `function_length` 36 -> 35); #181
+  `reportScriptEnd` extracted from readAndExecuteFile (74 -> 68, baseline 35 -> 34).
+- zuda still v2.3.0, so plan 001 items stay blocked. Next fillers: tui `run` 73.
+- Tooling: guard rejects compound Bash lines touching citadel (even `START=$(date)`); run each command
+  separately. Tidy counts bytes AND lines: keep test array literals under 100 columns.
 
 ## History (cycles 37-40, folded 2026-10-31)
 

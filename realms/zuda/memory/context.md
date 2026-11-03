@@ -60,25 +60,10 @@ rejected_plans: []
 - Quirks: `zig fmt --check src` is red on ~126 pre-existing files (CI does not run fmt); format only
   the slice you touch (`zig fmt src/algorithms/<dir>`). Sweep scripts need `zsh`, run from repo root.
 
-## Cycle 38 — 2026-10-30 — FEATURE
-- Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #80 (sorting, 7/7,
-  `auto-merged`). Sweep slice `containers/trees`: 8 of 15 red (aa, avl, interval, radix,
-  scapegoat, splay, trie, wavelet), fixed (`.empty`, unmanaged lists, `swapRemove` on
-  `AutoArrayHashMapUnmanaged`); all 15 now imported from the `root.zig` test block.
-  Real bugs: `WaveletTree.rank0` subtracted all set bits, not those before `i`; `RadixTree`
-  `PrefixIterator`/`Iterator` read `frame.node` after `stack.pop()` (0.16 poisons the popped slot
-  with 0xaa: read before pop); `VanEmdeBoasTree` sized clusters and summary by sqrt(u), wrong
-  when log2(u) is odd (now `cluster_count = u / sqrt_u`, `u >= 2` comptime check).
-- PR: #81 (`fix/compile-clean-trees-zig-016`) merged at 7/7, `auto-merged`.
-- Next: compression (8 red: bwt, deflate, delta, huffman, lz77, lzss, rle, snappy; arithmetic,
-  lz4, zstd compile clean, check if wired), linalg 6, iterators 5, ML 34 last; 10 unwired string
-  files; 5 dp leftovers; assertion baseline; v3.0.0. Cycle 39 is FEATURE.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: perl `s///` with `@as(` eats `@as` (escape `\@`) — bit again; sweep scripts
-  `/tmp/zsweep/run.sh` (compile) and `runtest.sh` (run tests) work, take rel path under src;
-  CI Build&Test 9 min, cross-compile done ~17 min after push; whole cycle ~20 min.
-
-## Cycles 36-37 (2026-10-28..29, folded 2026-10-31)
+## Cycles 36-38 (2026-10-28..30, folded 2026-11-03)
+- 38 (#81 containers/trees, 15 files, 8 were red): `WaveletTree.rank0` subtracted all set bits, not
+  those before `i`; `RadixTree` iterators read `frame.node` after `stack.pop()` (0.16 poisons the
+  popped slot: read before pop); `VanEmdeBoasTree` sized clusters by sqrt(u), wrong for odd log2(u).
 - 36 (#79 geometry) and 37 (#80 sorting) merged at 7/7, `auto-merged`. Real bugs: Bentley-Ottmann
   use-after-free and wrong status (rewritten as active-set sweep), ear clipping through a reflex
   vertex, `strandSort` unstable ties; 22 of 23 sorting files were only reachable via `pub const`.
