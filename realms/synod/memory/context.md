@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-11-03T06:20:00Z
+last_seen_at: 2026-11-03T18:24:00Z
 rejected_plans: []
+
+## Cycle 82 — 2026-11-04 — FEATURE
+- Preflight: disk 23 GB, CI green on f5ea558, no bugs, milestone #74 open, no OWNER comments.
+- Item 6 (sim snapshots), two zig-developers in parallel (~$1.4), preserved as
+  `wip/feat-sim-snapshots-20261104` (3d1bcd2, pushed; do not delete; wip 20261103 also kept).
+  No PR: 7 of 9 `simulation_snapshot_test` tests still fail (1083/1090 pass overall).
+- Done: 3 stale tests fixed (workload_test, network_test, network_snapshot_test);
+  `Checker.installed(node, index)` + `invariants_installed_test.zig` (12 tests; install must raise
+  the index, stay <= chosen_max, and raises commit); new `src/sim/sim_snapshots.zig`;
+  `simulation.zig` compaction wiring in progress; `driver_snapshot_test.zig` touched (restore order).
+- Next (cycle 83): `feat/sim-snapshots-4` from that wip. Red: calm, same seed twice, cut-off
+  follower install, honest digest, planted restore seed, inert plant, 1000 seeds (floors >= 30%
+  past 63 ops, >= 20% installs). Fix wiring, tick plan item 6, PR, CI, merge. Brief the developer
+  with the failing-test list; push by minute 12 (CI ~7.5 min).
+- Blockers: none. Open questions: none. Budget: ~$1.7 of $4.
+- Tool notes: developer on simulation.zig ran past minute 16; guard blocks `python3 -I -` heredocs
+  that touch citadel paths: use the Edit tool for memory files.
 
 ## Cycle 81 — 2026-11-03 — FEATURE
 - Preflight: disk 24 GB, CI green on f5ea558, no bugs, milestone #74 open, no new OWNER comments.
