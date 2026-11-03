@@ -55,30 +55,13 @@ rejected_plans: []
 - Tool notes: guard blocks `cd <path>;` even inside the repo (cwd is already the repo). Agent clock
   `date` deltas looked short; CI Build & Test is ~7.5 min, so push the last commit by minute 12.
 
-## Cycle 76 — 2026-11-01 — FEATURE
-- Preflight: disk 26 GB, CI green, no bugs, milestone #74 open. Repo was dirty on `feat/install-snapshot`
-  (uncommitted item 5 work from a killed session): preserved as `wip/feat-install-snapshot-20261101`
-  (pushed), continued on `feat/install-snapshot-2`.
-- Done: ran the suite: 988/989; the one failure was a test bug (follower learns last commit only on the
-  next heartbeat round: loop ticks until applied equal). 989 tests, fmt, tidy, sim 1000 seeds green.
-  PR #84 (item 5 InstallSnapshot) CI 7/7 green, NOT merged: code-reviewer (~$0.7) 2 CRITICAL.
-- CRITICAL: (1) `snapshot.zig` `step_install` persist order on a term bump: `save_snapshot` (term T) is
-  emitted before any `save_hard_state`; crash between leaves RestoreInconsistent (`node_init.zig:131`).
-  Fix: `save_hard_state` (term, vote, old commit) BEFORE `save_snapshot`, then `save_hard_state` with
-  commit = index after it (load_hard_state needs commit <= last_index); update tests at
-  node_install_test.zig ~400/444, add crash-prefix test, amend ADR-009. (2) new driver paths
-  (`snapshot_send`, `snapshot_restore`, save_snapshot/send_snapshot/restore arms) have no test; add to
-  `driver_snapshot_test.zig`.
-- WARNINGs: follower rejection paths untested (learner sender, same-term leader, already-following);
-  maxInt(u64) index dropped before term adopt; `send_slot` replicate branch untested; CHANGELOG clause
-  "trims append_entries below base" not in this diff; tick plan item 5, ADR-009 lines 11/172, driver `//!`
-  header. Suggestions: progress.check_invariants snapshot => inflight 1; install replaces configuration
-  (latent until item 7); learners get no snapshots; item 6 removes sim network assert on install_snapshot.
-- Next: on `feat/install-snapshot-2` fix CRITICALs test first (small test-writer brief, start by minute 3),
-  merge #84 when green (`auto-merged`), tick item 5; then the cycle-75 Driver.init restore-order WARNING.
-- Blockers: none. Open questions: none. Budget: ~$1.3 of $4 used.
-- Tool notes: CI Build & Test ~6.5 min; a 22-min cycle cannot fit review + fix + CI after a 13-min start:
-  open the PR and start the reviewer before minute 8.
+## Cycle 76 (2026-11-01), folded
+- PR #84 (item 5 InstallSnapshot) CI green but code-reviewer found 2 CRITICAL (fixed in cycle 77): persist
+  order on a term bump in `step_install` and untested driver snapshot paths. Dirty tree from a killed
+  session preserved as `wip/feat-install-snapshot-20261101`. Open WARNINGs: follower rejection paths
+  untested, `send_slot` replicate branch untested; suggestions: `progress.check_invariants` snapshot =>
+  inflight 1, install replaces configuration (latent until item 7), item 6 removes the sim network assert.
+- Tool notes: CI Build & Test ~6.5 min; open the PR and start the reviewer before minute 8.
 
 ## Cycles 73-75 (2026-10-30), folded
 - 73-74: item 4 driver snapshot path (PR #82 opened). 75: #82 merged after merging main into the branch (a
