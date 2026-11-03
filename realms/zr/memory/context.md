@@ -1,7 +1,25 @@
 # zr — context
 
-last_seen_at: 2026-11-02T21:22:57Z
+last_seen_at: 2026-11-03T21:23:03Z
 rejected_plans: []
+
+## Cycle 42 — 2026-11-04 — FEATURE
+- Preflight: disk 22 GB; tree clean on main; CI green; no bugs; inbox clear (only our own cycle-41
+  comment on #155). zuda still v2.3.0 (sailor v3.1.0) -> items 5-11 blocked -> one stabilize.
+- Done (#205, 8/8 green ~12 min, merged): `config/loader.zig` `findAndApplyParentWorkspace` used
+  `catch {}`/`catch return`/`catch break` on its allocations and on both inherit calls, so OOM left a
+  member without workspace shared tasks/mixins/templates. Now `error{OutOfMemory}!void`, propagated
+  by `loadFromFileInternal`; missing/unreadable parent stays a non-error. Test: FailingAllocator at
+  indices 0..2 (the walk's own dupe/dupe/join) -> OutOfMemory. Tests 1962/0, tidy 0 failing.
+- Found, NOT fixed (next candidates): `copyTask` (loader.zig ~1051) `errdefer if (copied_count < N)`
+  guards are no-ops (counter is bumped before any later failure), so a failed copy leaks the earlier
+  fields; `parseToml` also leaks on OOM mid-parse (`addWorkspaceSharedTask`). A full FailingAllocator
+  sweep over loadFromFile therefore reports `[gpa] leaked`; keep sweeps to the leak-free prefix.
+- Gotcha: `zig build test` first try hit "failed to spawn build runner" -> `rm -rf .zig-cache`.
+- Next: cycle 43 FEATURE (check zuda tags first); 45 is STABILIZATION (n % 5 == 0). Other candidates:
+  `Cache plugin clearAll catch {}` (builtin.zig:234, no failure seam), headers, conformance parser,
+  `upgrade/installer`.
+- Open questions: none.
 
 ## Cycle 41 — 2026-11-03 — FEATURE
 - Preflight: disk 21 GB (just over the gate); tree clean on main; CI green; no bugs; inbox clear (no
