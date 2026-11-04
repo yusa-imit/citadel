@@ -1,7 +1,26 @@
 # zuda — context
 
-last_seen_at: 2026-11-04T00:00:00Z
+last_seen_at: 2026-11-05T00:00:00Z
 rejected_plans: []
+
+## Cycle 44 — 2026-11-05 — FEATURE
+- Done: inbox clean (CI green on 978c5d3, no bugs, no OWNER comments, milestone #31). Merged #85
+  (linalg, 7/7, no `hold`, `auto-merged`). Sweep slice `iterators` (12 files): 5 red (map, filter, zip,
+  partition, collect), all 12 now imported from the `root.zig` test block, 281 tests pass. Causes:
+  partition/collect on the 0.16 `ArrayList` shape; tests passing `&iter` to a by-value `init`; `%` on
+  signed ints; flat_map test helpers (`range`, `replicateSlice`, `digits`) returned slices of their own
+  stack frames (13 tests read garbage; now comptime tables); filter "min i32" test expected the wrong
+  first element (`minInt` is even).
+- PR: #86 `fix/compile-clean-iterators-zig-016` open; local `zig build test` exit 0, Build & Test green
+  (9m22s); 6 cross-compile jobs still pending at the deadline. Next cycle merges at 7/7, no `hold`,
+  adds `auto-merged`.
+- Next: merge #86; aggregators 8; `linalg/blas.zig` + `simd_blas.zig` (77 errors); ML 34; `//!` headers
+  (ML 67, dp 44); assertion baseline; v3.0.0.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: whole cycle to PR took ~6 min for a 12-file slice (parallel `zig test -fno-emit-bin` per file,
+  one background `zig build test`). Do not use a perl `s/^(\s+)var / $1const /` that adds a space:
+  run `zig fmt` after bulk edits and `git checkout` any unrelated file it reformats (chain.zig).
+  Tool schema for `Monitor` must be loaded via ToolSearch; a Bash poll with `perl select` works instead.
 
 ## Cycle 43 — 2026-11-04 — FEATURE
 - Done: inbox clean (CI green on 978c5d3, no bugs, no OWNER comments, milestone #31). Sweep slice
@@ -29,37 +48,16 @@ rejected_plans: []
   pulls `root.zig` and runs the whole suite: always pass `--test-filter "linalg."`; a `_sweep_*.zig` root
   is needed (files import `../root.zig`).
 
-## Cycle 40 — 2026-11-01 — STABILIZATION (periodic, n % 5 == 0)
-- Done: merged #82 (compression sweep, 7/7, `auto-merged`). Audit: `catch unreachable` in library code
-  0 unproven (the rest are in tests: `correlation.zig` 12, `lru_cache`, `crf`), `@panic` 0,
-  `std.debug.print` 1 (seed-report `errdefer` in an RBT test). Missing `//!` header: 277 of 436 files
-  (ML 67, dp 44, graph 21, string 18, sorting 18, trees 14). Docs drift fixed in README.
-- PRs: #83 `docs/readme-claims-match-code` (Zig 0.16, 209 distributions, ~22k test blocks, install note
-  v2.3.0=0.15.2 vs main=0.16.0, v2.0 roadmap ticked) and #84 `docs/compression-module-headers` (9 files).
-  Both merged this cycle at 7/7 (~17 min after push), no `hold`, `auto-merged`.
-- Next: `//!` headers slice by slice (ML 67 and dp 44 are the big ones); sweep: linalg 6, iterators 5,
-  aggregators 8, ML 34 last; 10 unwired string files; 5 dp leftovers; v3.0.0.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: a header is a prepend, not a rewrite: `/tmp/zhdr.sh` style (`//! ` prefix, end with blank
-  line); keep each line <= 100 columns (awk 'length>100' catches it). `zig test -fno-emit-bin <file>`
-  is a 20 s compile check for comment-only edits. Guard blocks one Bash call that mixes `cd` into
-  citadel with other commands: keep citadel reads in their own call.
-
-## Cycle 39 — 2026-10-31 — FEATURE
-- Done: inbox clean (CI green on bbf95d4, no bugs, no OWNER comments, milestone #31). Sweep slice
-  `algorithms/compression`: 8 of 11 files red (bwt, deflate, delta, huffman, lz77, lzss, rle,
-  snappy); all 11 now imported from the `root.zig` test block and pass. Real bugs: delta unsigned
-  overflow (now wrapping), lz77 stray byte + no overlap + unchecked decode, lzss `u3` flag overflow
-  and 4096 offset not fitting 12 bits (window capped at 4095), snappy lost data on matches > 64 and
-  never emitted a copy after literals, `rle.wouldCompress` wrong element, `huffman.Node.right`
-  type. `deflate` only does stored blocks (docs honest now, empty input valid, final block required).
-- PR: #82 (`fix/compile-clean-compression-zig-016`) open; local full `zig build test` exit 0; Build &
-  Test still running at the 22-min deadline. Cycle 40 merges at 7/7, no `hold`, adds `auto-merged`.
-- Next: merge #82; linalg 6, iterators 5, aggregators 8, ML 34 last; 10 unwired string files; 5 dp
-  leftovers; real fixed-Huffman deflate/inflate (stored only today); assertion baseline; v3.0.0.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: `zig fmt --check src` is red on ~126 pre-existing files (CI does not run fmt); format only
-  the slice you touch (`zig fmt src/algorithms/<dir>`). Sweep scripts need `zsh`, run from repo root.
+## Cycles 39-40 (2026-10-31..11-01, folded 2026-11-05)
+- 39 (#82 compression, 8 of 11 files red): delta unsigned overflow, lz77 stray byte/no overlap, lzss
+  `u3` flag overflow and 12-bit offset (window 4095), snappy lost data on matches > 64, `rle.wouldCompress`
+  wrong element. `deflate` only does stored blocks (docs honest). 40 (STABILIZATION): merged #82, #83 (README
+  claims match code), #84 (compression `//!` headers). Audit: `catch unreachable` in library 0 unproven,
+  `@panic` 0, `std.debug.print` 1 (RBT test errdefer). Missing `//!` header: 277 of 436 files (ML 67, dp 44,
+  graph 21, string 18, sorting 18, trees 14).
+- Quirks: `zig fmt --check src` is red on ~126 pre-existing files (CI does not run fmt): format only the
+  slice you touch. A header is a prepend (`//! ` prefix, blank line after, <= 100 columns); `zig test
+  -fno-emit-bin <file>` is a 20 s compile check for comment-only edits.
 
 ## Cycles 36-38 (2026-10-28..30, folded 2026-11-03)
 - 38 (#81 containers/trees, 15 files, 8 were red): `WaveletTree.rank0` subtracted all set bits, not
