@@ -31,3 +31,9 @@ was superseded by a cleaner version merged through normal plan-001 PRs. Per king
 it. Milestone checklist item ticked as "decision recorded", not "finished".
 **Consequences**: `origin/wip/chore-zig-0.16-migration-20260909` remains in the remote
 branch list indefinitely; future cycles should not re-open or merge it.
+
+## 2026-11-05 — kv batch atomicity: commit frame, not tree op groups (ADR-0005, PR #82)
+**Context**: one `page_images` frame per batch fits 61 worst-case ops at 512 B but 7 at 4 KiB and 1 at
+16 KiB and up (1 MiB record cap, 2h+1 pages/op). **Decision**: kv v1 uses frame type 4 `commit`
+(reserved id, no WAL bump) plus commit-bounded recovery; plan 006 item 6 is renamed, `group_begin/end`
+are not built. Within the plan's own Risks fallback, so no plan PR. v0.6.0 reads such a log as `Corrupted`.

@@ -1,33 +1,34 @@
 # strata — context
 
-last_seen_at: 2026-11-04T00:10:00Z
+last_seen_at: 2026-11-05T00:40:00Z
 rejected_plans: []
 
-## Cycle 81 — 2026-11-04 — FEATURE
-- Done: plan 006 item 2 merged as #81 (CI 7/7, auto-merged): crafted-page `Corrupted` tests
-  (`btree/cursor_corrupt_test.zig` 364 lines, `delete_corrupt_test.zig` 318), cursor scans assert height 3
-  at 512 B. Issue #79 item 2 ticked. Inbox clean (no OWNER comments).
-- Preflight found the item uncommitted on `test/btree-corrupt-branches`: preserved as
-  `wip/test-btree-corrupt-branches-20261104` (pushed, keep). It had one compile error (junk
-  `assert(slot <= path.len * 1000)`, u8 overflow), fixed to `assert(path.len > 0)`; rest passed first run.
-  No reviewer or mutant run (test-only diff): a mutant check on the new tests is still open.
-- PRs: none open. ~$0.45 of $4, ~6 min.
-- Next: item 3 ADR-0005 kv layout v1 (architect, opus, ~$1.6-2.3), brief with plan 006 item 3 text.
+## Cycle 82 — 2026-11-05 — FEATURE
+- Done: plan 006 item 3 ADR-0005 kv layout v1 (`docs/adr/0005-kv-layout.md`, ~450 lines) in PR #82,
+  item ticked in the plan, CHANGELOG + PRD §4.8 link. Architect (opus) ~$1.1, 8 min; reviewer (sonnet)
+  found 0 critical, 3 warnings fixed (no-op group appends no commit frame, `truncate_after(0)`, probe
+  reader closed before replay). Build & Test green; 2 cross-compile jobs pending at the deadline.
+- ADR decisions: `pages.db` + `wal/`, lock = page-file `tryLock`; root = page 1, type-checked on open;
+  half-created dir -> `Corrupted`; WAL missing -> `Corrupted` even at `wal_lsn 0`; one-frame batch
+  admits 61 ops at 512 B but 7 at 4 KiB and 1 at 16 KiB+, so v1 uses a **`commit` frame (WAL type 4,
+  reserved id, no WAL bump)** + commit-bounded recovery (`Recovery.truncate_after`, `CommitScan` pass).
+  Item 6 "Tree op groups" becomes "commit frame and commit-bounded recovery"; no `group_begin/end`.
+  This is the plan 006 Risks fallback, so no plan PR; milestone #79 item 6 title needs the rename.
+- PRs: #82 open, awaiting CI then squash-merge (next cycle's inbox step 8); no hold label.
+- Next: merge #82, rename item 6 in #79, tick item 3; then item 4 `kv/db.zig` create/put/get/delete
+  (zig-developer; brief with ADR-0005 §1-§7, §11). Opus ADR + review ~$1.7 of $4 this cycle.
 - Blockers: none. Open questions: none.
+- Note: waiting on CI with a foreground `until` loop hit the 400 s tool timeout; poll in <=5 min calls.
 
-## Cycle 80 — 2026-11-03 — FEATURE
-- Done: plan 006 approved (PR #78 merged); opened milestone issue #79 (12 items). Item 1 (B+Tree
-  durability debts) merged as #80 (CI 7/7, auto-merged): live-file replay after `free_at` trunk stamps
-  (`tree_wal_delete_test.zig`, 512/4096), failing `free_at` keeps ids queued and the retry frees each
-  once (no code fix needed), attached `insert`/`delete` assert `pool.gate_on` (fixtures and
-  `bench/btree.zig` now call `set_durable_lsn(0)` after `attach`). 3 mutants killed (freelist lsn not
-  max, `needs_redo` always true, `frees_len` decremented early). `wal_test.replay_log(env, page_redo)`.
-- PRs: none open. No reviewer run (test-only diff + 2 asserts). ~$1.1 of $4, ~17 min.
-- Next: item 2 crafted-page `Corrupted` tests (delete_tree_test/cursor_test), then item 3 ADR-0005
-  (architect, opus).
-- Blockers: none. Open questions: none.
-- Note: zig-developer took 8.5 min for one small item; plain `until ... sleep 20` loops work in Bash.
-  Guard rejects compound commands (heredoc python + `&&`) in citadel: use Write/Edit tools there.
+## Cycles 80-81 (2026-11-03..04), folded
+- 80: plan 006 approved (#78), milestone #79 (12 items). Item 1 (#80): live-file replay after `free_at`
+  trunk stamps, failing `free_at` keeps ids queued, attached `insert`/`delete` assert `pool.gate_on`
+  (fixtures/bench call `set_durable_lsn(0)` after `attach`); 3 mutants killed.
+- 81: item 2 (#81): crafted-page `Corrupted` tests (`btree/cursor_corrupt_test.zig`,
+  `delete_corrupt_test.zig`), cursor scans assert height 3 at 512 B. Preflight preserved the item as
+  `wip/test-btree-corrupt-branches-20261104` (keep). Open: mutant check on those new tests.
+- Notes: zig-developer ~8.5 min per small item; guard rejects compound commands in citadel (use
+  Write/Edit there).
 
 ## Cycles 78-79 (2026-11-02..03), folded
 - 78: NOOP at disk gate (19 GB). 79: plan wait, one `/stabilize --one` (CI green, README matches
@@ -193,7 +194,3 @@ rejected_plans: []
 ## Standing backlog
 - Version 0.4.0 released (2026-10-13). `file/mmap.zig` deferred (out of scope of plans 003-004).
 - `docs/milestones.md` is the single source of truth for progress; `docs/PRD.md` for requirements.
-
-## Next priority
-Plan 004 (Phase 3 WAL) approved (PR #47 merged 2026-10-12), milestone #48 open; continue with the
-next unticked item (see the newest cycle block above).
