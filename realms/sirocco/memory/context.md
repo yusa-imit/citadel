@@ -1,50 +1,35 @@
 # sirocco — context
 
-last_seen_at: 2026-11-04T04:25:00Z
+last_seen_at: 2026-11-05T00:00:00Z
 rejected_plans: []
 
-## Cycle 79 — 2026-11-04 — FEATURE
-- Preflight: disk 23 GB, CI green, no bugs, no OWNER comments, no plan PR; milestone #62 open.
-- Merged PR #73 (mailbox, CI green, labelled auto-merged). Item 7 step: PR #74
-  `feat/futex-wake-by-home` (f6dc6e7): `Table.wake(table, io, addr, max)` lost its `sched` param,
-  removes then `Sched.claim(.woken)`s each waiter and resumes it on `fiber.home` (direct if
-  `home.in_fiber()`, else `home.unpark_foreign`). `src/futex_home_test.zig` (2 tests: wake from a
-  non-carrier thread, wake from a fiber on another peer). 100 serial runs of the library test
-  binary clean. Item 7 stays UNCHECKED.
-- Reviewer (sonnet): 0 CRITICAL. Follow-ups for the next step: `assert(fiber.home == sched)` in
-  `Table.timeout`/`cancel_wait` and move both to `Sched.claim`; test failure path leaves the waiter
-  parked and `finish` hangs (wake it first); ADR 0004 line 137 shows the old `wake` signature;
-  `futex.zig` header still says "the carrier"; bind `enqueue` result before asserting; tests for the
-  direct branch, a mixed-home `wake(..,2)` and wake racing timeout.
-- PR #74 CI at the deadline: 6 cross-compile jobs green, both Build & Test jobs pending. Comment says
-  merge next cycle if green and no `hold`.
-- Next: cycle 80 merges #74 if green, then the follow-ups above plus cancel mail, join word, close
-  from another carrier, seeded 4-carrier model test, 1000 serial runs.
-- Gotchas: futex slots (`slot_futex_wait` etc.) still use `rt.sched` (carrier 0) throughout, so
-  running Runtime tasks on peers needs those generalized to `Sched.here()` (item 8 placement). A
-  300-run loop of the test binary overran Bash again: use nohup + file (100 runs ~ 10 min). Cycle
-  cost ~$1.2; the CI Build & Test jobs take > 10 min, push once.
+## Cycle 80 — 2026-11-05 — FEATURE
+- Preflight: disk 26 GB, CI green, no bugs, no plan PR, OWNER comments were only the AI's own;
+  milestone #62 open. Merged #74 (CI green, labelled auto-merged).
+- Item 7 step: PR #75 `feat/futex-claim-by-home`: `Table.timeout`/`cancel_wait` assert
+  `fiber.home == sched` and end the wait with `assert_always(Sched.claim(..))` AFTER
+  `table.remove` (`remove` asserts outcome `.waiting`, so claiming first crashes 10 tests).
+  `futex_home_test.zig`: cancel on home, `wake(..,2)` of two waiters on two homes, `abandon`
+  wakes the waiter on failure paths. Header, ADR 0004 wake signature, plan note, CHANGELOG fixed.
+  864/951 tests, tidy+fmt clean, 30 serial runs clean. Item 7 stays UNCHECKED. No reviewer
+  subagent (small diff). Cost ~$0.8.
+- PR #75 CI: still `queued` at ~17 min (runner backlog); comment says merge next cycle if green.
+- Next: cycle 81 merges #75 if green, then join word, cancel mail (a cancel from another carrier
+  must be mailed to the home), close from another carrier, seeded 4-carrier model test, parity
+  suite at 4 carriers, 1000 serial runs (nohup + file). Still open: wake racing a timeout test.
 
-## Cycle 78 — 2026-11-04 — FEATURE
-- Preflight: disk 23 GB, tree clean on main, CI green, no bugs, no OWNER comments, no plan PR;
-  milestone #62 open.
-- PR #73 (feat/sched-post-mailbox, c6f6789) OPEN, CI pending at the deadline, comment says merge
-  next cycle: `src/mail.zig` (`Mail`, `Mailbox`, `post`, `drain`, `serve` moved out of
-  `sched.zig`, which was at 791/800 lines and is now 776). `run_loop` drains mail next to the
-  inbox; a peer `serve` runs the fibers it is mailed. Pending FIFO when all fibers are alive;
-  `outstanding_max` 65536. Tests in `src/mail_test.zig` (futex and poller idle, FIFO with no
-  free fiber, mail while a fiber is parked, 3 producer threads, empty after stop). Item 7 stays
-  UNCHECKED; plan note and CHANGELOG updated.
-- Reviewer (sonnet): 0 CRITICAL. Fixed: plain load before the Xchg, carrier 0 contract
-  documented (mail posted to a `run`-only carrier can be stranded), stale header. Open: serve
-  drops mail left at stop; `idle_wait` is now pub.
-- Next: cycle 79 merges #73 if CI is green (no `hold`), then item 7 remainder: claim CAS on
-  `wait.outcome`, join word, cancel mail, `Table.wake` routing by home, close from another
-  carrier, seeded 4-carrier model test, 1000 serial runs. Make `run_until`'s stop atomic.
-- Gotchas: the newest `.zig-cache/o/*/test` is often the parity binary (196 tests, has the known
-  `batch` "64 idle sockets" flake, slow); the library binary has ~134 tests. Identify it by
-  running it, not by `strings`. A 300-run loop of it overran the 500 s Bash timeout: background
-  it. Cycle spent ~$1.3 and hit the 22 min deadline before CI finished.
+## Cycle 79 — 2026-11-04 — FEATURE
+- Merged #73 (mailbox). PR #74: `Table.wake(table, io, addr, max)` claims each waiter and resumes
+  it on `fiber.home` (direct if `home.in_fiber()`, else `home.unpark_foreign`); merged in cycle 80.
+- Gotchas: futex slots (`slot_futex_wait` etc.) still use `rt.sched` (carrier 0), so running
+  Runtime tasks on peers needs them generalized to `Sched.here()` (item 8). A 300-run loop of the
+  test binary overran Bash: nohup + file. The newest `.zig-cache/o/*/test` is often the parity
+  binary (196 tests, known `batch` "64 idle sockets" flake); the library binary has ~140. Identify
+  by running it. CI Build & Test jobs take > 10 min: push once.
+
+## History (cycle 78, folded 2026-11-05)
+- 78 (11-04): PR #73 `src/mail.zig` (`Mail`, `Mailbox`, `post`, `drain`, `serve`; `outstanding_max`
+  65536; mail posted to a `run`-only carrier can be stranded; serve drops mail left at stop).
 
 ## History (cycles 76-77, folded 2026-11-04)
 
