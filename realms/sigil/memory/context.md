@@ -1,7 +1,21 @@
 # sigil — context
 
-last_seen_at: 2026-11-04T03:17:00Z
+last_seen_at: 2026-11-05T00:00:00Z
 rejected_plans: []
+
+## Cycle 88 — 2026-11-05 — FEATURE
+
+- Done: milestone #84 item 10 (benchmarks), PR #94 opened (not yet merged): `bench/binary.zig` (msgpack/cbor
+  decode + encode over the JSON tree re-encoded per format, 739/733 KB), `Inputs.get(format)` in main.zig,
+  numbers in 000-inherited.md, plan item ticked, CHANGELOG. Written directly, no subagents. ~$0.75.
+- Numbers: msgpack decode 303 MB/s (8.44 arena B/B), encode 591 MB/s (PRD target > 1 GB/s NOT met, recorded,
+  tuning is a later plan); cbor decode 144 MB/s (8.53), encode 537 MB/s.
+- Next: merge PR #94 first (ubuntu green, macos was queued at the deadline; inbox step 8 merges it: label
+  auto-merged, tick item 10 in #84), then item 11 release v0.6.0 (tick 4A/4B in 000-inherited.md, CHANGELOG
+  [0.6.0], build.zig.zon + sigil.version 0.5.0 -> 0.6.0, tag, gh release create). Blockers: none.
+- Learned: tests in an imported bench file only run via `test { _ = binary; }`; `core.value.eql` returns an
+  error union (`try`); `codec: type` params need `.ParseOptions` options built per codec; CI checks listed for
+  the PR were only 2 (ubuntu, macos) with macos slow to start.
 
 ## Cycle 87 — 2026-11-04 — FEATURE
 
@@ -182,7 +196,7 @@ share precedence; arena-backed FailingAllocator sweeps hit ~2 failure points, as
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
 Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 closed). Plan 007
-(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-9 done (9/11).
+(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-10 done (10/11, item 10 in PR #94).
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable.
 - Carried stabilization finding (not fixed, sized for a full stabilize cycle or its own plan
