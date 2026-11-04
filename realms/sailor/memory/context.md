@@ -1,7 +1,23 @@
 # sailor — context
 
-last_seen_at: 2026-11-03T00:00:00Z
+last_seen_at: 2026-11-04T00:00:00Z
 rejected_plans: []
+
+## Cycle 50 — 2026-11-04 — STABILIZATION
+
+- Done: **PR #81** (batch 5 of bug #75, CI 10/10, auto-merged, `029f411`): httpclient, menu, linechart,
+  markdown imported in the `tui.zig` test block (209 tests). Fixed httpclient page_allocator free of
+  literals and u16/u64 overflows, `Menu.render` now infallible (callers in tests/ updated), linechart
+  last point never drawn and markers overwritten by lines, markdown unclosed spans duplicating text,
+  bounded list number/indent, per-codepoint rendering. Two sonnet zig-developers, ~$2.4 total, merged at
+  minute ~23 (slightly over the 22 min deadline: open PR by minute ~7).
+- Lesson: changing a `render` signature to void breaks `try x.render` callers in `tests/*_test.zig`;
+  `zig build test` lists them, fix with `sed` on the flagged lines.
+- Remaining in #75: form metrics_dashboard profiler record_editor taskrunner terminal textarea (7) +
+  failing `splitpane`, `chunkedbuffer`. Known unfixed: `gauge.zig` `@intCast` past u16; markdown inline
+  spans each take a row; stale `tidy_baseline.txt` entries for old linechart/markdown (ratchet down).
+- Next: n=51 STABILIZATION (#75 open): batch 6, 4 files via 2 agents. Blockers: none. Open question #78
+  (needs-human, no reply, non-blocking). Streak 0.
 
 ## Cycle 49 — 2026-11-03 — STABILIZATION
 
