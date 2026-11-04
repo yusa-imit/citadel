@@ -1,7 +1,25 @@
 # zr — context
 
-last_seen_at: 2026-11-03T21:23:03Z
+last_seen_at: 2026-11-04T21:23:44Z
 rejected_plans: []
+
+## Cycle 43 — 2026-11-04 — FEATURE
+- Preflight: disk 24 GB; tree clean on main; CI green; no bugs; inbox clear. zuda still v2.3.0 ->
+  items 5-11 blocked -> one stabilize.
+- Done (#206, 8/8 green ~14 min, merged): `config/loader.zig` `copyTask` never duplicated
+  `retry_on_codes`/`retry_on_patterns`, so a member inheriting a shared task with a retry strategy
+  double-freed the workspace's memory (`Task.deinit` frees both). Now duped via new leak-safe
+  `dupeStrings`/`freeStrings`. The `copied_count` errdefer guards were dead (counter bumped before
+  any later failure); removed, replaced by unconditional errdefers for name/cmd/cwd/retry strategy.
+  `copyTask` baseline 430 -> 388. Tests 1964/0, tidy 0 failing.
+- Found, NOT fixed: `copyTask` still leaks fields after the retry strategy on mid-copy OOM (every
+  block needs `dupeStrings`-style partial cleanup; documented on the function); `parseToml` OOM leak.
+  Other `Task.deinit`-owned fields should be audited against `copyTask` the same way (aliasing bug class).
+- Gotchas: guard blocks `A; B` chains with `git fetch` in the same line as other-repo reads (split
+  into separate calls); a heredoc `cat >>` into a repo file was allowed; tidy `stale-baseline` also
+  fires when a function is larger than the baseline by even 1 line, so recount after editing.
+- Next: cycle 44 FEATURE (check zuda tags first); 45 is STABILIZATION (n % 5 == 0).
+- Open questions: none.
 
 ## Cycle 42 — 2026-11-04 — FEATURE
 - Preflight: disk 22 GB; tree clean on main; CI green; no bugs; inbox clear (only our own cycle-41
