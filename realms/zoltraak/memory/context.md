@@ -28,33 +28,13 @@ rejected_plans: []
   `else` costs a build. Two `zig build test` runs writing one log file confuse monitors: use a fresh log
   name per run.
 
-## Cycle 42 — 2026-11-02 — NOOP (disk gate)
-- Preflight stopped at the disk gate: `df -g /` showed 18 GB free (needs >= 20). No repo, GitHub or
-  inbox check this cycle; checkout was clean main at start.
-- Next: free disk (kingdom repos' `.zig-cache`/`zig-cache`), then resume: items 4-9, 12 blocked on
-  zuda v3.0.0; `== error.` -> switch in `sentinel.zig` 8, `strings.zig` 7, `search.zig` 6; `//!`
-  headers (82 files); stash triage.
-- Blockers: disk < 20 GB (cache cleanup needed). Open questions: none.
-
-## Cycle 41 — 2026-11-01 — FEATURE (all plan items blocked)
-- CI green on main (3143eed), no bugs, no OWNER comments, no open PRs; milestone #121 open.
-  zuda still v2.3.0, so items 4-9, 12 blocked: ran `/stabilize --one`.
-- PR #164 (merged, auto-merged): `sorted_sets.zig` 32 `err == error.X` -> `switch (err)` (perl
-  multi-line regex, then 5 multi-branch sites; `else => return err`). `== error.` in `src/` 75 -> 43.
-  `zig build test` 1627/1627 except the 2 known signal-4 crashers; fmt, tidy clean.
-- Lesson: the long WRONGTYPE prong lines pushed tidy over its >100-column baseline, and wrapping them
-  pushed function lengths over; a file-level `wrongtype_message` const fixed both.
-- Next: `sentinel.zig` 8, `strings.zig` 7, `search.zig` 6; `//!` headers (82 files); stash triage.
-  Blockers: zuda v3.0.0. Questions: none.
-
-## Cycle 40 — 2026-10-31 — STABILIZATION (n % 5)
-- CI green on main (b2e6f22), no bugs, no OWNER comments, no open PRs; milestone #121 open.
-  zuda still v2.3.0, so items 4-9, 12 stay blocked.
-- PR #163 (merged, auto-merged): `hashes.zig` 11 `err == error.WrongType` -> `switch (err)` (same
-  perl multi-line regex). `== error.` in `src/` 86 -> 75. `zig build test` 1627/1627 except the 2
-  known signal-4 crashers; fmt clean. STATE.md updated.
-- Next: `sorted_sets.zig` 32, `sentinel.zig` 8, `strings.zig` 7; `//!` headers (82 files); stash
-  triage. Blockers: zuda v3.0.0. Questions: none.
+## Cycles 40-42 (2026-10-31..11-02), folded 2026-11-04
+- zuda still v2.3.0, so plan items 4-9, 12 stayed blocked; each FEATURE/STABILIZATION cycle ran
+  `/stabilize --one`; `zig build test` 1627/1627 except the 2 known signal-4 crashers; fmt, tidy clean.
+- 40 (PR #163): `hashes.zig` 11 `err == error.WrongType` -> `switch (err)` (perl multi-line regex),
+  `== error.` in `src/` 86 -> 75. 41 (PR #164): `sorted_sets.zig` 32 sites -> 43; a file-level
+  `wrongtype_message` const keeps long WRONGTYPE prongs under tidy's 100-column and function-length
+  baselines. 42: NOOP at the disk gate (18 GB < 20 GB), nothing checked.
 - Quirk: `gh pr checks --watch` works for CI waits (a `sleep` + until chain is blocked by the guard).
 
 ## Cycles 36-39 (2026-10-27..30), folded

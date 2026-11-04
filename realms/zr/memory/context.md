@@ -21,44 +21,20 @@ rejected_plans: []
   `upgrade/installer`.
 - Open questions: none.
 
-## Cycle 41 — 2026-11-03 — FEATURE
-- Preflight: disk 21 GB (just over the gate); tree clean on main; CI green; no bugs; inbox clear (no
-  comments since watermark). zuda still v2.3.0 (sailor v3.1.0) -> items 5-11 blocked -> one stabilize.
-- Done (#204, 8/8 green ~13 min, merged): `plugin/builtin.zig` `onInit` env branch did
-  `loadDotEnv(...) catch {}`; new `loadEnvFileOrWarn(gpa, path, overwrite, *std.Io.Writer) bool`
-  writes one stderr warning line (FileTooLarge gets a specific text), missing file stays silent.
-  2 tests, tests 1961/0, tidy ok.
-- Gotcha: the fmt-on-Edit hook reformatted untouched `NotifyPlugin` code in builtin.zig (HEAD already
-  fails `zig fmt --check` there); reverted via `git diff -U0` + `git apply -R --unidiff-zero` on the
-  unwanted hunks, else tidy line-length baseline (17) breaks. Guard blocks `gh pr merge ...; ...`
-  chains; run `gh pr merge N --squash --delete-branch --repo yusa-imit/zr` alone.
-- Next: cycle 42 FEATURE; check zuda tags first; candidates: headers (ci/templates/github_actions,
-  cli/codeowners, codeowners/generator), conformance parser mistyped fields, `upgrade/installer`,
-  `Cache plugin clearAll catch {}`. Cycle 45 is STABILIZATION (n % 5 == 0); 40 was skipped.
-- Open questions: none.
-
-## Cycle 40 — 2026-11-02 — STABILIZATION (no-op)
-- Stopped at the disk gate: 18 GB free < 20 GB. Tree clean on main; no GitHub or repo work done.
-- Next: cycle 41 (FEATURE, but STABILIZATION still owed: n=40 skipped). Re-check disk first, then
-  zuda tags; candidates unchanged from cycle 39 (the `loadDotEnv(...) catch {}` in
-  `plugin/builtin.zig:180`, headers, conformance parser mistyped fields, `upgrade/installer`).
-- Blockers: disk (zr `.zig-cache` / `zig-pkg` may be reclaimable). Open questions: none.
-
-## Cycle 39 — 2026-10-31 — FEATURE
-- Preflight: disk 26 GB; tree clean on main; CI green; no bugs; inbox clear (only comment since
-  watermark was our own cycle-38 report on #155). zuda still v2.3.0 -> items 5-11 blocked -> one
-  stabilize.
-- Done (#203, 8/8 green ~13 min, merged): `plugin/builtin_env.zig` `readDotEnv`/`loadDotEnv` read
-  into a 64 KiB buffer and ignored a full read, silently dropping later variables. Now a
-  `file_bytes_max + 1` buffer and `readBounded`; over the cap -> `error.FileTooLarge`. 2 tests
-  (exact cap read in full, cap+1 errors in both fns), `//!` header, `posixSetenv` line wrapped,
-  both baseline entries removed. Tests 1959/0, tidy 0 failing.
-- Known, not fixed: the only caller, `plugin/builtin.zig:180`, does `loadDotEnv(...) catch {}`, so
-  a too-large `.env` is still silent at the CLI level (needs a warning path).
-- Next: cycle 40 is STABILIZATION (n % 5 == 0). Check zuda tags first. Candidates: the `catch {}`
-  above, headers (ci/templates/github_actions, cli/codeowners, codeowners/generator),
-  conformance parser mistyped fields, `upgrade/installer`.
-- Open questions: none.
+## Cycles 39-41 (2026-10-31..11-03), folded 2026-11-04
+- zuda still v2.3.0 (sailor v3.1.0), so items 5-11 stayed blocked; one `stabilize --one` each.
+- 39 (#203, 8/8 green ~13 min): `plugin/builtin_env.zig` `readDotEnv`/`loadDotEnv` ignored a full read of
+  a 64 KiB buffer and silently dropped later variables; now `file_bytes_max + 1` buffer and
+  `readBounded`, over the cap -> `error.FileTooLarge`. 40: no-op at the disk gate (18 GB < 20 GB).
+  41 (#204): `plugin/builtin.zig` `onInit` did `loadDotEnv(...) catch {}`; new
+  `loadEnvFileOrWarn(gpa, path, overwrite, *std.Io.Writer) bool` writes one stderr warning
+  (FileTooLarge gets specific text), missing file stays silent. Tests 1961/0.
+- Gotchas: the fmt-on-Edit hook reformatted untouched `NotifyPlugin` code in builtin.zig (HEAD already
+  fails `zig fmt --check` there); revert unwanted hunks via `git diff -U0` + `git apply -R
+  --unidiff-zero`, else the tidy line-length baseline (17) breaks. Guard blocks `gh pr merge ...; ...`
+  chains: run `gh pr merge N --squash --delete-branch --repo yusa-imit/zr` alone.
+- Candidates still open: headers (ci/templates/github_actions, cli/codeowners, codeowners/generator),
+  conformance parser mistyped fields, `upgrade/installer`, `Cache plugin clearAll catch {}`.
 
 ## Cycles 37-38 (2026-10-30..31), folded
 - 37 (#201): `context/json.zig` `escapeJson` was a no-op; all strings now go through `std.json.fmt`
