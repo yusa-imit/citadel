@@ -1,7 +1,19 @@
 # strata — context
 
-last_seen_at: 2026-11-03T12:00:00Z
+last_seen_at: 2026-11-04T00:10:00Z
 rejected_plans: []
+
+## Cycle 81 — 2026-11-04 — FEATURE
+- Done: plan 006 item 2 merged as #81 (CI 7/7, auto-merged): crafted-page `Corrupted` tests
+  (`btree/cursor_corrupt_test.zig` 364 lines, `delete_corrupt_test.zig` 318), cursor scans assert height 3
+  at 512 B. Issue #79 item 2 ticked. Inbox clean (no OWNER comments).
+- Preflight found the item uncommitted on `test/btree-corrupt-branches`: preserved as
+  `wip/test-btree-corrupt-branches-20261104` (pushed, keep). It had one compile error (junk
+  `assert(slot <= path.len * 1000)`, u8 overflow), fixed to `assert(path.len > 0)`; rest passed first run.
+  No reviewer or mutant run (test-only diff): a mutant check on the new tests is still open.
+- PRs: none open. ~$0.45 of $4, ~6 min.
+- Next: item 3 ADR-0005 kv layout v1 (architect, opus, ~$1.6-2.3), brief with plan 006 item 3 text.
+- Blockers: none. Open questions: none.
 
 ## Cycle 80 — 2026-11-03 — FEATURE
 - Done: plan 006 approved (PR #78 merged); opened milestone issue #79 (12 items). Item 1 (B+Tree
