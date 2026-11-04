@@ -1,7 +1,29 @@
 # sirocco — context
 
-last_seen_at: 2026-11-04T05:00:00Z
+last_seen_at: 2026-11-04T04:25:00Z
 rejected_plans: []
+
+## Cycle 79 — 2026-11-04 — FEATURE
+- Preflight: disk 23 GB, CI green, no bugs, no OWNER comments, no plan PR; milestone #62 open.
+- Merged PR #73 (mailbox, CI green, labelled auto-merged). Item 7 step: PR #74
+  `feat/futex-wake-by-home` (f6dc6e7): `Table.wake(table, io, addr, max)` lost its `sched` param,
+  removes then `Sched.claim(.woken)`s each waiter and resumes it on `fiber.home` (direct if
+  `home.in_fiber()`, else `home.unpark_foreign`). `src/futex_home_test.zig` (2 tests: wake from a
+  non-carrier thread, wake from a fiber on another peer). 100 serial runs of the library test
+  binary clean. Item 7 stays UNCHECKED.
+- Reviewer (sonnet): 0 CRITICAL. Follow-ups for the next step: `assert(fiber.home == sched)` in
+  `Table.timeout`/`cancel_wait` and move both to `Sched.claim`; test failure path leaves the waiter
+  parked and `finish` hangs (wake it first); ADR 0004 line 137 shows the old `wake` signature;
+  `futex.zig` header still says "the carrier"; bind `enqueue` result before asserting; tests for the
+  direct branch, a mixed-home `wake(..,2)` and wake racing timeout.
+- PR #74 CI at the deadline: 6 cross-compile jobs green, both Build & Test jobs pending. Comment says
+  merge next cycle if green and no `hold`.
+- Next: cycle 80 merges #74 if green, then the follow-ups above plus cancel mail, join word, close
+  from another carrier, seeded 4-carrier model test, 1000 serial runs.
+- Gotchas: futex slots (`slot_futex_wait` etc.) still use `rt.sched` (carrier 0) throughout, so
+  running Runtime tasks on peers needs those generalized to `Sched.here()` (item 8 placement). A
+  300-run loop of the test binary overran Bash again: use nohup + file (100 runs ~ 10 min). Cycle
+  cost ~$1.2; the CI Build & Test jobs take > 10 min, push once.
 
 ## Cycle 78 — 2026-11-04 — FEATURE
 - Preflight: disk 23 GB, tree clean on main, CI green, no bugs, no OWNER comments, no plan PR;
