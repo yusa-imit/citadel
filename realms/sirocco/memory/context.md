@@ -24,42 +24,17 @@ rejected_plans: []
   running it, not by `strings`. A 300-run loop of it overran the 500 s Bash timeout: background
   it. Cycle spent ~$1.3 and hit the 22 min deadline before CI finished.
 
-## Cycle 77 — 2026-11-03 — FEATURE
-- Preflight: disk 24 GB, tree clean on main, CI green, no bugs, no OWNER comments, no plan PR;
-  milestone #62 open. Periodic stabilization off, so FEATURE.
-- PR #71 (auto-merged): `bench/timer.zig` now also runs a 2-carrier runtime and gates on it. Gate 7
-  at 2 carriers: p99 316792 ns (1 carrier 317167 ns, Io.Threaded 8.01 ms). Item 6 ticked in the
-  plan and on #62 (items 5 and 6 now `[x]`).
-- PR #72 (auto-merged, 854/941 tests): item 7 first steps, item stays UNCHECKED. `Sched.index`
-  (peers get `i+1` in `carriers.start`), `Fiber.home`, threadlocal `Sched.here()` replacing
-  `carrier_active`, futex expiry and poller `events` installed on peer scheds.
-- Remaining for item 7: `Sched.post`/mailbox + birth mail, `serve` running a fiber loop (atomic
-  `run_until` stop), claim CAS on `wait.outcome`, join word, cancel mail, `Table.wake` routing by
-  home, close from another carrier, seeded 4-carrier model test, 1000 serial runs. No way to put
-  a fiber on a peer yet, so cross-carrier tests need `post` first.
-- Next: cycle 78 builds `post`/mailbox and a serving peer loop (brief zig-developer narrowly, it
-  is a big step; ~$0.9 spent this cycle by hand).
-- Gotchas: after squash-merging a PR, cherry-pick follow-up commits onto a fresh branch from
-  origin/main. A `Fiber` literal in tests needs `.home`. `/tmp/sirocco_start` clock read 1 min; the
-  budget, not wall time, was the real limit.
+## History (cycles 76-77, folded 2026-11-04)
 
-## Cycle 76 — 2026-11-03 — FEATURE
-- Preflight: disk 24 GB (gate OK), tree clean on `feat/batch-waiter-park`; CI green on main, no
-  bugs, no OWNER comments, no plan PR; milestone #62 open.
-- Done: merged PR #69 (item 5, CI green, `auto-merged`). Item 6 as PR #70 (1707113, CI green,
-  auto-merged): `Options.carriers` required (`carriers_max` 64), `src/carriers.zig` builds
-  carriers-1 peer `Sched`s (own poller/wheel/thread, `Sched.serve` idles until `rt.stop`),
-  `Sched.notify` lifted from `unpark_foreign`; `rt.sched` stays carrier 0; placement unchanged so
-  peers idle. Parity suite runs at 1 and 2 carriers (`parity_config.carriers`); allocation-index
-  tests use `init_allocs`/`peers_allocs` in `fixtures.zig`.
-- Item 6 left UNCHECKED: gate 5 and gate 7 at 2 carriers not measured. Tick it in the next PR.
-- Reviewer (sonnet): 0 CRITICAL. WARNINGs: `.auto` not swept under a failing allocator; spawn
-  failure unwind has no test seam; `tests/parity/concurrency.zig` ~493/513 land on init allocs on
-  evented. Peers have no `events`/`expiry` handlers (item 7/8 must wire them before placement).
-- Next: cycle 77 re-run gates 5/7 at 2 carriers, tick item 6, then item 7 (cross-carrier futex
-  wake, await, cancel, close; seeded model test at 4 carriers). Make `run_until`'s stop atomic.
-- Gotchas: one flaky ABRT seen once in `batch` "64 idle sockets" at carriers=2 (known ~1/40 flake).
-  `gh pr create` can hit a transient GraphQL 500: check `gh pr list --head`, retry. Cycle ~$1.5.
+- 77 (11-03): `bench/timer.zig` gates on a 2-carrier runtime (gate 7 p99 316792 ns vs Io.Threaded
+  8.01 ms), item 6 ticked (PR #71). Item 7 first steps (PR #72): `Sched.index`, `Fiber.home`,
+  threadlocal `Sched.here()`, futex expiry and poller `events` on peer scheds. After a squash-merge,
+  cherry-pick follow-up commits onto a fresh branch from origin/main. A `Fiber` literal in tests
+  needs `.home`.
+- 76 (11-03): item 5 PR #69 merged; item 6 PR #70: `Options.carriers` required (`carriers_max` 64),
+  `src/carriers.zig` builds carriers-1 peer `Sched`s, `Sched.notify`, parity suite at 1 and 2
+  carriers. Reviewer WARNINGs: `.auto` not swept under a failing allocator; spawn-failure unwind has
+  no test seam. `gh pr create` can hit a transient GraphQL 500: check `gh pr list --head`, retry.
 
 ## History (cycles 69-75, folded 2026-11-03)
 
@@ -176,42 +151,26 @@ a >100-col line); `gh pr checks` right after a push shows the previous run or "n
 implementation PR; an unset `$Z` in compound Bash hung 120 s; cycle 38 split nine disjunctive
 implication asserts (`tools/tidy.zig` has no compound-assert check).
 
-## History (cycles 0-36, condensed 2026-10-10)
+## History (cycles 0-36, condensed 2026-10-10, folded 2026-11-04)
 
-- **Cycles 0-9 (09-05 to 09-11, plan 001)**: realm created; milestone #3; `zig build tidy`
-  (PR #5); 0.16 migration bundled into PR #6 because `zig build test` compiles every entry point
-  in one graph; PRD rewritten against `std.Io.VTable` (ADR 0001, PR #7: std's evented `Io` impls
-  do not compile on 0.16.0, so sirocco declares a 40-slot hybrid forwarding to `Io.Threaded`);
-  assertion baseline with shared `assert`/`maybe` in `src/stdx.zig` (PR #9; reviewer caught
-  compound implication asserts that restate a branch); ADR-002 (no `wip/*` branch); CHANGELOG
-  (PR #11); v0.2.0 released (PR #12). A disk-blocked no-op (`df -g /` below the 20 GB gate) did
-  not advance the counter. Plan 002 drafted (PR #13).
-- **Cycles 10-25 (09-11 to 09-29)**: plan PR #13 open, no OWNER activity; bounded stabilization
-  fixed only docs drift (PRs #8, #14, #15, #16). Stale `.zig-cache` and a missing pinned
-  toolchain are dev-box gaps, not regressions. Cycle 22 swept up uncommitted cycles 19-21 memory
-  (citadel commit lock contention, sirocco#17).
-- **Cycles 26-29 (10-01)**: macOS CI runner (#19); `src/runtime.zig` `Runtime` forwarding all 109
-  slots (#20); `tests/parity/` harness (#21); `src/sched.zig` fiber substrate (#22). Reviewer
-  CRITICAL: optimized aarch64 builds crashed (inlined `Io.fiber.contextSwitch` clobbers x29/x30);
-  fix is `noinline switch_context`, `omit_frame_pointer = false`, CI on ReleaseSafe/Fast.
-- **Cycles 30-31 (10-02/03)**: x86_64 ReleaseSmall SEGV (bug #23) fixed by PR #24: own naked
-  `switch_context_asm`, `callconv(.c)` pointer, `@call(.never_inline)`. No Rosetta/qemu, so
-  x86_64 is verified by asm inspection + CI. Interrupted item-5 tree kept as
-  `wip/async-await-slots-20261003` (do not delete).
-- **Cycles 32-36 (10-03 to 10-06)**: native async/await/cancel slots (PR #25; hang root cause
-  was std's unwinder walking off the fiber base, fixed by a zero return-address sentinel);
-  `bench/spawn.zig` gate 6 (PR #26); cancel trio (PR #27, `in_fiber` must check threadlocal
-  `carrier_active`); group slots + `crashHandler` (PR #28, must set `.acknowledged`);
-  `src/futex.zig` FIFO wait table (PR #29; `futexWake` from a non-carrier thread needs a
-  spinlock + `unpark_foreign`); `wip/feat-futex-wait-table-20261006` kept (do not delete).
-- **Gotchas from these cycles**: `@fence` is gone in 0.16 (use seq_cst `@atomicRmw(.Add, 0)`);
-  naked fn params break the self-hosted x86_64 backend (only CI catches it); `--test-filter` is
-  compile-time only, read the last `N/M name...` line to tell a crash from a hang; the parity
-  binary builds alone with `zig test --dep sirocco -Mroot=tests/parity/root.zig
-  -Msirocco=src/root.zig -fno-omit-frame-pointer --test-no-exec`; slot-table negative tests in
-  `slots.zig` hardcode a delegated sample slot, pick the first still-delegated one;
-  `expectEqualDeep` on a deliberate mismatch prints noise; no `timeout` or `sleep` in Bash
-  (python subprocess timeout, `until` loops); zsh expands `echo "== x"` as `=cmd`.
+- **Cycles 0-25 (09-05 to 09-29, plan 001)**: realm created, `zig build tidy` (PR #5), 0.16 migration
+  bundled into PR #6 (`zig build test` compiles every entry point in one graph), PRD against
+  `std.Io.VTable` (ADR 0001: std's evented `Io` impls do not compile on 0.16.0, so sirocco forwards
+  to `Io.Threaded`), shared `assert`/`maybe` in `src/stdx.zig`, v0.2.0 (PR #12). Plan PR #13 sat
+  open without OWNER activity; stabilization fixed docs drift only. A disk-blocked no-op (`df -g /`
+  below the 20 GB gate) does not advance the counter.
+- **Cycles 26-36 (10-01 to 10-06)**: macOS CI (#19), `Runtime` forwarding 109 slots (#20), parity
+  harness (#21), fiber substrate (#22). CRITICAL: optimized aarch64 crashed (inlined context switch
+  clobbers x29/x30): `noinline switch_context`, frame pointers kept. x86_64 ReleaseSmall SEGV (bug
+  #23, PR #24): own naked `switch_context_asm`; no Rosetta/qemu, verify by asm inspection + CI.
+  Native async/await/cancel (PR #25; the unwinder walked off the fiber base: zero return-address
+  sentinel), `bench/spawn.zig` (#26), cancel trio (#27), group slots (#28), `src/futex.zig` (#29;
+  non-carrier `futexWake` needs a spinlock + `unpark_foreign`). `wip/async-await-slots-20261003` and
+  `wip/feat-futex-wait-table-20261006` kept (never delete).
+- **Gotchas**: `@fence` is gone in 0.16 (seq_cst `@atomicRmw(.Add, 0)`); naked fn params break the
+  self-hosted x86_64 backend (only CI catches it); `--test-filter` is compile-time only, read the
+  last `N/M name...` line to tell a crash from a hang; no `timeout` or `sleep` in Bash (python
+  subprocess timeout, `until` loops); zsh expands `echo "== x"` as `=cmd`.
 
 ## Recurring gotchas
 - Bash guard hook text-matches commands, not paths: a commit/PR/issue body that spells out a

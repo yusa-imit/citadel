@@ -62,71 +62,38 @@ rejected_plans: []
 - Tool notes: split the test-writer brief per file group (it took 19 min for 5 files); a message to a
   running agent lands only at its next tool round.
 
-## Cycle 79 — 2026-11-02 — PREFLIGHT ABORT (disk)
-- Disk gate: 19 GB free (< 20 GB), same as cycle 78; stopped before inbox. Tree clean on
-  `feat/install-snapshot-2` (51738ea, pushed); nothing to preserve, nothing changed in the repo.
-- Next (unchanged): confirm CI on PR #84, merge it (`auto-merged`), tick #74 item 5; then Driver.init
-  restore-order WARNING, then item 6 sim snapshots. Needs >= 20 GB free to run.
-- Blockers: disk below gate (second abort in a row; box loses ~1 GB/day). Open questions: none.
-  Human may need to free space on the box; no GitHub issue opened (quiet repeat).
+## Cycles 76-79 (2026-11-01..02), folded 2026-11-04
+- 76: PR #84 (item 5 InstallSnapshot) CI green, reviewer found 2 CRITICAL; dirty tree of a killed
+  session kept as `wip/feat-install-snapshot-20261101`. 77: fixed both test-first: `step_install` emits
+  `save_hard_state` (new term, vote, OLD commit) before `save_snapshot`, then the new-commit one
+  (ADR-009 + CHANGELOG amended); test-writer wrote `src/driver_install_test.zig` (19 tests,
+  mutation-checked, ~$0.9 / 14 min). 78-79: PREFLIGHT ABORT (disk 18-19 GB < 20 GB gate), repo
+  untouched, quiet repeat (no GitHub issue).
+- Open: follower rejection paths and `send_slot` replicate branch untested;
+  `progress.check_invariants` snapshot => inflight 1; install replaces configuration (latent until
+  item 7); a restore failing after the reply was sent fail-stops, restart recovers from the saved
+  snapshot (ADR order reply -> restore).
+- Tool notes: CI Build & Test is ~6.5-7.5 min, open the PR and start the reviewer before minute 8 and
+  push the last commit by minute 12; guard blocks `cd <path>;` even inside the repo.
 
-## Cycle 78 — 2026-11-02 — PREFLIGHT ABORT (disk)
-- Disk gate: 18 GB free (< 20 GB); stopped before inbox. No repo changes: tree clean on
-  `feat/install-snapshot-2` (51738ea, pushed), nothing to preserve. GitHub state not re-checked.
-- Next (unchanged from cycle 77): confirm CI on PR #84 (51738ea), merge it (`auto-merged`), tick #74
-  item 5; then Driver.init restore-order WARNING, then item 6 sim snapshots.
-- Blockers: disk below gate (box loses ~1 GB/day; same cause as cycles 62-64). Open questions: none.
-
-## Cycle 77 — 2026-11-01 — FEATURE
-- Preflight: disk ok, CI green on main, no bugs, milestone #74 open; PR #84 open (item 5, 2 CRITICAL).
-- Done on `feat/install-snapshot-2`: CRITICAL 1 fixed test-first: `step_install` emits `save_hard_state`
-  (new term, vote, OLD commit) before `save_snapshot`, then the new-commit one (snapshot.zig; ADR-009 +
-  CHANGELOG amended). CRITICAL 2: test-writer (~$0.9, 14 min) wrote `src/driver_install_test.zig`
-  (19 tests, mutation-checked). Added same-term second-leader test; plan item 5 ticked; stale CHANGELOG
-  clause removed; driver `//!` header updated. 1010 tests, fmt green locally.
-- PR #84: CI 7/7 green on 4658e52 (persist fix); commit 51738ea (driver tests) pushed at minute 20,
-  CI pending at the deadline, NOT merged. Review comment posted.
-- Next: merge #84 when CI is green (`auto-merged`), tick #74 item 5; then Driver.init restore-order
-  WARNING (cycle 75), then item 6 sim snapshots (remove the min == 0 sentinel in sim).
-- Open design note: restore failing after the reply was sent fail-stops; restart recovers from the
-  saved snapshot (ADR order reply -> restore); revisit only if the ADR changes.
-- Blockers: none. Open questions: none. Budget: ~$1.4 of $4.
-- Tool notes: guard blocks `cd <path>;` even inside the repo (cwd is already the repo). Agent clock
-  `date` deltas looked short; CI Build & Test is ~7.5 min, so push the last commit by minute 12.
-
-## Cycle 76 (2026-11-01), folded
-- PR #84 (item 5 InstallSnapshot) CI green but code-reviewer found 2 CRITICAL (fixed in cycle 77): persist
-  order on a term bump in `step_install` and untested driver snapshot paths. Dirty tree from a killed
-  session preserved as `wip/feat-install-snapshot-20261101`. Open WARNINGs: follower rejection paths
-  untested, `send_slot` replicate branch untested; suggestions: `progress.check_invariants` snapshot =>
-  inflight 1, install replaces configuration (latent until item 7), item 6 removes the sim network assert.
-- Tool notes: CI Build & Test ~6.5 min; open the PR and start the reviewer before minute 8.
-
-## Cycles 73-75 (2026-10-30), folded
-- 73-74: item 4 driver snapshot path (PR #82 opened). 75: #82 merged after merging main into the branch (a
-  test file on main broke the branch's config assumption: `snapshot_entries_min == 0` = compaction off in
-  fixtures); plan 005 item 4 ticked (#83). Reviewer suggestions still open: assert `snapshot_due` is the
-  last effect before `snapshot_save`; `catch unreachable` proof at driver ~246; `@intFromEnum(base.index)+1`
-  overflow on 32-bit; `assert_config` should require `snapshot_bytes_max > 0` when min > 0; WARNING:
-  `Driver.init` restores the state machine before store/node validation (dirty on failed init).
-- Tool notes: merge origin/main into long-lived branches and re-run tests before merging; chained Bash
-  mixing `$(date)` with repo writes is blocked.
-
-## Cycles 67-72 (2026-10-27..29), folded
-- 67: item 12 release v0.5.0 (PR #71, tag + GitHub release, milestone #57 closed 12/12); no kingdom repo
-  pins synod. 68: `/plan` -> plan 005 (Phase 4) PR #73. 69: milestone #74 opened, item 1 ADR-009 PR #75
-  (architect opus cost ~$3: brief narrower or write ADR sections in the main session). 71: item 3 node
-  compaction killed at deadline, kept as `wip/feat-node-compaction-20261029`. 72: item 3 merged (PR #78);
-  reviewer found nonzero-base follower/leader paths untested; PRs #79 (tick) and #80 (review fixes).
-- Review notes still live: a peer with `first < base` gets no heartbeat in `send_slot` until
-  InstallSnapshot (item 5); `SnapshotDue.configuration` must be as-of-index once item 8 lands; ADR-009
-  flags `trailing` is `snapshot_trailing`, effect slots `peers_max + 9`.
-- Open suggestions: `Workload.check_invariants` only in `check(.linearizability)`; `op_id_next` bounded
-  by width; sim-nightly first scheduled run unobserved (120 min cap).
-- Tool notes: guard blocks `cd <repo>;` and `grep` over sibling repos even read-only: use `gh api
-  repos/yusa-imit/<r>/contents/build.zig.zon`; background `zig build test` ~105 s; use a /tmp worktree
-  for docs ticks while a developer owns the tree; cut CHANGELOG lines at 100 columns; CI Build & Test
-  ~7 min, plan the release PR first thing.
+## Cycles 67-75 (2026-10-27..30), folded
+- 67: item 12 release v0.5.0 (PR #71, milestone #57 closed 12/12); no kingdom repo pins synod. 68: plan
+  005 (Phase 4) PR #73. 69: milestone #74, item 1 ADR-009 PR #75 (architect opus ~$3: brief narrower or
+  write ADR sections in the main session). 71-72: item 3 node compaction (PR #78; killed run kept as
+  `wip/feat-node-compaction-20261029`), review fixes PRs #79-#80. 73-75: item 4 driver snapshot path
+  PR #82, merged after merging main into the branch (`snapshot_entries_min == 0` = compaction off in
+  fixtures); item 4 ticked (#83).
+- Open suggestions: assert `snapshot_due` is the last effect before `snapshot_save`; `catch
+  unreachable` proof at driver ~246; `@intFromEnum(base.index)+1` overflow on 32-bit; `assert_config`
+  should require `snapshot_bytes_max > 0` when min > 0; `Driver.init` restores the state machine
+  before store/node validation (dirty on failed init); a peer with `first < base` gets no heartbeat in
+  `send_slot` until InstallSnapshot; `SnapshotDue.configuration` must be as-of-index once item 8
+  lands; `Workload.check_invariants` only in `check(.linearizability)`; sim-nightly first run
+  unobserved (120 min cap).
+- Tool notes: merge origin/main into long-lived branches and re-run tests before merging; the guard
+  blocks `grep` over sibling repos even read-only (use `gh api repos/yusa-imit/<r>/contents/...`) and
+  chained Bash mixing `$(date)` with repo writes; background `zig build test` ~105 s; use a /tmp
+  worktree for docs ticks while a developer owns the tree; cut CHANGELOG lines at 100 columns.
 
 ## Cycles 61-66 (2026-10-20..26), folded
 - 61: item 9 PR #67 `sim/linearizability.zig` `HistoryChecker` (Wing-Gong, explicit stack). 62-64: PREFLIGHT
