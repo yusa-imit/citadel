@@ -1,7 +1,25 @@
 # sigil — context
 
-last_seen_at: 2026-11-03T03:30:00Z
+last_seen_at: 2026-11-04T03:17:00Z
 rejected_plans: []
+
+## Cycle 87 — 2026-11-04 — FEATURE
+
+- Done: milestone #84 items 8 and 9 (9/11). Found PR #92 (item 8 vectors, CI 8/8, left open by an
+  interrupted session; repo was on its branch, clean): labelled auto-merged and merged. Then item 9,
+  PR #93 (CI 8/8, merged), written directly, no subagents. Cost ~$1.4, ~12 min.
+- Shape: `core/binary_property.zig` test-only harness, free fns with `comptime codec: type` (a generic
+  `PropertyType` wrapper broke the 70-line tidy cap): `random_root`, `check_tree` (explicit stack),
+  `round_trip(mode generated|decoded)`, `check_input` oracle, `mutate`, `run_seeds`, `run_mutations`,
+  `fuzz_input`. `msgpack/roundtrip_test.zig` and `cbor/roundtrip_test.zig` supply the codec (CBOR also
+  `Deterministic`: byte-stable, no `eql`) + vector bases. 1,000 seeds, 3,464 / 2,256 mutations, arena
+  bound 96 B/input byte + 16 KiB passed. No decoder/encoder bug found.
+- Next: item 10 benchmarks (`zig build bench`, ~1 MB seeded record tree, record in 000-inherited.md,
+  PRD msgpack encode > 1 GB/s), then item 11 release v0.6.0. Blockers: none.
+- Learned: `zig test src/root.zig --test-filter <name>` shows the real `expect` line when `zig build
+  test` buries it under a leaked json error trace; `zig fmt` does not wrap, tidy fails >100 cols;
+  tidy assertion baseline warns on new pub fns with <2 asserts; coverage thresholds must be calibrated
+  (generated trees are small, ~4 nodes/seed).
 
 ## Cycle 86 — 2026-11-03 — FEATURE
 
@@ -23,7 +41,7 @@ rejected_plans: []
 
 ## History (cycles 84-85, 2026-11-02)
 
-Disk gate no-ops (19 GB free, need 20); nothing done.
+Disk gate no-ops (19 GB free, need 20); nothing done. Cycle 86 detail above condensed: items 6-7 done.
 
 ## History (cycles 82-83, folded 2026-11-03)
 
@@ -164,7 +182,7 @@ share precedence; arena-backed FailingAllocator sweeps hit ~2 failure points, as
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
 Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 closed). Plan 007
-(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-7 done (7/11).
+(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-9 done (9/11).
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable.
 - Carried stabilization finding (not fixed, sized for a full stabilize cycle or its own plan
@@ -177,5 +195,5 @@ Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 clo
 
 ## Next priority
 
-Plan 007 item 8 (official test vectors); see the newest cycle block.
+Plan 007 item 10 (benchmarks), then 11 (release v0.6.0); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
