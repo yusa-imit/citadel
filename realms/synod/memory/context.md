@@ -1,7 +1,32 @@
 # synod — context
 
-last_seen_at: 2026-11-03T18:24:00Z
+last_seen_at: 2026-11-05T00:00:00Z
 rejected_plans: []
+
+## Cycle 83 — 2026-11-05 — FEATURE
+- Preflight: disk 25 GB, CI green on f5ea558, no bugs, milestone #74 open, no new OWNER comments.
+  Found a dirty tree on `feat/sim-snapshots-4` (killed cycle-82 session): preserved as
+  `wip/feat-sim-snapshots-4-20261105` (1d255b8, pushed; do not delete). Includes Checker window
+  work (`invariants_window_test.zig`) and a scratch `src/sim/temp_seed_test.zig` (seed 12 repro,
+  has `std.debug.print`, fails tidy: delete before the PR).
+- Item 6 state on that wip: 1110/1112 tests pass; red = tidy (temp file only) + `simulation_snapshot_test`
+  1000-seed sweep. No PR (no time: diagnosis took until minute ~11).
+- Diagnosis (seed 12, 3 nodes, event 1442): `Checker.commit_node` fails at the compacted-skip branch
+  (`i < base` and `i >= chosen_max`): leader node 1 had seen=89, commit jumped to 95 in ONE event and
+  compaction (trailing 4) moved base to 91, so indexes 89,90 were never observed committed. Checker
+  limitation, not a raft bug.
+- Next (cycle 84): `feat/sim-snapshots-5` from the wip. Fix in the checker: keep per-node previous
+  window fingerprints (alloc in init: nodes_count * log_entries_max * 8 B) and when a LEADER with the
+  same term was leader at the previous observation skips unseen compacted indexes, fill chosen from
+  its previous window (a leader never truncates); followers: decide (stale-print risk when truncate +
+  append + commit + compact happen in one event; maybe fall back to "unknown" prints). Test first in
+  `invariants_window_test.zig`. Also: first TEMPDIAG case node=0 follower seen=0 commit=4 base=4
+  chosen_max=0 appeared in some test (restart from snapshot? check it is an expected-violation test).
+  Delete `temp_seed_test.zig`, run the sweep, PR, CI (push by minute 12), merge, tick item 6.
+- Blockers: none. Open questions: none. Budget: ~$0.5 of $4.
+- Tool notes: guard blocks chained `START=$(date)...` with citadel paths: split calls. Stack trace of
+  a latched violation: temporarily call `std.debug.dumpCurrentStackTrace(.{})` in `Checker.fail`; use
+  `--cache-dir /tmp/synod-cN`; redirect build output to /tmp file and `grep -a`.
 
 ## Cycle 82 — 2026-11-04 — FEATURE
 - Preflight: disk 23 GB, CI green on f5ea558, no bugs, milestone #74 open, no OWNER comments.
