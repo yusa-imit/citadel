@@ -1,7 +1,23 @@
 # zuda — context
 
-last_seen_at: 2026-11-05T00:00:00Z
+last_seen_at: 2026-11-06T00:00:00Z
 rejected_plans: []
+
+## Cycle 45 — 2026-11-06 — STABILIZATION (n % 5 == 0)
+- Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #86 (iterators, 7/7,
+  no `hold`, `auto-merged`). Stabilize task: `//!` headers on 18 sorting files; claims checked against the
+  code (bitonic pads with the max element and returns `error.Overflow`; radix digits are bytes; bogo
+  `error.MaxIterationsExceeded`). `zig fmt` had been red on 8 sorting files, applied to the dir.
+- PR: #87 `docs/sorting-module-headers` merged at 7/7 (Build & Test 7m53s), `auto-merged`. Local `zig
+  build test` exit 0. Missing `//!` header now 259 of 436 (STATE.md updated).
+- Next: headers graph 21, string 18, trees 14, dp 44, ML 67; aggregators 8; `linalg/blas.zig` +
+  `simd_blas.zig` (77 errors); ML 34; assertion baseline; v3.0.0.
+- Noticed, not fixed: `blocksort.zig` `sort` swallows OOM (`catch continue` / `catch return` on run-list
+  appends), so it can return unsorted without an error: needs a failing test, then a typed error.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: stale `.zig-cache` again "failed to spawn build runner": use `--cache-dir /tmp/zuda-zcache`. A
+  header is easiest as a python script that prepends per-file text (merge lines into paragraphs, wrap at
+  94); `zig fmt` 0.16 has no `--stdout`. This cycle's wall clock to green PR was ~15 min.
 
 ## Cycle 44 — 2026-11-05 — FEATURE
 - Done: inbox clean (CI green on 978c5d3, no bugs, no OWNER comments, milestone #31). Merged #85
@@ -41,12 +57,9 @@ rejected_plans: []
   leaking test aborts the whole `zig test` run (ABRT) and hides later failures: fix leaks first.
   linalg run: `zig test src/_sweep_linalg.zig --test-filter "linalg."` takes ~1 min warm.
 
-## Cycles 41-42 (2026-11-02..03, folded 2026-11-04)
-- 41: ABORTED by the disk gate (18 GB < 20 GB); nothing touched.
-- 42: first linalg pass on `wip/linalg-compile-clean-20261103` (lu, decompositions, solve, properties
-  compile; ~70 tests red) finished in cycle 43 (#85). Quirk: `zig test` on a file importing `linalg/*`
-  pulls `root.zig` and runs the whole suite: always pass `--test-filter "linalg."`; a `_sweep_*.zig` root
-  is needed (files import `../root.zig`).
+## Cycles 41-42 (2026-11-02..03, folded 2026-11-06)
+- 41 ABORTED by the disk gate; 42 was the first linalg pass (finished in #85). Quirk: `zig test` on a file
+  importing `linalg/*` runs the whole suite: pass `--test-filter "linalg."`, use a `_sweep_*.zig` root.
 
 ## Cycles 39-40 (2026-10-31..11-01, folded 2026-11-05)
 - 39 (#82 compression, 8 of 11 files red): delta unsigned overflow, lz77 stray byte/no overlap, lzss
