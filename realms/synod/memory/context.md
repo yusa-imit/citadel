@@ -1,7 +1,28 @@
 # synod — context
 
-last_seen_at: 2026-11-05T00:00:00Z
+last_seen_at: 2026-11-05T12:00:00Z
 rejected_plans: []
+
+## Cycle 84 — 2026-11-05 — FEATURE
+- Preflight: disk 28 GB, CI green on f5ea558, no bugs, milestone #74 open, tree clean on main.
+- Done: item 6 (sim snapshots) merged as PR #85 (8c5f984, CI 7/7 green, 1114/1114 tests, 1000-seed
+  sweep green), `auto-merged`; #74 item 6 ticked (6/12). Fix: `Checker.compacted_print` takes a
+  skipped, not-yet-chosen index from a same-term leader's previous window (leader never truncates);
+  followers stay StateMachineSafety. Test-first, 3 tests in `invariants_window_test.zig`;
+  `temp_seed_test.zig` removed. Cost ~$1.1 (no subagent but one reviewer ~$0.45).
+- Reviewer: 0 CRITICAL, 4 WARNING (follow-ups, next cycle as a small `fix/` PR): (1) `raft/leader.zig:204`
+  relaxed `assert(p.state != .snapshot)` has no regression test (compact past `match` before the ack,
+  expect `next > match + 1` and a second snapshot send) nor CHANGELOG line; (2) `driver.zig:132` restore
+  reorder (state machine restored last) lacks a failing-`Node.init` test + CHANGELOG line; (3)
+  `sim_snapshots.zig:122,142` `assert(applied == snapshot_index)` needs the driver guarantee documented;
+  (4) torn-write crash in the event a leader commits + persists a snapshot could give a false
+  `installed` violation (unconfirmed; prove or raise chosen_max in `Tracker.restarted`).
+  Suggestions: drop `Options.fault = .none` default in `workload.zig:126`; `nodes_max` duplicated.
+- Next (cycle 85): the follow-up fix PR above (small), then item 7 `raft/membership.zig` (codec +
+  joint quorum, pure). Push by minute 12 (CI Build & Test ~9 min now).
+- Blockers: none. Open questions: none. Budget: ~$1.2 of $4.
+- Tool notes: guard blocks chained `$(date)`+citadel paths: split calls; `zig build test` >120 s runs in
+  background, output via grep pipe is empty until finish; `python3 -I -` heredoc for repo edits works.
 
 ## Cycle 83 — 2026-11-05 — FEATURE
 - Preflight: disk 25 GB, CI green on f5ea558, no bugs, milestone #74 open, no new OWNER comments.
