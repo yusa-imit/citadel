@@ -9,6 +9,14 @@
 > https://github.com/yusa-imit/sigil/releases/tag/v0.5.0): `toml` is real (parser, writer,
 > `toml.parse(T)`, toml-test v2.2.0 corpus 679/679, round-trip property, benchmarks). Plan 006
 > closed (milestone #67). Still no consumer `build.zig.zon` names sigil.
+>
+> Update 2026-11-05 (cycle 89): released v0.6.0 (PR #95,
+> https://github.com/yusa-imit/sigil/releases/tag/v0.6.0): `msgpack` and `cbor` are real
+> (pull readers, `Value` trees, encoders, locate, RFC 8949 / msgpack-test-suite vectors,
+> round-trip + mutation + fuzz, benchmarks). Plan 007 closed (milestone #84). msgpack encode
+> ~591 MB/s is below the PRD 1 GB/s target (recorded, tuning is a later plan). Still no
+> consumer `build.zig.zon` names sigil, so no migration issues. Stubs left: `yaml`, `proto`,
+> `csv`, `config`.
 
 ## What exists (claimed vs present)
 

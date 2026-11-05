@@ -1,7 +1,21 @@
 # sigil — context
 
-last_seen_at: 2026-11-05T00:00:00Z
+last_seen_at: 2026-11-05T03:14:00Z
 rejected_plans: []
+
+## Cycle 89 — 2026-11-05 — FEATURE
+
+- Done: milestone #84 items 10 and 11 (11/11, closed). PR #94 (benchmarks) macOS job had been cancelled
+  by the runner; `gh run rerun --failed`, then CI 8/8, labelled auto-merged, merged. Item 11 PR #95
+  (`chore: release v0.6.0`: build.zig.zon + `sigil.version` 0.6.0, CHANGELOG [0.6.0], 4A/4B ticked, plan
+  item ticked), CI 8/8, merged; `v0.6.0` tagged and `gh release create` done. No consumer names sigil, so
+  no migration issue. Written directly, no subagents. ~$0.65.
+- Next: no open plan and no milestone issue: `/plan sigil` (newest plan 007 fully checked). Candidate
+  themes: msgpack encode tuning (591 MB/s vs PRD 1 GB/s), YAML (3B), CSV (4D), proto (4C), `config`
+  loader, tools/tidy.zig self-exemption. Blockers: none.
+- Learned: a runner-cancelled macOS job (no steps, "cancelled") is infra, not red; `gh run rerun <id>
+  --failed` re-runs it, cross-compile jobs start only after both Build & Test jobs pass (wait for all 8);
+  the guard blocks `cd citadel/... && echo > file` (use Write for memory files).
 
 ## Cycle 88 — 2026-11-05 — FEATURE
 
@@ -109,7 +123,7 @@ rejected_plans: []
 
 Plans 001-005 closed (issues #3, #20, #27, #42, #55); v0.4.0 tagged 2026-10-19 (v0.3.0 2026-10-14).
 Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 closed). Plan 007
-(msgpack + CBOR, v0.6.0) merged; milestone #84, items 1-10 done (10/11, item 10 in PR #94).
+(msgpack + CBOR) closed: milestone #84 done 11/11, v0.6.0 tagged 2026-11-05 (cycle 89).
 
 - Housekeeping: populate the empty performance-targets table once a module is benchmarkable.
 - Carried stabilization finding (not fixed, sized for a full stabilize cycle or its own plan
@@ -122,5 +136,5 @@ Plan 006 (Phase 3A TOML 1.0) closed, v0.5.0 tagged 2026-10-28 (milestone #67 clo
 
 ## Next priority
 
-Plan 007 item 10 (benchmarks), then 11 (release v0.6.0); see the newest cycle block.
+`/plan sigil` for the next theme (plan 007 closed, v0.6.0 released); see the newest cycle block.
 Toolchain: `~/.zr/toolchains/zig/0.16.0/zig` for local dev; global `zig` stays 0.15.2.
