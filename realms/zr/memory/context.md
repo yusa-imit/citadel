@@ -1,7 +1,24 @@
 # zr — context
 
-last_seen_at: 2026-11-04T21:23:44Z
+last_seen_at: 2026-11-05T21:27:07Z
 rejected_plans: []
+
+## Cycle 44 — 2026-11-05 — FEATURE
+- Preflight: disk ok; started on merged branch `fix/copy-task-retry-strategy` (clean) -> main; CI green;
+  no bugs; inbox clear (only our own #155 comment). zuda still v2.3.0 -> items 5-11 blocked -> one stabilize.
+- Done (#207, 8/8 green ~18 min, merged): `config/loader.zig` `copyTask` is now OOM-leak-free. Copy starts
+  detached (`detachOwnedFields` resets every `Task.deinit`-freed field), one `errdefer result.deinit`, each
+  field via leak-safe `dupeOptionalString`/`dupePairs`/`dupeStringMap`/`copyElements` + per-type copiers.
+  `copyTaskHookImpl` leaked a hook env key on mid-pair OOM (sweep test found it); now uses `dupePairs`.
+  Sweep test: `fullyPopulatedTask` (arena, every owned field) + FailingAllocator over all alloc indices.
+  `copyTask` baseline 388 -> 80. Tests 1965/0, tidy 0 failing. Aliasing audit of Task.deinit vs copyTask: clean.
+- Gotchas: `gh pr create --label chore` fails AND aborts the PR (labels: only `auto-merged` etc.; create
+  first, label after); CI cross-compile checks take ~15+ min, cycle deadline (22 min) is tight.
+- A new owned field on `Task` must be added to `detachOwnedFields` and `copyTask` (and the fixture), else
+  the copy aliases the original (double free).
+- Next: cycle 45 is STABILIZATION (n % 5 == 0); check zuda tags first. Candidates: `parseToml` OOM leak
+  (`addWorkspaceSharedTask`), `Cache plugin clearAll catch {}`, headers, conformance parser.
+- Open questions: none.
 
 ## Cycle 43 — 2026-11-04 — FEATURE
 - Preflight: disk 24 GB; tree clean on main; CI green; no bugs; inbox clear. zuda still v2.3.0 ->
