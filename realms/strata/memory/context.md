@@ -1,24 +1,30 @@
 # strata — context
 
-last_seen_at: 2026-11-05T00:40:00Z
+last_seen_at: 2026-11-05T05:30:00Z
 rejected_plans: []
 
-## Cycle 82 — 2026-11-05 — FEATURE
-- Done: plan 006 item 3 ADR-0005 kv layout v1 (`docs/adr/0005-kv-layout.md`, ~450 lines) in PR #82,
-  item ticked in the plan, CHANGELOG + PRD §4.8 link. Architect (opus) ~$1.1, 8 min; reviewer (sonnet)
-  found 0 critical, 3 warnings fixed (no-op group appends no commit frame, `truncate_after(0)`, probe
-  reader closed before replay). Build & Test green; 2 cross-compile jobs pending at the deadline.
-- ADR decisions: `pages.db` + `wal/`, lock = page-file `tryLock`; root = page 1, type-checked on open;
-  half-created dir -> `Corrupted`; WAL missing -> `Corrupted` even at `wal_lsn 0`; one-frame batch
-  admits 61 ops at 512 B but 7 at 4 KiB and 1 at 16 KiB+, so v1 uses a **`commit` frame (WAL type 4,
-  reserved id, no WAL bump)** + commit-bounded recovery (`Recovery.truncate_after`, `CommitScan` pass).
-  Item 6 "Tree op groups" becomes "commit frame and commit-bounded recovery"; no `group_begin/end`.
-  This is the plan 006 Risks fallback, so no plan PR; milestone #79 item 6 title needs the rename.
-- PRs: #82 open, awaiting CI then squash-merge (next cycle's inbox step 8); no hold label.
-- Next: merge #82, rename item 6 in #79, tick item 3; then item 4 `kv/db.zig` create/put/get/delete
-  (zig-developer; brief with ADR-0005 §1-§7, §11). Opus ADR + review ~$1.7 of $4 this cycle.
+## Cycle 83 — 2026-11-05 — FEATURE
+- Done: merged #82 (ADR-0005 kv layout v1, item 3) and #83 (plan 006 item 4: `src/kv/db.zig`, `errors.zig`,
+  `db_fixtures.zig`, tests; create in empty dir, clean reopen, put/get/delete/flush/close). CI 7/7 both,
+  milestone #79 ticked 1-4 (item 6 renamed). PRD 4.8 `Options` now the explicit-field struct.
+- Review (sonnet): 0 critical, 4 warnings. Fixed: `close` leaked pending frees (now `release_frees` best
+  effort; `Db.pending_frees()` diagnostic), `PoolExhausted/FreesPendingLimit` unreachable -> `Failed`,
+  `Tree.open` error via `map`, `RecoveryRequired` doc.
+- Open (for items 5/9): `open` accepts a log only if `writer.last_lsn == pm.wal_lsn`, else `Corrupted` (replay =
+  item 5). `close` swallows a checkpoint failure (returns void). `errors.map` ends `else => InputOutput`; error
+  subsets all equal `Error`; no test for failed-commit latch (needs a `FaultIo` that wraps `Db.open`, item 9);
+  `delete` of an absent key still does `begin_write`. `Db.open` needs `batch_ops_max/bytes_max/wal_*` options.
+- Next: item 5 recovery on open + `Db.checkpoint` (brief with ADR-0005 §4, §7, §11).
 - Blockers: none. Open questions: none.
-- Note: waiting on CI with a foreground `until` loop hit the 400 s tool timeout; poll in <=5 min calls.
+- Note: developer wrote tests after code in the first pass; red-first only on the fix. `gh pr checks` right
+  after push says "no checks" for ~20 s: poll for pending|pass first. ~$2.4 of $4.
+
+## Cycle 82 (2026-11-05), folded
+- ADR-0005 kv layout v1 (#82, merged in 83): `pages.db` + `wal/`, lock = page-file `tryLock`; root = page 1,
+  type-checked on open; half-created dir / WAL missing -> `Corrupted`; one-frame batch admits only 7 ops at
+  4 KiB, so v1 uses a **`commit` frame (WAL type 4, reserved id, no WAL bump)** + commit-bounded recovery
+  (`Recovery.truncate_after`, `CommitScan`). Item 6 is now "commit frame and commit-bounded recovery".
+  Opus ADR ~$1.1; foreground `until` waits hit the 400 s tool timeout: poll in <=5 min calls.
 
 ## Cycles 80-81 (2026-11-03..04), folded
 - 80: plan 006 approved (#78), milestone #79 (12 items). Item 1 (#80): live-file replay after `free_at`
