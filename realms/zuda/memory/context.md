@@ -95,23 +95,13 @@ rejected_plans: []
   `Gamma.init(...) catch unreachable` in StudentT, F, SkewT, GeneralizedNormal,
   HalfGeneralizedNormal; `init` rejects them. Look two lines up for a proof comment when scanning.
 
-## Cycles 30-33 (2026-10-20..23, folded 2026-10-28)
-- 30 (STABILIZATION): #74 proof comments on 21 `catch unreachable` sites; ~24
-  `Gamma/StudentT/Lindley/GeneralizedNormal.init(self.param) catch unreachable` sites in
-  `distributions.zig` need the owner's init validation as proof. No `chore` label in the repo.
-- 33: ABORTED by the disk gate (16 GB free < 20 GB); nothing touched.
-- 31-32:
-  Merged #75 (btree, adjacency_list, topological_sort, silica/zr compat shims; BTree reverse
-  iterator, shim ownership bugs) and #76 (graph 20, bitwise 4, combinatorics 8, dp 15 files).
-- Sweep method: ONE scratch root per file, `src/_sweep_J.zig` = `test { _ = @import("rel/x.zig"); }`,
-  `zig test -fno-emit-bin` with per-job `--cache-dir`/`--global-cache-dir` (`zig test <file>` cannot
-  import across dirs). Red dirs then: ML 34, graph 20, dp 17, string 12, trees 8, geometry 8,
-  compression 8, aggregators 8, linalg 6, sorting 6, iterators 5, then 1-3 each.
-- Cost lesson: 4 parallel sonnet agents burned ~$2.2 in ~6 min; do mechanical `.{}` -> `.empty`
-  with perl directly. Agents leave `src/_sweep*`; delete before commit. dp still red:
-  max_sum_rectangle, scramble_string, stock_trading, subset_sum, target_sum.
-- Quirks: `read -t` on /dev/null does not wait (use `perl -e 'select(undef,undef,undef,N)'`); the
-  guard blocks `cd <repo>; ...` and `git push -u origin HEAD` chained after checkout.
+## Cycles 30-33 (2026-10-20..23, folded 2026-11-06)
+- 30: #74 proof comments on 21 `catch unreachable` sites. 33 ABORTED by the disk gate. 31-32 merged #75
+  (btree, adjacency_list, topological_sort, compat shims) and #76 (graph, bitwise, combinatorics, dp).
+- Sweep method: ONE scratch root per file `src/_sweep_J.zig` = `test { _ = @import("rel/x.zig"); }`,
+  `zig test -fno-emit-bin` with per-job `--cache-dir`/`--global-cache-dir`. Cost lesson: 4 parallel sonnet
+  agents burned ~$2.2 in ~6 min; do mechanical edits with perl directly. Delete `src/_sweep*` before commit.
+  dp still red: max_sum_rectangle, scramble_string, stock_trading, subset_sum, target_sum.
 
 ## Cycles 27-29 (2026-10-17..19, condensed 2026-10-21)
 - All merged by squash at 7/7 green, labeled `auto-merged`.
