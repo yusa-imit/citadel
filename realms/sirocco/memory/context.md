@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-11-05T00:00:00Z
+last_seen_at: 2026-11-05T04:30:00Z
 rejected_plans: []
+
+## Cycle 81 — 2026-11-05 — FEATURE
+- Preflight: disk 29 GB. Main CI read "failure" at origin/main but it was runner capacity: the macOS
+  job "was not acquired by Runner" and ended cancelled with no steps (same for PR #75). `gh run
+  rerun <id> --failed` on both -> green in < 10 min. Not a code bug; no escalation.
+- Merged #75 (futex timeout/cancel claim on home) and #76 (`test/futex-wake-timeout-race-2`: two
+  tests in `futex_home_test.zig`, wake-then-timeout and timeout-then-wake, driven by a fiber mailed
+  to the home carrier so the order is deterministic; 40 serial runs clean). Both labelled auto-merged.
+- Item 7 stays UNCHECKED. Remaining: join word (`Task.done`+`waiter` -> `join` atomic, ADR 0004
+  `await`), cancel mail (`mail_state`, `cancel_mail`), close from another carrier, seeded 4-carrier
+  model test, parity suite at 4 carriers, 1000 serial runs. Nothing places tasks on peers yet
+  (item 8), so cross-carrier await/cancel can only be tested with mailed fibers until then.
+- Gotchas: the guard blocks `cd <repo> && ...` compound commands in Bash, use `git -C`. A cherry-pick
+  onto a fresh branch from origin/main after squash-merge worked. Cost ~$0.55.
+- Next: cycle 82: join word step (split small: Task fields + tests first), then cancel mail.
 
 ## Cycle 80 — 2026-11-05 — FEATURE
 - Preflight: disk 26 GB, CI green, no bugs, no plan PR, OWNER comments were only the AI's own;
