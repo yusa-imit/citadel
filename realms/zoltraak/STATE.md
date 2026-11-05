@@ -56,7 +56,7 @@ zero-violation check — counts below are the real absolute state.
 | `catch unreachable` without same-line proof comment | 0 (was 2) | 2 sites in `storage/memory.zig:6164,6233` (`incrby`/`incrbyfloat`) regressed in PR #132's assertion work, fixed same-cycle in PR #133 |
 | Unbounded `while (true)` | 2 (both legit) | cycle 36 recount: `cli.zig:108` REPL, `server.zig:575` per-connection loop (both top-level loops). #155-157 bounded the WAIT/XREAD/Lua polls, #159 the bloom test scan loop |
 | Compound `assert(a and b)` | 0 (was 5) | cycle 35 PR #158 split the five in `commands/strings.zig` into `if (a) assert(!b)` |
-| `== error.` / `!= error.` | 22 | cycle 45 count (#167 `search.zig` 6; earlier #164 `sorted_sets.zig`, #165 `sentinel.zig`, #166 `strings.zig`, #160-163 server/lists/sets/hashes; `switch` with `else => return err`); top: `timeseries.zig` 4, `commands/functions.zig` 4, `aof.zig` 3. Converting to `switch (err)` can expose dead branches |
+| `== error.` / `!= error.` | 18 | cycle 46 count (#168 `timeseries.zig` 4; #167 `search.zig` 6; earlier #164 `sorted_sets.zig`, #165 `sentinel.zig`, #166 `strings.zig`, #160-163 server/lists/sets/hashes; `switch` with `else => return err`); top: `commands/functions.zig` 4, `aof.zig` 3. Converting to `switch (err)` can expose dead branches |
 | `catch unreachable` | 26, all with proof comments | cycle 35 recount |
 | `assert` (any spelling) | 197 | up from 40 after cycles 6-9's assertion-baseline PRs (#127-132); 193/197 (98%) concentrated in 5 files: `commands/strings.zig` 46, `protocol/writer.zig` 44, `storage/memory.zig` 41, `protocol/parser.zig` 35, `server.zig` 27 — the other 83 files remain near-zero of 1,921 total functions |
 | `@panic` | 0 | — |
