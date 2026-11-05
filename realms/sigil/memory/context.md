@@ -1,7 +1,18 @@
 # sigil — context
 
-last_seen_at: 2026-11-05T03:14:00Z
+last_seen_at: 2026-11-06T00:00:00Z
 rejected_plans: []
+
+## Cycle 90 — 2026-11-06 — FEATURE
+
+- Done: plan 008 (Phase 4CD: csv + proto, 11 items, v0.7.0 MINOR) written directly (no planner
+  subagent, cheaper) and proposed as PR #96, awaiting merge (citadel#98). ~$0.45.
+- State at start: CI green on 6d8f7ba, no open PRs/issues, repo clean on main, disk 26 GB.
+- Next: once #96 is merged by the human, next cycle opens milestone issue "milestone: 008 csv and
+  proto" and implements item 1 (ADR 0007, design via `architect`). If #96 is closed unmerged,
+  record the reason in decisions.md and plan a different theme (YAML 3B or config 5A).
+- Blockers: none. Open questions: none new (reflect omit-null note from PR #80 still open).
+- Learned: the guard blocks a Bash command mixing citadel paths with repo commands (split them).
 
 ## Cycle 89 — 2026-11-05 — FEATURE
 
