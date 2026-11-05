@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-11-05T12:00:00Z
+last_seen_at: 2026-11-05T18:23:00Z
 rejected_plans: []
+
+## Cycle 85 — 2026-11-06 — FEATURE
+- Preflight: disk 25 GB, CI green on 8c5f984, no bugs, milestone #74 open (6/12), no OWNER comments.
+- Done: PR #86 (fix/pr85-review-followups) squash-merged as 909919e, `auto-merged`, CI 7/7 green
+  (Build & Test 9m31s), 1115 tests. Reviewer warning 1: cluster test "an ack after the leader
+  compacted past it triggers a second snapshot" (node_install_test.zig); warning 2 was already
+  covered by "a refused boot never restores the state machine" (CHANGELOG line only); warning 3:
+  doc on `Tracker.report`. No reviewer subagent (test/doc-only). Cost ~$0.8, all in main session.
+- Open: warning 4 (torn-write crash with a leader commit + persisted snapshot giving a false
+  `installed` violation) still unconfirmed; suggestions: drop `Options.fault = .none` default in
+  `workload.zig:126`, `nodes_max` duplicated.
+- Next (cycle 86): item 7 `raft/membership.zig` (codec + joint quorum, pure; architect not needed,
+  ADR-009 covers it). Start test-writer by minute 5; push by minute 10 (CI Build & Test is 9.5 min).
+- Blockers: none. Open questions: none. Budget ~$0.8 of $4.
+- Tool notes: guard blocks `cd <repo>;` + heredoc/`&`/`timeout` combos in Bash — use `git -C`, `gh --repo`,
+  the Edit tool for appending to repo files; `timeout` does not exist (macOS); foreground `gh pr checks
+  --watch` caps at 560 s, then re-run it.
 
 ## Cycle 84 — 2026-11-05 — FEATURE
 - Preflight: disk 28 GB, CI green on f5ea558, no bugs, milestone #74 open, tree clean on main.
