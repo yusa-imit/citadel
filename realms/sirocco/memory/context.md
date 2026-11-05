@@ -1,7 +1,23 @@
 # sirocco — context
 
-last_seen_at: 2026-11-05T04:30:00Z
+last_seen_at: 2026-11-05T16:30:00Z
 rejected_plans: []
+
+## Cycle 82 — 2026-11-05 — FEATURE
+- Preflight: disk 26 GB, CI green, no bugs, no plan PR, inbox empty (no comments since watermark).
+- Merged #77 (`feat/join-word`, labelled auto-merged): `src/join.zig` (running/done/driver/`*Fiber`
+  atomic word, 5 tests incl. a 200-round thread race); `Task.done`+`Task.waiter` -> `Task.join` +
+  `driver_stop` (plain bool for `run_until`); `task_publish` wakes the awaiter on `fiber.home`
+  (`in_fiber()` -> `unpark`, else `unpark_foreign`). Written directly, no subagent (~$0.9).
+- Item 7 stays UNCHECKED. Remaining: `GroupRec` join + waiter, atomic `run_until` stop flag
+  (needs group lock), cancel mail (`mail_state`, `cancel_mail`), close from another carrier,
+  seeded 4-carrier model test, parity at 4 carriers, 1000 serial runs.
+- Stress (4 newest test binaries x25): 2 failures, both the known "64 idle sockets" parity flake
+  (`expected 64, found 63`; and a panic in std `Io.Batch.cancel` on the baseline side). Unrelated.
+- Gotchas: the guard allows `cd <repo> && zig ...` but blocked `cd <repo>; git checkout ... sed`
+  with `-i ''`; use Edit and `git -C`. CI Build & Test ~11 min after a ~2 min queue.
+- Next: cycle 83: cancel mail (Task fields `cancel` atomic, `mail_state`, `cancel_mail`; tests
+  first with a mailed fiber), then GroupRec lock/join.
 
 ## Cycle 81 — 2026-11-05 — FEATURE
 - Preflight: disk 29 GB. Main CI read "failure" at origin/main but it was runner capacity: the macOS
