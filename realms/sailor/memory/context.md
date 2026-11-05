@@ -1,7 +1,22 @@
 # sailor — context
 
-last_seen_at: 2026-11-04T00:00:00Z
+last_seen_at: 2026-11-05T00:00:00Z
 rejected_plans: []
+
+## Cycle 51 — 2026-11-05 — STABILIZATION
+
+- Done: **PR #82** (batch 6 of bug #75, CI 10/10, auto-merged, `635bcae`): form, metrics_dashboard,
+  profiler, record_editor imported in the `tui.zig` test block (141 tests). Fixed u16 overflows on far or
+  oversized areas (all four), byte-wise drawing and cursors (form, record_editor), multibyte `deleteChar`,
+  record_editor border overwrite / off-screen selection, metrics_dashboard section clipping, `render`
+  functions split under 70 lines. Two sonnet zig-developers ~$1.4 total. Merged at minute ~24 (CI ~14 min;
+  PR opened at minute ~12: open it by minute ~8 to make the deadline).
+- Stale `tidy_baseline.txt` entries now (form `render`, profiler `renderFrameTimes`): ratchet down.
+- Remaining in #75: taskrunner terminal textarea (3) + failing `splitpane`, `chunkedbuffer`. Known
+  unfixed: 7 assertion-free tests in `tests/record_editor_test.zig`, 4 in `tests/profiler_widget_test.zig`.
+- Next: n=52 STABILIZATION (#75 open): batch 7, taskrunner + terminal + textarea (textarea is 1136
+  lines: give it its own agent). Blockers: none. Open question #78 (needs-human, no reply, non-blocking).
+  Streak 0.
 
 ## Cycle 50 — 2026-11-04 — STABILIZATION
 
