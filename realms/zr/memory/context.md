@@ -54,141 +54,60 @@ rejected_plans: []
 - Candidates still open: headers (ci/templates/github_actions, cli/codeowners, codeowners/generator),
   conformance parser mistyped fields, `upgrade/installer`, `Cache plugin clearAll catch {}`.
 
-## Cycles 37-38 (2026-10-30..31), folded
-- 37 (#201): `context/json.zig` `escapeJson` was a no-op; all strings now go through `std.json.fmt`
-  (`{f}`), regression test parses the output back; also merged #200 (monitor flush).
-- 38 (#202): `zr upgrade --version <ver>` was parsed and ignored; new pure
-  `checker.selectRelease(releases, Selection{include_prerelease, version})` (leading `v` optional,
-  downgrade ok, malformed JSON entries skipped), `getLatestRelease` 92 -> 60 lines.
-- zuda still v2.3.0 and sailor v3.1.0, so items 5-11 stayed blocked; one `stabilize --one` each.
+## History (cycles 0-38, folded 2026-11-05)
 
-## Cycles 33-36 (2026-10-23..29), folded
-- 33: no-op at the disk gate (15 GB < 20 GB). 34 (#198): `analytics/json.zig` `generateJsonReport`
-  escapes task names and keys via `std.json.fmt` (`{f}`), regression test parses back. 35 (#199,
-  STABILIZATION): `//!` headers, 176 baseline entries left; audit: 12 proven `catch unreachable`, 16
-  `while (true)` event loops, 93 `std.debug.print` (needs a writer seam), 180 files without `//!`.
-  36 (#200): `output/monitor.zig` flush fix, `renderLive`/`renderSummary` extracted; tree was dirty at
-  preflight, preserved as `wip/fix-monitor-flush-stderr-20261029`.
-- Known, documented, not fixed: `cli/upgrade.zig` parses `--version` but installs latest; conformance
-  parser skips mistyped fields silently; `lsp/position.zig` uses UTF-8 byte columns, not UTF-16.
-- Lessons: a test `std.Io.Writer` drain must write `buffer[0..end]` and set `end = 0`, else `flush`
-  spins forever and `zig build test` hangs after the test name; stale `.zig-cache` ("failed to spawn
-  build runner") -> `rm -rf .zig-cache` as its own command; zsh expands `echo "====="`.
-- zuda was still v2.3.0 and sailor v3.1.0, so items 5-11 stayed blocked; one `stabilize --one` each.
-
-## Cycles 29-32 (2026-10-19..22), folded
-- FEATURE/STAB, zuda v2.3.0 so items 5-11 blocked, one `stabilize --one` each; each PR 8/8 green
-  (~13-16 min). 29 (#194): headers, deleted dead `util/object_pool.zig`; OWNER on #178: target
-  sailor v3.1.0 (only break: `Editor.init`, `MultiCursorEditor.init`, `LocalSource.init` return
-  `error{OutOfMemory}!T`). 30 (#195): `lsp/document.zig` `DocumentStore.open` reopen leak fixed
-  (build new, `ensureUnusedCapacity`, close old, `putAssumeCapacityNoClobber`; leak shows as `[gpa]
-  leaked` while the test says OK, grep `leaked`). 31 (#196): headers for lsp/position (UTF-8
-  byte columns, not UTF-16: open), lsp/diagnostics, cli/context. 32 (#197): diagnostics `toJson`
-  escapes message via `std.json.fmt` (`{f}`).
-- Gotchas: guard blocks compound `A=..; cmd`, `cd X; ...`, heredoc appends (use `cd X && cmd`,
-  Edit/Write); `sed -i '' -e 'Nd'` highest line first for baseline entries; label merged PRs
-  `auto-merged` via `gh pr edit`; CI ~13-16 min, loop `gh pr checks` with sleep 30.
-
-## Cycles 27-28 (2026-10-17..18), folded
-- FEATURE, items 5-11 blocked, one `stabilize --one` each: `//!` headers + baseline entries (#192, #193; tests 1944/0). `analytics/json.zig` writes task names unescaped (documented; fix like #197). `cli/which.zig` was failing fmt on main, reformatted.
-
-## Cycles 21-26 (2026-10-11..16, condensed 2026-10-17)
-- All FEATURE with zuda still v2.3.0 (sailor v3.0.0), items 5-11 blocked, so one
-  `/stabilize --one` each; each PR merged with 8/8 green (~13 min); tests 1944/0, tidy 0 failing.
-- 21 (#186): `mcp/server.zig` `serve` read stdin byte by byte into an unbounded `ArrayList`; now
-  `cli/line_input.readLine` with one 1 MiB buffer (`line_input.buffer_bytes_max`), `RequestLine`
-  helper, over-long request skipped and logged; an unterminated final line at EOF is no longer
-  processed. 22: remaining `while (true)` re-checked (`registry/server.zig:43` is the accept
-  loop; task_picker, tui, run.zig:1427, watch/*, show.zig:458 are event/tail loops); only
-  add.zig/add_interactive prompt loops need a source seam. 22-26 (#187-#191): `//!` headers
-  (217 -> ~191 left) with the matching `doc-header` baseline entries removed; deleted dead
-  `template/loader.zig` (0.14 `ArrayList.init`, no importers).
-- Open: `analytics/json.zig` writes task names unescaped (documented in its header). Next
-  smallest header files: bench/formatter, migrate/report, cli/which, context/yaml.
-- Gotchas: `gh pr merge` does not add `auto-merged` (`gh pr edit N --add-label auto-merged`);
-  `gh pr checks | awk` ternary breaks on macOS awk (use `cut -f1,2`); `until gh pr checks |
-  grep -qv pending` exits early, use `until ! ... | grep -q pending`; a foreground wait over 10
-  min is backgrounded (bounded `for` loop with sleep 30); adding a header makes the file's
-  `doc-header` baseline entry stale (delete it in the same PR; `sed -i '' -e 'Nd' -e 'Md'`,
-  highest line first); `grep -c doc-header tidy_baseline.txt` counts the comment line too;
-  stale `.zig-cache` -> `rm -rf .zig-cache`; a flaky `cache_test.test.690` passed on rerun.
-
-## Cycles 19-20 (2026-10-09), folded
-- Both: tree clean, CI green, inbox clear; zuda still v2.3.0 (sailor v3.0.0 tagged) so items 5-11
-  stayed blocked, one `/stabilize --one` each.
-- 19: removed dead `src/jsonrpc/transport.zig` (228 lines, 0.14 `ArrayList(u8).init`, never
-  compiled) + import + 2 tidy baseline entries (#184, 8/8 green ~13 min). `docs/PRD.md` still
-  lists it in a planned layout (also nonexistent `json.zig`); left as design text.
-- 20: `lsp/server.zig` `run` had an unbounded header list and attacker-chosen `Content-Length`;
-  new `lsp/message_reader.zig` `MessageReader.next(gpa, source)` (8 KiB header, 64 MiB body cap
-  before alloc, `HeaderTooLarge`/`MessageTooLarge`/`MissingContentLength`, 11 tests; #185).
-- Remaining `while (true)`: add.zig 275/379 and add_interactive.zig 380 are stdin prompt loops
-  (need a `prompt` source injection before a cap is testable); `mcp/server.zig:39,42` reads stdin
-  byte-by-byte into an unbounded ArrayList (reuse the `cli/line_input.zig` pattern, 1 MiB cap);
-  check task_picker, tui.zig:379, run.zig:1427, registry/server.zig:43. ~220 missing `//!`.
-- Gotchas: `gh pr create --label fix` fails (label absent); tidy `stale-baseline` fails when a fix
-  shrinks a function under 70 lines, remove the entry; guard blocks `cd X; ...` and `sleep N; cmd`
-  chains (use plain commands and `until` loops).
-
-## History (cycles 16-18, folded 2026-10-13)
-
-Cycles 16-18 (2026-10-06 to 10-07, FEATURE; sailor v3.0.0 tagged, zuda still v2.3.0 so plan items
-5-11 stayed blocked, one `/stabilize --one` each): #177 stream reader line cap merged; docs PRs #179,
-#180 ticked plan items 3 and 4 (docs-only PRs get no CI checks, mergeState CLEAN is enough; item 4's
-`wip/*` "no remote branch" verify can't be met, never delete `wip/*`). Cycle 16 `cli/show.zig`
-`StreamingLineReader.next` capped at 1 MiB `line_bytes_max` (#181). Cycle 17 three unbounded stdin
-loops (`add`, `add_interactive`, `config_editor` x2) -> shared `cli/line_input.zig` `readLine` (4096-byte
-buffer, `error.LineTooLong`, tail discard <= 1 MiB; #182). Cycle 18 `cli/template.zig` `applyTemplate`
--> `readReply` over `readLine` (over-long param -> error, over-long confirm -> cancelled; #183).
-Found: `src/jsonrpc/transport.zig` is dead code (imported by `mcp/server.zig`, unused, 0.14
-`ArrayList(u8).init` API, never compiled): decide delete vs fix. EOF at the editor confirm prompt
-still defaults to yes. `while (true)` left to check (event loops?): cli/add.zig 275/379,
-task_picker.zig, tui.zig, run.zig:1427 (watch), process.zig:416 (EOF-bounded), server/watch loops,
-registry/server.zig:43; ~220 missing `//!` headers. Gotchas: the guard blocks heredoc appends and
-compound `cd`/assignment lines (use Edit); the fmt-on-save hook can reformat a whole file on Edit
-(undo with `git checkout`, insert via `perl -0pi`); only `zig fmt --check` on touched files is
-meaningful (57 pre-existing dir-wide); `zig build test` has no `--test-filter`, ~1 min locally, CI
-~13 min; `gh pr view --json authorAssociation` is invalid, use `gh api repos/.../issues/N --jq
-.author_association`; `zig test` on one `src/cli/*.zig` fails (outside module path).
-
-## History (cycles 0-11, 2026-09-05 to 2026-10-01)
-
-Realm created by citadel restructure (cycle 0); memory migrated from the repo's former
-`.claude/memory/`. Plan `001` (Zig 0.16 migration + Tiger Style baseline) merged as #154,
-milestone issue #155. Cycle 1: `tidy` build step (#157) — fixed a use-after-free in vendored
-`tools/tidy.zig` `checkFunctionLength` (flagged upstream for `citadel/templates/tidy`, see
-`debugging.md`). Cycles 2-4, 6: assertion baseline (plan item 3) via `src/stdx.zig`
-`assert`/`maybe` across `graph/dag.zig`, `exec/scheduler.zig` (#158, real bug: false
-postcondition for `deps_serial`), `cache/store.zig` (#159), `config/parser.zig` (#160, #164).
-Item 3 still unchecked: `flushProfile`, `flushCurrentTemplate`, `flushCurrentHook`, `parseToml`
-(~5100 lines) uninstrumented. Cycle 5 (stabilization): all 12 `catch unreachable` proven (#162);
-real bug in `plugin/wasm_runtime.zig` LEB128 decoders (shift counter too narrow, panics on valid
-max-width values) fixed (#163). Cycles 7-11: unbounded-loop sweep, one PR per class — days→year
-loops (#168), `loader.zig` and `cli/common.zig` parent walks (#169, #170), `topo_sort`
-`getExecutionLevels` (#171), `upgrade/checker.zig` response read (#172, cycle 10),
-`registry_client.zig` (#173, cycle 11). Patterns: extract-a-helper to stay under the 70-line tidy
-ratchet; bump `tidy_baseline.txt` only for growth forced by the fmt-on-save hook reformatting
-untouched code (cycle 2 scheduler.zig, cycle 8 loadConfig 74→86), never for own additions;
-stale baseline entries fail tidy, remove them when a fix clears them. A flaky
-`watch.livereload ... respects configured port across restarts` (AddressInUse) failed CI once
-(cycle 9); re-run passed. A stale `.zig-cache` ("failed to spawn build runner") is fixed by
-`rm -rf .zig-cache`. No `timeout` on macOS; use sleep loops. `graph/dag.zig` `addEdge` keeps
-edge endpoints by slice — tests must pass long-lived names. `zig fmt --check src` on global zig
-0.15.2 lists 57 files locally though main CI passes — pre-existing. Preserved dirty working trees
-to `wip/*` at least 3 times (resolved in `decisions.md`: retry-config landed via #167, PR #30
-closed as superseded).
-
-Cycles 12-15 (2026-10-02 to 2026-10-05): unbounded-IO sweep continued, one PR per file.
-`plugin/install.zig` `copyBounded` 64 MiB, `InstallError.FileTooLarge` (#174; `cli/plugin.zig`
-has no friendly message for it yet); `plugin/builtin_git.zig` `collectStdout` + `readBounded`
-16 MiB (#175); `exec/remote.zig` `collectPipes` + `readBounded`, `OutputTooLarge` (#176);
-`exec/process.zig` `emitLines` 1 MiB `line_bytes_max` (#177, left open at the deadline, merged
-next cycle). Lessons: stopping a pipe read early without killing the child deadlocks `wait()`,
-so kill on overflow; a `for` over `bytes_max + 1` works for generic `anytype` helpers;
-`FixedBufferAllocator` is a robust OOM test (FailingAllocator indices drift with ArrayList
-remap); `zig test src/root.zig` skips `exec/process.zig` tests, only `zig build test` runs
-them; tidy's 100-col baseline counts test names, keep them short; the guard hook blocks
-`python3 - <<EOF` and compound `cd` chains, use Edit and plain commands.
+- 0-15 (09-05..10-05): realm created; plan `001` (Zig 0.16 migration + Tiger Style baseline) merged as
+  #154, milestone #155. Cycle 1 `tidy` build step (#157; fixed a use-after-free in vendored
+  `tools/tidy.zig` `checkFunctionLength`, flagged upstream, see `debugging.md`). Cycles 2-6 assertion
+  baseline via `src/stdx.zig` `assert`/`maybe` (`graph/dag.zig` #158 real bug: false postcondition for
+  `deps_serial`; `cache/store.zig` #159; `config/parser.zig` #160, #164); item 3 still unchecked:
+  `flushProfile`, `flushCurrentTemplate`, `flushCurrentHook`, `parseToml` uninstrumented. Cycle 5: all 12
+  `catch unreachable` proven (#162); `plugin/wasm_runtime.zig` LEB128 decoder shift too narrow (#163).
+  7-15 unbounded-loop / unbounded-IO sweep, one PR per class or file: days->year loops (#168), parent walks
+  (#169, #170), `topo_sort` (#171), `upgrade/checker.zig` (#172), `registry_client.zig` (#173),
+  `plugin/install.zig` `copyBounded` 64 MiB (#174; `cli/plugin.zig` has no friendly `FileTooLarge`
+  message), `builtin_git.zig` 16 MiB (#175), `exec/remote.zig` `OutputTooLarge` (#176), `exec/process.zig`
+  `emitLines` 1 MiB (#177). Lessons: stopping a pipe read early without killing the child deadlocks
+  `wait()` (kill on overflow); `FixedBufferAllocator` is a robust OOM test; `zig test src/root.zig` skips
+  `exec/process.zig` tests (only `zig build test` runs them); tidy's 100-col baseline counts test names;
+  bump `tidy_baseline.txt` only for growth forced by the fmt-on-save hook, never for own additions; stale
+  baseline entries fail tidy (remove them when a fix shrinks a function under 70 lines).
+- 16-20 (10-06..09): `cli/show.zig` `StreamingLineReader` 1 MiB cap (#181); shared `cli/line_input.zig`
+  `readLine` for `add`, `add_interactive`, `config_editor` (#182), `applyTemplate` `readReply` (#183);
+  removed dead `src/jsonrpc/transport.zig` (#184; PRD still lists it); `lsp/message_reader.zig`
+  `MessageReader.next` (8 KiB header, 64 MiB body cap, 11 tests; #185); docs-only PRs #179-#180 get no CI
+  checks (mergeState CLEAN is enough; never delete `wip/*`). sailor v3.0.0 tagged, zuda stayed v2.3.0 so
+  plan items 5-11 stayed blocked: one `/stabilize --one` per cycle through cycle 41. Open: EOF at the
+  editor confirm prompt defaults to yes; add.zig/add_interactive prompt loops need a source seam.
+- 21-32 (10-11..22): `mcp/server.zig` `serve` reads via `line_input.readLine`, 1 MiB buffer (#186);
+  `//!` headers (217 -> ~176 left) with matching `doc-header` baseline entries removed (#187-#197);
+  deleted dead `template/loader.zig` and `util/object_pool.zig`; `lsp/document.zig` `DocumentStore.open`
+  reopen leak (#195; leak shows as `[gpa] leaked` while the test says OK, grep `leaked`); diagnostics
+  `toJson` escapes via `std.json.fmt` (`{f}`, #197); OWNER on #178: target sailor v3.1.0 (only break:
+  `Editor.init`, `MultiCursorEditor.init`, `LocalSource.init` return `error{OutOfMemory}!T`).
+- 33-38 (10-23..31): `analytics/json.zig` escaping (#198), `//!` headers (#199), `output/monitor.zig`
+  flush fix (#200; dirty tree kept as `wip/fix-monitor-flush-stderr-20261029`), `context/json.zig`
+  `escapeJson` was a no-op (#201), `zr upgrade --version <ver>` was ignored, now pure
+  `checker.selectRelease(releases, Selection{include_prerelease, version})` (#202). Disk gate no-ops at
+  15 GB (33), 18 GB (40). Audit (35): 12 proven `catch unreachable`, 16 `while (true)` event loops, 93
+  `std.debug.print` (needs a writer seam), 180 files without `//!`.
+- Known, documented, not fixed: conformance parser skips mistyped fields silently; `lsp/position.zig` uses
+  UTF-8 byte columns, not UTF-16; `registry/server.zig:43` is an accept loop, task_picker/tui/run.zig:1427/
+  watch/show.zig:458 are event/tail loops.
+- Gotchas: a test `std.Io.Writer` drain must write `buffer[0..end]` and set `end = 0`, else `flush` spins
+  and `zig build test` hangs; stale `.zig-cache` ("failed to spawn build runner"/`FileNotFound`) ->
+  `rm -rf .zig-cache` as its own command; guard blocks compound `A=..; cmd`, `cd X; ...`, `sleep N; cmd`,
+  heredoc appends, `python3 - <<EOF`, `gh pr merge ...; ...` chains (run the merge alone; use `cd X && cmd`,
+  Edit/Write, `until` loops); `gh pr merge` does not add `auto-merged` (`gh pr edit N --add-label`);
+  `gh pr create --label fix` fails (label absent); `gh pr view --json authorAssociation` is invalid (use
+  `gh api repos/.../issues/N --jq .author_association`); `gh pr checks | awk` ternary breaks on macOS awk;
+  `until gh pr checks | grep -qv pending` exits early (use `until ! ... | grep -q pending`); the fmt-on-
+  Edit hook can reformat untouched code (revert via `git diff -U0` + `git apply -R --unidiff-zero`, else
+  the tidy line-length baseline of 17 breaks); `sed -i '' -e 'Nd'` highest line first; `zig fmt --check`
+  on global 0.15.2 lists 57 pre-existing files, only touched files matter; `zig build test` has no
+  `--test-filter` (~1 min local, CI ~13-16 min); `zig test` on one `src/cli/*.zig` fails (outside module
+  path); no `timeout` on macOS; a flaky `watch.livereload ... respects configured port` and `cache_test.
+  test.690` passed on rerun; zsh expands `echo "====="`.
 
 ## Standing backlog
 

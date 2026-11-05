@@ -120,87 +120,38 @@ rejected_plans: []
   chained Bash mixing `$(date)` with repo writes; background `zig build test` ~105 s; use a /tmp
   worktree for docs ticks while a developer owns the tree; cut CHANGELOG lines at 100 columns.
 
-## Cycles 61-66 (2026-10-20..26), folded
-- 61: item 9 PR #67 `sim/linearizability.zig` `HistoryChecker` (Wing-Gong, explicit stack). 62-64: PREFLIGHT
-  ABORT (disk < 20 GB; box loses ~1 GB/day). 65: item 10 PR #68 KV workload (continued from wip; `calm`
-  needed a 256-entry log: no compaction in Phase 3). 66: item 11 PR #69 baseline, review fixes PR #70.
-  Kept `wip/feat-sim-kv-workload-*` and `wip/feat-sim-linearizability-*` branches (do not delete).
-- Open suggestions: `Workload.check_invariants` only in `check(.linearizability)`; `op_id_next` bounded
-  by width; sim-nightly first scheduled run unobserved (120 min cap).
-- Tool notes: `.zig-cache` corrupts (`FileNotFound`): `rm -rf .zig-cache`; wip branch names persist, use a
-  `-2` suffix for continuation branches; foreground `sleep` blocked, use `python3 -I -c "import time;
-  time.sleep(N)"`; `gh pr checks --watch` right after push may say "no checks", retry after ~20 s;
-  error traces in failing tests are polluted: print counters temporarily (tidy bans `std.debug.print`).
-
-## Cycles 59-60 (2026-10-19), folded
-- C59: item 7 PR #64 `tools/sim.zig` + `zig build sim -Dseeds/-Dseed/-Dseed_start/-Dplant` (ReleaseSafe;
-  1000 seeds ~20 s), CI sweep + planted-fault step, bench `sim_cluster_5_nodes_10s` mean 21.9 ms
-  (target < 50 ms). Reviews of #63/#61 gave 5 WARNINGs, fixed in C60.
-- C60: PR #65 `fix/sim-review-findings` (`OptionsError` gains `CrashPercentInvalid`/`TornPercentInvalid`/
-  `DownDurationInvalid`, proposal buffer `[255]u8`, `ProposeTooLarge` arm; 726 tests); item 8 PR #66
-  `.github/workflows/sim-nightly.yml` (cron 03:17 UTC + dispatch inputs `seeds`/`plant`; plant=
-  lose_synced_hard_state red with ElectionSafety, plant=none 1000 seeds green in ~52 s).
-- Caveat: 100k seeds at ~52 s/1000 on the runner is ~87 min vs `timeout-minutes: 120`; watch the first
-  scheduled run (`gh run list --workflow sim-nightly.yml`), shrink seeds if it times out. Branch prefix
-  `ci/` is not in the kingdom list (use `chore/`).
-- Open suggestions: `arm_failure` assert still tautological; plant-refused restart is silent; propose_seq
-  u8 wraps; tie-order docs omit heal/propose.
-- Tool notes: guard blocks `cd <repo>; ...` chains; global `zig` is 0.15.2, use
-  /Users/fn/.zr/toolchains/zig/0.16.0/zig; zig build's Run step loses a child's stderr when the build's
-  stderr is redirected to a FILE (pipe is fine, use `2>&1 | tee`); a python slice-replace of ci.yml
-  silently truncated the cross-compile job: diff the file before commit.
-
-## Cycles 57-58 (2026-10-17..18), folded
-- 57: item 5 PR #62 `sim/crash_store.zig`, `sim/sim_node.zig`, crash/restart in `Simulation`,
-  planted `lose_synced_hard_state` breaks `ElectionSafety`; reviewer fixes: `Stats.lossy_crashes`
-  floor >= 30, undrained applies reach the Checker on crash. 703 tests.
-- 58: item 6 PR #63 `Faults.partition_*`, `Proposals`, `OptionsError`, `simulation_churn_test.zig`
-  (100 seeds); `raft/cluster_test.zig` deleted. 713 tests. `zig build test` ~23 s Debug (plan
-  said < 10 s; item 11 re-measures).
-- Open suggestions: plant-refused restart is silent; `catch` on `StoreIoFailed` in
-  `simulation.zig` is not an exhaustive switch; `arm_failure` assert is tautological.
-- Tool notes: guard blocks chained Bash mixing `$(date)`/citadel paths with repo writes: split
-  calls. Use `python3 -I - <<'EOF'` for heredocs (backticks expand in `-c`). Failing-test stack
-  traces are polluted by `types.zig` error traces: print counters temporarily.
-
-## Cycles 55-56 (2026-10-15..16), folded
-- Item 3 (3B) PR #60: `sim/invariants.zig` `Checker` (5 invariants, latched violations,
-  allocates only in `init`); `raft/cluster_test.zig` ported onto it. Item 4 (3A-ii) PR #61:
-  `sim/simulation.zig`, `Node.init_bytes_max`/`Driver.init_bytes_max` (`node.zig` is exactly at
-  the 800-line cap; sizing lives in `raft/node_init.zig`).
-- Open suggestions: `chosen_terms` records the first observer's term (weak); `cluster_test.enqueue`
-  has an `assert(a and b)`; ADR-008 memory formula omits the per-node `NodeMemory` slice.
-- Tool notes: no `timeout` on macOS; use `gh pr checks --watch`. Start the test-writer within
-  5 min of preflight; test-writer + developer cost ~$2.5 per item.
-
-## Cycles 24-54 (2026-10-01..16), folded 2026-10-27
-- 24-37: camelCase renames (#30); v0.3.0 (#31); plan 003 proposed (#33), then `/stabilize --one`
-  or no-op cycles until the OWNER merged it. 38-50: plan 003 items 1-10, one squash-merged PR each
-  (#40-#52, CI 7/7, `auto-merged`; ~$2-3.4 of $4 per item): ADR-007 (one ordered `Effects` list
-  persist -> send -> apply -> notify; `Input = message | tick | propose`; node owns entry bytes;
-  driver does persist -> one `sync()` -> send -> apply, any Fault is fail-stop), `raft/election.zig`,
-  PreVote, `progress.zig` (32 B `Progress`, bounded inflight), `leader.zig` (probe round timeout is
-  `heartbeat_ticks`), `follower.zig`, `commit.zig` (effect slots `peers_max + 7`), `cluster_test.zig`
-  (3/5 nodes, 500 seeds, partition churn, 4 oracles), `driver.zig` (one-pass `execute`, `stopped`
-  fail-stop, `RestoreLogFull`); 495 tests. Reviews fixed peer-reachable asserts (term zero, `prev ==
-  0`, `matched == maxInt`) and term wrap.
-- 51-54: Tiger Style re-measure (#53), v0.4.0 (#54), plan 004 (Phase 3 simulation, 12 items) via
-  PR #56, ADR-008 (#58). 55-56: item 3 `sim/invariants.zig` `Checker` (#60), item 4
-  `sim/simulation.zig` (#61); `node.zig` is at the 800-line cap, sizing lives in `raft/node_init.zig`.
-- Open suggestions: heartbeats gated by `Progress.can_send` leave a probing peer with a lost round
-  silent until it expires (spurious pre-vote); clear a slot's records on `on_timeout`; restored
-  entries unchecked against `entry_bytes_max`; no `truncate` fault test; `is_member` includes
-  learners for `request_vote`; `votes_len` not cleared in `term_adopt`; `node.*` dangling after
-  `RestoreLogFull`; `catch unreachable` in `driver.poll`, `@errorCast` in receive/propose; `chosen_terms`
-  records the first observer's term; Phase 1 boxes in `000-inherited.md` unticked.
-- Tool notes: `zig build test` exits 0 even with tidy-fixture stderr noise (check `$?`); global zig
-  is 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all`; `rm -rf
-  .zig-cache` fixes `build runner FileNotFound`; guard blocks `cd <path>;`, `python3 - <<heredoc`
-  in repo (write to /tmp, run `python3 -I`), `sed -i`, greps over sibling repos (use `gh api`),
-  commands mixing citadel paths with repo writes; `sleep` blocked, use `gh pr checks --watch`;
-  no `chore`/`stabilize` labels in synod; label with `gh pr edit --add-label`; architect has no
-  Write (main session writes ADRs, ~$0.85-1.40 per call, skip if a doc comment specifies it); a blind
-  rename can push lines past 100 cols, run `zig build tidy`; start the test-writer within 5 min.
+## Cycles 24-66 (2026-10-01..26), folded 2026-11-05
+- 24-37: camelCase renames (#30); v0.3.0 (#31); plan 003 proposed (#33). 38-50: plan 003 items 1-10, one
+  squash-merged PR each (#40-#52, ~$2-3.4 of $4 per item): ADR-007 (one ordered `Effects` list persist ->
+  send -> apply -> notify; driver does persist -> one `sync()` -> send -> apply, any Fault is fail-stop),
+  `raft/election.zig`, PreVote, `progress.zig`, `leader.zig`, `follower.zig`, `commit.zig`,
+  `cluster_test.zig`, `driver.zig` (`stopped` fail-stop, `RestoreLogFull`); 495 tests.
+- 51-54: Tiger Style re-measure (#53), v0.4.0 (#54), plan 004 (Phase 3 simulation) PR #56, ADR-008 (#58).
+  55-60: `sim/invariants.zig` `Checker` (#60), `sim/simulation.zig` (#61), `sim/crash_store.zig` +
+  `sim_node.zig` (#62, planted `lose_synced_hard_state` breaks `ElectionSafety`), partitions/`Proposals`/
+  `OptionsError` (#63, #65), `tools/sim.zig` + `zig build sim -Dseeds/-Dseed/-Dplant` (#64, 1000 seeds ~20 s,
+  bench `sim_cluster_5_nodes_10s` 21.9 ms), `.github/workflows/sim-nightly.yml` (#66; 100k seeds ~87 min vs
+  120 min cap, first scheduled run unobserved). `node.zig` is at the 800-line cap; sizing lives in
+  `raft/node_init.zig`. 61-66: `sim/linearizability.zig` `HistoryChecker` (#67), KV workload (#68, `calm`
+  needed a 256-entry log), baseline (#69) + review fixes (#70). PREFLIGHT ABORTs 62-64 (disk < 20 GB; box
+  loses ~1 GB/day). Kept `wip/feat-sim-kv-workload-*`, `wip/feat-sim-linearizability-*` (do not delete).
+- Open suggestions: plant-refused restart is silent; `arm_failure` assert tautological; propose_seq u8
+  wraps; `chosen_terms` records the first observer's term; heartbeats gated by `Progress.can_send` leave a
+  probing peer silent until the round expires; clear a slot's records on `on_timeout`; restored entries
+  unchecked against `entry_bytes_max`; no `truncate` fault test; `is_member` includes learners for
+  `request_vote`; `votes_len` not cleared in `term_adopt`; `node.*` dangling after `RestoreLogFull`;
+  `catch unreachable` in `driver.poll`, `@errorCast` in receive/propose; `Workload.check_invariants` only in
+  `check(.linearizability)`; Phase 1 boxes in `000-inherited.md` unticked.
+- Tool notes: `zig build test` exits 0 even with tidy-fixture stderr noise (check `$?`); global zig is
+  0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig build test --summary all`; `rm -rf .zig-cache` fixes
+  `FileNotFound`; guard blocks `cd <path>;`, `sed -i`, heredocs in repo (write to /tmp, `python3 -I`),
+  greps over sibling repos (use `gh api`), chained Bash mixing `$(date)`/citadel paths with repo writes;
+  `sleep` blocked (`gh pr checks --watch`, retry after ~20 s if "no checks"); no `chore`/`stabilize`
+  labels in synod (`gh pr edit --add-label`); wip names persist, use a `-2` suffix; architect has no Write
+  (~$0.85-1.40 per call); start the test-writer within 5 min of preflight (~$2.5 per item); failing-test
+  traces are polluted, print counters temporarily; run `zig build tidy` after renames (100 cols); a python
+  slice-replace of ci.yml silently truncated a job: diff before commit; zig build loses a child's stderr
+  when redirected to a FILE (pipe is fine).
 
 ## History (cycles 0-23)
 - 0-9 (2026-09-05..12): realm created; plan 001 (Zig 0.16 migration + Tiger Style baseline)
