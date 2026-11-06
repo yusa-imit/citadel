@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-11-06T00:00:00Z
+last_seen_at: 2026-11-06T03:15:00Z
 rejected_plans: []
+
+## Cycle 91 — 2026-11-06 — FEATURE
+
+- Done: plan PR #96 (plan 008 csv + proto) still open, no comments; so one stabilization filler: README
+  docs drift (toml/msgpack/cbor were "stub/planned", install tag said v0.4.0): PR #97, CI 8/8, merged
+  (7987f20). Written directly. ~$0.4.
+- State at start: CI green on 6d8f7ba, no open issues, repo clean on main, disk gate 20 GB (exactly the
+  minimum, passed).
+- Next: once #96 is merged by the human, open milestone issue "milestone: 008 csv and proto" and implement
+  item 1 (ADR 0007 via `architect`). If #96 closed unmerged, record reason in decisions.md and plan YAML 3B
+  or config 5A. Filler left: docs lines >100 cols (PRD.md ~33, 000-inherited.md 6; README line 5 Korean
+  intro still says "planned" and is 532 cols).
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
+- Learned: `gh run watch <id> --interval 20 --exit-status` is the way to wait for CI; get the id from
+  `gh pr checks`/`gh run list --branch`.
 
 ## Cycle 90 — 2026-11-06 — FEATURE
 
