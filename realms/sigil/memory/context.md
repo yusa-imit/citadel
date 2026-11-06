@@ -1,7 +1,16 @@
 # sigil — context
 
-last_seen_at: 2026-11-06T03:15:00Z
+last_seen_at: 2026-11-06T15:05:00Z
 rejected_plans: []
+
+## Cycle 92 — 2026-11-06 — FEATURE (no-op: disk gate)
+
+- Done: nothing. Preflight disk gate read 17 GB (< 20), so the cycle stopped before inbox. Memory only.
+- State: plan PR #96 (plan 008 csv + proto) still OPEN (2 comments, not read this cycle: the gate
+  stopped the cycle first; next cycle's inbox must read them, only `yusa-imit` counts).
+- Next: when disk >= 20 GB, inbox; if #96 merged, open "milestone: 008 csv and proto" and do item 1
+  (ADR 0007 via `architect`); if closed unmerged, record reason and plan YAML 3B or config 5A.
+- Blockers: disk 17 GB free on /. Open questions: reflect omit-null note from PR #80 still open.
 
 ## Cycle 91 — 2026-11-06 — FEATURE
 
