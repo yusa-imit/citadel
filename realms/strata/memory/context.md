@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-11-05T05:30:00Z
+last_seen_at: 2026-11-06T06:20:00Z
 rejected_plans: []
+
+## Cycle 84 — 2026-11-06 — FEATURE
+- Done: preflight found item-5 work uncommitted on `feat/kv-recovery` (already green: tests + fmt);
+  preserved as `wip/feat-kv-recovery-20261106` (pushed, keep), then finished on `feat/kv-recovery`.
+  Merged #84 (plan 006 item 5: `Db.open` replays from the checkpoint via `Recovery` + `PageRedo`,
+  `Db.checkpoint`; CI 7/7). Milestone #79 items 1-5 ticked. ~$1.1 of $4, ~14 min.
+- Review (sonnet): 0 critical, 4 warnings, all addressed: unreachable `Corrupted` in `replay_log` ->
+  asserts; added zeroed page 1 and mid-log flipped-byte tests; docs fixed.
+- Open: a mid-log damaged frame leaves `pages.db` partly redone before `Corrupted` (safe, idempotent);
+  no test for `wal_lsn` naming no checkpoint frame, crash points inside `checkpoint`, latched
+  `Db.checkpoint`, header-only torn segment, `page_count_max` smaller than the log needs (`Failed` is
+  "reopen"); "redo ignores page lsn" mutant deferred to item 10; `open` reads the log 3 times.
+- Next: item 6 commit frame (WAL type 4) and commit-bounded recovery (ADR-0005 §4, §7).
+- Blockers: none. Open questions: none.
+- Note: perl -e 'sleep N' works for waits where bash `sleep` is blocked; reviewer ~2 min, dev fix ~4 min.
 
 ## Cycle 83 — 2026-11-05 — FEATURE
 - Done: merged #82 (ADR-0005 kv layout v1, item 3) and #83 (plan 006 item 4: `src/kv/db.zig`, `errors.zig`,
