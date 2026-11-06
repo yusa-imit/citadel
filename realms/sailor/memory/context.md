@@ -1,7 +1,14 @@
 # sailor — context
 
-last_seen_at: 2026-11-05T00:00:00Z
+last_seen_at: 2026-11-06T00:00:00Z
 rejected_plans: []
+
+## Aborted attempt — 2026-11-06 — disk gate (counter stays 51)
+
+- Preflight disk gate read 19 GB free (< 20) on `/`; cycle stopped before any work, no repo changes.
+  `/tmp/sailor-zig-cache` holds 2.1 GB (own scratch cache) but deleting it was not done: the gate says stop.
+- Next: n=52 STABILIZATION (#75 open): batch 7, taskrunner + terminal + textarea (textarea own agent).
+  Open question #78 (needs-human, non-blocking). Streak 0. Operator: free disk or lower the gate.
 
 ## Cycle 51 — 2026-11-05 — STABILIZATION
 
