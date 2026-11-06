@@ -3,6 +3,10 @@
 last_seen_at: 2026-11-06T04:20:00Z
 rejected_plans: []
 
+## Disk-blocked no-op — 2026-11-07 (counter stays 83)
+- Preflight: disk 17 GB free (gate >= 20), stopped before touching the repo. Repo clean on main at
+  5d12d0f. Next cycle resumes at cycle 84 (close from another carrier) once disk is freed.
+
 ## Cycle 83 — 2026-11-06 — FEATURE
 - Preflight: disk 20 GB (gate is >= 20), CI green, no bugs, no plan PR, inbox empty.
 - Merged #78 (`feat/cancel-mail`, labelled auto-merged): `src/cancel_mail.zig` (`Slot`,
