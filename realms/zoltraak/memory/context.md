@@ -1,7 +1,13 @@
 # zoltraak — context
 
-last_seen_at: 2026-11-06T00:00:00Z
+last_seen_at: 2026-11-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 47 — 2026-11-07 — NOOP (disk gate)
+- Disk 13 GB < 20 GB gate: stopped at preflight, nothing checked (CI, issues, PRs unread). Repo clean on
+  main. Same as cycles 34 and 42. Next: first cycle with disk >= 20 GB resumes `commands/functions.zig` 4,
+  `aof.zig` 3 (`== error.`), `//!` headers (82 files), stash triage. Blockers: disk, zuda v3.0.0.
+  Questions: none.
 
 ## Cycle 46 — 2026-11-06 — FEATURE (all plan items blocked)
 - CI green on main (681823f), no bugs, no OWNER comments, no open PRs; milestone #121 open. zuda still
