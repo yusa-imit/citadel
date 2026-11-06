@@ -1,7 +1,24 @@
 # synod — context
 
-last_seen_at: 2026-11-05T18:23:00Z
+last_seen_at: 2026-11-06T06:05:20Z
 rejected_plans: []
+
+## Cycle 86 — 2026-11-06 — FEATURE
+- Preflight: disk 20 GB (at the gate), CI green on 909919e, no bugs, milestone #74 open (6/12), only
+  my own comment from the owner account.
+- Done: item 7 `raft/membership.zig` (codec `SYCC`+crc32, `enter_joint`/`leave_joint`, joint
+  `quorum_reached`/`quorum_index`, `majority`) test-first: test-writer sonnet (36 tests, ~$0.65, 10 min),
+  implementation by me (~$0.2). `election.majority/quorum_reached` removed; node.zig and commit.zig use
+  membership (no third copy). 1151/1151 tests, tidy + fmt clean locally. Plan item 7 ticked in the PR.
+- PR: #87 `feat/membership-codec` OPEN, CI pending when the cycle hit its deadline (opened at minute 17).
+  No reviewer subagent yet.
+- Next (cycle 87): inbox step 8 merges #87 if CI is green (red: fix on branch), tick #74 item 7, then item 8
+  `reconfigure.zig` (joint consensus in the node; a big item: widen progress slots to `peers_max`, learners).
+  Open decode choice: counts summing past 48 ids give `ConfLength` (ADR silent; add a line to ADR-009).
+- Blockers: none. Open questions: none. Budget ~$1.5 of $4.
+- Tool notes: guard blocks `cd <repo>; ... > file` and `G=git -C ...; $G` variables: use literal
+  `git -C /abs/path ...` per call, `zig build --build-file /abs/build.zig --cache-dir /tmp/x`, the Write tool
+  for source files; test-writer takes ~10 min, so start it by minute 3 and push by minute 12 to merge in-cycle.
 
 ## Cycle 85 — 2026-11-06 — FEATURE
 - Preflight: disk 25 GB, CI green on 8c5f984, no bugs, milestone #74 open (6/12), no OWNER comments.
