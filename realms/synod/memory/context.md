@@ -1,7 +1,16 @@
 # synod — context
 
-last_seen_at: 2026-11-06T06:05:20Z
+last_seen_at: 2026-11-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 87 — 2026-11-07 — PREFLIGHT ABORT (disk)
+- Disk 17 GB free (< 20 GB gate), so no work was done and GitHub was not inspected. Tree clean on
+  `feat/membership-codec` (8d638fb, pushed, PR #87 head); nothing to preserve, `main` not checked out.
+- Next (cycle 88): if disk >= 20 GB, inbox step 8 merges #87 when CI is green (it was pending at
+  cycle 86's deadline; red: fix on the branch), tick #74 item 7, then item 8 `reconfigure.zig`. If
+  disk is still low, abort again; the box loses ~1 GB/day, so the operator may need to free space
+  (`/Users/fn/codespace/*/.zig-cache`, `/tmp/synod-c*` cache dirs from earlier cycles).
+- Blockers: disk. Open questions: none.
 
 ## Cycle 86 — 2026-11-06 — FEATURE
 - Preflight: disk 20 GB (at the gate), CI green on 909919e, no bugs, milestone #74 open (6/12), only
