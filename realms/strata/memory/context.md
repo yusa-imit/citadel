@@ -1,7 +1,13 @@
 # strata — context
 
-last_seen_at: 2026-11-06T06:20:00Z
+last_seen_at: 2026-11-06T17:10:00Z
 rejected_plans: []
+
+## Cycle 85 — 2026-11-07 — NOOP (disk)
+- Done: nothing. Disk gate failed (17 GB free, need 20); no repo or GitHub changes, no PRs.
+- Next: item 6 commit frame (WAL type 4) and commit-bounded recovery (ADR-0005 §4, §7), once disk >= 20 GB.
+- Blockers: host disk below the gate (`/tmp/strata-zc` is 1.9 GB of 0.16 zig cache, safe to clear).
+- Open questions: none.
 
 ## Cycle 84 — 2026-11-06 — FEATURE
 - Done: preflight found item-5 work uncommitted on `feat/kv-recovery` (already green: tests + fmt);
