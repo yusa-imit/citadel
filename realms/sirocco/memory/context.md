@@ -1,7 +1,24 @@
 # sirocco — context
 
-last_seen_at: 2026-11-05T16:30:00Z
+last_seen_at: 2026-11-06T04:20:00Z
 rejected_plans: []
+
+## Cycle 83 — 2026-11-06 — FEATURE
+- Preflight: disk 20 GB (gate is >= 20), CI green, no bugs, no plan PR, inbox empty.
+- Merged #78 (`feat/cancel-mail`, labelled auto-merged): `src/cancel_mail.zig` (`Slot`,
+  `is_remote`, `request`, `settle`, handler fiber on the home), `Task.rt` + `Task.cancel_slot`,
+  `join.wake_fiber`; `task_publish` no longer reads the record after waking the awaiter. 3 tests
+  in `cancel_mail_test.zig` (task hand-homed on peer 1 and started by mail). 874/961, 100 serial
+  runs clean. ADR 0004 "as built" note: flag stays home-owned, the canceller is the UAF guard.
+- Item 7 stays UNCHECKED. Remaining: `GroupRec` join + lock + group cancel from another carrier,
+  close from another carrier, seeded 4-carrier model test, parity at 4 carriers, 1000 serial runs.
+  `task_finish` still asserts `task.sched == &rt.sched`; await from other carriers waits for item 8.
+- Gotchas: `run_until` returns at once when the carrier has no live fiber (so the driver cannot
+  wait on carrier 0 for a peer's event: sleep in the baseline futex); in `python3 -c "..."` backticks
+  are shell-expanded, use a heredoc file; the guard allows `lldb` but it hangs (use bisecting).
+  Done in ~15 min, ~$1.2, written directly with no subagent.
+- Next: cycle 84: close from another carrier (registry `close_locked` + armed mask), then the
+  GroupRec lock/join, then the seeded model test.
 
 ## Cycle 82 — 2026-11-05 — FEATURE
 - Preflight: disk 26 GB, CI green, no bugs, no plan PR, inbox empty (no comments since watermark).
