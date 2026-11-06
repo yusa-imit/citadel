@@ -122,65 +122,44 @@ rejected_plans: []
 - Three NOOP cycles: disk gate failed (18, 17, 16 GB free); nothing changed. Host disk later recovered to 25 GB.
   `/tmp/strata-zc` (1.9 GB) is the zig cache for 0.16 builds.
 
-## Cycles 61-63 (2026-10-20..21, condensed 2026-10-30)
-- 61: plan 005 approved (#62), milestone #63 opened. Item 1 ADR-0004 B+Tree page format v1 (#64):
-  types 16/17/18, 24 B header, u16 payload offsets, dense ordered cells, varint lengths,
-  key_len_max <= 1024, height_max 16..7 by page size, frame type 16 `page_images`. Work the ADR
-  assigns to item 9 (WAL integration): `PageManager.free_at`, `BufferPool.discard`, id reserve with
-  page-file sync before a frame references a popped id, overflow chains logged in their own frames
-  first, `PageRedo` handles frame type 16. Item 4 owns `BufferPool.fetchNew`.
-- 62: item 2 `src/btree/node.zig` leaf codec (`parse_leaf`, `Leaf.entry/search/check_invariants/
-  check_link(id)`, `format_leaf`, `seal`, `set_next`, `leaf_insert`, `leaf_remove`; ADR-0004 §2
-  limits as comptime asserts), page types 16-18 in `page/header.zig`, #65. Mutators are free fns
-  over `[]u8` that leave the CRC stale: the caller ends with `seal(page, id, lsn)`; `leaf_insert`
-  returns `NodeFull`/`Corrupted` before the first write.
-- 63: item 3 `src/btree/internal.zig` (`parse_internal(page, level)`, `format_internal`,
-  `internal_insert/remove`, `set_child`, `set_right_child`, `child_index/child_at`, `check_link/
-  check_children/check_invariants`) and `btree/split.zig` `split_point(page, incoming_bytes, at)
-  ParseError!u16`, #66, 683 tests. Review: `split_point` asserted on page bytes, now `Corrupted`
-  (ADR §13 amended). `node.zig` helpers (get16/put16/...) are `pub`.
-- Pattern (~$2.5 of $4, ~20 min): one zig-developer does tests + impl (~8 min, ~$0.9), reviewer in
-  parallel while ticking plan/CHANGELOG, fixes via SendMessage (~3 min); an opus ADR costs
-  ~$1.6 (brief developers with ADR sections only). Guard rejects `;`-chained commands and `sleep N`.
-
-## Cycles 45-60 (2026-10-11..20, folded 2026-10-28)
-- Plan 003 closed (v0.4.0: page matrix tests, `bench/pool.zig`), plan 004 WAL (v0.5.0) landed as #50-#61:
-  `wal/frame` (CRC32C seeded with expected LSN), `segment`, `reader`, `writer`, `group_commit`,
-  `recovery` (`Apply` vtable), `redo` (`PageRedo`), `checkpoint`, seeded crash-recovery property test.
-  `wip/test-wal-recovery-property-20261019` holds a deliberate mutant (`or true` in `wal/redo.zig`) -
-  never merge it. ADR-0003 WAL format v1. Plan 005 proposed (#62) and approved.
-- Left from the WAL work: `FaultIo` cannot inject Canceled; recovery repairs run after the whole log is
-  read; `sync_dir` ignores the full-sync variant on darwin; `Segment.open` is read_write.
-- Lessons: no `timeout` on macOS; run `gh pr checks` waits as `until ! gh pr checks N | grep -q pending`;
-  foreground `sleep` blocked; do not call ScheduleWakeup in /cycle; brief the zig-developer with ADR
-  sections and a stop time; reviewer in parallel with CI; fixes via SendMessage; `chore` label missing in
-  strata; `--cache-dir /tmp/strata-zc` for 0.16 builds; opus ADR costs ~$1.6-2.3.
-
-## Cycles 25-44 (2026-10-01..11, folded 2026-10-27)
-- 25-32: plan 002 items 5-6: `file/file.zig` (`File` leaf value, no cached io; `direct` =>
-  `UnsupportedDirectIo`), `preallocate`, `lock`/`tryLock`; `file/platform.zig` is the only
-  os-branching file; `file.zig` is 788/800 lines, new `File` methods go in a new file. `FaultIo`
-  must forward `checkCancel` and every slot `File`/`platform` reach; Linux compile check:
-  `zig test src/root.zig -target x86_64-linux --test-no-exec`. `testing/truncation_matrix_test.zig`
-  (every cut 8..64 KiB; swap in the real WAL frame decoder), codec bench baseline (crc hw 5.3 GB/s,
-  xxhash 26.2, varint enc 198 M/s, in `000-inherited.md`). v0.3.0 tagged, plan 003 proposed (#28).
-- 36-41: plan 003 approved, tidy ADR-0001 `Io` guards (#35; `Io.Threaded`/`Evented`/
-  `global_single_threaded` banned in `src/`). ADR-0002 page format v1 (#36): 24 B header, CRC32C
-  seeded with u64 page id, `Id = enum(u32)` 0 = null, all-zero page -> `Unwritten`, trunk-only
-  freelist. `page/header.zig` (#37), `page/freelist.zig` (#38), `PageManager` create/open/read/
-  write (#39): exclusive tryLock, short/foreign file -> Corrupted, EOF inside a page -> TornWrite;
-  `create` does not enforce `page_count_max` (allocate does).
-- 42-44: items 6-8 (#40-#42, CI 7/7): `PageManager.allocate/free/sync` (reused page keeps stale
-  bytes until written; `free` uses `wal_lsn` as page lsn), CLOCK `BufferPool` (all allocation in
-  `init`, `PoolExhausted`, tombstone `rehash` every `frames_max` evictions), `cache/guard.zig`
-  `PageGuard` (write-back runs before `table.remove`; a failed write keeps the frame resident and
-  dirty). Follow-ups: no `fetchNew` for a fresh page (needed before the B+Tree); `flushAll` cleans
-  pinned frames, so a later edit through an old slice needs `markDirty`.
-- Notes: tidy density counts `assert(` per fn per file incl. test helpers; `mem.indexOf` banned
-  (`findScalar`); `catch unreachable` banned; `fixtures.id_of` asserts raw < 64; 100 cols applies to
-  comments; `assert(x.remove())` is a side-effect trap; Bash guard rejects compound commands and
-  `$VAR` paths into citadel; PATH zig is 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`
-  with `--cache-dir /tmp/strata-zc`; macOS `sed -i` needs `''`.
+## Cycles 25-63 (2026-10-01..21, folded 2026-11-06)
+- Plan 002 (25-32): `file/file.zig` (`File` leaf value, no cached io; `direct` => `UnsupportedDirectIo`),
+  `preallocate`, `lock`/`tryLock`; `file/platform.zig` is the only os-branching file; `file.zig` is
+  788/800 lines, new `File` methods go in a new file. `FaultIo` must forward `checkCancel` and every
+  slot `File`/`platform` reach (it cannot inject Canceled). Linux compile check: `zig test src/root.zig
+  -target x86_64-linux --test-no-exec`. v0.3.0 tagged.
+- Plan 003 (36-44, v0.4.0): ADR-0001 `Io` guards in tidy (`Io.Threaded`/`Evented`/
+  `global_single_threaded` banned in `src/`); ADR-0002 page format v1 (24 B header, CRC32C seeded with
+  u64 page id, `Id = enum(u32)` 0 = null, all-zero page -> `Unwritten`, trunk-only freelist);
+  `page/header.zig`, `page/freelist.zig`, `PageManager` (exclusive tryLock, short/foreign file ->
+  Corrupted, EOF inside a page -> TornWrite, `create` does not enforce `page_count_max`, `allocate`
+  does), CLOCK `BufferPool` (all allocation in `init`, `PoolExhausted`, tombstone `rehash` every
+  `frames_max` evictions), `PageGuard` (write-back before `table.remove`; failed write keeps the frame
+  resident and dirty). `flushAll` cleans pinned frames: a later edit through an old slice needs
+  `markDirty`.
+- Plan 004 (45-60, v0.5.0, #50-#61): `wal/frame` (CRC32C seeded with expected LSN), `segment`,
+  `reader`, `writer`, `group_commit`, `recovery` (`Apply` vtable), `redo` (`PageRedo`), `checkpoint`,
+  seeded crash-recovery property test; ADR-0003 WAL format v1. `wip/test-wal-recovery-property-
+  20261019` holds a deliberate mutant (`or true` in `wal/redo.zig`): never merge it. Left over:
+  recovery repairs run after the whole log is read; `sync_dir` ignores the full-sync variant on
+  darwin; `Segment.open` is read_write.
+- Plan 005 (61-63): approved (#62), milestone #63. ADR-0004 B+Tree page format v1 (#64): types
+  16/17/18, 24 B header, u16 payload offsets, dense ordered cells, varint lengths, key_len_max <= 1024,
+  height_max 16..7 by page size, frame type 16 `page_images`; item 9 owns `PageManager.free_at`,
+  `BufferPool.discard`, id reserve with page-file sync before a frame references a popped id, overflow
+  chains logged first, `PageRedo` for frame 16; item 4 owns `BufferPool.fetchNew`. `btree/node.zig`
+  leaf codec (#65): mutators are free fns over `[]u8` that leave the CRC stale, the caller ends with
+  `seal(page, id, lsn)`; `leaf_insert` returns `NodeFull`/`Corrupted` before the first write.
+  `btree/internal.zig` + `split.zig` (#66): `split_point` returns `Corrupted` on bad bytes, never
+  asserts (ADR §13).
+- Notes: tidy density counts `assert(` per fn per file incl. test helpers, `mem.indexOf` banned
+  (`findScalar`), `catch unreachable` banned, 100 cols applies to comments, `assert(x.remove())` is a
+  side-effect trap. Bash guard rejects compound commands, `sleep N` and `$VAR` paths into citadel;
+  wait with `until ! gh pr checks N | grep -q pending`. PATH zig is 0.15.2: use
+  `/Users/fn/.zr/toolchains/zig/0.16.0/zig` with `--cache-dir /tmp/strata-zc`. No `timeout` on macOS;
+  no `chore` label in strata. Cost pattern (~$2.5 of $4 per item): one zig-developer for tests + impl
+  (~$0.9), reviewer in parallel with CI, fixes via SendMessage; an opus ADR costs ~$1.6-2.3, brief
+  developers with ADR sections only.
 - Remaining audit sweeps: `std.debug.assert` alias across `tools/` (~65); assertion density in
   `tools/`; camelCase public API in `src/file/file.zig` (needs a plan).
 

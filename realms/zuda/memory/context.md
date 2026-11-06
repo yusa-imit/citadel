@@ -103,69 +103,40 @@ rejected_plans: []
   agents burned ~$2.2 in ~6 min; do mechanical edits with perl directly. Delete `src/_sweep*` before commit.
   dp still red: max_sum_rectangle, scramble_string, stock_trading, subset_sum, target_sum.
 
-## Cycles 27-29 (2026-10-17..19, condensed 2026-10-21)
-- All merged by squash at 7/7 green, labeled `auto-merged`.
-- 27 (#71): `map_reduce.zig` redesigned (bounded `EmitterType` with `pairs_max`/`PairsLimitExceeded`,
-  comptime `key_order`, stable sort, results without a stored allocator); "Thread sync" item done.
-- 28 (#72): `internal/testing.zig` seeds from `std.testing.random_seed`; `internal/bench.zig` fixed
-  (warmup counted in memory stats; `MemoryTracker.reset` must keep live bytes). Leftovers:
-  `Benchmark` stores its allocator and grows `times` after init, `generateUniqueRandomIntegers`
-  unbounded loop, global `prng` with no init assert.
-- 29 (#73): `red_black_tree.zig` assertion baseline (size delta, root state, `validate` up to 512
-  nodes after each mutation; file had been invisible to `zig build test`). `linalg/blas.zig` has 77
-  errors on 0.16 (`OutOfMemory` escaping `NDArray.Error` in trmv/trmm/syrk, `clone` missing); asserts
-  there reverted as unverifiable. RBT size-delta assert is weak (pair with return value).
-- Quirks: `gh pr checks` foreground loop hits the 600 s tool cap; cross-compile jobs queue late
-  (>15 min), so open the PR by minute ~8; `zig fmt --check src/utils` flags pre-existing
-  `compare.zig`; Monitor/`until` via Bash run_in_background works for waiting on a log.
-
-## Cycles 20-26 (2026-10-09..16, condensed 2026-10-17)
-- All merged by squash with 7/7 checks, labeled `auto-merged`. Plan 001 "compile-clean" and
-  "Thread sync" slices:
-- 20 (STABILIZATION, bug #63, PR #64): OOM leaks and an undefined free in `palindrome_partition`,
-  `knights_tour`, `combination_sum`, `permutations`, `subsets`, `n_queens`; a
-  `checkAllAllocationFailures` test per file. 21-22: ported `nfa`, `matrix_chain`,
-  `ford_fulkerson` (#65; never-run tests exposed a wrong `NFA.fromWildcard`) and `bogosort`
-  (#66, required `seed: u64`). 23: `kmeans`, `gmm`, `dqn`, `ddpg`, `tsne` per ADR 0001 D1 (#67;
-  t-SNE, kmeans, gmm bugs found).
-- 24-25: `approximation/*`, `greedy/*`, `automata/dfa`, `graph_coloring/*` ported and wired
-  (#68; real `dsatur` infinite loop on isolated vertices fixed); user-data asserts became typed
-  errors in #69 (`vertex_cover` `InvalidEdge`; `knapsack`, `bin_packing` `InvalidInput`;
-  CHANGELOG notes the v3.0.0 break). Interrupted work was preserved as
-  `wip/compile-clean-greedy-automata-approx-20261014`.
-- 26: #70 `WorkStealingDeque` (phantom item after resize, wrapping `t < b`) and `parallel_sort`
-  (merge sort corrupted 100+ elements, quick sort partition OOB; rewritten) and `prefix_sum`
-  (Blelloch wrong for non-power-of-two n), all wired into `root.zig`.
-- Leftovers: `greedy_coloring` Tiger cleanup, `backtracking_coloring` contract docs, DFA stores
-  an allocator (note an exception), huffman stack-depth assert, `hamiltonian.zig` not OOM-
-  audited, `dinic`/`edmonds_karp` not in the test graph, gmm per-point E-step alloc, deque resize
-  concurrent with steal still unsafe (documented in header).
-- Quirks: `zig` on PATH is 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`; BSD sed lacks `\n`
-  (use `perl -0pi`; escape `\@` in replacements); cross-compile CI jobs queue late (>15 min).
-
-## Cycles 10-19 (2026-10-01..10-08, folded 2026-10-30)
+## Cycles 10-29 (2026-10-01..19, folded 2026-11-06)
 All merged by squash with 7/7 checks, labeled `auto-merged`.
-- 10-15: seed injection finished (ADR 0001 D1); time -> `Io.Clock` (#49); tidy baseline to `tools/`
-  (#50); long fns fixed (#52); `deque.zig` tests found never running (#54). Recurring cause: files
-  reached only via nested `pub const` re-exports are invisible to `refAllDecls` (issue #38), so
-  probe with a scratch `src/scratch.zig` and wire fixed files into the test block.
-- 16 (bug #53, #55): the *test* was wrong, not `AhoCorasickASCII.findFirst` (first match to
-  complete); `aho_corasick.zig` wired into `root.zig`.
-- 17 (bug #57, #58 #59): ILU init double free; stale gmres/bicgstab arity in `iterative.zig`
-  tests exposed a REAL GMRES bug (lucky breakdown `h(j+1,j)~0` exited before rotating col j, so x
-  never updated); CG read `norm2(r)` after `free(r)`; zero pivot is `error.SingularMatrix`; ILU(0)
-  asserts ascending CSR columns (`CSR.fromCOO` does NOT sort). Question #56 (0.16 flip vs CI
-  pinned 0.15.2) went unanswered; option 1 (big-bang flip) taken.
-- 18: #60 flip to 0.16.0 + ndarray `Io.Dir`/`Io.Mutex`; #61 `mem.indexOf*` -> `find*`. Many files
-  outside `root.zig`'s test graph were still red on 0.16 (-> the sweep plan item).
-- 19 (#62): interrupted work preserved as `wip/fix-backtracking-0.16-compile-20261008`; all 9
-  `algorithms/backtracking/*` compile (sudoku hang, `isValidSudoku` OOB fixed); OOM harness found
-  leaks in six files -> bug #63.
-- Leftovers: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73 lines), 3-4 type-fn tidy
-  baseline entries grew (Cuckoo/RobinHood/ConcurrentSkipList/ILUPreconditioner).
-- Quirks: stale `.zig-cache` gives "failed to spawn build runner: FileNotFound" (use `--cache-dir
-  /tmp/zuda-zcache`); `zig build test` prints "failed command" noise yet exits 0; zsh has no
-  PIPESTATUS (`pipestatus`); no `timeout` binary; CI Build & Test 7-9.5 min.
+- 10-15: seed injection finished (ADR 0001 D1); time -> `Io.Clock` (#49); tidy baseline to `tools/` (#50);
+  `deque.zig` tests found never running (#54). Recurring cause: files reached only via nested `pub const`
+  re-exports are invisible to `refAllDecls` (issue #38): probe with a scratch `src/scratch.zig` and wire
+  fixed files into the test block.
+- 16-17 (bugs #53, #57): `AhoCorasickASCII.findFirst` test was wrong; ILU init double free; a REAL GMRES
+  bug (lucky breakdown `h(j+1,j)~0` exited before rotating col j, x never updated); CG read `norm2(r)`
+  after `free(r)`; zero pivot is `error.SingularMatrix`; ILU(0) asserts ascending CSR columns
+  (`CSR.fromCOO` does NOT sort). Question #56 went unanswered; option 1 (big-bang 0.16 flip) taken.
+- 18-19: #60 flip to 0.16.0 + ndarray `Io.Dir`/`Io.Mutex`; #61 `mem.indexOf*` -> `find*`; #62
+  backtracking compiles (kept `wip/fix-backtracking-0.16-compile-20261008`); OOM harness found leaks in
+  six files (bug #63).
+- 20-26: #64 OOM leaks in palindrome_partition, knights_tour, combination_sum, permutations, subsets,
+  n_queens; ported `nfa`, `matrix_chain`, `ford_fulkerson`, `bogosort` (#65-#66), `kmeans`/`gmm`/`dqn`/
+  `ddpg`/`tsne` per ADR 0001 D1 (#67), `approximation/*`, `greedy/*`, `automata/dfa`, `graph_coloring/*`
+  (#68, `dsatur` infinite loop on isolated vertices; kept `wip/compile-clean-greedy-automata-approx-
+  20261014`); user-data asserts became typed errors (#69: `vertex_cover` `InvalidEdge`, `knapsack`,
+  `bin_packing` `InvalidInput`, v3.0.0 break in CHANGELOG); #70 `WorkStealingDeque`, `parallel_sort`
+  (rewritten), `prefix_sum` fixed and wired.
+- 27-29: #71 `map_reduce.zig` redesigned (bounded `EmitterType`, `PairsLimitExceeded`, stable sort);
+  #72 `internal/testing.zig` seeds from `std.testing.random_seed`, `internal/bench.zig` fixed (warmup,
+  `MemoryTracker.reset`); #73 `red_black_tree.zig` assertion baseline. `linalg/blas.zig` had 77 errors on
+  0.16 (finished in #85).
+- Leftovers: `preconditioner.zig` init (135 lines), `bagging.zig` fit (73), 3-4 type-fn tidy baseline
+  entries grew (Cuckoo/RobinHood/ConcurrentSkipList/ILUPreconditioner), `greedy_coloring` Tiger cleanup,
+  DFA stores an allocator, `hamiltonian.zig` not OOM-audited, `dinic`/`edmonds_karp` not in the test
+  graph, `Benchmark` stores its allocator, `generateUniqueRandomIntegers` unbounded loop, deque resize
+  concurrent with steal still unsafe (documented in header).
+- Quirks: `zig` on PATH is 0.15.2, use `/Users/fn/.zr/toolchains/zig/0.16.0/zig`; stale `.zig-cache`
+  gives "failed to spawn build runner: FileNotFound" (use `--cache-dir /tmp/zuda-zcache`); `zig build test`
+  prints "failed command" noise yet exits 0; BSD sed lacks `\n` (use `perl -0pi`, escape `\@`); zsh has no
+  PIPESTATUS; no `timeout` binary; CI Build & Test 7-9.5 min, cross-compile jobs queue late (>15 min), so
+  open the PR by minute ~8 and never poll `gh pr checks` in a foreground loop (600 s tool cap).
 
 ## History (cycles 0-9, folded 2026-09-17 to keep this file under 200 lines)
 Realm created 2026-09-05; plan 001 (Zig 0.16 migration) merged, milestone issue #31 opened.
