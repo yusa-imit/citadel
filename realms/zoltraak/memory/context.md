@@ -59,105 +59,41 @@ rejected_plans: []
   baselines. 42: NOOP at the disk gate (18 GB < 20 GB), nothing checked.
 - Quirk: `gh pr checks --watch` works for CI waits (a `sleep` + until chain is blocked by the guard).
 
-## Cycles 36-39 (2026-10-27..30), folded
-Plan items 4-9, 12 blocked on zuda v3.0.0 each cycle, so each ran `/stabilize --one`; all PRs merged
-with CI green and `auto-merged`; `zig build test` 1627/1627 except the 2 known signal-4 crashers.
-- C36 PR #159: `bloom.zig` scanDump loop bounded; `while (true)` in `src/` now 2, both legit.
-- C37 PR #160: `server.zig` `== error.` -> switch; compiler proved an `EndOfStream` branch dead.
-  Flake: `test_iter347` (ACL DRYRUN) hung at 0 CPU once; did not recur in C38-41.
-- C38-39 PRs #161/#162: `lists.zig` 13, `sets.zig` 14 -> switch (perl multi-line regex).
-- Quirks: full `zig build test` takes ~8 min and buffers output; use `run_in_background` plus a
-  Monitor on `Build Summary`. `rm -rf .zig-cache` fixes the `FileNotFound` build-runner error.
-
-## Cycle 35 — 2026-10-26 — STABILIZATION (n % 5)
-- CI green on main (fbbc2a5), no bugs, no OWNER comments, no open PRs; milestone #121 open.
-- Audit recount (STATE.md updated): `catch unreachable` 26 all with proof comments, `@panic` 0,
-  `std.debug.print` 0, `while (true)` 3, `//!` missing 82/88, `== error.` 115, compound asserts 5.
-- PR #158 (merged, auto-merged): split the 5 compound asserts in `commands/strings.zig` into
-  `if (a) assert(!b)`. `zig build test` 1627/1627 except the 2 known signal-4 crashers; fmt, tidy clean.
-- Next: `== error.` -> exhaustive `switch (err)` (start `server.zig` ~578, then `sorted_sets.zig` 32);
-  bound the `bloom.zig:826` test loop; `//!` headers (82 files); stash triage. Items 4-9, 12 blocked
-  on zuda v3.0.0. Blockers: none. Open questions: none.
-- Quirk: BSD sed has no `\s`; use plain patterns or Edit.
-
-## Cycle 34 — 2026-10-23 — NOOP (disk gate)
-- Preflight stopped at the disk gate: `df -g /` showed 15 GB free (needs >= 20; volume 228Gi,
-  11Gi used by the data volume, 15Gi available). No repo state read, nothing changed, no GitHub
-  or inbox check this cycle. Checkout was on clean main at start.
-- Next: free disk (build caches such as `zig-cache`/`.zig-cache` across kingdom repos are the
-  likely cause) then resume: items 4-9, 12 still blocked on zuda v3.0.0; stash triage
-  (stash@{0}); remaining `while (true)`: server.zig:575, cli.zig:108, bloom.zig:826.
-- Blockers: disk < 20 GB (human or cache cleanup needed). Open questions: none.
-- Lesson: the guard blocks a compound command that reads a citadel path next to a repo command;
-  run the preflight reads as separate plain commands.
-
-## Cycles 29-33 (2026-10-16..22), folded
-All plan items 4-9, 12 blocked on zuda v3.0.0 (zuda still v2.3.0), so each cycle took one
-stabilization fix; every PR merged with CI green and `auto-merged`; milestone #121 open; no owner actions.
-- C29 PR #153: notifications.zig tests passed `PubSub` by value (never compiled); now exact RESP2 frame
-  checks. First CI run died on a DNS flake (`TemporaryNameServerFailure`): `gh run rerun --failed`.
-  Finding: wiring lazyfree.zig or blocking.zig drags in memory.zig's stale test suite (66 errors) plus
-  search (110), config (59), modules (41), acl (30), cluster (39); repair one file at a time, memory.zig
-  first. persistence/aof/replication untried: check their imports for memory.zig before wiring.
-- C30 PR #154 (stabilization): `sendAndReadReply` read unbounded, now `src/network/reply_line.zig`
-  (`reply_line_max` = 4096, `ReplyTooLong`) with loopback tests. Tests in `commands/*.zig` do not run
-  (they import memory.zig); put testable logic in a standalone file and wire it into `src/main.zig`;
-  mutate the code under test once to prove a new test runs.
-- C31 PR #155: `WAIT 1 18446744073709551615` overflowed `timeout_ms * 1_000_000` and trapped; new
-  `src/utils/wait_poll.zig` (saturating `deadline_ms`, `poll_count_max`), WAIT and WAITAOF loops bounded.
-- C32 PR #156: XREAD/XREADGROUP BLOCK loops bounded by `src/utils/block_poll.zig` (`poll_count_max` = one
-  year at 100 ms, pure `timed_out`), mutation-checked.
-- C33 PR #157: `luaToRESP2Buf` array scan moved to `src/scripting/lua_array.zig` (`sequence_len`,
-  bounded by `lua_objlen`), 6 tests on a real Lua state. The mutation check hung the build.
-- State after C33: `zig build test` 1627/1627 except the 2 known signal-4 crashers; fmt and tidy clean;
-  `while (true)` in `src/` 9 -> 3.
-- Open: server.zig:575, cli.zig:108 (probably legit loops, audit), bloom.zig:826 (test loop),
-  streams_advanced.zig:446,735 sleep-polls; stash triage (stash@{0}); repair memory.zig stale suite.
-- Quirks: the guard blocks compound commands mixing citadel paths with repo commands and `git -C <other
-  repo>`; run them alone. BSD sed `-i` needs `-i ''`; anchor patterns (`sed '/storage\/blocking.zig/d'`
-  also deleted the real `pub const blocking` line in main.zig); use Edit for mutation checks.
-
-## Cycles 18-28 (2026-10-06..15, folded 2026-10-29)
-- Every cycle here had plan items 4-9, 12 blocked on zuda v3.0.0 (zuda v2.3.0), so each ran one
-  `/stabilize --one`. Root finding (C20): `src/` has 2659 `test` blocks but `zig build test` ran
-  1114, because Zig runs `test` blocks only for files something analyzes. Fix pattern: wire one
-  file at a time with an `_ = @import` in the `src/main.zig` reachability test (1114 -> 1519 by
-  C28; only the 2 known signal-4 crashers fail). Bulk-wiring all 84 files does not compile.
-- PRs: #142 `zoltraak-cli` stdout writer (`std.debug.print` in `src/` now 0); #143 bounded
-  `heapifyDown`; #144 topk + heavykeeper wired; #145/#146 encodings, listpack, slowlog, cms,
-  scripting, vector, defrag wired (`CMS.INCRBY` with i64 min trapped on `-delta`, now `@abs` and
-  CounterUnderflow); #147 legacy JSON paths (`scan_start`); #148 bloom + functions; #149 cuckoo;
-  #150 tdigest `cdf`; #151 real leak in `SentinelState.resetMaster` (`SentinelInfo.deinit`);
-  #152 `LFUCounter` `initWithSeed`. Issue #141 (`migration: sailor v3.0.0`) waits for the 0.16
-  toolchain.
-- Probe: `zig test src/<f>.zig` standalone shows whether a file's tests compile; search, cluster,
-  config, tls_config, acl, timeseries, modules, pubsub, blocking, lazyfree, notifications, aof,
-  replication, persistence, eviction do not (module path / `zuda` / stale tests) and need
-  build-module wiring. Deleting `.zig-cache` fixes the `FileNotFound` build-runner error; a
-  full-tree error dump takes >10 min, grep one file.
-- Lessons: use anchored sed patterns (an unanchored delete removed the real `pub const blocking`
-  in main.zig); the guard blocks python heredocs containing `rm -rf`, chained merge commands, and
-  compound `cd repo; ...`; `gh pr create --label chore` fails (no label), GraphQL errors are
-  transient, retry; `./zig-out/bin/zoltraak` pid 80225 is not ours, left alone.
-
-## History (cycles 13-17, condensed 2026-10-10)
-
-All FEATURE/STABILIZATION cycles with plan 001 items 4-9, 12 blocked on zuda/sailor v3.0.0; each
-ran `/stabilize --one`:
-- **13 (09-30)**: PR #136 applied `zig fmt` to 13 files (no logic change); function-length
-  baselines raised for fmt-split `cmd*` functions. Local `zig build test`: 1106/1106 except the
-  2 known signal-4 RDB crashers (`test_iter432`/`437`).
-- **14 (10-01)**: PR #137 added `zig fmt --check src build.zig` to CI (merged next cycle).
-  Local build failed with `FileNotFound` build-runner error: `rm -rf .zig-cache` fixes it.
-- **15 (10-02)**: PR #138 moved 13 `std.debug.print` calls to `std.log` (storage, commands,
-  scripting).
-- **16 (10-03)**: PR #139 moved server.zig's 26 prints to `std.log`. A leaked hung test binary
-  (not ours, pid 68879) sat at 0% CPU for days; did not recur.
-- **17 (10-05)**: tree was dirty on `chore/std-log-main-prints`; preserved on
-  `wip/std-log-main-prints-20261005`, landed as PR #140 (main.zig 21 prints, pure `usageText`).
-  Remaining `debug.print`: cli.zig 45 (CLI output is product: needs a stdout-writer decision).
-- Lessons: `gh pr create --label chore` fails (no `chore` label in the repo); guard hook blocks
-  compound `cd repo; ...`, `timeout`, chained `sleep`: run plain commands.
+## Cycles 13-39 (2026-09-30..10-30), folded 2026-11-06
+Plan 001 items 4-9, 12 were blocked on zuda/sailor v3.0.0 the whole time (zuda still v2.3.0), so each
+FEATURE/STABILIZATION cycle ran one `/stabilize --one`; every PR merged with CI green and `auto-merged`.
+`zig build test` stays 1627/1627 except the 2 known signal-4 RDB crashers (`test_iter432`/`437`).
+- 13-17: `zig fmt` pass (#136), `zig fmt --check` in CI (#137), all `std.debug.print` in `src/` moved to
+  `std.log` (#138-#140; the dirty `chore/std-log-main-prints` was kept as `wip/std-log-main-prints-
+  20261005`). cli.zig prints are product output (stdout writer, #142).
+- 18-28 root finding (C20): `src/` has 2659 `test` blocks but `zig build test` ran 1114, because Zig runs
+  `test` blocks only for files something analyzes. Fix pattern: wire one file at a time with an
+  `_ = @import` in the `src/main.zig` reachability test (1114 -> 1519 by C28); bulk-wiring all 84 files
+  does not compile. PRs #142-#152 wired topk, heavykeeper, encodings, listpack, slowlog, cms, scripting,
+  vector, defrag, bloom, functions, cuckoo and fixed real bugs (`CMS.INCRBY` i64-min trap, tdigest `cdf`,
+  leak in `SentinelState.resetMaster`, bounded `heapifyDown`). Probe with `zig test src/<f>.zig`: search,
+  cluster, config, tls_config, acl, timeseries, modules, pubsub, blocking, lazyfree, notifications, aof,
+  replication, persistence, eviction do not compile standalone (module path / `zuda` / stale tests).
+  Issue #141 (`migration: sailor v3.0.0`) waits for the 0.16 toolchain.
+- 29-33 (#153-#157): notifications tests (a DNS flake needs `gh run rerun --failed`); bounded reply read
+  `src/network/reply_line.zig` (`reply_line_max` 4096); `WAIT 1 18446744073709551615` overflow trap fixed
+  in `src/utils/wait_poll.zig`; XREAD BLOCK bounded by `src/utils/block_poll.zig`; `luaToRESP2Buf` scan in
+  `src/scripting/lua_array.zig`. Wiring lazyfree.zig or blocking.zig drags in memory.zig's stale test
+  suite (66 errors), plus search 110, config 59, modules 41, acl 30, cluster 39: repair one file at a
+  time, memory.zig first. Tests in `commands/*.zig` do not run (they import memory.zig): put testable
+  logic in a standalone file and wire it into `src/main.zig`; mutate the code once to prove a test runs.
+- 34: NOOP at the disk gate (15 GB). 35 (STABILIZATION): recount `catch unreachable` 26 all with proof,
+  `@panic` 0, `std.debug.print` 0, `while (true)` 3, `//!` missing 82/88, `== error.` 115; #158 split
+  compound asserts. 36-39 (#159-#162): `bloom.zig` scanDump bounded, `== error.` -> exhaustive `switch
+  (err)` in server.zig, lists.zig, sets.zig. Flake: `test_iter347` (ACL DRYRUN) hung at 0 CPU once.
+- Open: `while (true)` at server.zig:575, cli.zig:108 (probably legit), bloom.zig:826 (test loop),
+  streams_advanced.zig:446,735 sleep-polls; stash triage (`stash@{0}`); repair memory.zig stale suite.
+- Quirks: full `zig build test` takes ~8 min and buffers output (use `run_in_background` plus a Monitor
+  on `Build Summary`); `rm -rf .zig-cache` fixes the `FileNotFound` build-runner error; BSD sed has no
+  `\s` and `-i` needs `''`, anchor patterns (an unanchored delete removed the real `pub const blocking`
+  line in main.zig), use Edit for mutation checks; the guard blocks compound commands mixing citadel
+  paths with repo commands, `git -C <other repo>`, `timeout`, chained `sleep`; `gh pr create --label
+  chore` fails (no label), GraphQL errors are transient.
 
 ## History (cycles 1-9, folded)
 - Cycle 1: opened milestone #121; item 1 split into #122 (hygiene) and #123 (real MIGRATE via

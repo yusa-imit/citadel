@@ -118,55 +118,24 @@ rejected_plans: []
   20); no repo/CI/inbox check done. Disk recovered by cycle 41 (41 GB).
 - Tooling: `zig build tidy|test --cache-dir /tmp/silica-zc-tidy` exit 0 silently on success.
 
-## History (cycles 32-36, condensed 2026-10-21)
+## History (cycles 19-36, folded 2026-11-06)
 
-Cycle 35 (STABILIZATION, 2026-10-18): audit clean (0 `expect(true)`, 0 `@panic(` in src, hygiene ok;
-root *.o/*.a/test_output.txt untracked+gitignored); #176 split showIndexes (77); #163 sailor v3.1.0
-notice: target v3.1.0 not v3.0.0 when migrating, Editor/MultiCursorEditor/LocalSource init now return
-error{OutOfMemory}; std_time_in_lib 17. Cycle 36: #177 `matrixRowIndex` from renderMatrixView (verb
-match now case-insensitive). Tooling: guard blocks `sed -i` on citadel (use Edit) and multi-command
-lines mixing grep with citadel paths; run counts as separate Bash calls. CI ~10.5-12 min.
-Cycles 32-34 (2026-10-15 to 10-17, FEATURE, all blocked on zuda v3.0.0): one `/stabilize --one`
-filler each, auto-merged CI 7/7. #173 helpers `applyIntervalUnit`/`hasFormatToken` (parseIntervalString,
-toNumber); #174 baseline ratchet (re-derive limits by running `zig build tidy` with the `function_length:`
-lines removed; 58 -> 43 entries); #175 `jsonScalarToTextValue` (evalJsonExtract). `zig-pkg/` is already
-gitignored (REALM.md note stale). Global zig is 0.15.2: use `std.mem.trimRight`. Guard rejects compound
-lines mixing git/grep/writes or citadel reads; run steps as separate Bash calls.
-
-## History (cycles 29-31, condensed 2026-10-30)
-
-- 29 (10-12): executor.zig 598 long lines wrapped, PR #170; a dirty `chore/line-length-executor`
-  was preserved as `wip/line-length-executor-20261012` (superseded by #170, never delete wip).
-- 30 (10-13, STABILIZATION): the 10 `std.debug.print` sites in server.zig/engine.zig became scoped
-  `std.log`, PR #171. Flake: `tx.jepsen_test` "non-repeatable read (SERIALIZABLE prevents)" aborted
-  (signal 6) once locally, passed on rerun and in CI; watch for recurrence.
-- 31 (10-14): all 1,184 long lines in engine.zig wrapped, PR #172; baseline has no `line_length:`
-  entry left. Method: a /tmp python splitter (not committed) breaking depth-0 call/struct-brace
-  pairs one arg per line, `++` string splits, `=>`/`=`/catch/orelse/and/or breaks, then `zig fmt`;
-  only zero-indented non-test `fn` count for function_length, so wrapping inside `Database`
-  methods and tests is free; `zig fmt` re-joins `X =>\n expr` when it fits.
-- Tooling: CI ~10.5 min, cycle ~19 min; guard rejects `cd repo; cat > file <<EOF` compounds, write
-  helper scripts with Write to /tmp and run `python3 -I` alone; poll loops of `sleep 10` x40 stay
-  under the 590 s tool timeout.
-
-## History (cycles 19-28, folded 2026-10-27)
-
-Plan 001 tidy part 2 (2026-10-01 to 10-10), one PR per cycle, all auto-merged with CI 7/7:
-`line_too_long` ratchets per file via `line_length:<path>:<max>` baseline entries (#159, 60 files /
-3,620 long lines), then wrap batches 1-5c (#161-#169) took the baseline 60 -> 2 files (engine 1186,
-executor 598 left; split over 2 cycles, smallest first). #160 added `//!` headers to 17 files.
-Wrapping cli/tui grew 20 baselined functions past `function_length:` (tidy red); preserved on
-`wip/line-length-cli-tui-20261009`, finished in #169 (never delete wip). #166: put a short `// SAFETY:`
-on the line above each `catch unreachable` (inside tidy's 3-line window; trailing comments risk the
-line_length ratchet). Remaining tidy classes: debug_print_in_lib (server.zig 8, engine 2),
-std_time_in_lib (17 files, blocked on the 0.16 clock migration). Rest of plan 001 and #163 wait for
-zuda v3.0.0.
-Learned: tidy counts BYTES, so `// ── X ───` banners trip the gate (trim the dash run); tell wrapping
-agents baselined functions may not grow; concurrent `zig build` needs separate `--cache-dir`
-(`/tmp/silica-zc-tidy`); CI ~10-15 min, `gh pr checks --watch` backgrounds past 480s, poll instead; no
-`timeout` on macOS; `sleep N; cmd` chains, compound `cd repo; cmd` lines and view-then-merge lines
-are blocked by the guard, run the squash merge as its own command with `-R yusa-imit/silica`, then
-add the `auto-merged` label; BSD `sed -i` misparses, use python or Edit.
+- Plan 001 tidy part 2 (10-01..10-10): `line_length:<path>:<max>` baseline ratchets (#159), wrap batches
+  (#161-#169) took 60 baselined files to 2; #160 `//!` headers; #166 `// SAFETY:` on the line above each
+  `catch unreachable`. Cycles 29-31: executor.zig wrapped (#170, dirty branch kept as
+  `wip/line-length-executor-20261012`), `std.debug.print` sites became scoped `std.log` (#171), all 1,184
+  long lines in engine.zig wrapped (#172); baseline has no `line_length:` entry left. Cycles 32-36:
+  one `/stabilize --one` filler each (#173-#177: helpers split out of parseIntervalString, toNumber,
+  evalJsonExtract, showIndexes, renderMatrixView), baseline ratchet re-derived (58 -> 43 entries);
+  #163 sailor notice: migrate to v3.1.0, not v3.0.0 (Editor/MultiCursorEditor/LocalSource init return
+  `error{OutOfMemory}`). Flake: `tx.jepsen_test` "non-repeatable read (SERIALIZABLE prevents)" aborted
+  once locally (signal 6), passed on rerun and in CI; watch for recurrence.
+- Learned: tidy counts BYTES, so `// ── X ───` banners trip the gate; baselined functions may not grow;
+  concurrent `zig build` needs separate `--cache-dir` (`/tmp/silica-zc-tidy`); CI ~10-15 min, poll
+  instead of `gh pr checks --watch`; no `timeout` on macOS; the guard blocks compound lines (`cd repo;
+  cmd`, `sleep N; cmd`, grep mixed with citadel paths, `sed -i` on citadel), so run each step as its own
+  Bash call, merge with `-R yusa-imit/silica`, then add the `auto-merged` label; BSD `sed -i` misparses,
+  use python or Edit. Global zig was 0.15.2 then: use `std.mem.trimRight`. `zig-pkg/` is gitignored.
 
 ## History (cycle 18 and earlier, folded 2026-10-13)
 
