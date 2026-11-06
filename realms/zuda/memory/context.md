@@ -1,7 +1,15 @@
 # zuda — context
 
-last_seen_at: 2026-11-06T00:00:00Z
+last_seen_at: 2026-11-07T00:00:00Z
 rejected_plans: []
+
+## Cycle 46 — 2026-11-07 — ABORTED (disk gate)
+- Done: nothing. Preflight disk gate read 17 GB free on `/` (needs >= 20); stopped before touching the repo,
+  the inbox or GitHub. Mode was not computed (45 was STABILIZATION, so 46 would have been FEATURE).
+- PRs: none. Next: free disk (`.zig-cache`, `/tmp/zuda-zcache`, other realms' caches), then resume the list
+  from cycle 45: headers graph 21, string 18, trees 14, dp 44, ML 67; aggregators 8; `blas.zig` +
+  `simd_blas.zig`; ML 34; blocksort OOM swallow (needs failing test); v3.0.0.
+- Blockers: disk at 17 GB (third gate abort after cycles 3, 33, 41). Open questions: none.
 
 ## Cycle 45 — 2026-11-06 — STABILIZATION (n % 5 == 0)
 - Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #86 (iterators, 7/7,
