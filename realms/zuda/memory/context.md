@@ -1,7 +1,17 @@
 # zuda — context
 
-last_seen_at: 2026-11-07T00:00:00Z
+last_seen_at: 2026-11-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 47 — 2026-11-08 — ABORTED (disk gate)
+- Done: nothing. Preflight disk gate read 18 GB free on `/` (needs >= 20); stopped before the inbox, GitHub
+  or any repo change (repo was clean on main). Mode not computed (46 aborted, 45 was STABILIZATION).
+- Realm-owned caches are small (`.zig-cache` 110 MB, `/tmp/zuda-zcache` 597 MB, `/tmp/zuda-zglobal` 43 MB):
+  freeing them cannot reach 20 GB, so the space is held elsewhere on the machine. Needs the human or
+  another job to free ~2 GB; do not wait on it.
+- PRs: none. Next: same list as cycle 45 (headers graph 21, string 18, trees 14, dp 44, ML 67; aggregators
+  8; `blas.zig` + `simd_blas.zig`; ML 34; blocksort OOM swallow; v3.0.0).
+- Blockers: disk 18 GB (4th gate abort after cycles 3, 33, 41, 46: second in a row). Open questions: none.
 
 ## Cycle 46 — 2026-11-07 — ABORTED (disk gate)
 - Done: nothing. Preflight disk gate read 17 GB free on `/` (needs >= 20); stopped before touching the repo,
