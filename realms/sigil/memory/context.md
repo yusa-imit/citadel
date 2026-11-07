@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-11-07T00:00:00Z
+last_seen_at: 2026-11-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 94 — 2026-11-08 — FEATURE
+
+- Done: plan PR #96 (plan 008 csv + proto) still OPEN; inbox read it: only 2 comments, both the AI's own
+  status notes (account `yusa-imit` is shared, so authorship alone does not make a comment a human
+  answer; none is a change request). One stabilization filler: PR #98 wrapped the remaining prose lines
+  >100 cols (PRD 4, README intro, 000-inherited 2) and rewrote the Korean README intro (it called
+  JSON/TOML/msgpack/CBOR "planned"). CI 8/8, merged (bec2f49). Written directly, ~$0.45.
+- State: disk gate 20 GB (passed, minimum), CI green on main, no issues, repo clean on main.
+- Next: once #96 is merged, open "milestone: 008 csv and proto" and do item 1 (ADR 0007 via `architect`);
+  if closed unmerged, record reason, plan YAML 3B or config 5A. Docs >100 col filler is done (only the
+  README badge URL line and table rows remain, both exempt).
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
+- Learned: `awk length()` counts bytes, so Korean lines show as false >100 col hits; count chars with
+  `python3 -I`. `git checkout -b` with a separate `git push` call works fine.
 
 ## Cycle 93 — 2026-11-07 — FEATURE (no-op: disk gate)
 
