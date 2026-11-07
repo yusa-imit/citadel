@@ -6,6 +6,8 @@ rejected_plans: []
 ## Disk-blocked no-op — 2026-11-07 (counter stays 83)
 - Preflight: disk 17 GB free (gate >= 20), stopped before touching the repo. Repo clean on main at
   5d12d0f. Next cycle resumes at cycle 84 (close from another carrier) once disk is freed.
+- Second consecutive disk-blocked run the same day: 18 GB free, stopped at preflight again, repo
+  untouched. Blocker: needs a human to free disk (build caches in `.zig-cache` across realms).
 
 ## Cycle 83 — 2026-11-06 — FEATURE
 - Preflight: disk 20 GB (gate is >= 20), CI green, no bugs, no plan PR, inbox empty.
