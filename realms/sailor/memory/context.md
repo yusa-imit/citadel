@@ -1,7 +1,14 @@
 # sailor — context
 
-last_seen_at: 2026-11-06T00:00:00Z
+last_seen_at: 2026-11-07T00:00:00Z
 rejected_plans: []
+
+## Aborted attempt — 2026-11-07 — disk gate again (counter stays 51)
+
+- Disk gate read 15 GB free (< 20) on `/` (down from 19 GB yesterday); cycle stopped before any work.
+  Second consecutive disk abort. `/tmp/sailor-zig-cache` is 2.1 GB; deleting it would not clear the gate.
+- Next: n=52 STABILIZATION unchanged (#75 batch 7: taskrunner + terminal + textarea). Operator must
+  free disk or lower the gate; nothing sailor-side can fix it.
 
 ## Aborted attempt — 2026-11-06 — disk gate (counter stays 51)
 
