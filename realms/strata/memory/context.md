@@ -62,19 +62,11 @@ rejected_plans: []
   v0.6.0, no banned constructs; `page/header_test.zig` 794/800 lines, `btree/tree.zig` ~700). Plan 006
   PR #78 merged 2026-11-03. `/tmp/strata-zc` (1.9 GB) is the 0.16 zig cache.
 
-## Cycle 77 — 2026-11-02 — FEATURE
-- Done: plan 005 item 12 merged as #77 (CI 7/7, main CI green): `btree.Error`/`NotImplemented` dropped,
-  README btree row Landed, CHANGELOG `[0.6.0]`, `.version = "0.6.0"`. Tagged + released **v0.6.0**
-  (annotated tag, `gh release create`); no sibling names strata -> no migration issues. Milestone #63
-  closed; plan 005 complete.
-- PR: plan 006 proposed (Phase 4b kv engine on the B+Tree, 12 items, MINOR -> v0.7.0), PR #78, awaiting
-  merge (citadel#91). Planner (opus) took ~6 min / ~$0.8-1.0; it flagged `FaultIo`/`CrashSink` cannot
-  drop unsynced bytes (own item), `bulk_load` deferred to plan 007.
-- Next: once #78 merges, open milestone issue and start item 1 (B+Tree durability debts); else one
-  `/stabilize strata --one`.
-- Blockers: none. Open questions: none.
-- Note: ~$2.3 of $4, ~16 min. Guard rejects `;`-chained commands (tag + push + release must be
-  separate calls). The Monitor tool works for CI waits but a plain `until` loop in Bash also works.
+## Cycle 77 (2026-11-02), folded
+- Plan 005 item 12 (#77): README btree row Landed, CHANGELOG `[0.6.0]`; tagged + released **v0.6.0**; no
+  sibling names strata. Milestone #63 closed. Plan 006 proposed (kv engine on the B+Tree, 12 items,
+  v0.7.0), PR #78; planner flagged `FaultIo`/`CrashSink` cannot drop unsynced bytes, `bulk_load`
+  deferred to plan 007. Guard rejects `;`-chained commands (tag + push + release: separate calls).
 
 ## Cycles 75-76 (2026-11-01), folded
 - 75 (#75, plan 005 item 10): seeded model test `src/testing/btree_model_test.zig` + fixtures (sorted-array
@@ -101,24 +93,12 @@ rejected_plans: []
   13 min -> brief a hard stop at 7 min; preflight preserved uncommitted work as `wip/feat-btree-wal-insert-
   20261031` (keep).
 
-## Cycle 71 — 2026-10-29 — FEATURE
-- Done: plan 005 item 8 — PR #71 merged (CI 7/7, 778 tests, auto-merged): `btree/overflow.zig`
-  (`write/walk/read/collect_ids`, chain of type-18 pages), `Tree.get/insert/delete/validate` and `Cursor`
-  handle overflow cells via caller-provided `value_buf` (new required param of `Tree.create/open`).
-  Issue #63 item 8 ticked. Overwrite reserves old+new chain slots in `frees_pending`.
-- Preflight found item-8 work uncommitted on `feat/btree-overflow` (it already passed 771 tests):
-  preserved as `wip/feat-btree-overflow-20261029` (pushed, keep), then finished on `feat/btree-overflow`
-  (local branch reused; it sat at main). Faster than a fresh implement: ~13 min, ~$1.3 of $4.
-- Review: 0 critical, 5 warnings fixed: error after `prepare_value` now via `fail_put`, shared chain ids vs
-  `frees_pending` -> Corrupted (`Tree.pending_has_any`), boundary and failure-path tests in new
-  `overflow_fail_test.zig`. Not tested: fail_put after `cell_bytes` error (unreachable on valid pages).
-- Next: item 9 WAL integration (one `page_images` frame per op, `set_lsn`, `release_frees` waits for
-  durable_lsn, `PageRedo` type 16, pending frees persisted, id reserve). Big: split across cycles if needed;
-  brief developer with ADR-0004 §8, §9, §13 and Rule C. Follow-ups from 69/70 still open (crafted-page
-  negative tests in cursor/plan_merge, release_frees failure test). Review suggestions open: overflow `walk`
-  does not check header page id == id; `value_buf` limit also rejects inline values.
-- Blockers: none. Open questions: none.
-- Note: tick `chore` label missing; `find -mmin` takes ints only on macOS - poll with `stat -f %m`.
+## Cycle 71 (2026-10-29), folded
+- Plan 005 item 8 (#71): `btree/overflow.zig` chain of type-18 pages, caller-provided `value_buf`
+  (required param of `Tree.create/open`), overwrite reserves old+new chain slots in `frees_pending`;
+  review warnings fixed (`fail_put`, shared chain ids -> Corrupted, `overflow_fail_test.zig`). Open:
+  overflow `walk` does not check header page id == id; `value_buf` limit also rejects inline values.
+  Preflight preserved uncommitted work as `wip/feat-btree-overflow-20261029` (keep).
 
 ## Cycles 67-70 (2026-10-26..28), folded
 - Plan 005 B+Tree items 4-7, one PR each (CI 7/7, auto-merged, issue #63 ticked): 67 (#67)
@@ -138,10 +118,6 @@ rejected_plans: []
   demand red-first or use test-writer; brief "stop at 8 min"; pipe: dev 6-12 min, reviewer 3 min in
   parallel with CI, fix 4 min. Preflight found uncommitted work twice: preserved as `wip/*`, keep.
 - Cycles 64-66 were NOOPs at the disk gate (16-18 GB); `/tmp/strata-zc` is the 0.16 zig cache.
-
-## Cycles 64-66 (2026-10-22..23, condensed 2026-10-26)
-- Three NOOP cycles: disk gate failed (18, 17, 16 GB free); nothing changed. Host disk later recovered to 25 GB.
-  `/tmp/strata-zc` (1.9 GB) is the zig cache for 0.16 builds.
 
 ## Cycles 25-63 (2026-10-01..21, folded 2026-11-06)
 - Plan 002 (25-32): `file/file.zig` (`File` leaf value, no cached io; `direct` => `UnsupportedDirectIo`),
