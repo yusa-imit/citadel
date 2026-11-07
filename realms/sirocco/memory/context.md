@@ -1,13 +1,26 @@
 # sirocco — context
 
-last_seen_at: 2026-11-06T04:20:00Z
+last_seen_at: 2026-11-08T00:00:00Z
 rejected_plans: []
 
-## Disk-blocked no-op — 2026-11-07 (counter stays 83)
-- Preflight: disk 17 GB free (gate >= 20), stopped before touching the repo. Repo clean on main at
-  5d12d0f. Next cycle resumes at cycle 84 (close from another carrier) once disk is freed.
-- Second consecutive disk-blocked run the same day: 18 GB free, stopped at preflight again, repo
-  untouched. Blocker: needs a human to free disk (build caches in `.zig-cache` across realms).
+## Cycle 84 — 2026-11-08 — FEATURE
+- Preflight: disk exactly 20 GB (gate >= 20; two disk-blocked no-ops on 11-07 at 17-18 GB did not
+  advance the counter), CI green, no bugs, no plan PR, inbox empty (only the AI's own comment).
+- Merged #79 (`test/close-from-peer-carrier`, labelled auto-merged): `src/net_close_peer_test.zig`,
+  two tests: a fiber mailed to peer 1 closes a listener with an accept parked on carrier 0 (waiter
+  wakes `.closing`, last waiter closes the fd), and a close with no waiter frees the slot. No source
+  change: `close_registered` uses `rt.sched.in_fiber()` which is false on a peer thread, so it already
+  takes `close_off_carrier`; only carrier 0 arms the poller until item 8 placement. 876/963, tidy+fmt
+  clean, 150 serial runs of the library binary clean (parity binary still has the known 64-idle flake).
+- Item 7 stays UNCHECKED. Remaining: `GroupRec` lock/join + group cancel from another carrier, atomic
+  `run_until` stop flag, seeded 4-carrier model test, parity at 4 carriers, 1000 serial runs. The
+  per-slot lock + armed mask (ADR 0004 section 4) is only needed once item 8 places sockets on peers.
+- Gotchas: `Registry` is built by the first `io()`, so check `rt.sockets.enabled()` after `io()`
+  (before it the tests silently skipped; compare pass vs total in the summary). Stale `.zig-cache`
+  gave `failed to spawn build runner` again. A one-off `nohup` stress script in /tmp works.
+  Done in ~10 min, ~$0.85, no subagent.
+- Next: cycle 85: `GroupRec` lock + join + group cancel from another carrier (tests first), then the
+  seeded 4-carrier model test.
 
 ## Cycle 83 — 2026-11-06 — FEATURE
 - Preflight: disk 20 GB (gate is >= 20), CI green, no bugs, no plan PR, inbox empty.
