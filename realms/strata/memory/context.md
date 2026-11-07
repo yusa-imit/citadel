@@ -1,7 +1,14 @@
 # strata — context
 
-last_seen_at: 2026-11-06T17:10:00Z
+last_seen_at: 2026-11-07T05:05:00Z
 rejected_plans: []
+
+## Cycle 86 — 2026-11-07 — NOOP (disk)
+- Done: nothing. Disk gate failed (18.2 GB free, need 20); `/tmp/strata-zc` is now only 993 MB, so
+  clearing it would not reach the gate (~19.2 GB). No repo or GitHub changes, no PRs.
+- Next: item 6 commit frame (WAL type 4) and commit-bounded recovery (ADR-0005 §4, §7), once disk >= 20 GB.
+- Blockers: host disk below the gate (needs the OWNER or host cleanup of other data, not strata's cache).
+- Open questions: none.
 
 ## Cycle 85 — 2026-11-07 — NOOP (disk)
 - Done: nothing. Disk gate failed (17 GB free, need 20); no repo or GitHub changes, no PRs.
