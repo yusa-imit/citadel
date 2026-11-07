@@ -1,7 +1,25 @@
 # strata — context
 
-last_seen_at: 2026-11-07T05:05:00Z
+last_seen_at: 2026-11-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 87 — 2026-11-08 — FEATURE
+- Done: disk gate passed again (20 GB). Merged #85 (plan 006 item 6): `frame.Type.commit`=4,
+  `Recovery.truncate_after` (`wal/truncate.zig`), `CommitScan` (`wal/commit_scan.zig`), `kv.Db` open =
+  CommitScan pass, truncate past K, redo <= K; put/delete append a commit frame, gate = last commit lsn;
+  `node.op_pages_max` folded the `ops_max` copies. CI 7/7, 937 tests. Milestone #79 items 1-6 ticked.
+  ~$1.9 of $4, ~20 min (dev ~14 min for both stages, reviewer 2 min).
+- Review (sonnet): 0 critical, 3 warnings NOT yet fixed (deadline): (1) CHANGELOG has no Added/Changed
+  entry for commit frame / truncate_after / CommitScan / Db durability (logs from pre-commit-frame Db are
+  unreadable: `[Unreleased]` only, say so); (2) `run_checkpoint` assert `last_lsn == commit_lsn or
+  commit_lsn == 0` is vacuous: make it `last_lsn == commit_lsn`; (3) `truncate.zig` ~58 `for/else ->
+  Corrupted` should be an assert. Fold these into item 7's PR.
+- Open: group can rotate a segment twice (images + commit) -> `SegmentLimit` with tiny `wal_segments_max`;
+  no kv-level test for bad `commit.first_lsn` -> `Corrupted`, K=0 with torn header, rotation crash,
+  open-from-checkpoint + unfinished group; unfinished-group test cuts the commit frame rather than
+  appending raw `page_images`.
+- Next: item 7 `kv/batch.zig` WriteBatch (ADR-0005 §8) + the 3 warnings above.
+- Blockers: none. Open questions: none.
 
 ## Cycle 86 — 2026-11-07 — NOOP (disk)
 - Done: nothing. Disk gate failed (18.2 GB free, need 20); `/tmp/strata-zc` is now only 993 MB, so
