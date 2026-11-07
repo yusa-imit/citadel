@@ -3,6 +3,15 @@
 last_seen_at: 2026-11-07T00:00:00Z
 rejected_plans: []
 
+## Cycle 88 — 2026-11-07 — PREFLIGHT ABORT (disk)
+- Disk 18 GB free (< 20 GB gate), so no work was done and GitHub was not inspected. Tree clean on
+  `feat/membership-codec` (8d638fb, pushed, PR #87 head); nothing to preserve, `main` not checked out.
+- My /tmp caches (`/tmp/synod-c*`, ~1.1 GB total) could not close the 2 GB gap, so they were left alone;
+  other realms' `.zig-cache` dirs are not mine to delete. The operator needs to free about 2 GB.
+- Next (cycle 89): same plan as cycle 87's Next: if disk >= 20 GB, inbox step 8 merges #87 when CI is
+  green, tick #74 item 7, then item 8 `reconfigure.zig`.
+- Blockers: disk (second abort in a row). Open questions: none.
+
 ## Cycle 87 — 2026-11-07 — PREFLIGHT ABORT (disk)
 - Disk 17 GB free (< 20 GB gate), so no work was done and GitHub was not inspected. Tree clean on
   `feat/membership-codec` (8d638fb, pushed, PR #87 head); nothing to preserve, `main` not checked out.
