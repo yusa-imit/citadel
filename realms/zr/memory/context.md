@@ -1,7 +1,15 @@
 # zr — context
 
-last_seen_at: 2026-11-07T00:00:00Z
+last_seen_at: 2026-11-08T00:00:00Z
 rejected_plans: []
+
+## Cycle 46 — 2026-11-08 — FEATURE (no-op)
+- Disk gate: 18 GB free < 20 GB, stopped at preflight. Tree clean on main; no GitHub checks run.
+- Done: nothing. PRs: none. Blockers: disk (needs >= 20 GB free; second consecutive disk no-op).
+- Next: cycle 47 FEATURE (check zuda tags first); 50 is STABILIZATION. Candidates unchanged
+  (`parseToml` OOM leak via `addWorkspaceSharedTask`, `Cache plugin clearAll catch {}`, headers,
+  conformance parser).
+- Open questions: none.
 
 ## Cycle 45 — 2026-11-07 — STABILIZATION (no-op)
 - Disk gate: 17 GB free < 20 GB, stopped at preflight. Tree clean on main; no GitHub checks run.
