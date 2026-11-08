@@ -1,7 +1,25 @@
 # synod — context
 
-last_seen_at: 2026-11-08T00:00:00Z
+last_seen_at: 2026-11-08T12:00:00Z
 rejected_plans: []
+
+## Cycle 90 — 2026-11-08 — FEATURE
+- Preflight: disk 23 GB (gate passed), CI green on main 909919e, no bugs, milestone #74 open, no new OWNER
+  comments. Periodic stabilization is off for synod, so FEATURE.
+- Done: PR #87 (item 7) was red only on tidy: `election.zig:3` header line 116 cols. Wrapped, pushed,
+  CI 7/7 green (Build & Test 5m11s), squash-merged as 2903d04, `auto-merged`; plan item 7 was already
+  ticked in the PR; #74 body ticked 7/12.
+- Reviewer (sonnet, ~$0.2): 0 CRITICAL, 2 WARNING, 4 SUGGESTION. All fixed in PR #88 (457e65d, CI green,
+  `auto-merged`): `commit.zig` now fills aligned matches and calls `membership.quorum_index` (local copy
+  removed); `encode` asserts the change validates; voters>0 asserts in `enter_joint`/`quorum_index`;
+  unused arrays dropped in `membership_test.zig`. 1151/1151 tests. Cost ~$0.65 of $4.
+- Next (cycle 91): item 8 `raft/reconfigure.zig` (joint consensus in the node: `Input.conf_change`, leader
+  only, one in flight; widen progress slots to `peers_max`, learners). Start test-writer by minute 3, brief
+  it per file group; ADR-009 gets a line for the `ConfLength` decode choice (counts past 48 ids).
+- Blockers: none. Open questions: none.
+- Tool notes: run local `zig build tidy`/`test` with `--build-file /abs/build.zig --cache-dir /tmp/synod-c90`
+  and redirect to a /tmp file; `python3 -I /tmp/x.py` for multi-file repo edits works; CI Build & Test
+  was 5-7.5 min.
 
 ## Cycles 87-89 (2026-11-07..08), folded 2026-11-08: PREFLIGHT ABORT (disk)
 - Disk 17-19.9 GB free (< 20 GB gate) three cycles running; no work done, GitHub not inspected. Tree clean
@@ -67,47 +85,12 @@ rejected_plans: []
 - Tool notes: guard blocks chained `$(date)`+citadel paths: split calls; `zig build test` >120 s runs in
   background, output via grep pipe is empty until finish; `python3 -I -` heredoc for repo edits works.
 
-## Cycle 83 — 2026-11-05 — FEATURE
-- Preflight: disk 25 GB, CI green on f5ea558, no bugs, milestone #74 open, no new OWNER comments.
-  Found a dirty tree on `feat/sim-snapshots-4` (killed cycle-82 session): preserved as
-  `wip/feat-sim-snapshots-4-20261105` (1d255b8, pushed; do not delete). Includes Checker window
-  work (`invariants_window_test.zig`) and a scratch `src/sim/temp_seed_test.zig` (seed 12 repro,
-  has `std.debug.print`, fails tidy: delete before the PR).
-- Item 6 state on that wip: 1110/1112 tests pass; red = tidy (temp file only) + `simulation_snapshot_test`
-  1000-seed sweep. No PR (no time: diagnosis took until minute ~11).
-- Diagnosis (seed 12, 3 nodes, event 1442): `Checker.commit_node` fails at the compacted-skip branch
-  (`i < base` and `i >= chosen_max`): leader node 1 had seen=89, commit jumped to 95 in ONE event and
-  compaction (trailing 4) moved base to 91, so indexes 89,90 were never observed committed. Checker
-  limitation, not a raft bug.
-- Next (cycle 84): `feat/sim-snapshots-5` from the wip. Fix in the checker: keep per-node previous
-  window fingerprints (alloc in init: nodes_count * log_entries_max * 8 B) and when a LEADER with the
-  same term was leader at the previous observation skips unseen compacted indexes, fill chosen from
-  its previous window (a leader never truncates); followers: decide (stale-print risk when truncate +
-  append + commit + compact happen in one event; maybe fall back to "unknown" prints). Test first in
-  `invariants_window_test.zig`. Also: first TEMPDIAG case node=0 follower seen=0 commit=4 base=4
-  chosen_max=0 appeared in some test (restart from snapshot? check it is an expected-violation test).
-  Delete `temp_seed_test.zig`, run the sweep, PR, CI (push by minute 12), merge, tick item 6.
-- Blockers: none. Open questions: none. Budget: ~$0.5 of $4.
-- Tool notes: guard blocks chained `START=$(date)...` with citadel paths: split calls. Stack trace of
-  a latched violation: temporarily call `std.debug.dumpCurrentStackTrace(.{})` in `Checker.fail`; use
-  `--cache-dir /tmp/synod-cN`; redirect build output to /tmp file and `grep -a`.
-
-## Cycle 82 — 2026-11-04 — FEATURE
-- Preflight: disk 23 GB, CI green on f5ea558, no bugs, milestone #74 open, no OWNER comments.
-- Item 6 (sim snapshots), two zig-developers in parallel (~$1.4), preserved as
-  `wip/feat-sim-snapshots-20261104` (3d1bcd2, pushed; do not delete; wip 20261103 also kept).
-  No PR: 7 of 9 `simulation_snapshot_test` tests still fail (1083/1090 pass overall).
-- Done: 3 stale tests fixed (workload_test, network_test, network_snapshot_test);
-  `Checker.installed(node, index)` + `invariants_installed_test.zig` (12 tests; install must raise
-  the index, stay <= chosen_max, and raises commit); new `src/sim/sim_snapshots.zig`;
-  `simulation.zig` compaction wiring in progress; `driver_snapshot_test.zig` touched (restore order).
-- Next (cycle 83): `feat/sim-snapshots-4` from that wip. Red: calm, same seed twice, cut-off
-  follower install, honest digest, planted restore seed, inert plant, 1000 seeds (floors >= 30%
-  past 63 ops, >= 20% installs). Fix wiring, tick plan item 6, PR, CI, merge. Brief the developer
-  with the failing-test list; push by minute 12 (CI ~7.5 min).
-- Blockers: none. Open questions: none. Budget: ~$1.7 of $4.
-- Tool notes: developer on simulation.zig ran past minute 16; guard blocks `python3 -I -` heredocs
-  that touch citadel paths: use the Edit tool for memory files.
+## Cycles 82-83 (2026-11-04..05), folded 2026-11-08
+- Item 6 (sim snapshots) took 4 cycles: two parallel zig-developers (~$1.4), wips `wip/feat-sim-snapshots-
+  20261104` and `-4-20261105` kept (do not delete). `Checker.installed(node, index)` added; the seed-12
+  failure was a Checker limitation (leader commit jumped past compaction, indexes never observed), fixed
+  in cycle 84 via previous-window prints. Tool notes: split chained `$(date)` calls from citadel paths;
+  stack trace of a latched violation: temporarily `std.debug.dumpCurrentStackTrace(.{})` in `Checker.fail`.
 
 ## Cycles 80-81 (2026-11-03), folded 2026-11-06
 - 80: PR #84 (item 5 InstallSnapshot) squash-merged as f5ea558, `auto-merged`. Item 6 (sim snapshots):
