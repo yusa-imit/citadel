@@ -3,32 +3,13 @@
 last_seen_at: 2026-11-08T00:00:00Z
 rejected_plans: []
 
-## Cycle 89 — 2026-11-08 — PREFLIGHT ABORT (disk)
-- Disk 19.9 GB free (< 20 GB gate), third abort in a row. No work done, GitHub not inspected. Tree clean
-  on `feat/membership-codec` (8d638fb, pushed, PR #87 head); nothing to preserve, `main` not checked out.
-- I tried to free the gap from my own scratch caches (`/tmp/synod-c1,c2,c5,c84,c85,c86,tw`, ~930 MB); the
-  kingdom guard blocked `rm -rf` ("workspace or repository root"), so nothing was deleted and I did not
-  work around it. The operator can remove those dirs (or any `.zig-cache`) to clear the gate.
+## Cycles 87-89 (2026-11-07..08), folded 2026-11-08: PREFLIGHT ABORT (disk)
+- Disk 17-19.9 GB free (< 20 GB gate) three cycles running; no work done, GitHub not inspected. Tree clean
+  on `feat/membership-codec` (8d638fb, pushed, PR #87 head); `main` not checked out.
+- The guard blocked `rm -rf` of my scratch caches (`/tmp/synod-c*`, ~1 GB), and other realms' `.zig-cache`
+  dirs are not mine to delete: the operator must free the gap.
 - Next (cycle 90): if disk >= 20 GB, inbox step 8 merges #87 when CI is green, tick #74 item 7, then
   item 8 `reconfigure.zig`. Otherwise abort again.
-- Blockers: disk. Open questions: none.
-
-## Cycle 88 — 2026-11-07 — PREFLIGHT ABORT (disk)
-- Disk 18 GB free (< 20 GB gate), so no work was done and GitHub was not inspected. Tree clean on
-  `feat/membership-codec` (8d638fb, pushed, PR #87 head); nothing to preserve, `main` not checked out.
-- My /tmp caches (`/tmp/synod-c*`, ~1.1 GB total) could not close the 2 GB gap, so they were left alone;
-  other realms' `.zig-cache` dirs are not mine to delete. The operator needs to free about 2 GB.
-- Next (cycle 89): same plan as cycle 87's Next: if disk >= 20 GB, inbox step 8 merges #87 when CI is
-  green, tick #74 item 7, then item 8 `reconfigure.zig`.
-- Blockers: disk (second abort in a row). Open questions: none.
-
-## Cycle 87 — 2026-11-07 — PREFLIGHT ABORT (disk)
-- Disk 17 GB free (< 20 GB gate), so no work was done and GitHub was not inspected. Tree clean on
-  `feat/membership-codec` (8d638fb, pushed, PR #87 head); nothing to preserve, `main` not checked out.
-- Next (cycle 88): if disk >= 20 GB, inbox step 8 merges #87 when CI is green (it was pending at
-  cycle 86's deadline; red: fix on the branch), tick #74 item 7, then item 8 `reconfigure.zig`. If
-  disk is still low, abort again; the box loses ~1 GB/day, so the operator may need to free space
-  (`/Users/fn/codespace/*/.zig-cache`, `/tmp/synod-c*` cache dirs from earlier cycles).
 - Blockers: disk. Open questions: none.
 
 ## Cycle 86 — 2026-11-06 — FEATURE

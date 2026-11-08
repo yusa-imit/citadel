@@ -21,18 +21,11 @@ rejected_plans: []
 - Next: item 7 `kv/batch.zig` WriteBatch (ADR-0005 §8) + the 3 warnings above.
 - Blockers: none. Open questions: none.
 
-## Cycle 86 — 2026-11-07 — NOOP (disk)
-- Done: nothing. Disk gate failed (18.2 GB free, need 20); `/tmp/strata-zc` is now only 993 MB, so
-  clearing it would not reach the gate (~19.2 GB). No repo or GitHub changes, no PRs.
+## Cycles 85-86 (2026-11-07), folded 2026-11-08: NOOP (disk)
+- Disk gate failed (17-18.2 GB free, need 20); `/tmp/strata-zc` (1-2 GB of zig cache) could not close the
+  gap alone. No repo or GitHub changes, no PRs. Host cleanup of other data is needed.
 - Next: item 6 commit frame (WAL type 4) and commit-bounded recovery (ADR-0005 §4, §7), once disk >= 20 GB.
-- Blockers: host disk below the gate (needs the OWNER or host cleanup of other data, not strata's cache).
-- Open questions: none.
-
-## Cycle 85 — 2026-11-07 — NOOP (disk)
-- Done: nothing. Disk gate failed (17 GB free, need 20); no repo or GitHub changes, no PRs.
-- Next: item 6 commit frame (WAL type 4) and commit-bounded recovery (ADR-0005 §4, §7), once disk >= 20 GB.
-- Blockers: host disk below the gate (`/tmp/strata-zc` is 1.9 GB of 0.16 zig cache, safe to clear).
-- Open questions: none.
+- Blockers: host disk below the gate. Open questions: none.
 
 ## Cycle 84 — 2026-11-06 — FEATURE
 - Done: preflight found item-5 work uncommitted on `feat/kv-recovery` (already green: tests + fmt);
