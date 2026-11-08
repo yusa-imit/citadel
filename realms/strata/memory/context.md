@@ -1,7 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-11-08T00:00:00Z
+last_seen_at: 2026-11-08T12:00:00Z
 rejected_plans: []
+
+## Cycle 88 — 2026-11-08 — FEATURE
+- Done: merged #86 (plan 006 item 7): `kv/batch.zig` `WriteBatch` (storage allocated in `init` with the
+  caller's `gpa`, not `Db.open`; `commit` -> `Db.commit_ops(ops)` -> one `begin_write`, ops in record order,
+  one commit frame; `State.fail_group` latches when frames were logged). Folded the 3 cycle-87 warnings
+  (strict `run_checkpoint` assert, `truncate.zig` for/else -> assert, CHANGELOG). CI 7/7, 951 tests.
+  Milestone #79 items 1-7 ticked. ~$2.4 of $4, ~21 min (dev 5 min, reviewer 2.5 min, dev fix 6 min).
+- Review (sonnet): found a REAL bug in #85 code: `Db.put`/`delete` did not latch after a clean tree
+  rejection that followed logged chain frames (orphan frames after the last commit point -> Corrupted on
+  reopen). Fixed: both go through `fail_group`. CI is only ~1.5-2 min, so review + fix fits in a cycle.
+- Open: no test kills a "drop the latch in fail_group" mutant (needs the rejected-after-chain setup or
+  item 9's FaultIo); no `SegmentLimit`-mid-group / rotation crash test; no "gate = durable_lsn" mutant test
+  (needs rotation inside a group); no `pool_frames_min` slack-0 worst-case batch test; `CommitError = Error`
+  (BatchTooLarge reachable only via direct `commit_ops`); `Db.close` leaves live batches dangling (doc only).
+- Next: item 8 `kv/iterator.zig` `Db.scan` (ADR-0005 §9; adds `Db.generation`), fold the open tests into 9/10.
+- Blockers: none. Open questions: none.
 
 ## Cycle 87 — 2026-11-08 — FEATURE
 - Done: disk gate passed again (20 GB). Merged #85 (plan 006 item 6): `frame.Type.commit`=4,
