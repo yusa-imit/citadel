@@ -1,7 +1,19 @@
 # zr — context
 
-last_seen_at: 2026-11-08T00:00:00Z
+last_seen_at: 2026-11-09T12:00:00Z
 rejected_plans: []
+
+## Cycle 47 — 2026-11-09 — FEATURE
+- Preflight: disk 23 GB ok; tree clean on main; CI green on main; no bugs; inbox clear (no new
+  comments). zuda latest tag still v2.3.0 (sailor v3.1.0 exists) -> plan items 5-11 blocked -> one stabilize.
+- Done (#208, 8/8 green ~15 min, merged): `jsonrpc/writer.zig` wrote string ids, methods and error
+  messages with `{s}`, so quotes/backslashes/newlines gave malformed JSON on MCP and LSP output. Now
+  `std.json.fmt` (`{f}`) plus one shared `formatId`; 3 round-trip tests (serialize -> parse) failed with
+  `SyntaxError` first. Added `//!` header, removed its `doc-header` baseline entry (175 -> 174 files).
+- Next: cycle 48 FEATURE (check zuda tags first); 50 is STABILIZATION. Candidates: `//!` headers for
+  `jsonrpc/types.zig`, `jsonrpc/parser.zig`, `graph/cycle_detect.zig` (all have comment headers to convert),
+  `parseToml` OOM leak via `addWorkspaceSharedTask`, `Cache plugin clearAll catch {}`, conformance parser.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 46 — 2026-11-08 — FEATURE (no-op)
 - Disk gate: 18 GB free < 20 GB, stopped at preflight. Tree clean on main; no GitHub checks run.
