@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-11-08T04:18:00Z
+last_seen_at: 2026-11-09T00:00:00Z
 rejected_plans: []
+
+## Cycle 86 — 2026-11-09 — FEATURE
+- Preflight: disk 25 GB, CI green, no bugs, no plan PR, inbox empty.
+- Merged #81 (`test/futex-model-peers`, labelled auto-merged): `src/futex_model_peers_test.zig`, a seeded
+  4-carrier model of futex wake and cancel (16 fixed seeds; up to 24 waiters homed on peers 1..3 over
+  3 words; released from the test thread or a fiber mailed to a peer, or canceled on their home; the
+  plan is the reference model: outcome, wake count per word, resumed on home). 880/967, tidy+fmt clean,
+  200 serial runs of the library binary clean. Passed first run (pins existing behavior).
+- Item 7 stays UNCHECKED. Remaining: model for await and group waits, group cancel from another carrier
+  (cancel mail per member), awaiter on a peer, atomic `run_until` stop flag, parity at 4 carriers,
+  1000 serial runs.
+- Gotchas: the guard blocks compound `cd repo; ...` Bash (use `git -C` or absolute paths); a nohup
+  stress script in /tmp works; the library test binary (156 tests) is found by running the newest
+  `.zig-cache/o/*/test` candidates. ~12 min, ~$0.65, no subagent.
+- Next: cycle 87: parity suite at 4 carriers, then the await/group model.
 
 ## Cycle 85 — 2026-11-08 — FEATURE
 - Preflight: disk 24 GB, CI green, no bugs, no plan PR, inbox empty (periodic stabilization off).
