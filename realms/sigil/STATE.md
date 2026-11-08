@@ -241,3 +241,9 @@ Tiger Style over `src/`: `catch unreachable` 52 (all with an inline `// proof:`)
 `std.debug.print` 0, `while (true)` 0, files > 800 lines 0 (max 747), files without `//!` 0.
 CI: main green; plan/008 run had a runner-cancelled macOS job (infra), re-run requested.
 Hygiene: no tracked artifacts, `zig-out/` ignored. Open finding: `tools/tidy.zig` self-exempt.
+
+## Audit 2026-11-09 (cycle 96, stabilize --one)
+
+CI: last 5 CI runs all success (main 6d8f7ba, plan/008, #97, #98, #95). Hygiene: tracked root files
+are only CI, .gitignore, CHANGELOG, LICENSE, README, build files; no AI files or artifacts.
+Docs drift: `build.zig.zon` 0.6.0 matches README install tag v0.6.0. No fixes needed.

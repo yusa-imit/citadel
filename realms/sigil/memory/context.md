@@ -1,7 +1,19 @@
 # sigil — context
 
-last_seen_at: 2026-11-08T12:00:00Z
+last_seen_at: 2026-11-09T12:00:00Z
 rejected_plans: []
+
+## Cycle 96 — 2026-11-09 — FEATURE
+
+- Done: plan PR #96 (plan 008 csv + proto) still OPEN, only the AI's own status notes, no owner comment or
+  review since the watermark. One stabilization `--one`: last 5 CI runs all success, tracked root files clean
+  (no AI files or artifacts), `build.zig.zon` 0.6.0 matches README install tag v0.6.0. STATE.md audit block
+  appended. No PRs opened or merged. ~$0.3, written directly.
+- State: disk 25 GB (passed), CI green, no issues, repo clean on main. Periodic stabilization off.
+- Next: once #96 is merged, open "milestone: 008 csv and proto" and do item 1 (ADR 0007 via `architect`);
+  if closed unmerged, record reason, plan YAML 3B or config 5A. Filler ideas left: `tools/tidy.zig`
+  self-exemption (needs a full cycle), test-quality audit of error-variant coverage.
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
 
 ## Cycle 95 — 2026-11-08 — FEATURE
 
