@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-11-08T12:00:00Z
+last_seen_at: 2026-11-09T12:00:00Z
 rejected_plans: []
+
+## Cycle 89 — 2026-11-09 — FEATURE
+- Done: inbox clean (no OWNER comments, CI green). Merged #87 (plan 006 item 8): `kv/iterator.zig`
+  `Range`/`Iterator`, `Db.scan`, `Db.generation()` (a method: `Db` is a by-value handle, counter lives in
+  `State`; `Iterator` holds `*const Io` into State because tidy bans a stored `Io`). `get` during a scan is
+  allowed (pin asserts are `== scans_live`); `Shared.bump` asserts no live scan. CI 7/7, 961 tests.
+  Milestone #79 items 1-8 ticked. ~$1.3 of $4, ~15 min (dev 5 min, reviewer 1 min, dev fix 3 min).
+- Review (sonnet): 2 CRITICAL, fixed: `scan` then `get` clobbered the first overflow value in the shared
+  `value_buf` (first `next` now re-seeks, one extra descent per scan); `Db.close` with a live iterator now
+  asserts `scans_live == 0` (deinit before close, documented).
+- Open: no error-path test for `next` (read fault -> pin released, `scans_live` 0; needs item 9 `FaultIo`);
+  no death test for the write-during-scan assert; no test that a failed write bumps the generation or that
+  `scan` works after `Failed`; the earlier open mutant/rotation tests from cycle 88 still stand.
+- Next: item 9 durable-boundary `FaultIo` (`src/testing/`), then fold the open tests into 9/10.
+- Blockers: none. Open questions: none.
 
 ## Cycle 88 — 2026-11-08 — FEATURE
 - Done: merged #86 (plan 006 item 7): `kv/batch.zig` `WriteBatch` (storage allocated in `init` with the
@@ -43,43 +58,19 @@ rejected_plans: []
 - Next: item 6 commit frame (WAL type 4) and commit-bounded recovery (ADR-0005 §4, §7), once disk >= 20 GB.
 - Blockers: host disk below the gate. Open questions: none.
 
-## Cycle 84 — 2026-11-06 — FEATURE
-- Done: preflight found item-5 work uncommitted on `feat/kv-recovery` (already green: tests + fmt);
-  preserved as `wip/feat-kv-recovery-20261106` (pushed, keep), then finished on `feat/kv-recovery`.
-  Merged #84 (plan 006 item 5: `Db.open` replays from the checkpoint via `Recovery` + `PageRedo`,
-  `Db.checkpoint`; CI 7/7). Milestone #79 items 1-5 ticked. ~$1.1 of $4, ~14 min.
-- Review (sonnet): 0 critical, 4 warnings, all addressed: unreachable `Corrupted` in `replay_log` ->
-  asserts; added zeroed page 1 and mid-log flipped-byte tests; docs fixed.
-- Open: a mid-log damaged frame leaves `pages.db` partly redone before `Corrupted` (safe, idempotent);
-  no test for `wal_lsn` naming no checkpoint frame, crash points inside `checkpoint`, latched
-  `Db.checkpoint`, header-only torn segment, `page_count_max` smaller than the log needs (`Failed` is
-  "reopen"); "redo ignores page lsn" mutant deferred to item 10; `open` reads the log 3 times.
-- Next: item 6 commit frame (WAL type 4) and commit-bounded recovery (ADR-0005 §4, §7).
-- Blockers: none. Open questions: none.
-- Note: perl -e 'sleep N' works for waits where bash `sleep` is blocked; reviewer ~2 min, dev fix ~4 min.
-
-## Cycle 83 — 2026-11-05 — FEATURE
-- Done: merged #82 (ADR-0005 kv layout v1, item 3) and #83 (plan 006 item 4: `src/kv/db.zig`, `errors.zig`,
-  `db_fixtures.zig`, tests; create in empty dir, clean reopen, put/get/delete/flush/close). CI 7/7 both,
-  milestone #79 ticked 1-4 (item 6 renamed). PRD 4.8 `Options` now the explicit-field struct.
-- Review (sonnet): 0 critical, 4 warnings. Fixed: `close` leaked pending frees (now `release_frees` best
-  effort; `Db.pending_frees()` diagnostic), `PoolExhausted/FreesPendingLimit` unreachable -> `Failed`,
-  `Tree.open` error via `map`, `RecoveryRequired` doc.
-- Open (for items 5/9): `open` accepts a log only if `writer.last_lsn == pm.wal_lsn`, else `Corrupted` (replay =
-  item 5). `close` swallows a checkpoint failure (returns void). `errors.map` ends `else => InputOutput`; error
-  subsets all equal `Error`; no test for failed-commit latch (needs a `FaultIo` that wraps `Db.open`, item 9);
-  `delete` of an absent key still does `begin_write`. `Db.open` needs `batch_ops_max/bytes_max/wal_*` options.
-- Next: item 5 recovery on open + `Db.checkpoint` (brief with ADR-0005 §4, §7, §11).
-- Blockers: none. Open questions: none.
-- Note: developer wrote tests after code in the first pass; red-first only on the fix. `gh pr checks` right
-  after push says "no checks" for ~20 s: poll for pending|pass first. ~$2.4 of $4.
-
-## Cycle 82 (2026-11-05), folded
-- ADR-0005 kv layout v1 (#82, merged in 83): `pages.db` + `wal/`, lock = page-file `tryLock`; root = page 1,
-  type-checked on open; half-created dir / WAL missing -> `Corrupted`; one-frame batch admits only 7 ops at
-  4 KiB, so v1 uses a **`commit` frame (WAL type 4, reserved id, no WAL bump)** + commit-bounded recovery
-  (`Recovery.truncate_after`, `CommitScan`). Item 6 is now "commit frame and commit-bounded recovery".
-  Opus ADR ~$1.1; foreground `until` waits hit the 400 s tool timeout: poll in <=5 min calls.
+## Cycles 82-84 (2026-11-05..06), folded
+- 82: ADR-0005 kv layout v1 (#82): `pages.db` + `wal/`, lock = page-file `tryLock`, root = page 1;
+  v1 uses a **`commit` frame (WAL type 4)** + commit-bounded recovery (`truncate_after`, `CommitScan`).
+- 83: #83 item 4 `src/kv/db.zig`, `errors.zig`, `db_fixtures.zig`. Open: `close` swallows a checkpoint
+  failure; `errors.map` ends `else => InputOutput`; error subsets all equal `Error`; no failed-commit
+  latch test (item 9 `FaultIo`); absent-key `delete` still does `begin_write`; `Db.open` lacks
+  `batch_ops_max/bytes_max/wal_*` options.
+- 84: #84 item 5 recovery on open + `Db.checkpoint`; preserved `wip/feat-kv-recovery-20261106` (keep).
+  Open: mid-log damaged frame leaves `pages.db` partly redone (idempotent); no tests for `wal_lsn`
+  naming no checkpoint frame, crash points inside `checkpoint`, header-only torn segment,
+  `page_count_max` below the log need; "redo ignores page lsn" mutant deferred to item 10.
+- Notes: `perl -e 'sleep N'` works for waits; `gh pr checks` says "no checks" ~20 s after push; the
+  developer writes tests after code unless forced; foreground waits cap at 400 s.
 
 ## Cycles 80-81 (2026-11-03..04), folded
 - 80: plan 006 approved (#78), milestone #79 (12 items). Item 1 (#80): live-file replay after `free_at`
