@@ -1,7 +1,34 @@
 # synod — context
 
-last_seen_at: 2026-11-08T12:00:00Z
+last_seen_at: 2026-11-09T12:00:00Z
 rejected_plans: []
+
+## Cycle 91 — 2026-11-09 — FEATURE
+- Preflight: disk 25 GB, CI green on 457e65d, no bugs, milestone #74 open (7/12), inbox empty.
+- Done: item 8 red step only. Test-writer (sonnet, ~$1.0, 17 min) wrote 38 tests (32 red by design,
+  1151 old green) in `node_reconfigure_test.zig`, `node_reconfigure_follower_test.zig`, fixtures
+  additions, contract stubs. I drafted `src/raft/reconfigure.zig` (unwired). All kept on
+  `wip/feat-joint-consensus-20261109` (d02f2f1, do not delete). No PR; main untouched. Cost ~$2.8.
+- Design for the wiring (next cycle, no re-research needed; ~1 file read each):
+  `Node` gains `configuration_index`, `base_configuration`, `peers: []NodeId` (slot -> id,
+  from `leader.Storage`, capacity `peers_max = 2*voters_max+learners_max-1`); `members` becomes
+  3 regions (current | base | scratch), `init_bytes_max` updated. `leader.zig`: slot_of / peer_of
+  / send_all / start / peers_count / check_invariants use `node.peers` (canonical order voters,
+  outgoing-only, learners; swap-remove on change). Hooks: `node_init.log_append` calls
+  `reconfigure.on_append` for `.conf_change`; `follower.cut_log` -> `on_truncate`;
+  `snapshot.compact` -> `on_compact` first; `snapshot.install` sets base from the request then
+  `rescan`; `snapshot.emit_due` uses `configuration_at(applied)`; `commit.advance_leader` ->
+  `leave_if_due` after a commit move and from `step_tick` (leader); `Node.step` calls
+  `reconfigure.step_end` after `apply_ready`; `step_message` runs `receive_check` on
+  `append_entries`; `restore_validate` calls `entry_check`; vote/pre-vote refuse when
+  `!self_is_voter`; `Status.configuration_index` (drop the test-writer's `= .zero` default and fix
+  the 7 literals); add `ConfDecodeError` to `ReceiveError`/`InitError`, `InvariantConfigurationInvalid`
+  (+ `reconfigure.check_invariants`). Relax `step_response` `effects_len <= 2` asserts (append).
+  `node.zig` is at 744/800 lines: keep its edits tiny. No test covers `on_compact`: add one.
+- Next (cycle 92): `git checkout wip/feat-joint-consensus-20261109`, wire the above, run tests, rename
+  to `feat/joint-consensus` for the PR (wip names are never deleted), reviewer, tick item 8.
+  Start before minute 3; CI Build & Test is 5-7.5 min, push by minute 12.
+- Blockers: none. Open questions: none. Note: the budget ($4) is shared with subagent cost.
 
 ## Cycle 90 — 2026-11-08 — FEATURE
 - Preflight: disk 23 GB (gate passed), CI green on main 909919e, no bugs, milestone #74 open, no new OWNER
