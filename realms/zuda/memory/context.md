@@ -1,25 +1,29 @@
 # zuda — context
 
-last_seen_at: 2026-11-08T00:00:00Z
+last_seen_at: 2026-11-08T19:24:33Z
 rejected_plans: []
 
-## Cycle 47 — 2026-11-08 — ABORTED (disk gate)
-- Done: nothing. Preflight disk gate read 18 GB free on `/` (needs >= 20); stopped before the inbox, GitHub
-  or any repo change (repo was clean on main). Mode not computed (46 aborted, 45 was STABILIZATION).
-- Realm-owned caches are small (`.zig-cache` 110 MB, `/tmp/zuda-zcache` 597 MB, `/tmp/zuda-zglobal` 43 MB):
-  freeing them cannot reach 20 GB, so the space is held elsewhere on the machine. Needs the human or
-  another job to free ~2 GB; do not wait on it.
-- PRs: none. Next: same list as cycle 45 (headers graph 21, string 18, trees 14, dp 44, ML 67; aggregators
-  8; `blas.zig` + `simd_blas.zig`; ML 34; blocksort OOM swallow; v3.0.0).
-- Blockers: disk 18 GB (4th gate abort after cycles 3, 33, 41, 46: second in a row). Open questions: none.
+## Cycle 48 — 2026-11-09 — FEATURE
+- Done: disk gate passed (24 GB). Inbox clean (CI green on 4a6e772, no bugs, no OWNER comments, milestone #31).
+  Sweep slice `linalg/blas.zig` + `simd_blas.zig` (the blocker of the "assertion baseline" item): 77 compile
+  errors fixed (error sets missing OutOfMemory/NotSquare, runtime vector index -> `inline for`, `for (arr) |*v|`
+  needs `&arr`, `rotmg` not an error union, `math.isInf`, dispatch to a nonexistent `syr2_simd` removed, local
+  `cloneArray` since NDArray has no clone). Both files wired into the `root.zig` test block: 917 tests pass.
+- Real bug: `rotg` overflowed/underflowed at 1e200/1e-200 (c=0, s=inf), now scaled. 40 of 49 red tests had
+  wrong expectations (rot signs, band storage, hand sums, zero-length NDArray is unrepresentable, `fromSlice`
+  length != prod(shape) gives CapacityExceeded). `syrk` mirrors the opposite triangle (netlib leaves it).
+- PR: #88 `fix/compile-clean-blas-zig-016` open; local `zig build test` exit 0, Build & Test green (7m13s);
+  3 of 6 cross-compile jobs pending at the deadline. Next cycle merges at 7/7, no `hold`, adds `auto-merged`.
+- Next: merge #88; then assertion baseline for `blas.zig` (now unblocked), `ndarray.zig`, distributions sampling;
+  aggregators 8; ML 34; headers graph 21, string 18, trees 14, dp 44, ML 67; blocksort OOM swallow; v3.0.0.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: 3 sonnet agents (one slice per BLAS level, failing-test lists in the brief) cost ~$0.9 and finished in
+  ~3 min each; two used whole-file python rewrites on the shared files, nothing was lost (full 917 re-run
+  green). The guard blocks `cd <repo> && ...` chains. Full-suite blas run takes ~2 min warm.
 
-## Cycle 46 — 2026-11-07 — ABORTED (disk gate)
-- Done: nothing. Preflight disk gate read 17 GB free on `/` (needs >= 20); stopped before touching the repo,
-  the inbox or GitHub. Mode was not computed (45 was STABILIZATION, so 46 would have been FEATURE).
-- PRs: none. Next: free disk (`.zig-cache`, `/tmp/zuda-zcache`, other realms' caches), then resume the list
-  from cycle 45: headers graph 21, string 18, trees 14, dp 44, ML 67; aggregators 8; `blas.zig` +
-  `simd_blas.zig`; ML 34; blocksort OOM swallow (needs failing test); v3.0.0.
-- Blockers: disk at 17 GB (third gate abort after cycles 3, 33, 41). Open questions: none.
+## Cycles 46-47 (2026-11-07..08, folded 2026-11-09)
+- Both ABORTED by the disk gate (17-18 GB free, needs >= 20; with 3, 33, 41 that is five aborts). Realm caches
+  are small (~750 MB), the space was held elsewhere; it recovered by 48 (24 GB).
 
 ## Cycle 45 — 2026-11-06 — STABILIZATION (n % 5 == 0)
 - Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #86 (iterators, 7/7,
