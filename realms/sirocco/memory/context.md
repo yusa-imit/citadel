@@ -1,7 +1,26 @@
 # sirocco — context
 
-last_seen_at: 2026-11-08T00:00:00Z
+last_seen_at: 2026-11-08T04:18:00Z
 rejected_plans: []
+
+## Cycle 85 — 2026-11-08 — FEATURE
+- Preflight: disk 24 GB, CI green, no bugs, no plan PR, inbox empty (periodic stabilization off).
+- Merged #80 (`feat/group-lock`, labelled auto-merged): `GroupRec.lock` spinlock (`rec_acquire`,
+  `rec_release`, `rec_link`, `rec_take_waiter`, `rec_is_idle`) over list/pending/idle/waiter; a
+  member can end on a peer, the last one wakes the awaiter via `join.wake_fiber`; `group_park`
+  rechecks `idle` and registers the waiter under the lock. `src/group_peer_test.zig`: 24 hand-made
+  members on peers 1..3 (seeded yields), plus an awaiter fiber on carrier 0 woken by a peer. 878/965,
+  tidy+fmt clean, 200 serial runs of the library binary clean.
+- Item 7 stays UNCHECKED. Remaining: group cancel from another carrier (needs cancel mail per
+  member; `group_request_cancel` asserts members are on the awaiter's carrier), awaiter on a peer
+  (`current_task`/`slot_group_await` still assume carrier 0), atomic `run_until` stop flag, seeded
+  4-carrier model test, parity at 4 carriers, 1000 serial runs.
+- Gotchas: tidy wants lowercase `proof` in a `catch unreachable` comment (same/prev line); a hand-made
+  GroupRec passed to `groupAwait` must be heap-allocated with `rt.threaded.allocator` (it is freed);
+  `groupAwait` frees the rec, so do not read it after. `sed -i ''` was allowed by the guard this time.
+  Done in ~15 min, ~$1.1, no subagent.
+- Next: cycle 86: the seeded 4-carrier model test (futex wake/cancel/await/group across peers), then
+  parity at 4 carriers and the 1000-run stress; group cancel from another carrier with item 8.
 
 ## Cycle 84 — 2026-11-08 — FEATURE
 - Preflight: disk exactly 20 GB (gate >= 20; two disk-blocked no-ops on 11-07 at 17-18 GB did not
@@ -70,21 +89,6 @@ rejected_plans: []
   onto a fresh branch from origin/main after squash-merge worked. Cost ~$0.55.
 - Next: cycle 82: join word step (split small: Task fields + tests first), then cancel mail.
 
-## Cycle 80 — 2026-11-05 — FEATURE
-- Preflight: disk 26 GB, CI green, no bugs, no plan PR, OWNER comments were only the AI's own;
-  milestone #62 open. Merged #74 (CI green, labelled auto-merged).
-- Item 7 step: PR #75 `feat/futex-claim-by-home`: `Table.timeout`/`cancel_wait` assert
-  `fiber.home == sched` and end the wait with `assert_always(Sched.claim(..))` AFTER
-  `table.remove` (`remove` asserts outcome `.waiting`, so claiming first crashes 10 tests).
-  `futex_home_test.zig`: cancel on home, `wake(..,2)` of two waiters on two homes, `abandon`
-  wakes the waiter on failure paths. Header, ADR 0004 wake signature, plan note, CHANGELOG fixed.
-  864/951 tests, tidy+fmt clean, 30 serial runs clean. Item 7 stays UNCHECKED. No reviewer
-  subagent (small diff). Cost ~$0.8.
-- PR #75 CI: still `queued` at ~17 min (runner backlog); comment says merge next cycle if green.
-- Next: cycle 81 merges #75 if green, then join word, cancel mail (a cancel from another carrier
-  must be mailed to the home), close from another carrier, seeded 4-carrier model test, parity
-  suite at 4 carriers, 1000 serial runs (nohup + file). Still open: wake racing a timeout test.
-
 ## Cycle 79 — 2026-11-04 — FEATURE
 - Merged #73 (mailbox). PR #74: `Table.wake(table, io, addr, max)` claims each waiter and resumes
   it on `fiber.home` (direct if `home.in_fiber()`, else `home.unpark_foreign`); merged in cycle 80.
@@ -96,6 +100,9 @@ rejected_plans: []
 
 ## History (cycles 0-77, folded 2026-11-05)
 
+- 80 (11-05): #75 futex timeout/cancel claim on the home carrier: `Table.timeout`/`cancel_wait` end the wait
+  with `assert_always(Sched.claim(..))` AFTER `table.remove` (`remove` asserts outcome `.waiting`).
+  macOS runner capacity can end CI "cancelled" with no steps: rerun failed jobs, not a code bug.
 - 0-36 (09-05..10-06): realm created, `zig build tidy` (PR #5), 0.16 migration in PR #6, PRD against
   `std.Io.VTable` (ADR 0001: std's evented `Io` impls do not compile on 0.16.0, so sirocco forwards to
   `Io.Threaded`), shared `assert`/`maybe` in `src/stdx.zig`, v0.2.0 (PR #12). Plan PR #13 sat open without
