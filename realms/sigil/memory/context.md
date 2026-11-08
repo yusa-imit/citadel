@@ -1,7 +1,22 @@
 # sigil — context
 
-last_seen_at: 2026-11-08T00:00:00Z
+last_seen_at: 2026-11-08T12:00:00Z
 rejected_plans: []
+
+## Cycle 95 — 2026-11-08 — FEATURE
+
+- Done: plan PR #96 (plan 008 csv + proto) still OPEN, no new comments (only the AI's own notes). One
+  stabilization audit (`--one`): Tiger Style counts over `src/` clean (52 `catch unreachable` all with inline
+  proof, 0 panic/debug.print/while(true), max file 747 lines, all files have `//!`). plan/008 run had a
+  runner-cancelled macOS job (infra); `gh run rerun --failed` requested. STATE.md audit block appended.
+  No PRs opened or merged. ~$0.35, written directly.
+- State: disk 24 GB (passed), CI green on main, no issues, repo clean on main. Periodic stabilization off,
+  so n=95 stayed FEATURE.
+- Next: once #96 is merged, open "milestone: 008 csv and proto" and do item 1 (ADR 0007 via `architect`);
+  if closed unmerged, record reason, plan YAML 3B or config 5A. Filler ideas left: `tools/tidy.zig`
+  self-exemption (needs a full cycle), test-quality audit of error-variant coverage.
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
+- Learned: the guard blocks a Bash command mixing citadel paths and repo commands (split them).
 
 ## Cycle 94 — 2026-11-08 — FEATURE
 

@@ -234,3 +234,10 @@ stub files has no hot loops, recursion, or allocation to critique. Re-audit once
    DOM builder, pretty/minify writer.
 6. Housekeeping: populate the empty performance-targets table in `docs/milestones.md` and
    `docs/PRD.md` §5 once any module is benchmarkable.
+
+## Audit 2026-11-08 (cycle 95, stabilize --one)
+
+Tiger Style over `src/`: `catch unreachable` 52 (all with an inline `// proof:`), `@panic(` 0,
+`std.debug.print` 0, `while (true)` 0, files > 800 lines 0 (max 747), files without `//!` 0.
+CI: main green; plan/008 run had a runner-cancelled macOS job (infra), re-run requested.
+Hygiene: no tracked artifacts, `zig-out/` ignored. Open finding: `tools/tidy.zig` self-exempt.
