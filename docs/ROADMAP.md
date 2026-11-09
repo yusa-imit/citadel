@@ -58,7 +58,7 @@ zr and zoltraak complete their `001` migration
 (both are `blocked_by zuda>=3.0.0` already) and move to tag-pinned zuda v3.0.0 — no separate
 action needed unless a realm cycle lands a non-tag pin again.
 
-### Blocker: host disk below the 20 GB preflight gate (2026-11-08)
+### Blocker: host disk below the 20 GB preflight gate (2026-11-08, cleared 2026-11-09)
 
 Realm cycles abort at preflight when `/` has under 20 GB free. Between 2026-11-06 and
 2026-11-08 synod (cycles 87-89), strata (85-86) and sigil (92-93) did no work for this reason;
@@ -66,6 +66,10 @@ free space read 17-19.9 GB. Realm sessions cannot clear it themselves: the kingd
 `rm -rf` of cache directories, and another realm's `.zig-cache` is not theirs to delete. The
 operator must free about 2 GB (the `.zig-cache` directories under `/Users/fn/codespace/*` and
 `/tmp/*-c*` scratch caches are safe to remove); the gate then clears without further action.
+
+Cleared 2026-11-09: `/` reads 21 GB free and sigil (96), sirocco (86), strata (89) and synod (91)
+ran feature cycles. The margin is 1 GB, so the gate can trip again; the blocker stays recorded
+until free space holds above 25 GB.
 
 ## Phase 2 — Foundation v0.1 and first consumers
 
