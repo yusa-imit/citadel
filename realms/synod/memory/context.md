@@ -57,67 +57,30 @@ rejected_plans: []
   item 8 `reconfigure.zig`. Otherwise abort again.
 - Blockers: disk. Open questions: none.
 
-## Cycle 86 — 2026-11-06 — FEATURE
-- Preflight: disk 20 GB (at the gate), CI green on 909919e, no bugs, milestone #74 open (6/12), only
-  my own comment from the owner account.
-- Done: item 7 `raft/membership.zig` (codec `SYCC`+crc32, `enter_joint`/`leave_joint`, joint
-  `quorum_reached`/`quorum_index`, `majority`) test-first: test-writer sonnet (36 tests, ~$0.65, 10 min),
-  implementation by me (~$0.2). `election.majority/quorum_reached` removed; node.zig and commit.zig use
-  membership (no third copy). 1151/1151 tests, tidy + fmt clean locally. Plan item 7 ticked in the PR.
-- PR: #87 `feat/membership-codec` OPEN, CI pending when the cycle hit its deadline (opened at minute 17).
-  No reviewer subagent yet.
-- Next (cycle 87): inbox step 8 merges #87 if CI is green (red: fix on branch), tick #74 item 7, then item 8
-  `reconfigure.zig` (joint consensus in the node; a big item: widen progress slots to `peers_max`, learners).
-  Open decode choice: counts summing past 48 ids give `ConfLength` (ADR silent; add a line to ADR-009).
-- Blockers: none. Open questions: none. Budget ~$1.5 of $4.
-- Tool notes: guard blocks `cd <repo>; ... > file` and `G=git -C ...; $G` variables: use literal
-  `git -C /abs/path ...` per call, `zig build --build-file /abs/build.zig --cache-dir /tmp/x`, the Write tool
-  for source files; test-writer takes ~10 min, so start it by minute 3 and push by minute 12 to merge in-cycle.
+## Cycles 82-86 (2026-11-04..06), folded 2026-11-09: sim snapshots, membership codec (milestone #74)
 
-## Cycle 85 — 2026-11-06 — FEATURE
-- Preflight: disk 25 GB, CI green on 8c5f984, no bugs, milestone #74 open (6/12), no OWNER comments.
-- Done: PR #86 (fix/pr85-review-followups) squash-merged as 909919e, `auto-merged`, CI 7/7 green
-  (Build & Test 9m31s), 1115 tests. Reviewer warning 1: cluster test "an ack after the leader
-  compacted past it triggers a second snapshot" (node_install_test.zig); warning 2 was already
-  covered by "a refused boot never restores the state machine" (CHANGELOG line only); warning 3:
-  doc on `Tracker.report`. No reviewer subagent (test/doc-only). Cost ~$0.8, all in main session.
-- Open: warning 4 (torn-write crash with a leader commit + persisted snapshot giving a false
-  `installed` violation) still unconfirmed; suggestions: drop `Options.fault = .none` default in
-  `workload.zig:126`, `nodes_max` duplicated.
-- Next (cycle 86): item 7 `raft/membership.zig` (codec + joint quorum, pure; architect not needed,
-  ADR-009 covers it). Start test-writer by minute 5; push by minute 10 (CI Build & Test is 9.5 min).
-- Blockers: none. Open questions: none. Budget ~$0.8 of $4.
-- Tool notes: guard blocks `cd <repo>;` + heredoc/`&`/`timeout` combos in Bash — use `git -C`, `gh --repo`,
-  the Edit tool for appending to repo files; `timeout` does not exist (macOS); foreground `gh pr checks
-  --watch` caps at 560 s, then re-run it.
-
-## Cycle 84 — 2026-11-05 — FEATURE
-- Preflight: disk 28 GB, CI green on f5ea558, no bugs, milestone #74 open, tree clean on main.
-- Done: item 6 (sim snapshots) merged as PR #85 (8c5f984, CI 7/7 green, 1114/1114 tests, 1000-seed
-  sweep green), `auto-merged`; #74 item 6 ticked (6/12). Fix: `Checker.compacted_print` takes a
-  skipped, not-yet-chosen index from a same-term leader's previous window (leader never truncates);
-  followers stay StateMachineSafety. Test-first, 3 tests in `invariants_window_test.zig`;
-  `temp_seed_test.zig` removed. Cost ~$1.1 (no subagent but one reviewer ~$0.45).
-- Reviewer: 0 CRITICAL, 4 WARNING (follow-ups, next cycle as a small `fix/` PR): (1) `raft/leader.zig:204`
-  relaxed `assert(p.state != .snapshot)` has no regression test (compact past `match` before the ack,
-  expect `next > match + 1` and a second snapshot send) nor CHANGELOG line; (2) `driver.zig:132` restore
-  reorder (state machine restored last) lacks a failing-`Node.init` test + CHANGELOG line; (3)
-  `sim_snapshots.zig:122,142` `assert(applied == snapshot_index)` needs the driver guarantee documented;
-  (4) torn-write crash in the event a leader commits + persists a snapshot could give a false
-  `installed` violation (unconfirmed; prove or raise chosen_max in `Tracker.restarted`).
-  Suggestions: drop `Options.fault = .none` default in `workload.zig:126`; `nodes_max` duplicated.
-- Next (cycle 85): the follow-up fix PR above (small), then item 7 `raft/membership.zig` (codec +
-  joint quorum, pure). Push by minute 12 (CI Build & Test ~9 min now).
-- Blockers: none. Open questions: none. Budget: ~$1.2 of $4.
-- Tool notes: guard blocks chained `$(date)`+citadel paths: split calls; `zig build test` >120 s runs in
-  background, output via grep pipe is empty until finish; `python3 -I -` heredoc for repo edits works.
-
-## Cycles 82-83 (2026-11-04..05), folded 2026-11-08
-- Item 6 (sim snapshots) took 4 cycles: two parallel zig-developers (~$1.4), wips `wip/feat-sim-snapshots-
-  20261104` and `-4-20261105` kept (do not delete). `Checker.installed(node, index)` added; the seed-12
-  failure was a Checker limitation (leader commit jumped past compaction, indexes never observed), fixed
-  in cycle 84 via previous-window prints. Tool notes: split chained `$(date)` calls from citadel paths;
-  stack trace of a latched violation: temporarily `std.debug.dumpCurrentStackTrace(.{})` in `Checker.fail`.
+- Item 6 (sim snapshots) took 4 cycles (two parallel zig-developers ~$1.4; wips
+  `wip/feat-sim-snapshots-20261104` and `-4-20261105` kept, do not delete); merged as PR #85 (8c5f984, 1114
+  tests, 1000-seed sweep). `Checker.installed(node, index)` added; `Checker.compacted_print` takes a
+  skipped, not-yet-chosen index from a same-term leader's previous window (leader never truncates).
+- PR #86 (909919e) added the review follow-ups: cluster test "an ack after the leader compacted past it
+  triggers a second snapshot" (`node_install_test.zig`), doc on `Tracker.report`; 1115 tests.
+- Item 7 `raft/membership.zig` (PR #87, `feat/membership-codec`; codec `SYCC`+crc32, `enter_joint` /
+  `leave_joint`, joint `quorum_reached`/`quorum_index`, `majority`; 36 tests; `election.majority` removed,
+  node.zig and commit.zig use membership). Open decode choice: counts summing past 48 ids give
+  `ConfLength` (ADR silent; add a line to ADR-009). Item 8 `reconfigure.zig` is big: widen progress slots
+  to `peers_max`, learners.
+- Still open: torn-write crash with a leader commit + persisted snapshot could give a false `installed`
+  violation (unconfirmed; prove or raise chosen_max in `Tracker.restarted`); drop `Options.fault = .none`
+  default in `workload.zig`; `nodes_max` duplicated.
+- Tool notes: the guard blocks `cd <repo>;` + heredoc/`&`/`timeout` combos, `$(date)` chained with citadel
+  paths, and `G=git -C ...; $G` variables: use literal `git -C /abs/path`, `gh --repo`,
+  `zig build --build-file /abs/build.zig --cache-dir /tmp/x`, the Write/Edit tools for files; `timeout`
+  does not exist on macOS; foreground `gh pr checks --watch` caps at 560 s; `zig build test` >120 s runs in
+  the background; test-writer ~10 min (start by minute 3, push by minute 12; CI Build & Test ~9.5 min);
+  split the test-writer brief per file group; a message to a running agent lands at its next tool round;
+  parallel builds need a `--cache-dir /tmp/<name>` each; latched-violation stack trace: temporarily
+  `std.debug.dumpCurrentStackTrace(.{})` in `Checker.fail`.
 
 ## Cycles 80-81 (2026-11-03), folded 2026-11-06
 - 80: PR #84 (item 5 InstallSnapshot) squash-merged as f5ea558, `auto-merged`. Item 6 (sim snapshots):

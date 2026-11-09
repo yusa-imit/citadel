@@ -18,48 +18,16 @@ rejected_plans: []
   contradiction; WAL concurrency).
 - Tooling: CI build-and-test ~13 min; poll loop of 40x14 s overruns the 590 s tool timeout, use ~22x15 s.
 
-## Cycle 53 — 2026-11-07 — NOOP (disk gate)
-- Preflight stopped at the disk gate: `df -g /` showed 15 GB free (`df -h` 16Gi, 11Gi used of 228Gi),
-  need 20. Cycle 53 is FEATURE (n%5 != 0, streak 0). No repo, CI or inbox check was done. Not bypassed.
-- Next: cycle 54 re-checks disk first. Free space fell 24 -> 19 -> 15 GB over three days; an operator
-  should clear /tmp/silica-zc-tidy, zig caches and other realms' build outputs. Cycle 55 is
-  STABILIZATION (n%5); filler: jepsen `dirtyReadTest` 80.
-- Blockers: disk 15 GB; zuda v3.0.0 (plan 001 items blocked). Open questions unchanged
-  (buffer-pool LRU contradiction; WAL concurrency).
+## Cycles 50-53 (2026-11-04..07), folded 2026-11-09: disk gate and one filler
 
-## Cycle 52 — 2026-11-06 — NOOP (disk gate)
-- Preflight stopped at the disk gate: `df -g /` showed 19 GB free (`df -h` 20Gi rounded, 11Gi used of
-  228Gi), need 20. Cycle 52 is FEATURE (n%5 != 0, streak 0). No repo, CI or inbox check was done, so
-  no PR or issue activity is known for today. The gate was not bypassed.
-- Next: cycle 53 re-checks disk first. Free space dropped 24 -> 19 GB in one day; an operator (or a
-  cycle already past the gate) should clear /tmp/silica-zc-tidy, zig caches and other realms' build
-  outputs. Cycle 55 is STABILIZATION (n%5); fillers: jepsen `dirtyReadTest` 80.
-- Blockers: disk 19 GB; zuda v3.0.0 (plan 001 items blocked). Open questions unchanged
-  (buffer-pool LRU contradiction; WAL concurrency).
-
-## Cycle 51 — 2026-11-05 — FEATURE
-- Preflight: disk 24 GB (gate passed), main clean, CI green (c2c94ae), no bug/question issues, no open
-  PRs; inbox nothing new (only own comment on #137). zuda still v2.3.0; plan 001 items blocked.
-- Done: one `/stabilize --one` filler, PR #189 (merged, `auto-merged`, CI green): `jsonPathStep` and
-  `jsonNodeToValue` extracted from executor `evalJsonPathExtract` (79 -> under 70), 2 tests; a negative
-  integer path index now yields NULL instead of an `@intCast` panic. Baseline `function_length` 27 -> 26.
-  Local fmt + tidy + test green. No subagents, ~$0.4.
-- Next: cycle 55 is STABILIZATION (n%5). No small (<~90) filler left in the baseline except big
-  offenders (cli/tui/jepsen 80-130); pick the smallest, e.g. jepsen `dirtyReadTest` 80. Migration
-  waits for zuda v3.0.0 (target sailor v3.1.0).
-- Blockers: zuda v3.0.0. Disk 24 GB, 4 GB above gate. Open questions unchanged (buffer-pool LRU
-  contradiction; WAL concurrency).
-- Tooling: `zig fmt --check` on tidy_baseline.txt errors (not Zig), only pass src/build.zig.
-
-## Cycle 50 — 2026-11-04 — NOOP (disk gate)
-- Preflight stopped at the disk gate: `df -g /` showed 15 GB free (need 20). Cycle 50 was an
-  n%5 STABILIZATION cycle; none of it ran. No repo, CI or inbox check was done, so no PR or
-  issue activity is known for today. Streak 0, no escalated_sha.
-- Next: cycle 51 re-checks disk first. If still < 20 GB, an operator (or a cycle that is already
-  past the gate) should clear /tmp/silica-zc-tidy and zig caches; the gate was not bypassed.
-  STABILIZATION (n%5) was skipped, so the next cycle that passes the gate does n=51 as FEATURE.
-- Blockers: disk 15 GB; zuda v3.0.0 (plan 001 items blocked). Open questions unchanged
-  (buffer-pool LRU contradiction; WAL concurrency).
+- Cycles 50, 52, 53 NOOP at the disk gate (free space 15-19 GB, need 20; falling 24 -> 19 -> 15 GB over
+  three days). No repo, CI or inbox check ran in those cycles; the gate is never bypassed. An operator
+  should clear /tmp/silica-zc-tidy, zig caches and other realms' build outputs.
+- Cycle 51: `/stabilize --one` filler PR #189 (`jsonPathStep`, `jsonNodeToValue` extracted from
+  `evalJsonPathExtract`; a negative integer path index now yields NULL instead of an `@intCast` panic).
+- Tooling: `zig fmt --check` on tidy_baseline.txt errors (not Zig), pass only src/build.zig.
+- Blockers: zuda v3.0.0 (plan 001 items blocked). Open questions: buffer-pool LRU contradiction; WAL
+  concurrency.
 
 ## Cycle 49 — 2026-11-03 — FEATURE
 - Preflight: disk 21 GB (gate passed, barely), main clean, CI green (d546b85), no bug/question issues,
@@ -93,46 +61,20 @@ rejected_plans: []
 - Tooling: `zig build test` prints a std.net write stack trace from replication integration_test
   but exits 0; check exit code, not output. CI ~12 min, cycle ~20 min.
 
-## Cycle 47 — 2026-11-01 — FEATURE
-- Preflight: disk 46 GB (gate passed), main clean, CI green (fed21fe), no bug/question issues, no open
-  PRs; inbox nothing new (only own comments on #137, #163). zuda still v2.3.0; plan 001 items blocked.
-- Done: one `/stabilize --one` filler, PR #186 (merged, `auto-merged`, CI 7/7): `readBytesDup`,
-  `readMostCommonValue`, `readHistogramBucket` extracted from stats `deserializeColumnStats` (90 ->
-  under 70) with 4 tests (success + truncation, leak-checked); also closes an MCV-append leak path.
-  Baseline `function_length` 30 -> 29. Local fmt + tidy + test green. No subagents, ~$0.42.
-- Next: fillers transport `parseBackendMessage` 89, executor `textToTsvector` 79 / `evalJsonPathExtract`
-  79. Cycle 50 is the next n%5==0. Migration waits for zuda v3.0.0 (target sailor v3.1.0).
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: `gh pr merge` then `gh pr edit --add-label auto-merged` as separate calls; tidy lists
-  offending lines via the built `tidy` binary (`--src src --baseline tidy_baseline.txt`).
+## Cycles 45-47 (2026-10-30..11-01), folded 2026-11-09: stabilization fillers
 
-## Cycle 46 — 2026-10-31 — FEATURE
-- Preflight: disk 28 GB (gate passed), main clean, CI green (300af95), no bug/question issues, no open
-  PRs; inbox nothing new (only own comments on #137, #163). zuda still v2.3.0, sailor v3.1.0; every
-  unchecked plan 001 item stays blocked.
-- Done: one `/stabilize --one` filler, PR #185 (merged, `auto-merged`, CI 7/7): `csvReadErrorMessage`,
-  `csvInsertErrorMessage`, `buildCsvInsert` extracted from cli `importCsvFile` (84 -> under 70) with
-  4 tests; baseline `function_length` 31 -> 30. Local fmt + tidy + test green. No subagents, ~$0.5.
-- Next: filler stats `deserializeColumnStats` 90. Cycle 50 is the next n%5==0. Migration waits for
-  zuda v3.0.0 (target sailor v3.1.0).
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: `gh pr merge` needs `-R yusa-imit/silica` as its own command; `python3 -I` heredoc replace
-  failed silently-ish on a multi-line match, Edit tool is more reliable; CI ~11 min, cycle ~20 min.
-
-## Cycle 45 — 2026-10-30 — STABILIZATION (n%5)
-- Preflight: disk 38 GB (gate passed), main clean, CI green (ec5b241, last 5 runs green), no bug/question
-  issues, no open PRs; inbox nothing new (only own comment on #137). zuda still v2.3.0.
-- Done: audit counts refreshed in STATE.md (assert 145, catch unreachable 210, @panic 7 all in tests,
-  debug print 16, while(true) 104, expect(true) 0). One class fixed: PR #184 (merged, `auto-merged`, CI
-  7/7) extracted `formatPlanHeader` from planner `formatPlan` (83 -> under 70) with a test; baseline
-  `function_length` 32 -> 31. Local fmt + tidy + test green. No subagents, ~$0.55.
-- Hygiene: root `libconnection.a`, `test_*.o`, `test_output.txt` exist locally but are gitignored
-  (not tracked). Benchmarks/docs-drift skipped (bench is CI-only; no time).
-- Next: fillers importCsvFile 84, stats deserializeColumnStats 90. Migration waits for zuda v3.0.0
-  (target sailor v3.1.0). Cycle 50 is the next n%5==0.
-- Blockers: zuda v3.0.0. Open questions unchanged (buffer-pool LRU contradiction; WAL concurrency).
-- Tooling: `gh pr checks` without --json prints tab-separated name/state; a 55x10s poll loop hits the
-  590 s tool timeout, use ~40 iterations; CI ~12 min.
+- Cycle 45 (n%5): audit counts refreshed in STATE.md (assert 145, catch unreachable 210, @panic 7 all in
+  tests, debug print 16, while(true) 104, expect(true) 0); PR #184 `formatPlanHeader` out of `formatPlan`.
+- Cycle 46: PR #185 `csvReadErrorMessage`, `csvInsertErrorMessage`, `buildCsvInsert` out of
+  `importCsvFile`. Cycle 47: PR #186 `readBytesDup`, `readMostCommonValue`, `readHistogramBucket` out of
+  `deserializeColumnStats` (also closes an MCV-append leak path). Baseline `function_length` 32 -> 29.
+- Remaining fillers: transport `parseBackendMessage` 89, executor `textToTsvector` 79, jepsen
+  `dirtyReadTest` 80, cli/tui/jepsen 80-130. Migration waits for zuda v3.0.0 (target sailor v3.1.0).
+- Tooling: merge with `-R yusa-imit/silica` as its own command, then add the `auto-merged` label as a
+  separate call; tidy lists offenders via the built `tidy` binary (`--src src --baseline
+  tidy_baseline.txt`); the Edit tool is more reliable than a python heredoc for multi-line replaces;
+  `gh pr checks` without --json prints tab-separated rows; keep poll loops to ~40 x 10 s (tool timeout
+  590 s); CI ~11-12 min, cycle ~20 min.
 
 ## Cycles 41-44 (2026-10-26..29), folded
 - All FEATURE-mode `/stabilize --one` fillers, merged at 7/7, `auto-merged`, zuda still v2.3.0: #180

@@ -52,56 +52,38 @@ rejected_plans: []
 - Next: item 7 `kv/batch.zig` WriteBatch (ADR-0005 §8) + the 3 warnings above.
 - Blockers: none. Open questions: none.
 
-## Cycles 85-86 (2026-11-07), folded 2026-11-08: NOOP (disk)
-- Disk gate failed (17-18.2 GB free, need 20); `/tmp/strata-zc` (1-2 GB of zig cache) could not close the
-  gap alone. No repo or GitHub changes, no PRs. Host cleanup of other data is needed.
-- Next: item 6 commit frame (WAL type 4) and commit-bounded recovery (ADR-0005 §4, §7), once disk >= 20 GB.
-- Blockers: host disk below the gate. Open questions: none.
+## Cycles 75-86 (2026-11-01..07), folded 2026-11-09: plan 005 close, plan 006 start (kv engine)
 
-## Cycles 82-84 (2026-11-05..06), folded
-- 82: ADR-0005 kv layout v1 (#82): `pages.db` + `wal/`, lock = page-file `tryLock`, root = page 1;
-  v1 uses a **`commit` frame (WAL type 4)** + commit-bounded recovery (`truncate_after`, `CommitScan`).
-- 83: #83 item 4 `src/kv/db.zig`, `errors.zig`, `db_fixtures.zig`. Open: `close` swallows a checkpoint
+- 75 (#75): seeded B+Tree model test `src/testing/btree_model_test.zig` (sorted-array `Model`; unlogged
+  512 B/4 KiB/64 KiB x 3 seeds; logged crash/replay/torn variants); mutants died. Follow-ups: dedupe the
+  two logged test loops, `check_each` dead flag, `///` on fixtures pub items, FaultIo/CrashSink
+  durable-boundary variant.
+- 77 (#77): plan 005 item 12; **v0.6.0** tagged and released; no sibling names strata; milestone #63
+  closed. Plan 006 proposed (kv engine on the B+Tree, 12 items, v0.7.0), PR #78 merged 2026-11-03;
+  `FaultIo`/`CrashSink` cannot drop unsynced bytes, `bulk_load` deferred to plan 007.
+- 78-79: NOOP at the disk gate (19 GB); one `/stabilize --one` (CI green, README matches v0.6.0, no
+  banned constructs; `page/header_test.zig` 794/800 lines, `btree/tree.zig` ~700).
+- 80: milestone #79 (12 items). Item 1 (#80): live-file replay after `free_at` trunk stamps, failing
+  `free_at` keeps ids queued, attached `insert`/`delete` assert `pool.gate_on` (fixtures/bench call
+  `set_durable_lsn(0)` after `attach`). 81: item 2 (#81) crafted-page `Corrupted` tests
+  (`btree/cursor_corrupt_test.zig`, `delete_corrupt_test.zig`); open: mutant check on them; preserved
+  `wip/test-btree-corrupt-branches-20261104` (keep).
+- 82: ADR-0005 kv layout v1 (#82): `pages.db` + `wal/`, lock = page-file `tryLock`, root = page 1; a
+  **`commit` frame (WAL type 4)** + commit-bounded recovery (`truncate_after`, `CommitScan`).
+- 83: item 4 (#83) `src/kv/db.zig`, `errors.zig`, `db_fixtures.zig`. Open: `close` swallows a checkpoint
   failure; `errors.map` ends `else => InputOutput`; error subsets all equal `Error`; no failed-commit
   latch test (item 9 `FaultIo`); absent-key `delete` still does `begin_write`; `Db.open` lacks
   `batch_ops_max/bytes_max/wal_*` options.
-- 84: #84 item 5 recovery on open + `Db.checkpoint`; preserved `wip/feat-kv-recovery-20261106` (keep).
+- 84: item 5 (#84) recovery on open + `Db.checkpoint`; preserved `wip/feat-kv-recovery-20261106` (keep).
   Open: mid-log damaged frame leaves `pages.db` partly redone (idempotent); no tests for `wal_lsn`
   naming no checkpoint frame, crash points inside `checkpoint`, header-only torn segment,
   `page_count_max` below the log need; "redo ignores page lsn" mutant deferred to item 10.
+- 85-86: NOOP at the disk gate (17-18 GB, need 20); `/tmp/strata-zc` (1-2 GB zig cache) alone could not
+  close the gap. Next after the gate: item 6 commit frame (WAL type 4) and commit-bounded recovery.
 - Notes: `perl -e 'sleep N'` works for waits; `gh pr checks` says "no checks" ~20 s after push; the
-  developer writes tests after code unless forced; foreground waits cap at 400 s.
-
-## Cycles 80-81 (2026-11-03..04), folded
-- 80: plan 006 approved (#78), milestone #79 (12 items). Item 1 (#80): live-file replay after `free_at`
-  trunk stamps, failing `free_at` keeps ids queued, attached `insert`/`delete` assert `pool.gate_on`
-  (fixtures/bench call `set_durable_lsn(0)` after `attach`); 3 mutants killed.
-- 81: item 2 (#81): crafted-page `Corrupted` tests (`btree/cursor_corrupt_test.zig`,
-  `delete_corrupt_test.zig`), cursor scans assert height 3 at 512 B. Preflight preserved the item as
-  `wip/test-btree-corrupt-branches-20261104` (keep). Open: mutant check on those new tests.
-- Notes: zig-developer ~8.5 min per small item; guard rejects compound commands in citadel (use
-  Write/Edit there).
-
-## Cycles 78-79 (2026-11-02..03), folded
-- 78: NOOP at disk gate (19 GB). 79: plan wait, one `/stabilize --one` (CI green, README matches
-  v0.6.0, no banned constructs; `page/header_test.zig` 794/800 lines, `btree/tree.zig` ~700). Plan 006
-  PR #78 merged 2026-11-03. `/tmp/strata-zc` (1.9 GB) is the 0.16 zig cache.
-
-## Cycle 77 (2026-11-02), folded
-- Plan 005 item 12 (#77): README btree row Landed, CHANGELOG `[0.6.0]`; tagged + released **v0.6.0**; no
-  sibling names strata. Milestone #63 closed. Plan 006 proposed (kv engine on the B+Tree, 12 items,
-  v0.7.0), PR #78; planner flagged `FaultIo`/`CrashSink` cannot drop unsynced bytes, `bulk_load`
-  deferred to plan 007. Guard rejects `;`-chained commands (tag + push + release: separate calls).
-
-## Cycles 75-76 (2026-11-01), folded
-- 75 (#75, plan 005 item 10): seeded model test `src/testing/btree_model_test.zig` + fixtures (sorted-array
-  `Model`; unlogged 512 B/4 KiB/64 KiB x 3 seeds; logged crash/replay/torn variants); mutants died. Open
-  suggestions: dedupe the two logged test loops, `check_each` dead flag, `///` on fixtures pub items; the
-  FaultIo/CrashSink durable-boundary variant is a follow-up for the next plan.
-- 76 (#76, item 11): `bench/btree.zig`: `btree_get` 5.1M ops/s (floor 5M, thin margin), `btree_insert_seq`
-  1.27M (floor 1M), `btree_insert_logged` 0.23M (recorded). Figures in `docs/plans/000-inherited.md`; the
-  bench never fails on a missed floor (manual check).
-- Tool note: `until ! gh pr checks N | grep -q pending` works for CI waits.
+  developer writes tests after code unless forced; foreground waits cap at 400 s; zig-developer ~8.5 min
+  per small item; the guard rejects `;`-chained commands (tag + push + release: separate calls) and
+  compound commands in citadel (use Write/Edit there).
 
 ## Cycles 72-74 (2026-10-30..31), folded
 - Plan 005 item 9 (WAL integration) in three PRs, CI 7/7, auto-merged: #72 log side (`Type.page_images`=16,
