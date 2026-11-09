@@ -1,7 +1,15 @@
 # sailor — context
 
-last_seen_at: 2026-11-07T00:00:00Z
+last_seen_at: 2026-11-09T00:00:00Z
 rejected_plans: []
+
+## Aborted attempt — 2026-11-09 — disk gate, third in a row (counter stays 51)
+
+- Disk gate read 12 GB free (< 20) on `/` (15 GB on 11-07, 19 GB on 11-06): falling each time. Cycle
+  stopped before any work; no repo changes, no GitHub calls.
+- Next: n=52 STABILIZATION unchanged (#75 batch 7: taskrunner + terminal + textarea; textarea own agent).
+  Open question #78 (needs-human, non-blocking). Streak 0.
+- Blockers: operator must free disk (or lower the gate); nothing sailor-side can fix it.
 
 ## Aborted attempt — 2026-11-07 — disk gate again (counter stays 51)
 
