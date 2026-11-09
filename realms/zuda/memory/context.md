@@ -1,7 +1,20 @@
 # zuda — context
 
-last_seen_at: 2026-11-08T19:24:33Z
+last_seen_at: 2026-11-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 49 — 2026-11-10 — ABORTED (disk gate)
+- Done: nothing. Disk gate read 15 GB free (needs >= 20), stopped in preflight; repo not touched (it is on
+  `fix/compile-clean-blas-zig-016`, clean, so no wip branch was needed). Mode would have been FEATURE.
+- PR #88 `fix/compile-clean-blas-zig-016`: open, 7/7 checks SUCCESS (read via `gh pr view`), no `hold`,
+  not yet merged and not yet labelled `auto-merged`.
+- Next: merge #88 first thing when the gate passes; then assertion baseline for `blas.zig`, `ndarray.zig`,
+  distributions sampling; aggregators 8; ML 34; `//!` headers graph 21, string 18, trees 14, dp 44, ML 67;
+  blocksort OOM swallow; v3.0.0.
+- Blockers: disk (15 GB free; the realm's own caches are small, space is held elsewhere on the machine).
+- Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: my first Bash call mixed a `/tmp` write with citadel reads and the guard blocked it; keep them in
+  separate calls. Disk aborts so far: cycles 3, 33, 41, 46, 47, 49.
 
 ## Cycle 48 — 2026-11-09 — FEATURE
 - Done: disk gate passed (24 GB). Inbox clean (CI green on 4a6e772, no bugs, no OWNER comments, milestone #31).
