@@ -1,7 +1,14 @@
 # strata — context
 
-last_seen_at: 2026-11-09T13:00:00Z
+last_seen_at: 2026-11-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 91 — 2026-11-10 — FEATURE (NOOP at the disk gate)
+- Done: nothing. Disk gate read 15 GB (need 20); stopped at preflight, repo untouched on main at 149a155;
+  inbox and CI not checked.
+- Next: item 9 durable-boundary `FaultIo` (`src/testing/`) once the gate passes; then fold the open
+  tests listed under cycle 89 into 9/10.
+- Blockers: disk gate (15 GB free, 20 required; trend 19 -> 17 -> 15 GB). Open questions: none.
 
 ## Cycle 90 — 2026-11-09 — FEATURE (NOOP at the disk gate)
 - Done: nothing. Disk gate read 17 GB (need 20); `/tmp/strata-zc` is 1.8 GB, not enough to close the gap
