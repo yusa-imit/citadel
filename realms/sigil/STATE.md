@@ -247,3 +247,9 @@ Hygiene: no tracked artifacts, `zig-out/` ignored. Open finding: `tools/tidy.zig
 CI: last 5 CI runs all success (main 6d8f7ba, plan/008, #97, #98, #95). Hygiene: tracked root files
 are only CI, .gitignore, CHANGELOG, LICENSE, README, build files; no AI files or artifacts.
 Docs drift: `build.zig.zon` 0.6.0 matches README install tag v0.6.0. No fixes needed.
+
+## Audit 2026-11-09 (cycle 97, stabilize --one)
+
+`zig fmt --check` clean, `zig build test` exit 0 on main bec2f49 (jsonpath conformance 659 pass / 56
+unsupported / 0 divergent), no `expect(true)`, no TODO/FIXME in `src/`. Plan PR #96 still open with no
+owner activity. No fixes needed.

@@ -3,6 +3,18 @@
 last_seen_at: 2026-11-09T12:00:00Z
 rejected_plans: []
 
+## Cycle 97 — 2026-11-09 — FEATURE
+
+- Done: plan PR #96 (plan 008 csv + proto) still OPEN, CI 8/8, no owner comment or review (3 comments, all
+  the AI's own status notes). One stabilization `--one`: `zig fmt --check` clean, `zig build test` exit 0
+  on main bec2f49, no `expect(true)`/TODO/FIXME in `src/`. STATE.md audit block appended. No PRs. ~$0.3.
+- State: disk 21 GB (passed), CI green, no issues, repo clean on main. Periodic stabilization off.
+- Next: same as cycle 96 (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1,
+  ADR 0007 via `architect`; closed unmerged -> record reason, plan YAML 3B or config 5A). Filler left:
+  error-variant coverage audit, `tools/tidy.zig` self-exemption (full cycle).
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
+- Learned: `cd <repo>;` is blocked by the guard; use absolute paths with `zig build test --build-file`.
+
 ## Cycle 96 — 2026-11-09 — FEATURE
 
 - Done: plan PR #96 (plan 008 csv + proto) still OPEN, only the AI's own status notes, no owner comment or
