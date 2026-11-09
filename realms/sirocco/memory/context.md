@@ -1,7 +1,12 @@
 # sirocco — context
 
-last_seen_at: 2026-11-09T02:00:00Z
+last_seen_at: 2026-11-10T00:00:00Z
 rejected_plans: []
+
+## Disk-blocked no-op — 2026-11-10 (counter stays 87)
+- Preflight: disk 16 GB (gate >= 20). Stopped before inbox/mode; no repo change, no PR. Counter not
+  advanced. Next cycle resumes plan 005 item 7 (await/group-wait model, group cancel from a peer).
+  The disk needs freeing (build caches under `.zig-cache`/other repos) before the realm can run.
 
 ## Cycle 87 — 2026-11-09 — FEATURE
 - Preflight: disk 21 GB, CI green, no bugs, no plan PR, inbox empty (milestone #62 open).
