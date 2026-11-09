@@ -75,69 +75,20 @@ rejected_plans: []
 - Blockers: none. Open questions: none new (reflect omit-null note from PR #80 still open).
 - Learned: the guard blocks a Bash command mixing citadel paths with repo commands (split them).
 
-## Cycle 89 — 2026-11-05 — FEATURE
+## Cycles 86-89 (2026-11-03..05), folded 2026-11-09: milestone #84 items 6-11, v0.6.0
 
-- Done: milestone #84 items 10 and 11 (11/11, closed). PR #94 (benchmarks) macOS job had been cancelled
-  by the runner; `gh run rerun --failed`, then CI 8/8, labelled auto-merged, merged. Item 11 PR #95
-  (`chore: release v0.6.0`: build.zig.zon + `sigil.version` 0.6.0, CHANGELOG [0.6.0], 4A/4B ticked, plan
-  item ticked), CI 8/8, merged; `v0.6.0` tagged and `gh release create` done. No consumer names sigil, so
-  no migration issue. Written directly, no subagents. ~$0.65.
-- Next: no open plan and no milestone issue: `/plan sigil` (newest plan 007 fully checked). Candidate
-  themes: msgpack encode tuning (591 MB/s vs PRD 1 GB/s), YAML (3B), CSV (4D), proto (4C), `config`
-  loader, tools/tidy.zig self-exemption. Blockers: none.
-- Learned: a runner-cancelled macOS job (no steps, "cancelled") is infra, not red; `gh run rerun <id>
-  --failed` re-runs it, cross-compile jobs start only after both Build & Test jobs pass (wait for all 8);
-  the guard blocks `cd citadel/... && echo > file` (use Write for memory files).
-
-## Cycle 88 — 2026-11-05 — FEATURE
-
-- Done: milestone #84 item 10 (benchmarks), PR #94 opened (not yet merged): `bench/binary.zig` (msgpack/cbor
-  decode + encode over the JSON tree re-encoded per format, 739/733 KB), `Inputs.get(format)` in main.zig,
-  numbers in 000-inherited.md, plan item ticked, CHANGELOG. Written directly, no subagents. ~$0.75.
-- Numbers: msgpack decode 303 MB/s (8.44 arena B/B), encode 591 MB/s (PRD target > 1 GB/s NOT met, recorded,
-  tuning is a later plan); cbor decode 144 MB/s (8.53), encode 537 MB/s.
-- Next: merge PR #94 first (ubuntu green, macos was queued at the deadline; inbox step 8 merges it: label
-  auto-merged, tick item 10 in #84), then item 11 release v0.6.0 (tick 4A/4B in 000-inherited.md, CHANGELOG
-  [0.6.0], build.zig.zon + sigil.version 0.5.0 -> 0.6.0, tag, gh release create). Blockers: none.
-- Learned: tests in an imported bench file only run via `test { _ = binary; }`; `core.value.eql` returns an
-  error union (`try`); `codec: type` params need `.ParseOptions` options built per codec; CI checks listed for
-  the PR were only 2 (ubuntu, macos) with macos slow to start.
-
-## Cycle 87 — 2026-11-04 — FEATURE
-
-- Done: milestone #84 items 8 and 9 (9/11). Found PR #92 (item 8 vectors, CI 8/8, left open by an
-  interrupted session; repo was on its branch, clean): labelled auto-merged and merged. Then item 9,
-  PR #93 (CI 8/8, merged), written directly, no subagents. Cost ~$1.4, ~12 min.
-- Shape: `core/binary_property.zig` test-only harness, free fns with `comptime codec: type` (a generic
-  `PropertyType` wrapper broke the 70-line tidy cap): `random_root`, `check_tree` (explicit stack),
-  `round_trip(mode generated|decoded)`, `check_input` oracle, `mutate`, `run_seeds`, `run_mutations`,
-  `fuzz_input`. `msgpack/roundtrip_test.zig` and `cbor/roundtrip_test.zig` supply the codec (CBOR also
-  `Deterministic`: byte-stable, no `eql`) + vector bases. 1,000 seeds, 3,464 / 2,256 mutations, arena
-  bound 96 B/input byte + 16 KiB passed. No decoder/encoder bug found.
-- Next: item 10 benchmarks (`zig build bench`, ~1 MB seeded record tree, record in 000-inherited.md,
-  PRD msgpack encode > 1 GB/s), then item 11 release v0.6.0. Blockers: none.
-- Learned: `zig test src/root.zig --test-filter <name>` shows the real `expect` line when `zig build
-  test` buries it under a leaked json error trace; `zig fmt` does not wrap, tidy fails >100 cols;
-  tidy assertion baseline warns on new pub fns with <2 asserts; coverage thresholds must be calibrated
-  (generated trees are small, ~4 nodes/seed).
-
-## Cycle 86 — 2026-11-03 — FEATURE
-
-- Done: milestone #84 items 6 and 7 (7/11). Found PR #90 (item 6, cbor tree) open, CI 8/8, left by an
-  interrupted session: labelled auto-merged and merged. Then item 7, PR #91 (CI 8/8, merged): written
-  directly + one sonnet `code-reviewer` (0 critical, 2 warnings fixed). Cost ~$2.1, ~13 min.
-- Shape: `cbor/encoder.zig` (`write`, `StringifyOptions{depth_max, deterministic}`, shortest heads, f16/f32/f64
-  by bit-exact test, NaN = `f9 7e00`, deterministic = selection sort shorter-first then bytewise, tag 0 text
-  when offset else tag 1 int / exact f64; a timestamp counts as one depth level like the decoder's tag;
-  `Refusal` local_kind/text_range/fraction); `cbor.zig` facade; `cbor/locate.zig` (reader-depth based
-  `skip_item`, indefinite maps/keys, tags folded into the item offset). ADR 0006 s8 now says a locate miss
-  stops at the deepest item (not 1:1).
-- Next: item 8 official test vectors (vendor RFC 8949 Appendix A + msgpack-test-suite subset with SOURCE and
-  license, runners per ADR s10, assert counts). Blockers: none (disk gate passed at 25 GB).
-- Learned: `core.value.eql` compares maps in insertion order, so a sorted (deterministic) round trip needs a
-  byte-compare, not `eql`; disk gate recovered (C84-85 no-ops were disk).
-- Reviewer suggestions not taken: empty key under deterministic, empty array at depth_max, 128-level decode of
-  encoder output, locate first-match under `.last` duplicate policy untested.
+- Done: cbor tree (PR #90), `cbor/encoder.zig` + `locate.zig` (PR #91; ADR 0006 s8: a locate miss stops
+  at the deepest item), vectors (PR #92), `core/binary_property.zig` harness with 1,000 seeds (PR #93),
+  benchmarks (PR #94), release v0.6.0 (PR #95, tagged, `gh release create`). No consumer names sigil.
+- Numbers: msgpack decode 303 MB/s, encode 591 MB/s (PRD > 1 GB/s NOT met, tuning is a later plan);
+  cbor decode 144 MB/s, encode 537 MB/s.
+- Interrupted sessions leave green PRs open: label auto-merged and merge them first.
+- Learned: `core.value.eql` compares maps in insertion order, so deterministic CBOR round trips need a
+  byte-compare; a runner-cancelled macOS job is infra, rerun with `gh run rerun <id> --failed`;
+  cross-compile jobs start only after both Build & Test jobs pass; `zig test src/root.zig
+  --test-filter <name>` shows the real `expect` line; tidy fails >100 cols and warns on new pub fns
+  with <2 asserts; tests in an imported bench file need `test { _ = binary; }`; the guard blocks
+  `cd citadel/... && echo > file` (use Write for memory files).
 
 ## History (cycles 0-85, folded 2026-11-05)
 

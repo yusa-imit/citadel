@@ -56,62 +56,31 @@ rejected_plans: []
 - Next: cycle 85: `GroupRec` lock + join + group cancel from another carrier (tests first), then the
   seeded 4-carrier model test.
 
-## Cycle 83 — 2026-11-06 — FEATURE
-- Preflight: disk 20 GB (gate is >= 20), CI green, no bugs, no plan PR, inbox empty.
-- Merged #78 (`feat/cancel-mail`, labelled auto-merged): `src/cancel_mail.zig` (`Slot`,
-  `is_remote`, `request`, `settle`, handler fiber on the home), `Task.rt` + `Task.cancel_slot`,
-  `join.wake_fiber`; `task_publish` no longer reads the record after waking the awaiter. 3 tests
-  in `cancel_mail_test.zig` (task hand-homed on peer 1 and started by mail). 874/961, 100 serial
-  runs clean. ADR 0004 "as built" note: flag stays home-owned, the canceller is the UAF guard.
-- Item 7 stays UNCHECKED. Remaining: `GroupRec` join + lock + group cancel from another carrier,
-  close from another carrier, seeded 4-carrier model test, parity at 4 carriers, 1000 serial runs.
-  `task_finish` still asserts `task.sched == &rt.sched`; await from other carriers waits for item 8.
-- Gotchas: `run_until` returns at once when the carrier has no live fiber (so the driver cannot
-  wait on carrier 0 for a peer's event: sleep in the baseline futex); in `python3 -c "..."` backticks
-  are shell-expanded, use a heredoc file; the guard allows `lldb` but it hangs (use bisecting).
-  Done in ~15 min, ~$1.2, written directly with no subagent.
-- Next: cycle 84: close from another carrier (registry `close_locked` + armed mask), then the
-  GroupRec lock/join, then the seeded model test.
+## Cycles 79-83 (2026-11-04..06), folded 2026-11-09: plan 005 item 7 (multi-carrier join/cancel)
 
-## Cycle 82 — 2026-11-05 — FEATURE
-- Preflight: disk 26 GB, CI green, no bugs, no plan PR, inbox empty (no comments since watermark).
-- Merged #77 (`feat/join-word`, labelled auto-merged): `src/join.zig` (running/done/driver/`*Fiber`
-  atomic word, 5 tests incl. a 200-round thread race); `Task.done`+`Task.waiter` -> `Task.join` +
-  `driver_stop` (plain bool for `run_until`); `task_publish` wakes the awaiter on `fiber.home`
-  (`in_fiber()` -> `unpark`, else `unpark_foreign`). Written directly, no subagent (~$0.9).
-- Item 7 stays UNCHECKED. Remaining: `GroupRec` join + waiter, atomic `run_until` stop flag
-  (needs group lock), cancel mail (`mail_state`, `cancel_mail`), close from another carrier,
-  seeded 4-carrier model test, parity at 4 carriers, 1000 serial runs.
-- Stress (4 newest test binaries x25): 2 failures, both the known "64 idle sockets" parity flake
-  (`expected 64, found 63`; and a panic in std `Io.Batch.cancel` on the baseline side). Unrelated.
-- Gotchas: the guard allows `cd <repo> && zig ...` but blocked `cd <repo>; git checkout ... sed`
-  with `-i ''`; use Edit and `git -C`. CI Build & Test ~11 min after a ~2 min queue.
-- Next: cycle 83: cancel mail (Task fields `cancel` atomic, `mail_state`, `cancel_mail`; tests
-  first with a mailed fiber), then GroupRec lock/join.
-
-## Cycle 81 — 2026-11-05 — FEATURE
-- Preflight: disk 29 GB. Main CI read "failure" at origin/main but it was runner capacity: the macOS
-  job "was not acquired by Runner" and ended cancelled with no steps (same for PR #75). `gh run
-  rerun <id> --failed` on both -> green in < 10 min. Not a code bug; no escalation.
-- Merged #75 (futex timeout/cancel claim on home) and #76 (`test/futex-wake-timeout-race-2`: two
-  tests in `futex_home_test.zig`, wake-then-timeout and timeout-then-wake, driven by a fiber mailed
-  to the home carrier so the order is deterministic; 40 serial runs clean). Both labelled auto-merged.
-- Item 7 stays UNCHECKED. Remaining: join word (`Task.done`+`waiter` -> `join` atomic, ADR 0004
-  `await`), cancel mail (`mail_state`, `cancel_mail`), close from another carrier, seeded 4-carrier
-  model test, parity suite at 4 carriers, 1000 serial runs. Nothing places tasks on peers yet
-  (item 8), so cross-carrier await/cancel can only be tested with mailed fibers until then.
-- Gotchas: the guard blocks `cd <repo> && ...` compound commands in Bash, use `git -C`. A cherry-pick
-  onto a fresh branch from origin/main after squash-merge worked. Cost ~$0.55.
-- Next: cycle 82: join word step (split small: Task fields + tests first), then cancel mail.
-
-## Cycle 79 — 2026-11-04 — FEATURE
-- Merged #73 (mailbox). PR #74: `Table.wake(table, io, addr, max)` claims each waiter and resumes
-  it on `fiber.home` (direct if `home.in_fiber()`, else `home.unpark_foreign`); merged in cycle 80.
-- Gotchas: futex slots (`slot_futex_wait` etc.) still use `rt.sched` (carrier 0), so running
-  Runtime tasks on peers needs them generalized to `Sched.here()` (item 8). A 300-run loop of the
-  test binary overran Bash: nohup + file. The newest `.zig-cache/o/*/test` is often the parity
-  binary (196 tests, known `batch` "64 idle sockets" flake); the library binary has ~140. Identify
-  by running it. CI Build & Test jobs take > 10 min: push once.
+- Merged: #73 mailbox, #74 `Table.wake` (resumes each claimed waiter on `fiber.home`: direct if
+  `home.in_fiber()`, else `home.unpark_foreign`), #75 futex timeout/cancel claim on home, #76 wake/timeout
+  race tests (two tests in `futex_home_test.zig`, order made deterministic by mailing a fiber to the home
+  carrier), #77 `src/join.zig` (running/done/driver/`*Fiber` atomic word; `Task.join` + `driver_stop`;
+  `task_publish` wakes the awaiter on `fiber.home`), #78 `src/cancel_mail.zig` (`Slot`, `is_remote`,
+  `request`, `settle`, handler fiber on the home; `Task.rt` + `Task.cancel_slot`; `join.wake_fiber`;
+  `task_publish` no longer reads the record after waking the awaiter). ADR 0004 "as built": the cancel
+  flag stays home-owned, the canceller is the UAF guard.
+- Item 7 stays UNCHECKED. Remaining: `GroupRec` join + lock + group cancel from another carrier, close
+  from another carrier (registry `close_locked` + armed mask), seeded 4-carrier model test, parity at 4
+  carriers, 1000 serial runs. `task_finish` still asserts `task.sched == &rt.sched`; await from other
+  carriers waits for item 8. Nothing places tasks on peers yet, so cross-carrier await/cancel is tested
+  with mailed fibers only.
+- Gotchas: futex slots (`slot_futex_wait` etc.) still use `rt.sched` (carrier 0), so running tasks on
+  peers needs them generalized to `Sched.here()` (item 8); `run_until` returns at once when the carrier
+  has no live fiber (sleep in the baseline futex instead of waiting on carrier 0); a main-CI "failure"
+  with the macOS job "not acquired by Runner" and no steps is runner capacity, `gh run rerun <id>
+  --failed`; known flake: parity "64 idle sockets" (`expected 64, found 63`, or a panic in std
+  `Io.Batch.cancel`); the newest `.zig-cache/o/*/test` is often the 196-test parity binary, the library
+  binary has ~140; a 300-run loop overruns Bash (nohup + file); in `python3 -c "..."` backticks are
+  shell-expanded (use a file); the guard blocks `cd <repo> && ...` compounds and `sed -i ''` (use
+  `git -C` and Edit); `lldb` is allowed but hangs (bisect instead); CI Build & Test ~11 min after a
+  ~2 min queue, push once.
 
 ## History (cycles 0-77, folded 2026-11-05)
 
