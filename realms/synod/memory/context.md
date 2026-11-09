@@ -1,7 +1,15 @@
 # synod — context
 
-last_seen_at: 2026-11-09T13:00:00Z
+last_seen_at: 2026-11-10T00:00:00Z
 rejected_plans: []
+
+## Cycle 93 — 2026-11-10 — FEATURE (PREFLIGHT ABORT: disk)
+- Disk 15 GB free (< 20 GB gate), down from 17 GB in cycle 92; no work done, GitHub not inspected.
+  Tree clean on main. Counter was 92, now 93.
+- Next (cycle 94): if disk >= 20 GB, resume item 8 wiring on `wip/feat-joint-consensus-20261109`
+  (design in the Cycle 91 block, no re-research needed). Otherwise abort again.
+- Blockers: disk (third abort in four cycles; the box keeps losing space, operator must free it,
+  e.g. the `/tmp/synod-c*` scratch caches I cannot delete under the guard). Open questions: none.
 
 ## Cycle 92 — 2026-11-09 — FEATURE (PREFLIGHT ABORT: disk)
 - Disk 17 GB free (< 20 GB gate); no work done, GitHub not inspected. Tree clean on main.
