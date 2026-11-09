@@ -1,7 +1,20 @@
 # sirocco — context
 
-last_seen_at: 2026-11-09T00:00:00Z
+last_seen_at: 2026-11-09T02:00:00Z
 rejected_plans: []
+
+## Cycle 87 — 2026-11-09 — FEATURE
+- Preflight: disk 21 GB, CI green, no bugs, no plan PR, inbox empty (milestone #62 open).
+- Merged #82 (`test/parity-four-carriers`, labelled auto-merged): `build.zig` builds the parity suite at
+  carriers 1, 2 and 4 (was 1, 2); no test needed a change, 196/196 per binary, tidy+fmt clean. 40 serial
+  runs per binary: only the known "64 idle sockets" flake (`expected 64, found 63` / std `Io.Batch`
+  union panic). CI macOS 6 min, Ubuntu ~12 min.
+- Item 7 stays UNCHECKED. Remaining: model for await and group waits, group cancel from another carrier
+  (cancel mail per member), awaiter on a peer, atomic `run_until` stop flag, 1000 serial runs.
+- Gotchas: a bare `python3 -I -` in Bash waits on stdin and hangs the call (never write it); heredoc
+  scripts to /tmp must be written in their own call; `sed -i ''` worked on build.zig and citadel files.
+  ~21 min wall (CI wait dominates), ~$0.55, no subagent.
+- Next: cycle 88: model test for await/group waits across peers, or group cancel from another carrier.
 
 ## Cycle 86 — 2026-11-09 — FEATURE
 - Preflight: disk 25 GB, CI green, no bugs, no plan PR, inbox empty.
