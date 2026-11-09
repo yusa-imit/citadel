@@ -1,7 +1,14 @@
 # strata — context
 
-last_seen_at: 2026-11-09T12:00:00Z
+last_seen_at: 2026-11-09T13:00:00Z
 rejected_plans: []
+
+## Cycle 90 — 2026-11-09 — FEATURE (NOOP at the disk gate)
+- Done: nothing. Disk gate read 17 GB (need 20); `/tmp/strata-zc` is 1.8 GB, not enough to close the gap
+  and not deleted. Repo clean on main at 149a155; inbox and CI not checked (stopped at preflight).
+- Next: item 9 durable-boundary `FaultIo` (`src/testing/`) once the gate passes; then fold the open
+  tests listed under cycle 89 into 9/10.
+- Blockers: disk gate (17 GB free, 20 required). Open questions: none.
 
 ## Cycle 89 — 2026-11-09 — FEATURE
 - Done: inbox clean (no OWNER comments, CI green). Merged #87 (plan 006 item 8): `kv/iterator.zig`
