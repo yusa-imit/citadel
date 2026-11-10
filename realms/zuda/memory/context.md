@@ -38,59 +38,17 @@ rejected_plans: []
 - Both ABORTED by the disk gate (17-18 GB free, needs >= 20; with 3, 33, 41 that is five aborts). Realm caches
   are small (~750 MB), the space was held elsewhere; it recovered by 48 (24 GB).
 
-## Cycle 45 — 2026-11-06 — STABILIZATION (n % 5 == 0)
-- Done: inbox clean (CI green, no bugs, no OWNER comments, milestone #31). Merged #86 (iterators, 7/7,
-  no `hold`, `auto-merged`). Stabilize task: `//!` headers on 18 sorting files; claims checked against the
-  code (bitonic pads with the max element and returns `error.Overflow`; radix digits are bytes; bogo
-  `error.MaxIterationsExceeded`). `zig fmt` had been red on 8 sorting files, applied to the dir.
-- PR: #87 `docs/sorting-module-headers` merged at 7/7 (Build & Test 7m53s), `auto-merged`. Local `zig
-  build test` exit 0. Missing `//!` header now 259 of 436 (STATE.md updated).
-- Next: headers graph 21, string 18, trees 14, dp 44, ML 67; aggregators 8; `linalg/blas.zig` +
-  `simd_blas.zig` (77 errors); ML 34; assertion baseline; v3.0.0.
+## Cycles 43-45 (2026-11-04..06, folded 2026-11-10)
+- 43 linalg sweep (#85, 443 tests): svd sign bug (now one-sided Jacobi), eig QR (now cyclic Jacobi),
+  `solveOverdetermined` double free; many wrong tests. 44 iterators sweep (#86, 281 tests): flat_map helpers
+  returned slices of their own stack frames (now comptime tables). 45 STABILIZATION (#87): `//!` headers on
+  18 sorting files, `zig fmt` applied; missing header now 259 of 436. All merged at 7/7, `auto-merged`.
 - Noticed, not fixed: `blocksort.zig` `sort` swallows OOM (`catch continue` / `catch return` on run-list
   appends), so it can return unsorted without an error: needs a failing test, then a typed error.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: stale `.zig-cache` again "failed to spawn build runner": use `--cache-dir /tmp/zuda-zcache`. A
-  header is easiest as a python script that prepends per-file text (merge lines into paragraphs, wrap at
-  94); `zig fmt` 0.16 has no `--stdout`. This cycle's wall clock to green PR was ~15 min.
-
-## Cycle 44 — 2026-11-05 — FEATURE
-- Done: inbox clean (CI green on 978c5d3, no bugs, no OWNER comments, milestone #31). Merged #85
-  (linalg, 7/7, no `hold`, `auto-merged`). Sweep slice `iterators` (12 files): 5 red (map, filter, zip,
-  partition, collect), all 12 now imported from the `root.zig` test block, 281 tests pass. Causes:
-  partition/collect on the 0.16 `ArrayList` shape; tests passing `&iter` to a by-value `init`; `%` on
-  signed ints; flat_map test helpers (`range`, `replicateSlice`, `digits`) returned slices of their own
-  stack frames (13 tests read garbage; now comptime tables); filter "min i32" test expected the wrong
-  first element (`minInt` is even).
-- PR: #86 `fix/compile-clean-iterators-zig-016` open; local `zig build test` exit 0, Build & Test green
-  (9m22s); 6 cross-compile jobs still pending at the deadline. Next cycle merges at 7/7, no `hold`,
-  adds `auto-merged`.
-- Next: merge #86; aggregators 8; `linalg/blas.zig` + `simd_blas.zig` (77 errors); ML 34; `//!` headers
-  (ML 67, dp 44); assertion baseline; v3.0.0.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: whole cycle to PR took ~6 min for a 12-file slice (parallel `zig test -fno-emit-bin` per file,
-  one background `zig build test`). Do not use a perl `s/^(\s+)var / $1const /` that adds a space:
-  run `zig fmt` after bulk edits and `git checkout` any unrelated file it reformats (chain.zig).
-  Tool schema for `Monitor` must be loaded via ToolSearch; a Bash poll with `perl select` works instead.
-
-## Cycle 43 — 2026-11-04 — FEATURE
-- Done: inbox clean (CI green on 978c5d3, no bugs, no OWNER comments, milestone #31). Sweep slice
-  `linalg` (decompositions, lu, solve, properties) compile-clean, wired into the `root.zig` test block:
-  443 tests pass. Real bugs: svd dropped the sign of negative bidiagonal entries (identity gave -I),
-  replaced by one-sided Jacobi (60 sweeps max, U completed for zero singular values); eig QR stopped at
-  1e-8 (now cyclic Jacobi); `solveOverdetermined` double free + absolute pivot threshold (now relative).
-  Many wrong tests: singular data in lu, verifier `A=PLU` vs contract `PA=LU`, pinv OOB indexing, wrong
-  Cholesky entry, 1e10-scale absolute tolerances, `pivots` is LAPACK swap record not a permutation.
-- PR: #85 `fix/compile-clean-linalg-zig-016` open; local `zig build test` exit 0, Build & Test green
-  (9m35s); 6 cross-compile jobs still pending at the deadline. Next cycle merges at 7/7, no `hold`,
-  adds `auto-merged`. Branch contains the earlier wip commit (squash merge hides it).
-- Next: merge #85; `linalg/blas.zig` + `simd_blas.zig` (77 errors, OutOfMemory escaping NDArray.Error,
-  `clone` missing); iterators 5, aggregators 8, ML 34; `//!` headers (ML 67, dp 44); assertion baseline;
-  v3.0.0.
-- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: the guard blocks `cd <repo> && git checkout ...` chains; use plain `git` in the cwd. A
-  leaking test aborts the whole `zig test` run (ABRT) and hides later failures: fix leaks first.
-  linalg run: `zig test src/_sweep_linalg.zig --test-filter "linalg."` takes ~1 min warm.
+- Quirks: stale `.zig-cache` "failed to spawn build runner": use `--cache-dir /tmp/zuda-zcache`. Run
+  `zig fmt` after bulk edits and `git checkout` unrelated files it reformats. The guard blocks
+  `cd <repo> && ...` chains. A leaking test aborts the whole `zig test` run (ABRT): fix leaks first.
+  `zig test` on a file importing `linalg/*` needs `--test-filter "linalg."` and a `_sweep_*.zig` root.
 
 ## Cycles 41-42 (2026-11-02..03, folded 2026-11-06)
 - 41 ABORTED by the disk gate; 42 was the first linalg pass (finished in #85). Quirk: `zig test` on a file
