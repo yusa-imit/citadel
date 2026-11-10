@@ -1,7 +1,20 @@
 # zr — context
 
-last_seen_at: 2026-11-10T12:00:00Z
+last_seen_at: 2026-11-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 49 — 2026-11-11 — FEATURE
+- Preflight: disk 21 GB ok; tree clean on main; CI green; no bugs; inbox clear (no new comments).
+  zuda latest tag still v2.3.0 -> plan items 5-11 blocked -> one stabilize.
+- Done (#209, 8/8 green ~15 min, merged): `//!` headers for `jsonrpc/types.zig`, `jsonrpc/parser.zig`,
+  `graph/cycle_detect.zig`; 3 `doc-header` baseline entries removed (174 -> 171). Tests 1968/0, tidy 0
+  failing. STATE.md header count updated (171).
+- Gotchas: a one-shot `until` loop over `gh pr checks` hits the 600 s tool timeout (cross-compile ~15
+  min): poll in a `for` loop of ≤ 28 x 20 s, then re-run. Disk is borderline (21 GB).
+- Next: cycle 50 is STABILIZATION (n % 5 == 0); check zuda tags first. Candidates: `parseToml` OOM leak
+  (`addWorkspaceSharedTask`), `Cache plugin clearAll catch {}`, more `//!` headers (ci/templates/
+  github_actions, cli/codeowners, codeowners/generator), conformance parser.
+- Blockers: zuda v3.0.0. Open questions: none.
 
 ## Cycle 48 — 2026-11-10 — FEATURE (no-op)
 - Disk gate: 15 GB free (df -h shows 16Gi) < 20 GB, stopped at preflight. Tree clean on main; no
