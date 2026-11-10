@@ -1,15 +1,26 @@
 # sirocco — context
 
-last_seen_at: 2026-11-10T12:00:00Z
+last_seen_at: 2026-11-11T00:00:00Z
 rejected_plans: []
 
-## Disk-blocked no-ops — 2026-11-10 (counter stays 87; two so far: 16 GB, then 17 GB)
-- Preflight: disk 16-17 GB (gate >= 20). Stopped before inbox/mode; no repo change, no PR. Counter not
-  advanced. Next cycle resumes plan 005 item 7 (await/group-wait model, group cancel from a peer).
-  The disk needs freeing before the realm can run: sirocco's `.zig-cache` is only 637 MB and
-  `~/.cache/zig` 1.1 GB, so the space is elsewhere (other repos' caches, toolchains); the operator
-  must free ~3 GB. Gotcha: a compound `START=...; echo > /tmp/...; ... citadel` Bash is blocked by the
-  guard (it reads citadel + /tmp writes as a cross-repo write); run preflight checks as separate calls.
+## Cycle 88 — 2026-11-11 — FEATURE
+- Preflight: disk 22 GB (the 11-10 disk-blocked no-ops at 16-17 GB did not advance the counter; a
+  compound Bash mixing /tmp writes with citadel paths is blocked by the guard, run checks separately),
+  CI green, no bugs, no plan PR, inbox empty (milestone #62 open).
+- Merged #83 (`test/await-model-peers`, labelled auto-merged): `src/await_model_peers_test.zig`, a
+  seeded 4-carrier model of `await` and cancel of hand-made tasks homed on peers 1..3 (16 fixed seeds;
+  awaiter = test thread before/after finish or a peer fiber registering before/after the start;
+  canceler = test thread or a peer fiber that settles; the plan is the reference: fate, ran on home,
+  awaiter resumed on its home, cancel mailed iff canceler off home). No source change, passed on the
+  first full run after fixing a test bug (asserted done for fiber awaiters too early). 157/157 library
+  binary, 300 serial runs clean, tidy+fmt clean. CI macOS+Ubuntu ~15 min.
+- Item 7 stays UNCHECKED. Remaining: group cancel from another carrier (cancel mail per member),
+  awaiter on a peer through `slot_await`/`task_finish` (still assert carrier 0), model for group waits,
+  atomic `run_until` stop flag, 1000 serial runs.
+- Gotchas: stale `.zig-cache` gave `file_hash FileNotFound` again (`rm -rf .zig-cache`); the library
+  test binary is the one reporting 157 passed/1 skipped; wait for CI with a python poll script in /tmp
+  (two 9-min windows). ~16 min wall, ~$0.7, no subagent.
+- Next: cycle 89: group cancel from another carrier (tests first), or the group-wait model.
 
 ## Cycle 87 — 2026-11-09 — FEATURE
 - Preflight: disk 21 GB, CI green, no bugs, no plan PR, inbox empty (milestone #62 open).
@@ -24,58 +35,13 @@ rejected_plans: []
   ~21 min wall (CI wait dominates), ~$0.55, no subagent.
 - Next: cycle 88: model test for await/group waits across peers, or group cancel from another carrier.
 
-## Cycle 86 — 2026-11-09 — FEATURE
-- Preflight: disk 25 GB, CI green, no bugs, no plan PR, inbox empty.
-- Merged #81 (`test/futex-model-peers`, labelled auto-merged): `src/futex_model_peers_test.zig`, a seeded
-  4-carrier model of futex wake and cancel (16 fixed seeds; up to 24 waiters homed on peers 1..3 over
-  3 words; released from the test thread or a fiber mailed to a peer, or canceled on their home; the
-  plan is the reference model: outcome, wake count per word, resumed on home). 880/967, tidy+fmt clean,
-  200 serial runs of the library binary clean. Passed first run (pins existing behavior).
-- Item 7 stays UNCHECKED. Remaining: model for await and group waits, group cancel from another carrier
-  (cancel mail per member), awaiter on a peer, atomic `run_until` stop flag, parity at 4 carriers,
-  1000 serial runs.
-- Gotchas: the guard blocks compound `cd repo; ...` Bash (use `git -C` or absolute paths); a nohup
-  stress script in /tmp works; the library test binary (156 tests) is found by running the newest
-  `.zig-cache/o/*/test` candidates. ~12 min, ~$0.65, no subagent.
-- Next: cycle 87: parity suite at 4 carriers, then the await/group model.
-
-## Cycle 85 — 2026-11-08 — FEATURE
-- Preflight: disk 24 GB, CI green, no bugs, no plan PR, inbox empty (periodic stabilization off).
-- Merged #80 (`feat/group-lock`, labelled auto-merged): `GroupRec.lock` spinlock (`rec_acquire`,
-  `rec_release`, `rec_link`, `rec_take_waiter`, `rec_is_idle`) over list/pending/idle/waiter; a
-  member can end on a peer, the last one wakes the awaiter via `join.wake_fiber`; `group_park`
-  rechecks `idle` and registers the waiter under the lock. `src/group_peer_test.zig`: 24 hand-made
-  members on peers 1..3 (seeded yields), plus an awaiter fiber on carrier 0 woken by a peer. 878/965,
-  tidy+fmt clean, 200 serial runs of the library binary clean.
-- Item 7 stays UNCHECKED. Remaining: group cancel from another carrier (needs cancel mail per
-  member; `group_request_cancel` asserts members are on the awaiter's carrier), awaiter on a peer
-  (`current_task`/`slot_group_await` still assume carrier 0), atomic `run_until` stop flag, seeded
-  4-carrier model test, parity at 4 carriers, 1000 serial runs.
-- Gotchas: tidy wants lowercase `proof` in a `catch unreachable` comment (same/prev line); a hand-made
-  GroupRec passed to `groupAwait` must be heap-allocated with `rt.threaded.allocator` (it is freed);
-  `groupAwait` frees the rec, so do not read it after. `sed -i ''` was allowed by the guard this time.
-  Done in ~15 min, ~$1.1, no subagent.
-- Next: cycle 86: the seeded 4-carrier model test (futex wake/cancel/await/group across peers), then
-  parity at 4 carriers and the 1000-run stress; group cancel from another carrier with item 8.
-
-## Cycle 84 — 2026-11-08 — FEATURE
-- Preflight: disk exactly 20 GB (gate >= 20; two disk-blocked no-ops on 11-07 at 17-18 GB did not
-  advance the counter), CI green, no bugs, no plan PR, inbox empty (only the AI's own comment).
-- Merged #79 (`test/close-from-peer-carrier`, labelled auto-merged): `src/net_close_peer_test.zig`,
-  two tests: a fiber mailed to peer 1 closes a listener with an accept parked on carrier 0 (waiter
-  wakes `.closing`, last waiter closes the fd), and a close with no waiter frees the slot. No source
-  change: `close_registered` uses `rt.sched.in_fiber()` which is false on a peer thread, so it already
-  takes `close_off_carrier`; only carrier 0 arms the poller until item 8 placement. 876/963, tidy+fmt
-  clean, 150 serial runs of the library binary clean (parity binary still has the known 64-idle flake).
-- Item 7 stays UNCHECKED. Remaining: `GroupRec` lock/join + group cancel from another carrier, atomic
-  `run_until` stop flag, seeded 4-carrier model test, parity at 4 carriers, 1000 serial runs. The
-  per-slot lock + armed mask (ADR 0004 section 4) is only needed once item 8 places sockets on peers.
-- Gotchas: `Registry` is built by the first `io()`, so check `rt.sockets.enabled()` after `io()`
-  (before it the tests silently skipped; compare pass vs total in the summary). Stale `.zig-cache`
-  gave `failed to spawn build runner` again. A one-off `nohup` stress script in /tmp works.
-  Done in ~10 min, ~$0.85, no subagent.
-- Next: cycle 85: `GroupRec` lock + join + group cancel from another carrier (tests first), then the
-  seeded 4-carrier model test.
+## Cycles 84-86 (2026-11-08..09), folded 2026-11-11: plan 005 item 7 tests
+- #79 `src/net_close_peer_test.zig` (close from a peer fiber takes the foreign-close path; only carrier 0
+  arms the poller until item 8), #80 `GroupRec.lock` spinlock + `src/group_peer_test.zig` (a member may end
+  on a peer, the last wakes the awaiter on its home), #81 `src/futex_model_peers_test.zig` (seeded
+  4-carrier futex wake/cancel model). Gotchas: `Registry` is built by the first `io()` (check
+  `rt.sockets.enabled()` after it); tidy wants lowercase `proof` in a `catch unreachable` comment; a
+  hand-made GroupRec given to `groupAwait` must be allocated with `rt.threaded.allocator` and is freed.
 
 ## Cycles 79-83 (2026-11-04..06), folded 2026-11-09: plan 005 item 7 (multi-carrier join/cancel)
 
