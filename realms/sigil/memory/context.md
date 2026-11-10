@@ -1,18 +1,25 @@
 # sigil — context
 
-last_seen_at: 2026-11-09T12:00:00Z
+last_seen_at: 2026-11-11T12:00:00Z
 rejected_plans: []
 
-## Cycle 99 — 2026-11-10 — no-op (disk gate)
+## Cycle 100 — 2026-11-11 — FEATURE
 
-- Disk read 17 GB (< 20), so the cycle stopped before inbox; memory only. No GitHub state read this cycle
-  (plan PR #96 last seen OPEN in cycle 97, main bec2f49, repo clean).
-- Next: same as cycle 97's Next (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1).
-- Blockers: disk (needs >= 20 GB). Open questions: reflect omit-null note from PR #80.
+- Done: plan PR #96 (plan 008 csv + proto) still OPEN, mergeable, no owner comment or review (3 comments,
+  all the AI's own). One stabilization `--one`: error-variant coverage audit, every msgpack (11 parse, 5
+  write) and cbor `ParseValueError` variant is named in at least one `error.X` test assertion (min count
+  1 for `OutOfMemory`); no gaps. No PRs opened or merged. ~$0.3.
+- State: disk 22 GB (passed), main bec2f49 (last completed main CI run is on 6d8f7ba, success, so not red),
+  no issues, repo clean on main. Periodic stabilization off.
+- Next: same as cycle 97's Next (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1,
+  ADR 0007 via `architect`; closed unmerged -> record reason, plan YAML 3B or config 5A). Filler left:
+  `tools/tidy.zig` self-exemption (full cycle).
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
+- Learned: the guard blocks `cd <repo>;` even as a prefix of a read-only compound command; use absolute paths.
 
-## Cycle 98 — 2026-11-10 — no-op (disk gate)
+## Cycles 98-99 (2026-11-10), folded: no-op (disk gate)
 
-- Disk read 16 GB (< 20); stopped before inbox, memory only. Plan PR #96 OPEN, main bec2f49 CI success.
+- Disk read 16-17 GB (< 20); stopped before inbox, memory only. Plan PR #96 OPEN, main bec2f49 CI success.
 
 ## Cycle 97 — 2026-11-09 — FEATURE
 
