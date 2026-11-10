@@ -1,7 +1,21 @@
 # zuda — context
 
-last_seen_at: 2026-11-10T00:00:00Z
+last_seen_at: 2026-11-10T19:23:00Z
 rejected_plans: []
+
+## Cycle 50 — 2026-11-11 — STABILIZATION (n % 5)
+- Done: disk gate passed (22 GB). CI green on main, no bugs, inbox clean (no OWNER comments). Merged #88
+  (BLAS compile + 917 tests, 7/7, no `hold`), labelled `auto-merged`.
+- PR #89 `fix/blocksort-oom-error`: `BlockSort.sort` swallowed OOM (`catch return`/`continue`) and could return
+  a half-sorted slice silently. Failing-allocator test (fail index 0..7: sorted or `error.OutOfMemory`) written
+  first; `sort` now `error{OutOfMemory}!void`, run list compacted in place so only `findRuns` allocates.
+  Breaking (CHANGELOG, v3.0.0). Full `zig build test` exit 0 (~3 min warm), CI 7/7, merged, `auto-merged`.
+- Next: assertion baseline for `blas.zig`, `ndarray.zig`, distributions sampling; aggregators 8; ML 34;
+  `//!` headers graph 21, string 18, trees 14, dp 44, ML 67; `BlockSort` still stores its allocator (header
+  says so); v3.0.0 release.
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: the guard blocks `cd <repo> && ...` and `cd` + `;` chains: run repo commands from the cwd. CI cross
+  jobs finished ~17 min after the PR opened; the cycle used 18 of 22 min.
 
 ## Cycle 49 — 2026-11-10 — ABORTED (disk gate)
 - Done: nothing. Disk gate read 15 GB free (needs >= 20), stopped in preflight; repo not touched (it is on
