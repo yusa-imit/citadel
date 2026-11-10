@@ -24,7 +24,7 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 | strata | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-16, PR #15); plan 002 released v0.3.0 (2026-10-04, PR #27); plan 003 released v0.4.0 (2026-10-12, PR #45); plan 004 released v0.5.0 (2026-10-19, PR #61); plan 005 released v0.6.0 (2026-11-01, PR #77); plan 006 (KV engine) merged 2026-11-03 (PR #78) |
 | synod | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-15, PR #15); plan 002 released v0.3.0 (2026-09-30, PR #31); plan 003 released v0.4.0 (2026-10-13, PR #54); plan 004 released v0.5.0 (2026-10-27, PR #71) |
 | sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10); plan 002 released v0.3.0 (2026-10-06, PR #30); plan 003 released v0.4.0 (2026-10-11, PR #43); plan 004 released v0.5.0 (2026-10-26, PR #60) |
-| zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — toolchain flip merged (PR #60, 2026-10-04), zon at 0.16.0, v3.0.0 pending; plan 001 compile-clean in progress (180 files red on 0.16 in a src-level sweep; btree, graphs and compat shims fixed by merged PR zuda#75 (2026-10-21), graph/bitwise/combinatorics/DP by merged PR zuda#76 (2026-10-25), string algorithms by merged PR zuda#77 (2026-10-26), geometry by merged PR zuda#79 (2026-10-28), sorting by merged PR zuda#80 and trees by merged PR zuda#81 (2026-10-29), compression by merged PR zuda#82 (2026-10-31), linalg by merged PR zuda#85 (2026-11-04); iterators by merged PR zuda#86 (2026-11-05), ML remains) |
+| zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — toolchain flip merged (PR #60, 2026-10-04), zon at 0.16.0, v3.0.0 pending; plan 001 compile-clean in progress (180 files red on 0.16 in a src-level sweep; btree, graphs and compat shims fixed by merged PR zuda#75 (2026-10-21), graph/bitwise/combinatorics/DP by merged PR zuda#76 (2026-10-25), string algorithms by merged PR zuda#77 (2026-10-26), geometry by merged PR zuda#79 (2026-10-28), sorting by merged PR zuda#80 and trees by merged PR zuda#81 (2026-10-29), compression by merged PR zuda#82 (2026-10-31), linalg by merged PR zuda#85 (2026-11-04); iterators by merged PR zuda#86 (2026-11-05), sorting headers by merged PR zuda#87 (2026-11-06), BLAS by open PR zuda#88 (7/7 green), ML remains) |
 | sailor | 368 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — migration merged to main (PR #40, 2026-09-29), zon at 0.16.0 — **done**, released v3.0.0 (2026-10-05, PR #47); plan 002 released v3.1.0 (2026-10-18, PR #63) |
 | zr | 79 + deps | large | zuda v3, sailor v3 | MINOR |
 | silica | 275 + deps | medium | zuda v3, sailor v3 | MINOR |
@@ -58,7 +58,7 @@ zr and zoltraak complete their `001` migration
 (both are `blocked_by zuda>=3.0.0` already) and move to tag-pinned zuda v3.0.0 — no separate
 action needed unless a realm cycle lands a non-tag pin again.
 
-### Blocker: host disk below the 20 GB preflight gate (2026-11-08, cleared 2026-11-09)
+### Blocker: host disk below the 20 GB preflight gate (2026-11-08, cleared 2026-11-09, reopened 2026-11-10)
 
 Realm cycles abort at preflight when `/` has under 20 GB free. Between 2026-11-06 and
 2026-11-08 synod (cycles 87-89), strata (85-86) and sigil (92-93) did no work for this reason;
@@ -70,6 +70,10 @@ operator must free about 2 GB (the `.zig-cache` directories under `/Users/fn/cod
 Cleared 2026-11-09: `/` reads 21 GB free and sigil (96), sirocco (86), strata (89) and synod (91)
 ran feature cycles. The margin is 1 GB, so the gate can trip again; the blocker stays recorded
 until free space holds above 25 GB.
+
+Reopened 2026-11-10: `/` reads 13 GB free. sigil (98), strata (91), synod (93) and zuda (49) ended
+at the gate with no work; zuda PR #88 (BLAS, 7/7 green) waits for a cycle to merge it. The operator
+must free about 7 GB (see above) before realm cycles resume.
 
 ## Phase 2 — Foundation v0.1 and first consumers
 
