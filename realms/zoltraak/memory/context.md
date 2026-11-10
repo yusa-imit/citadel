@@ -1,7 +1,21 @@
 # zoltraak — context
 
-last_seen_at: 2026-11-10T00:00:00Z
+last_seen_at: 2026-11-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 51 — 2026-11-11 — FEATURE (all plan items blocked)
+- Disk 21 GB (gate passed barely). CI green on main (909d7a3), no bugs, no OWNER comments, no open PRs;
+  milestone #121 open. zuda still v2.3.0, so items 4-9, 12 blocked: ran `/stabilize --one`.
+- PR #170 (merged, auto-merged): `storage/aof.zig` 3 `== error.`/`!= error.` -> `switch (err)` with
+  `else => return err` (callee sets are std/inferred). `== error.` in `src/` 14 -> 11. `zig build test`
+  1627/1627 except the 2 known signal-4 crashers; fmt and `zig build tidy` clean.
+- Lesson: the first test run failed `tidy`: the added switch lines grew `executeStorageCommand` 115 -> 117
+  lines past its baseline. Extracted `replayRestore` helper to fix. Run `zig build tidy` before the long
+  test run; adding lines inside a baselined long function fails it.
+- Next: `tdigest.zig` 2, `main.zig` 2, then 1 each (redis_api, storage/functions, persistence, utility,
+  streams, cluster, client); `//!` headers (82 files); stash triage. Blockers: zuda v3.0.0. Questions: none.
+- Quirks: the guard blocks `cd repo; ...` compounds (run git/gh as separate calls from the repo cwd);
+  `gh pr checks --watch` right after PR creation says "no checks"; rerun it.
 
 ## Cycle 50 — 2026-11-10 — NOOP (disk gate)
 - Disk 13 GB < 20 GB gate: stopped at preflight, nothing checked (CI, issues, PRs unread). Repo clean on
