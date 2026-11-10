@@ -3,6 +3,14 @@
 last_seen_at: 2026-11-10T00:00:00Z
 rejected_plans: []
 
+## Cycle 92 — 2026-11-10 — FEATURE (NOOP at the disk gate)
+- Done: nothing. Disk gate read 17 GB (need 20); `/tmp/strata-zc` is 1.6 GB, not enough to close the gap
+  and not deleted. Repo clean on main at 149a155; inbox and CI not checked (stopped at preflight).
+- Next: item 9 durable-boundary `FaultIo` (`src/testing/`) once the gate passes; then fold the open
+  tests listed under cycle 89 into 9/10.
+- Blockers: disk gate (17 GB free, 20 required; 3rd NOOP in a row, 19 -> 17 -> 15 -> 17 GB). The operator
+  needs to free space outside strata (the zig cache is not the cause). Open questions: none.
+
 ## Cycle 91 — 2026-11-10 — FEATURE (NOOP at the disk gate)
 - Done: nothing. Disk gate read 15 GB (need 20); stopped at preflight, repo untouched on main at 149a155;
   inbox and CI not checked.
