@@ -21,27 +21,9 @@ rejected_plans: []
   crash through `FaultIo.crash()`), plus the 5 warnings and cycle 89's open kv tests.
 - Blockers: none. Open questions: none.
 
-## Cycle 92 — 2026-11-10 — FEATURE (NOOP at the disk gate)
-- Done: nothing. Disk gate read 17 GB (need 20); `/tmp/strata-zc` is 1.6 GB, not enough to close the gap
-  and not deleted. Repo clean on main at 149a155; inbox and CI not checked (stopped at preflight).
-- Next: item 9 durable-boundary `FaultIo` (`src/testing/`) once the gate passes; then fold the open
-  tests listed under cycle 89 into 9/10.
-- Blockers: disk gate (17 GB free, 20 required; 3rd NOOP in a row, 19 -> 17 -> 15 -> 17 GB). The operator
-  needs to free space outside strata (the zig cache is not the cause). Open questions: none.
-
-## Cycle 91 — 2026-11-10 — FEATURE (NOOP at the disk gate)
-- Done: nothing. Disk gate read 15 GB (need 20); stopped at preflight, repo untouched on main at 149a155;
-  inbox and CI not checked.
-- Next: item 9 durable-boundary `FaultIo` (`src/testing/`) once the gate passes; then fold the open
-  tests listed under cycle 89 into 9/10.
-- Blockers: disk gate (15 GB free, 20 required; trend 19 -> 17 -> 15 GB). Open questions: none.
-
-## Cycle 90 — 2026-11-09 — FEATURE (NOOP at the disk gate)
-- Done: nothing. Disk gate read 17 GB (need 20); `/tmp/strata-zc` is 1.8 GB, not enough to close the gap
-  and not deleted. Repo clean on main at 149a155; inbox and CI not checked (stopped at preflight).
-- Next: item 9 durable-boundary `FaultIo` (`src/testing/`) once the gate passes; then fold the open
-  tests listed under cycle 89 into 9/10.
-- Blockers: disk gate (17 GB free, 20 required). Open questions: none.
+## Cycles 90-92 (2026-11-09..10), folded: NOOPs at the disk gate
+- Gate read 17 -> 15 -> 17 GB (need 20); `/tmp/strata-zc` (1.6-1.8 GB zig cache) could not close the gap
+  and was not deleted; repo untouched on main at 149a155, inbox and CI not checked. Cleared in cycle 93.
 
 ## Cycle 89 — 2026-11-09 — FEATURE
 - Done: inbox clean (no OWNER comments, CI green). Merged #87 (plan 006 item 8): `kv/iterator.zig`
@@ -58,39 +40,21 @@ rejected_plans: []
 - Next: item 9 durable-boundary `FaultIo` (`src/testing/`), then fold the open tests into 9/10.
 - Blockers: none. Open questions: none.
 
-## Cycle 88 — 2026-11-08 — FEATURE
-- Done: merged #86 (plan 006 item 7): `kv/batch.zig` `WriteBatch` (storage allocated in `init` with the
-  caller's `gpa`, not `Db.open`; `commit` -> `Db.commit_ops(ops)` -> one `begin_write`, ops in record order,
-  one commit frame; `State.fail_group` latches when frames were logged). Folded the 3 cycle-87 warnings
-  (strict `run_checkpoint` assert, `truncate.zig` for/else -> assert, CHANGELOG). CI 7/7, 951 tests.
-  Milestone #79 items 1-7 ticked. ~$2.4 of $4, ~21 min (dev 5 min, reviewer 2.5 min, dev fix 6 min).
-- Review (sonnet): found a REAL bug in #85 code: `Db.put`/`delete` did not latch after a clean tree
-  rejection that followed logged chain frames (orphan frames after the last commit point -> Corrupted on
-  reopen). Fixed: both go through `fail_group`. CI is only ~1.5-2 min, so review + fix fits in a cycle.
-- Open: no test kills a "drop the latch in fail_group" mutant (needs the rejected-after-chain setup or
-  item 9's FaultIo); no `SegmentLimit`-mid-group / rotation crash test; no "gate = durable_lsn" mutant test
-  (needs rotation inside a group); no `pool_frames_min` slack-0 worst-case batch test; `CommitError = Error`
-  (BatchTooLarge reachable only via direct `commit_ops`); `Db.close` leaves live batches dangling (doc only).
-- Next: item 8 `kv/iterator.zig` `Db.scan` (ADR-0005 §9; adds `Db.generation`), fold the open tests into 9/10.
-- Blockers: none. Open questions: none.
-
-## Cycle 87 — 2026-11-08 — FEATURE
-- Done: disk gate passed again (20 GB). Merged #85 (plan 006 item 6): `frame.Type.commit`=4,
-  `Recovery.truncate_after` (`wal/truncate.zig`), `CommitScan` (`wal/commit_scan.zig`), `kv.Db` open =
-  CommitScan pass, truncate past K, redo <= K; put/delete append a commit frame, gate = last commit lsn;
-  `node.op_pages_max` folded the `ops_max` copies. CI 7/7, 937 tests. Milestone #79 items 1-6 ticked.
-  ~$1.9 of $4, ~20 min (dev ~14 min for both stages, reviewer 2 min).
-- Review (sonnet): 0 critical, 3 warnings NOT yet fixed (deadline): (1) CHANGELOG has no Added/Changed
-  entry for commit frame / truncate_after / CommitScan / Db durability (logs from pre-commit-frame Db are
-  unreadable: `[Unreleased]` only, say so); (2) `run_checkpoint` assert `last_lsn == commit_lsn or
-  commit_lsn == 0` is vacuous: make it `last_lsn == commit_lsn`; (3) `truncate.zig` ~58 `for/else ->
-  Corrupted` should be an assert. Fold these into item 7's PR.
-- Open: group can rotate a segment twice (images + commit) -> `SegmentLimit` with tiny `wal_segments_max`;
-  no kv-level test for bad `commit.first_lsn` -> `Corrupted`, K=0 with torn header, rotation crash,
-  open-from-checkpoint + unfinished group; unfinished-group test cuts the commit frame rather than
-  appending raw `page_images`.
-- Next: item 7 `kv/batch.zig` WriteBatch (ADR-0005 §8) + the 3 warnings above.
-- Blockers: none. Open questions: none.
+## Cycles 87-88 (2026-11-08), folded: plan 006 items 6-7
+- 87 (#85): `frame.Type.commit`=4, `Recovery.truncate_after` (`wal/truncate.zig`), `CommitScan`
+  (`wal/commit_scan.zig`); `kv.Db` open = CommitScan, truncate past K, redo <= K; put/delete append a
+  commit frame, gate = last commit lsn; `node.op_pages_max` folded the `ops_max` copies. 937 tests.
+- 88 (#86): `kv/batch.zig` `WriteBatch` (storage allocated in `init` with the caller's `gpa`; `commit` ->
+  `Db.commit_ops` -> one `begin_write`, one commit frame; `State.fail_group` latches once frames were
+  logged). Review found a REAL bug in #85: `Db.put`/`delete` did not latch after a clean tree rejection
+  following logged chain frames (orphans after the last commit -> Corrupted on reopen); both now go
+  through `fail_group`. The 3 cycle-87 warnings were folded (strict `run_checkpoint` assert, `truncate.zig`
+  for/else -> assert, CHANGELOG). 951 tests. CI is ~2 min, so review + fix fits in a cycle.
+- Open (fold into 9/10): no mutant test for "drop the latch in fail_group", "gate = durable_lsn", nor a
+  `SegmentLimit`-mid-group/rotation crash test; a group can rotate twice (images + commit) -> `SegmentLimit`
+  with tiny `wal_segments_max`; no kv test for bad `commit.first_lsn`, K=0 with torn header, open-from-
+  checkpoint + unfinished group; no `pool_frames_min` slack-0 worst-case batch test; `CommitError = Error`;
+  `Db.close` leaves live batches dangling (doc only).
 
 ## Cycles 75-86 (2026-11-01..07), folded 2026-11-09: plan 005 close, plan 006 start (kv engine)
 
