@@ -1,7 +1,11 @@
 # sirocco — context
 
-last_seen_at: 2026-11-11T00:00:00Z
+last_seen_at: 2026-11-11T12:00:00Z
 rejected_plans: []
+
+## Disk-blocked no-op — 2026-11-11 (after cycle 88; counter stays 88, next real cycle is 89)
+- Preflight disk 18 GB < 20 GB gate, so the cycle stopped before touching the repo (main, clean).
+  Only `.zig-cache` (130 MB) is the repo's own; nothing to free. Next: cycle 89 as listed below.
 
 ## Cycle 88 — 2026-11-11 — FEATURE
 - Preflight: disk 22 GB (the 11-10 disk-blocked no-ops at 16-17 GB did not advance the counter; a
