@@ -1,7 +1,18 @@
 # synod — context
 
-last_seen_at: 2026-11-10T00:00:00Z
+last_seen_at: 2026-11-11T00:00:00Z
 rejected_plans: []
+
+## Cycle 95 — 2026-11-11 — FEATURE (PREFLIGHT ABORT: disk)
+- Disk 18 GB free (< 20 GB gate); no work done, GitHub not inspected. Counter was 94, now 95.
+- The synod tree is NOT clean: branch `feat/joint-consensus` (not main) at 1b3334b (`wip: wire joint
+  consensus into the node`, 2026-11-11 03:10) with uncommitted edits in `src/raft/leader.zig` and
+  `src/raft/node.zig`. Looks like interactive work on item 8; I left it untouched (the disk gate
+  stops before the preserve step). A cycle that passes the gate must preserve it to a `wip/*` branch
+  first (cycle step 0.4), or continue from it if the operator is still using it.
+- Next (cycle 96): if disk >= 20 GB, preserve the dirty tree, then resume item 8 wiring (design in
+  the Cycle 91 block). Otherwise abort again.
+- Blockers: disk (fifth abort in six cycles; operator must free space). Open questions: none.
 
 ## Cycle 94 — 2026-11-10 — FEATURE (PREFLIGHT ABORT: disk)
 - Disk 17 GB free (< 20 GB gate), same as cycle 92; no work done, GitHub not inspected. Tree clean on main.
