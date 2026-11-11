@@ -1,7 +1,18 @@
 # zuda — context
 
-last_seen_at: 2026-11-10T19:23:00Z
+last_seen_at: 2026-11-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 51 — 2026-11-12 — ABORTED (disk gate)
+- Done: nothing. Disk gate read 16 GB free (needs >= 20), stopped in preflight. Repo untouched: main, clean,
+  c24c7f3 == origin/main (#89 merged last cycle). Mode would have been FEATURE (n=51, no stabilize_streak).
+- PRs: none open from this realm; GitHub inbox/CI not read this cycle (gate stopped before step 5).
+- Next: assertion baseline for `blas.zig`, `ndarray.zig`, distributions sampling; aggregators 8; ML 34;
+  `//!` headers graph 21, string 18, trees 14, dp 44, ML 67; `BlockSort` stores its allocator; v3.0.0 release.
+- Blockers: disk (16 GB free; realm caches are small, space is held elsewhere on the machine).
+- Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: disk aborts so far: cycles 3, 33, 41, 46, 47, 49, 51. Keep the first Bash call free of `/tmp` writes
+  mixed with citadel paths (the guard blocks it).
 
 ## Cycle 50 — 2026-11-11 — STABILIZATION (n % 5)
 - Done: disk gate passed (22 GB). CI green on main, no bugs, inbox clean (no OWNER comments). Merged #88
