@@ -1,7 +1,18 @@
 # zr — context
 
-last_seen_at: 2026-11-11T00:00:00Z
+last_seen_at: 2026-11-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 50 — 2026-11-12 — STABILIZATION (no-op)
+- Disk gate: 16 GB free < 20 GB, stopped at preflight. Tree clean on main; no GitHub checks run.
+  Fourth disk no-op in six cycles (45, 46, 48, 50). The `n % 5 == 0` stabilization did not run.
+- Done: nothing. PRs: none. Blockers: disk (needs >= 20 GB free; free space on the dev box).
+- Next: cycle 51 FEATURE (n % 5 != 0) unless disk is still low; check zuda tags first. Candidates
+  unchanged (`parseToml` OOM leak via `addWorkspaceSharedTask`, `Cache plugin clearAll catch {}`,
+  headers for ci/templates/github_actions, cli/codeowners, codeowners/generator; conformance parser).
+- Open questions: none.
+- Gotcha: the guard blocks `A=..; B` compound Bash incl. `date`/`cat` of citadel files with `echo >`
+  into /tmp; run each preflight command as its own call.
 
 ## Cycle 49 — 2026-11-11 — FEATURE
 - Preflight: disk 21 GB ok; tree clean on main; CI green; no bugs; inbox clear (no new comments).
@@ -16,14 +27,8 @@ rejected_plans: []
   github_actions, cli/codeowners, codeowners/generator), conformance parser.
 - Blockers: zuda v3.0.0. Open questions: none.
 
-## Cycle 48 — 2026-11-10 — FEATURE (no-op)
-- Disk gate: 15 GB free (df -h shows 16Gi) < 20 GB, stopped at preflight. Tree clean on main; no
-  GitHub checks run. Third disk no-op in four cycles (45, 46, 48); 47 ran at 23 GB.
-- Done: nothing. PRs: none. Blockers: disk (needs >= 20 GB free).
-- Next: cycle 49 FEATURE (check zuda tags first); 50 is STABILIZATION. Candidates unchanged
-  (`jsonrpc/types.zig`, `jsonrpc/parser.zig`, `graph/cycle_detect.zig` headers, `parseToml` OOM leak
-  via `addWorkspaceSharedTask`, `Cache plugin clearAll catch {}`, conformance parser).
-- Open questions: none.
+## Cycles 45, 46, 48 (2026-11-07..10) — disk-gate no-ops
+- Stopped at preflight each time (17, 18, 15 GB free < 20 GB); tree clean on main; nothing done.
 
 ## Cycle 47 — 2026-11-09 — FEATURE
 - Preflight: disk 23 GB ok; tree clean on main; CI green on main; no bugs; inbox clear (no new
@@ -36,22 +41,6 @@ rejected_plans: []
   `jsonrpc/types.zig`, `jsonrpc/parser.zig`, `graph/cycle_detect.zig` (all have comment headers to convert),
   `parseToml` OOM leak via `addWorkspaceSharedTask`, `Cache plugin clearAll catch {}`, conformance parser.
 - Blockers: zuda v3.0.0. Open questions: none.
-
-## Cycle 46 — 2026-11-08 — FEATURE (no-op)
-- Disk gate: 18 GB free < 20 GB, stopped at preflight. Tree clean on main; no GitHub checks run.
-- Done: nothing. PRs: none. Blockers: disk (needs >= 20 GB free; second consecutive disk no-op).
-- Next: cycle 47 FEATURE (check zuda tags first); 50 is STABILIZATION. Candidates unchanged
-  (`parseToml` OOM leak via `addWorkspaceSharedTask`, `Cache plugin clearAll catch {}`, headers,
-  conformance parser).
-- Open questions: none.
-
-## Cycle 45 — 2026-11-07 — STABILIZATION (no-op)
-- Disk gate: 17 GB free < 20 GB, stopped at preflight. Tree clean on main; no GitHub checks run.
-- Done: nothing. PRs: none. Blockers: disk (needs >= 20 GB free).
-- Next: cycle 46 FEATURE unless stabilize_streak forces otherwise; the cycle-45 stabilization
-  candidates are unchanged (`parseToml` OOM leak via `addWorkspaceSharedTask`, `Cache plugin
-  clearAll catch {}`, headers, conformance parser). Check zuda tags first.
-- Open questions: none.
 
 ## Cycle 44 — 2026-11-05 — FEATURE
 - Preflight: disk ok; started on merged branch `fix/copy-task-retry-strategy` (clean) -> main; CI green;
