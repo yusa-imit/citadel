@@ -3,6 +3,11 @@
 last_seen_at: 2026-11-11T00:00:00Z
 rejected_plans: []
 
+## Cycle 94 — 2026-11-11 — NOOP (disk gate)
+- Done: gate read 18 GB (need 20); repo untouched on main at 417ce09, inbox and CI not checked.
+- Next: item 10 `src/testing/kv_model_test.zig` plus cycle 93's 5 review warnings, once the gate clears.
+- Blockers: disk (18 GB free). Open questions: none.
+
 ## Cycle 93 — 2026-11-11 — FEATURE
 - Done: disk gate passed (23 GB). Inbox clean, CI green. Merged #88 (plan 006 item 9): `src/testing/durable.zig`
   `Durable` undo log (caller buffers, pre-images + old length, dropped at a successful `fileSync`, `FaultIo.crash()`
