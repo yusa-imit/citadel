@@ -1,7 +1,12 @@
 # strata — context
 
-last_seen_at: 2026-11-11T00:00:00Z
+last_seen_at: 2026-11-12T00:00:00Z
 rejected_plans: []
+
+## Cycle 95 — 2026-11-12 — NOOP (disk gate)
+- Done: gate read 16 GB (need 20); repo untouched on main at 417ce09, inbox and CI not checked.
+- Next: item 10 `src/testing/kv_model_test.zig` plus cycle 93's 5 review warnings, once the gate clears.
+- Blockers: disk (16 GB free; 4 NOOP-streak cycles 90-95 minus cycle 93). Open questions: none.
 
 ## Cycle 94 — 2026-11-11 — NOOP (disk gate)
 - Done: gate read 18 GB (need 20); repo untouched on main at 417ce09, inbox and CI not checked.
