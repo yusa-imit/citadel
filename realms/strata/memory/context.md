@@ -1,17 +1,16 @@
 # strata — context
 
-last_seen_at: 2026-11-12T00:00:00Z
+last_seen_at: 2026-11-12T12:00:00Z
 rejected_plans: []
 
-## Cycle 95 — 2026-11-12 — NOOP (disk gate)
-- Done: gate read 16 GB (need 20); repo untouched on main at 417ce09, inbox and CI not checked.
-- Next: item 10 `src/testing/kv_model_test.zig` plus cycle 93's 5 review warnings, once the gate clears.
-- Blockers: disk (16 GB free; 4 NOOP-streak cycles 90-95 minus cycle 93). Open questions: none.
-
-## Cycle 94 — 2026-11-11 — NOOP (disk gate)
+## Cycle 96 — 2026-11-12 — NOOP (disk gate)
 - Done: gate read 18 GB (need 20); repo untouched on main at 417ce09, inbox and CI not checked.
+  `/tmp/strata-zc` is 1.6 GB: deleting it would reach ~19.6 GB, still short, so it was not deleted.
 - Next: item 10 `src/testing/kv_model_test.zig` plus cycle 93's 5 review warnings, once the gate clears.
-- Blockers: disk (18 GB free). Open questions: none.
+- Blockers: disk (18 GB free; NOOP at the gate in cycles 94-96). Open questions: none.
+
+## Cycles 94-95 (2026-11-11..12), folded: NOOPs at the disk gate
+- Gate read 18 -> 16 GB (need 20); repo untouched on main at 417ce09, inbox and CI not checked.
 
 ## Cycle 93 — 2026-11-11 — FEATURE
 - Done: disk gate passed (23 GB). Inbox clean, CI green. Merged #88 (plan 006 item 9): `src/testing/durable.zig`
