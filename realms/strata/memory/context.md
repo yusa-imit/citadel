@@ -1,7 +1,23 @@
 # strata — context
 
-last_seen_at: 2026-11-12T12:00:00Z
+last_seen_at: 2026-11-13T02:30:00Z
 rejected_plans: []
+
+## Cycle 97 — 2026-11-13 — FEATURE
+- Done: disk gate read exactly 20 GB (passes). Inbox clean, CI green. Plan 006 item 10 as PR #89
+  (`test/kv-seeded-crash-model`): `src/testing/kv_model_test.zig` + `kv_model_fixtures.zig` (Model, Pending,
+  Run: 4 crash rounds per run, 3 page sizes x 3 seeds, crash = `FaultIo.crash()` then writes blocked so
+  `close` cannot touch files); `FaultIo` forwards `dirCreateDir/dirOpenDir/dirClose`; cycle 93 warnings 1-3
+  and part of 4 folded into `Durable`. Local: 859 tests, tidy 0, fmt clean. Mutants: commit-skips-fsync dies
+  at all sizes; redo-ignores-lsn dies at 4 KiB only. Plan item 10 ticked in the PR. ~$2.2 of $4, dev ~20 min.
+- NOT done: code review (deadline) and CI result unknown at report time. Next cycle: check #89 CI, run
+  `code-reviewer` (cap 4 min), fix CRITICAL/WARNING, then merge, tick issue #79 item 10.
+- Gaps to fold: latch-style mutants (drop `fail_group` latch, gate = durable_lsn) are not caught (harness
+  stops at the first error); random runs never saw `applied` (in-flight op fully on disk); tests that need
+  `Canceled`/IO paths in Restore/Capture still missing. Then item 11 WAL benches, 12 release v0.7.0.
+- Notes: developer takes ~20 min with mutants; brief a 12 min cap and run mutants in a separate agent.
+  `python3 - <<EOF` + `cd` in Bash is rejected by the guard in strata sessions: use Edit.
+- Blockers: none. Open questions: none.
 
 ## Cycle 96 — 2026-11-12 — NOOP (disk gate)
 - Done: gate read 18 GB (need 20); repo untouched on main at 417ce09, inbox and CI not checked.
