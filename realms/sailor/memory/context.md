@@ -1,7 +1,18 @@
 # sailor — context
 
-last_seen_at: 2026-11-11T00:00:00Z
+last_seen_at: 2026-11-12T00:00:00Z
 rejected_plans: []
+
+## Aborted attempt — 2026-11-12 — disk gate, sixth in a row (counter stays 51)
+
+- Disk gate read 19 GB free (< 20) on `/` (17 GB on 11-11, 16 GB on 11-10). Cycle stopped at preflight:
+  no repo changes, no GitHub calls. Repo clean on main at `635bcae`.
+- Next: n=52 STABILIZATION unchanged (#75 batch 7: taskrunner + terminal + textarea; textarea own agent).
+  Open question #78 (needs-human, non-blocking). Streak 0.
+- Blockers: operator must free disk or lower the gate; `/tmp/sailor-zig-cache` (2.1 GB) would be
+  recreated by the first build, so deleting it does not help.
+- Quirk: one Bash call mixing `echo > /tmp/x` with reads of citadel paths was blocked by the guard
+  ("may not write into another repository"); read citadel files with Read, keep Bash to the repo.
 
 ## Aborted attempt — 2026-11-11 — disk gate, fifth in a row (counter stays 51)
 
