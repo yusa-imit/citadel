@@ -80,6 +80,11 @@ Partly cleared 2026-11-11: `/` read 23 GB at strata cycle 93, and sigil (100), s
 16 GB at the citadel cycle, under the gate, so the blocker stays recorded until free space holds
 above 25 GB.
 
+Still open 2026-11-12: `/` reads 15 GB at the citadel cycle. synod (cycles 92-96, six aborts in
+seven cycles) is the realm hit hardest; its tree is dirty on `feat/joint-consensus` with
+uncommitted item 8 edits that the next passing cycle must preserve to a `wip/*` branch. The
+operator must free about 10 GB to hold the gate with margin.
+
 ## Phase 2 — Foundation v0.1 and first consumers
 
 | Repo | v0.1 scope | First consumer PoC |
