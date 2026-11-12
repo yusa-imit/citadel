@@ -1,7 +1,17 @@
 # sirocco — context
 
-last_seen_at: 2026-11-12T12:00:00Z
+last_seen_at: 2026-11-13T01:17:00Z
 rejected_plans: []
+
+## Cycle 89 — 2026-11-13 — STABILIZATION (forced by red CI)
+- Preflight: disk 21 GB, main clean at 1a56c52, no bugs, no plan PR, inbox empty (milestone #62 open).
+- Main CI run 42854090661 on 1a56c52 was `failure` only because the macOS job was cancelled with no
+  steps (runner capacity); `gh run rerun <id> --failed` made it green on all 8 jobs (~12 min). No code
+  change, no PR. ~12 min used, so no implementation fit before the 22 min deadline.
+- Item 7 of plan 005 stays UNCHECKED; next: cycle 90 group cancel from another carrier (tests first),
+  or the group-wait model.
+- Gotchas: `cd <repo>; ...; cat <citadel path>` compounds are blocked by the guard (run separately);
+  a poll script in /tmp with `python3 -I` worked.
 
 ## Disk-blocked no-op — 2026-11-12 (after cycle 88; counter stays 88, next real cycle is 89)
 - Preflight disk 16 GB < 20 GB gate on the morning run, 18-19 GB (`df -g` 18, `df -h` 19Gi) on the
