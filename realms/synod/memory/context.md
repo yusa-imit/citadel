@@ -1,32 +1,32 @@
 # synod — context
 
-last_seen_at: 2026-11-12T06:05:13Z
+last_seen_at: 2026-11-12T18:25:33Z
 rejected_plans: []
 
-## Cycle 97 — 2026-11-12 — FEATURE (PREFLIGHT ABORT: disk)
-- Disk 19 GB free (< 20 GB gate); no work done, GitHub not inspected. Counter was 96, now 97.
-- The synod tree is still dirty on `feat/joint-consensus` (1b3334b) with uncommitted edits in
-  `src/raft/leader.zig` and `src/raft/node.zig`; left untouched (the gate stops before step 0.4).
-- Next (cycle 98): if disk >= 20 GB, preserve the dirty tree to a `wip/*` branch (or continue from
-  it if the operator is still on it), then resume item 8 wiring (design in the Cycle 91 block).
-- Blockers: disk (seventh abort in eight cycles; operator must free space). Open questions: none.
+## Cycle 98 — 2026-11-13 — FEATURE
+- Preflight: disk exactly 20 GB (gate passed), CI green on 457e65d, no bugs, no PR/comments, milestone
+  #74 open. Dirty tree on `feat/joint-consensus` preserved to `wip/feat-joint-consensus-20261113`
+  (eca45f6, do not delete). Pre-existing wip had 1183/1189 tests (6 red + tidy).
+- Done: zig-developer (sonnet, ~$0.7, 8 min) fixed all 7 items; 4 stale tests/helpers corrected
+  against ADR-009 (learners replicate, `Snap.slots` size, lone-voter joint model, `leader3` acks 3).
+  PR #89 (`feat/joint-consensus-2`) CI 7/7 green (Build & Test 7m34s), squash-merged a205125,
+  `auto-merged`, plan item 8 ticked, #74 body 8/12. 1189 tests. Reviewer (sonnet, ~$0.3): 0 CRITICAL.
+- Next (cycle 99): follow-up PR for reviewer WARNINGs: CHANGELOG Unreleased entry for item 8 (breaking:
+  `InitError`/`ReceiveError` variants, `Status.configuration_index`; fix "no learners" line ~222);
+  `leader.zig:196-206` re-derive `p` via `slot_of` after `advance_leader` (swap-remove may move it);
+  doc a stuck `leave_if_due` on a full log (or test it); SUGGESTIONs: `contract.zig:136` doc says
+  "zero" vs `log.base.index`, `///` on `reconfigure.current_region/base_region`, ADR-009 line on a
+  node refusing votes until it sees itself as voter, name the `effects_len <= 4` bound. Then item 9
+  ReadIndex (`src/raft/read.zig`).
+- Blockers: none; disk is at the 20 GB edge (scratch cache /tmp/synod-c98, ~1 GB, guard blocks rm).
+  Open questions: none.
 
-## Cycle 96 — 2026-11-12 — FEATURE (PREFLIGHT ABORT: disk)
-- Disk 16 GB free (< 20 GB gate); no work done, GitHub not inspected. Counter was 95, now 96.
-- The synod tree is still dirty on `feat/joint-consensus` (1b3334b) with uncommitted edits in
-  `src/raft/leader.zig` and `src/raft/node.zig`; left untouched (the gate stops before step 0.4).
-- Next (cycle 97): if disk >= 20 GB, preserve the dirty tree to a `wip/*` branch (or continue from
-  it if the operator is still on it), then resume item 8 wiring (design in the Cycle 91 block).
-- Blockers: disk (sixth abort in seven cycles; operator must free space). Open questions: none.
-
-## Cycles 92-95 (2026-11-09..11), folded 2026-11-12: PREFLIGHT ABORT (disk)
-- Four aborts: disk 17, 15, 17, 18 GB free (< 20 GB gate; was 25 GB in cycle 91); no work done,
-  GitHub not inspected. The `/tmp/synod-c*` scratch caches are mine but the guard blocks `rm -rf`;
-  the operator must free space. Cycle 95 found the tree dirty on `feat/joint-consensus` (1b3334b)
-  with uncommitted edits in `src/raft/leader.zig` and `src/raft/node.zig` (interactive work on
-  item 8); left untouched. A passing cycle preserves a dirty tree to `wip/*` (step 0.4) first.
-- Resume item 8 wiring from the Cycle 91 design on
-  `wip/feat-joint-consensus-20261109` (d02f2f1, do not delete).
+## Cycles 92-97 (2026-11-09..12), folded 2026-11-13: PREFLIGHT ABORT (disk)
+- Six aborts: disk 15-19 GB free (< 20 GB gate; was 25 GB in cycle 91); no work done, GitHub not
+  inspected. The `/tmp/synod-c*` scratch caches are mine but the guard blocks `rm -rf`; the operator
+  freed space before cycle 98. Cycle 95 found the tree dirty with interactive item 8 edits (kept in
+  `wip/feat-joint-consensus-20261113`). Original red-step branch: `wip/feat-joint-consensus-20261109`
+  (d02f2f1, do not delete).
 
 ## Cycle 91 — 2026-11-09 — FEATURE
 - Preflight: disk 25 GB, CI green on 457e65d, no bugs, milestone #74 open (7/12), inbox empty.
