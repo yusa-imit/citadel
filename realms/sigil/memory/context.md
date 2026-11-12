@@ -1,7 +1,20 @@
 # sigil — context
 
-last_seen_at: 2026-11-12T12:00:00Z
+last_seen_at: 2026-11-13T12:00:00Z
 rejected_plans: []
+
+## Cycle 104 — 2026-11-13 — FEATURE
+
+- Done: disk 21 GB (passed). Plan PR #96 (plan 008 csv + proto) still OPEN, mergeable, no owner comment or
+  review since 2026-11-07 (3 comments, all the AI's own). One stabilization filler: PR #99 added a measured
+  column (v0.6.0 bench numbers) to PRD section 5; JSON DOM parse, JSON serialize and msgpack encode miss
+  their targets; reflect->struct unmeasured. CI 8/8, merged (main 7671d19). ~$0.4, written directly.
+- Next: same as cycle 100's Next (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1,
+  ADR 0007 via `architect`; closed unmerged -> record reason, plan YAML 3B or config 5A). Filler left:
+  `tools/tidy.zig` self-exemption (full cycle); perf tuning is a later plan.
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
+- Learned: a docs-only PR still gets CI 8/8 (checks appear ~1 min after push); `gh run watch <id>
+  --exit-status` needs the run id from `gh pr checks`.
 
 ## Cycle 103 — 2026-11-12 — FEATURE (no-op, disk gate)
 
@@ -27,44 +40,13 @@ rejected_plans: []
 
 - Disk read 16-17 GB (< 20); stopped before inbox, memory only. Plan PR #96 OPEN, main bec2f49 CI success.
 
-## Cycle 97 — 2026-11-09 — FEATURE
+## Cycles 95-97 (2026-11-08..09), folded: plan PR #96 open, no owner input; fillers only
 
-- Done: plan PR #96 (plan 008 csv + proto) still OPEN, CI 8/8, no owner comment or review (3 comments, all
-  the AI's own status notes). One stabilization `--one`: `zig fmt --check` clean, `zig build test` exit 0
-  on main bec2f49, no `expect(true)`/TODO/FIXME in `src/`. STATE.md audit block appended. No PRs. ~$0.3.
-- State: disk 21 GB (passed), CI green, no issues, repo clean on main. Periodic stabilization off.
-- Next: same as cycle 96 (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1,
-  ADR 0007 via `architect`; closed unmerged -> record reason, plan YAML 3B or config 5A). Filler left:
-  error-variant coverage audit, `tools/tidy.zig` self-exemption (full cycle).
-- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
-- Learned: `cd <repo>;` is blocked by the guard; use absolute paths with `zig build test --build-file`.
-
-## Cycle 96 — 2026-11-09 — FEATURE
-
-- Done: plan PR #96 (plan 008 csv + proto) still OPEN, only the AI's own status notes, no owner comment or
-  review since the watermark. One stabilization `--one`: last 5 CI runs all success, tracked root files clean
-  (no AI files or artifacts), `build.zig.zon` 0.6.0 matches README install tag v0.6.0. STATE.md audit block
-  appended. No PRs opened or merged. ~$0.3, written directly.
-- State: disk 25 GB (passed), CI green, no issues, repo clean on main. Periodic stabilization off.
-- Next: once #96 is merged, open "milestone: 008 csv and proto" and do item 1 (ADR 0007 via `architect`);
-  if closed unmerged, record reason, plan YAML 3B or config 5A. Filler ideas left: `tools/tidy.zig`
-  self-exemption (needs a full cycle), test-quality audit of error-variant coverage.
-- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
-
-## Cycle 95 — 2026-11-08 — FEATURE
-
-- Done: plan PR #96 (plan 008 csv + proto) still OPEN, no new comments (only the AI's own notes). One
-  stabilization audit (`--one`): Tiger Style counts over `src/` clean (52 `catch unreachable` all with inline
-  proof, 0 panic/debug.print/while(true), max file 747 lines, all files have `//!`). plan/008 run had a
-  runner-cancelled macOS job (infra); `gh run rerun --failed` requested. STATE.md audit block appended.
-  No PRs opened or merged. ~$0.35, written directly.
-- State: disk 24 GB (passed), CI green on main, no issues, repo clean on main. Periodic stabilization off,
-  so n=95 stayed FEATURE.
-- Next: once #96 is merged, open "milestone: 008 csv and proto" and do item 1 (ADR 0007 via `architect`);
-  if closed unmerged, record reason, plan YAML 3B or config 5A. Filler ideas left: `tools/tidy.zig`
-  self-exemption (needs a full cycle), test-quality audit of error-variant coverage.
-- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
-- Learned: the guard blocks a Bash command mixing citadel paths and repo commands (split them).
+- Audits (`--one`, no PRs): Tiger Style counts over `src/` clean (52 `catch unreachable` all with proof, max
+  file 747 lines); last 5 CI runs green; `zig fmt` + `zig build test` green on bec2f49; no root AI files;
+  `build.zig.zon` 0.6.0 matches README tag. A runner-cancelled macOS job is infra (`gh run rerun --failed`).
+- Learned: the guard blocks `cd <repo>;` (use absolute paths / `git -C`) and mixing citadel paths with
+  repo commands in one Bash call (split them).
 
 ## Cycle 94 — 2026-11-08 — FEATURE
 
