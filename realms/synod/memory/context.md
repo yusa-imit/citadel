@@ -11,38 +11,14 @@ rejected_plans: []
   it if the operator is still on it), then resume item 8 wiring (design in the Cycle 91 block).
 - Blockers: disk (sixth abort in seven cycles; operator must free space). Open questions: none.
 
-## Cycle 95 — 2026-11-11 — FEATURE (PREFLIGHT ABORT: disk)
-- Disk 18 GB free (< 20 GB gate); no work done, GitHub not inspected. Counter was 94, now 95.
-- The synod tree is NOT clean: branch `feat/joint-consensus` (not main) at 1b3334b (`wip: wire joint
-  consensus into the node`, 2026-11-11 03:10) with uncommitted edits in `src/raft/leader.zig` and
-  `src/raft/node.zig`. Looks like interactive work on item 8; I left it untouched (the disk gate
-  stops before the preserve step). A cycle that passes the gate must preserve it to a `wip/*` branch
-  first (cycle step 0.4), or continue from it if the operator is still using it.
-- Next (cycle 96): if disk >= 20 GB, preserve the dirty tree, then resume item 8 wiring (design in
-  the Cycle 91 block). Otherwise abort again.
-- Blockers: disk (fifth abort in six cycles; operator must free space). Open questions: none.
-
-## Cycle 94 — 2026-11-10 — FEATURE (PREFLIGHT ABORT: disk)
-- Disk 17 GB free (< 20 GB gate), same as cycle 92; no work done, GitHub not inspected. Tree clean on main.
-- Next (cycle 95): if disk >= 20 GB, resume item 8 wiring on `wip/feat-joint-consensus-20261109`
-  (design in the Cycle 91 block). Otherwise abort again.
-- Blockers: disk (fourth abort in five cycles; operator must free space). Open questions: none.
-
-## Cycle 93 — 2026-11-10 — FEATURE (PREFLIGHT ABORT: disk)
-- Disk 15 GB free (< 20 GB gate), down from 17 GB in cycle 92; no work done, GitHub not inspected.
-  Tree clean on main. Counter was 92, now 93.
-- Next (cycle 94): if disk >= 20 GB, resume item 8 wiring on `wip/feat-joint-consensus-20261109`
-  (design in the Cycle 91 block, no re-research needed). Otherwise abort again.
-- Blockers: disk (third abort in four cycles; the box keeps losing space, operator must free it,
-  e.g. the `/tmp/synod-c*` scratch caches I cannot delete under the guard). Open questions: none.
-
-## Cycle 92 — 2026-11-09 — FEATURE (PREFLIGHT ABORT: disk)
-- Disk 17 GB free (< 20 GB gate); no work done, GitHub not inspected. Tree clean on main.
-- The disk fell from 25 GB (cycle 91) to 17 GB in a day; the scratch caches `/tmp/synod-c*` are
-  mine but the guard blocks `rm -rf`; the operator must free the gap.
-- Next (cycle 93): if disk >= 20 GB, resume item 8 wiring on `wip/feat-joint-consensus-20261109`
-  (design in the Cycle 91 block, no re-research needed).
-- Blockers: disk. Open questions: none.
+## Cycles 92-95 (2026-11-09..11), folded 2026-11-12: PREFLIGHT ABORT (disk)
+- Four aborts: disk 17, 15, 17, 18 GB free (< 20 GB gate; was 25 GB in cycle 91); no work done,
+  GitHub not inspected. The `/tmp/synod-c*` scratch caches are mine but the guard blocks `rm -rf`;
+  the operator must free space. Cycle 95 found the tree dirty on `feat/joint-consensus` (1b3334b)
+  with uncommitted edits in `src/raft/leader.zig` and `src/raft/node.zig` (interactive work on
+  item 8); left untouched. A passing cycle preserves a dirty tree to `wip/*` (step 0.4) first.
+- Resume item 8 wiring from the Cycle 91 design on
+  `wip/feat-joint-consensus-20261109` (d02f2f1, do not delete).
 
 ## Cycle 91 — 2026-11-09 — FEATURE
 - Preflight: disk 25 GB, CI green on 457e65d, no bugs, milestone #74 open (7/12), inbox empty.
