@@ -1,23 +1,27 @@
 # strata — context
 
-last_seen_at: 2026-11-13T02:30:00Z
+last_seen_at: 2026-11-13T05:22:00Z
 rejected_plans: []
 
-## Cycle 97 — 2026-11-13 — FEATURE
-- Done: disk gate read exactly 20 GB (passes). Inbox clean, CI green. Plan 006 item 10 as PR #89
-  (`test/kv-seeded-crash-model`): `src/testing/kv_model_test.zig` + `kv_model_fixtures.zig` (Model, Pending,
-  Run: 4 crash rounds per run, 3 page sizes x 3 seeds, crash = `FaultIo.crash()` then writes blocked so
-  `close` cannot touch files); `FaultIo` forwards `dirCreateDir/dirOpenDir/dirClose`; cycle 93 warnings 1-3
-  and part of 4 folded into `Durable`. Local: 859 tests, tidy 0, fmt clean. Mutants: commit-skips-fsync dies
-  at all sizes; redo-ignores-lsn dies at 4 KiB only. Plan item 10 ticked in the PR. ~$2.2 of $4, dev ~20 min.
-- NOT done: code review (deadline) and CI result unknown at report time. Next cycle: check #89 CI, run
-  `code-reviewer` (cap 4 min), fix CRITICAL/WARNING, then merge, tick issue #79 item 10.
-- Gaps to fold: latch-style mutants (drop `fail_group` latch, gate = durable_lsn) are not caught (harness
-  stops at the first error); random runs never saw `applied` (in-flight op fully on disk); tests that need
-  `Canceled`/IO paths in Restore/Capture still missing. Then item 11 WAL benches, 12 release v0.7.0.
-- Notes: developer takes ~20 min with mutants; brief a 12 min cap and run mutants in a separate agent.
-  `python3 - <<EOF` + `cd` in Bash is rejected by the guard in strata sessions: use Edit.
+## Cycle 98 — 2026-11-13 — FEATURE
+- Done: inbox clean, CI green. Reviewed #89 (0 critical, 5 warnings: non-vacuity asserts, `drive` swallows
+  only InputOutput/Canceled/Failed, `op_reopen` suspends faults, tautological asserts) fixed, merged (CI
+  7/7); issue #79 item 10 ticked. Item 11 as #90 (`bench/wal.zig`, `zig build bench -- wal [MiB]`), merged
+  CI 7/7 WITHOUT code review. Figures (aarch64 ReleaseFast): append 0.905M ops/s (floor 200k, passes);
+  1 GiB replay 5.222 s vs 5 s floor (MISSED by 4%, ~700 ns/frame, 7.4M frames); item 11 left unticked.
+- Next: profile `wal/reader` per-frame cost to meet the replay floor (or split out per the plan), review
+  `bench/wal.zig`, tick item 11, then item 12 release v0.7.0 (docs, drop `NotImplemented` in kv.zig).
+- Open from 97: latch mutants uncaught, `applied` never hit by random runs, crash during recovery/open not
+  exercised (stated in fixtures header), `setLength` unrecorded in `Durable`.
+- Notes: reviewer 1 min, fix dev 3 min, CI ~1.5 min: review+fix+merge fits in 10 min. Bench dev ~5 min.
 - Blockers: none. Open questions: none.
+
+## Cycle 97 (2026-11-13), folded
+- Item 10 PR #89: `src/testing/kv_model_test.zig` + `kv_model_fixtures.zig` (Model, Pending, Run: 4 crash
+  rounds per run, 3 page sizes x 3 seeds, crash = `FaultIo.crash()` then writes blocked); `FaultIo` forwards
+  `dirCreateDir/dirOpenDir/dirClose`. Mutants: commit-skips-fsync dies at all sizes; redo-ignores-lsn at
+  4 KiB only. Developer takes ~20 min with mutants: run them in a separate agent. `python3 - <<EOF` + `cd`
+  in Bash is rejected by the guard in strata sessions: use Edit.
 
 ## Cycles 90-96 (2026-11-09..12), folded: disk-gate NOOPs and plan 006 item 9
 - NOOPs at the disk gate in 90-92 and 94-96 (read 15-18 GB, need 20; `/tmp/strata-zc` 1.6 GB cannot close
