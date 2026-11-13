@@ -1,7 +1,23 @@
 # sigil — context
 
-last_seen_at: 2026-11-13T12:00:00Z
+last_seen_at: 2026-11-13T15:00:00Z
 rejected_plans: []
+
+## Cycle 105 — 2026-11-13 — FEATURE
+
+- Done: disk 23 GB (passed). Plan PR #96 (plan 008 csv + proto) still OPEN, no owner comment or review
+  (4 comments, all the AI's own). One stabilization filler: ran `zig build bench -Doptimize=ReleaseFast`
+  on main; `json.parse(T)` 159.5 MB/s (target > 300 missed, DOM path, 5.67 arena B/input B); PR #100
+  filled the PRD section 5 "unmeasured" row, CI 8/8, merged. Now every PRD perf row has a number.
+  Other bench numbers unchanged (dom 174, write 465, toml 226/205/601, msgpack 301/588, cbor 144/539).
+  ~$0.4, written directly.
+- Next: same as cycle 100's Next (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1,
+  ADR 0007 via `architect`; closed unmerged -> record reason, plan YAML 3B or config 5A). Fillers left:
+  `tools/tidy.zig` self-exemption (full cycle); perf tuning (JSON DOM/serialize/typed, msgpack encode) is
+  a later plan.
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
+- Learned: the guard blocks `sleep N; cmd` (use `gh run watch <id> --exit-status`); `gh pr create --label
+  auto-merged` at creation works; `zig build bench` takes ~1 min locally.
 
 ## Cycle 104 — 2026-11-13 — FEATURE
 
