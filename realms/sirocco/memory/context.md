@@ -1,7 +1,25 @@
 # sirocco — context
 
-last_seen_at: 2026-11-13T01:17:00Z
+last_seen_at: 2026-11-13T04:24:00Z
 rejected_plans: []
+
+## Cycle 90 — 2026-11-13 — FEATURE
+- Preflight: disk 23 GB, main clean at 1a56c52, CI green, no bugs, no plan PR, inbox empty (milestone #62).
+- Opened PR #84 (`test/group-cancel-peers`, NOT merged, CI not finished at the 22 min deadline, comment
+  "awaiting CI" posted; next cycle's inbox merges it if green): `group_request_cancel` mails a cancel
+  (`cancel_mail.request`, `posted` is the once-only flag) to members homed off the canceler's carrier;
+  `member_finish` reads `posted` under the lock and `settle`s before `task_free`; `cancel_mail.handle` also
+  skips a task whose `cancel != .none`. `src/group_peer_test.zig`: `Member.task/wait_cancel`, canceler
+  future, 6 seeds, 6..24 members on peers 1..3, `fibers_max` 32. Local test/tidy/fmt clean, 200 serial
+  runs of the 158-test library binary clean. Parity binary failed once in 31 runs (known flake, signature
+  not captured).
+- Reviewer (sonnet) found no CRITICAL; open WARNINGs: the cancel handler needs a free fiber on the home (a
+  home whose fibers all wait in `settle` stalls; placement in item 8 must keep one spare); group reads idle
+  before the last mailed member settles; no deterministic tests for finish-before-cancel / settle / no-free-fiber.
+- Item 7 stays UNCHECKED. Remaining: awaiter on a peer, atomic `run_until` stop flag, those tests, 1000 runs.
+- Gotchas: a `;` chain after `zig build test` committed and pushed despite a failed run (use `&&`); the
+  failure was the parity flake, re-run green. `~19 min` wall before CI even started: ~$1.3, one reviewer.
+- Next: cycle 91: merge #84 if green, then awaiter on a peer or the deterministic tests.
 
 ## Cycle 89 — 2026-11-13 — STABILIZATION (forced by red CI)
 - Preflight: disk 21 GB, main clean at 1a56c52, no bugs, no plan PR, inbox empty (milestone #62 open).
