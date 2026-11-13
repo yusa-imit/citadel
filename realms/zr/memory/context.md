@@ -1,7 +1,14 @@
 # zr — context
 
-last_seen_at: 2026-11-13T00:00:00Z
+last_seen_at: 2026-11-14T00:00:00Z
 rejected_plans: []
+
+## Cycle 52 — 2026-11-14 — FEATURE (no-op)
+- Disk gate: 12 GB free < 20 GB, stopped at preflight. Sixth disk no-op in eight cycles (45, 46, 48,
+  50, 51, 52); free space is shrinking (15 -> 12 GB). Nothing done; no GitHub checks run; PRs: none.
+- Next: cycle 53 FEATURE unless disk is still low (check zuda tags first). Candidates unchanged.
+- Blockers: disk (needs >= 20 GB free on the dev box; a human must free space; `.zig-cache` and
+  `zig-pkg/` in the repos are likely large). Open questions: none.
 
 ## Cycle 51 — 2026-11-13 — FEATURE (no-op)
 - Disk gate: 15 GB free < 20 GB, stopped at preflight. Fifth disk no-op in seven cycles (45, 46, 48,
