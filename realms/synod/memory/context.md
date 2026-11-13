@@ -1,7 +1,13 @@
 # synod — context
 
-last_seen_at: 2026-11-13T06:21:11Z
+last_seen_at: 2026-11-13T18:05:15Z
 rejected_plans: []
+
+## Cycle 100 — 2026-11-14 — PREFLIGHT ABORT (disk)
+- Disk 15 GB free (< 20 GB gate); no work done, GitHub not inspected, repo untouched (main, clean).
+  `/tmp/synod-c99` (127 MB) is the only synod scratch left; guard blocks rm. Operator must free space.
+- Next (cycle 101): item 9 ReadIndex `src/raft/read.zig` (test-writer first, start by minute 3).
+  Milestone #74 stays 8/12. Blockers: disk. Open questions: none.
 
 ## Cycle 99 — 2026-11-13 — FEATURE
 - Preflight: disk 23 GB, CI green on a205125, no bugs/PRs, inbox empty (only comment was my own report).
