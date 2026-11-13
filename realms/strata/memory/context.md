@@ -19,36 +19,18 @@ rejected_plans: []
   `python3 - <<EOF` + `cd` in Bash is rejected by the guard in strata sessions: use Edit.
 - Blockers: none. Open questions: none.
 
-## Cycle 96 — 2026-11-12 — NOOP (disk gate)
-- Done: gate read 18 GB (need 20); repo untouched on main at 417ce09, inbox and CI not checked.
-  `/tmp/strata-zc` is 1.6 GB: deleting it would reach ~19.6 GB, still short, so it was not deleted.
-- Next: item 10 `src/testing/kv_model_test.zig` plus cycle 93's 5 review warnings, once the gate clears.
-- Blockers: disk (18 GB free; NOOP at the gate in cycles 94-96). Open questions: none.
-
-## Cycles 94-95 (2026-11-11..12), folded: NOOPs at the disk gate
-- Gate read 18 -> 16 GB (need 20); repo untouched on main at 417ce09, inbox and CI not checked.
-
-## Cycle 93 — 2026-11-11 — FEATURE
-- Done: disk gate passed (23 GB). Inbox clean, CI green. Merged #88 (plan 006 item 9): `src/testing/durable.zig`
-  `Durable` undo log (caller buffers, pre-images + old length, dropped at a successful `fileSync`, `FaultIo.crash()`
-  restores newest->oldest; `UndoFull`/`FileClosed` typed); WAL property also runs through it (`.fsync` mode,
-  `.fdatasync` bypasses the vtable on Linux). CI 7/7, 979 tests. Milestone #79 items 1-9 ticked. ~$1.6 of $4,
-  ~19 min (dev 7.5 min, reviewer 8 min: it ran mutants, so brief a 4 min cap).
-- Review (sonnet): 0 critical, 5 warnings NOT fixed (deadline), fold into item 10's PR: (1)
-  `durable.zig` `inner_failed(anyerror)` ends `else => InputOutput` (take concrete sets / comment lossy maps);
-  (2) `fileSetLength` forwarded unrecorded (document in headers+CHANGELOG, or record); (3) `restore` clears the log
-  even when a restore step fails midway (keep log or document); (4) no tests: Restore/Capture `Canceled`/IO paths,
-  closed-clean-file leaves `closed_dirty` false, handle reuse after clean close, `n == 0` shrink branch;
-  (5) tautological assert `durable.zig:175` and `durable_test.zig:47`. Suggestions: name the `512 * size` undo
-  budget, one construction path for `Run.init`/`init_mode`, document the file must be opened readable.
-- Notes: mutate on a copy with a fresh `--cache-dir` (reusing /tmp/strata-zc gave stale "cached" passes).
-- Next: item 10 `src/testing/kv_model_test.zig` (seeded put/delete/batch/scan/checkpoint/reopen vs a model,
-  crash through `FaultIo.crash()`), plus the 5 warnings and cycle 89's open kv tests.
-- Blockers: none. Open questions: none.
-
-## Cycles 90-92 (2026-11-09..10), folded: NOOPs at the disk gate
-- Gate read 17 -> 15 -> 17 GB (need 20); `/tmp/strata-zc` (1.6-1.8 GB zig cache) could not close the gap
-  and was not deleted; repo untouched on main at 149a155, inbox and CI not checked. Cleared in cycle 93.
+## Cycles 90-96 (2026-11-09..12), folded: disk-gate NOOPs and plan 006 item 9
+- NOOPs at the disk gate in 90-92 and 94-96 (read 15-18 GB, need 20; `/tmp/strata-zc` 1.6 GB cannot close
+  the gap, never deleted); repo untouched on main, inbox and CI not checked.
+- 93 (FEATURE, gate 23 GB): merged #88 (item 9): `src/testing/durable.zig` `Durable` undo log (pre-images
+  + old length, dropped at a successful `fileSync`, `FaultIo.crash()` restores newest->oldest; `UndoFull`/
+  `FileClosed` typed); WAL property also runs through it (`.fdatasync` bypasses the vtable on Linux).
+  CI 7/7, 979 tests. Reviewer ran mutants (8 min): brief a 4 min cap. Mutate on a copy with a fresh
+  `--cache-dir` (reusing /tmp/strata-zc gave stale "cached" passes).
+- 93 review warnings: items 1-3 and part of 4 folded into `Durable` in #89; still open: tests for
+  Restore/Capture `Canceled`/IO paths, closed-clean-file leaves `closed_dirty` false, handle reuse after
+  clean close, `n == 0` shrink branch; tautological assert `durable.zig:175`, `durable_test.zig:47`;
+  name the `512 * size` undo budget.
 
 ## Cycle 89 — 2026-11-09 — FEATURE
 - Done: inbox clean (no OWNER comments, CI green). Merged #87 (plan 006 item 8): `kv/iterator.zig`

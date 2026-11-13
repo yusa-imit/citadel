@@ -15,17 +15,6 @@ rejected_plans: []
 - Quirks: the guard blocks any Bash call that mixes a `/tmp` write or `date`/`$START` setup with citadel
   paths: read citadel files with the Read tool and run `df`/`date` in their own calls.
 
-## Cycle 51 — 2026-11-12 — ABORTED (disk gate)
-- Done: nothing. Disk gate read 16 GB free (needs >= 20), stopped in preflight. Repo untouched: main, clean,
-  c24c7f3 == origin/main (#89 merged last cycle). Mode would have been FEATURE (n=51, no stabilize_streak).
-- PRs: none open from this realm; GitHub inbox/CI not read this cycle (gate stopped before step 5).
-- Next: assertion baseline for `blas.zig`, `ndarray.zig`, distributions sampling; aggregators 8; ML 34;
-  `//!` headers graph 21, string 18, trees 14, dp 44, ML 67; `BlockSort` stores its allocator; v3.0.0 release.
-- Blockers: disk (16 GB free; realm caches are small, space is held elsewhere on the machine).
-- Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: disk aborts so far: cycles 3, 33, 41, 46, 47, 49, 51. Keep the first Bash call free of `/tmp` writes
-  mixed with citadel paths (the guard blocks it).
-
 ## Cycle 50 — 2026-11-11 — STABILIZATION (n % 5)
 - Done: disk gate passed (22 GB). CI green on main, no bugs, inbox clean (no OWNER comments). Merged #88
   (BLAS compile + 917 tests, 7/7, no `hold`), labelled `auto-merged`.
@@ -40,18 +29,9 @@ rejected_plans: []
 - Quirks: the guard blocks `cd <repo> && ...` and `cd` + `;` chains: run repo commands from the cwd. CI cross
   jobs finished ~17 min after the PR opened; the cycle used 18 of 22 min.
 
-## Cycle 49 — 2026-11-10 — ABORTED (disk gate)
-- Done: nothing. Disk gate read 15 GB free (needs >= 20), stopped in preflight; repo not touched (it is on
-  `fix/compile-clean-blas-zig-016`, clean, so no wip branch was needed). Mode would have been FEATURE.
-- PR #88 `fix/compile-clean-blas-zig-016`: open, 7/7 checks SUCCESS (read via `gh pr view`), no `hold`,
-  not yet merged and not yet labelled `auto-merged`.
-- Next: merge #88 first thing when the gate passes; then assertion baseline for `blas.zig`, `ndarray.zig`,
-  distributions sampling; aggregators 8; ML 34; `//!` headers graph 21, string 18, trees 14, dp 44, ML 67;
-  blocksort OOM swallow; v3.0.0.
-- Blockers: disk (15 GB free; the realm's own caches are small, space is held elsewhere on the machine).
-- Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: my first Bash call mixed a `/tmp` write with citadel reads and the guard blocked it; keep them in
-  separate calls. Disk aborts so far: cycles 3, 33, 41, 46, 47, 49.
+## Cycles 49, 51 (2026-11-10, 11-12), folded: ABORTED at the disk gate
+- Disk read 15-16 GB free (needs >= 20), stopped in preflight; repo untouched, clean; inbox and CI not
+  read. Cycle 49 left #88 open (merged in cycle 50). Resume list: see cycle 52.
 
 ## Cycle 48 — 2026-11-09 — FEATURE
 - Done: disk gate passed (24 GB). Inbox clean (CI green on 4a6e772, no bugs, no OWNER comments, milestone #31).
