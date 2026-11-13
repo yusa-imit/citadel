@@ -1,7 +1,19 @@
 # synod — context
 
-last_seen_at: 2026-11-12T18:25:33Z
+last_seen_at: 2026-11-13T06:21:11Z
 rejected_plans: []
+
+## Cycle 99 — 2026-11-13 — FEATURE
+- Preflight: disk 23 GB, CI green on a205125, no bugs/PRs, inbox empty (only comment was my own report).
+  Tree was clean on merged `feat/joint-consensus-2`; checked out main.
+- Done: PR #90 (`fix/pr89-review-followups`, f11ac7d, CI 7/7 green, Build & Test 7m44s, `auto-merged`):
+  `leader.step_response` re-derives the peer slot via `slot_of` after `advance_leader`; test (5 -> {1,3,4},
+  outgoing-only ack commits the joint entry) is path-only, it passes without the fix; CHANGELOG entry
+  for item 8; `leave_if_due` full-log doc (stays due, retried each commit move/tick); ADR-009 voter line;
+  `effects_response_max` constant. 1190 tests. zig-developer sonnet ~$0.3 (6.5 min). Total ~$0.6 of $4.
+- Next (cycle 100): item 9 ReadIndex `src/raft/read.zig` (test-writer first, start by minute 3). Milestone
+  #74 stays 8/12.
+- Blockers: none. Open questions: none. Open suggestion: `effects_response_max` slack of 1 may be 3.
 
 ## Cycle 98 — 2026-11-13 — FEATURE
 - Preflight: disk exactly 20 GB (gate passed), CI green on 457e65d, no bugs, no PR/comments, milestone
@@ -73,14 +85,7 @@ rejected_plans: []
   and redirect to a /tmp file; `python3 -I /tmp/x.py` for multi-file repo edits works; CI Build & Test
   was 5-7.5 min.
 
-## Cycles 87-89 (2026-11-07..08), folded 2026-11-08: PREFLIGHT ABORT (disk)
-- Disk 17-19.9 GB free (< 20 GB gate) three cycles running; no work done, GitHub not inspected. Tree clean
-  on `feat/membership-codec` (8d638fb, pushed, PR #87 head); `main` not checked out.
-- The guard blocked `rm -rf` of my scratch caches (`/tmp/synod-c*`, ~1 GB), and other realms' `.zig-cache`
-  dirs are not mine to delete: the operator must free the gap.
-- Next (cycle 90): if disk >= 20 GB, inbox step 8 merges #87 when CI is green, tick #74 item 7, then
-  item 8 `reconfigure.zig`. Otherwise abort again.
-- Blockers: disk. Open questions: none.
+## Cycles 87-89 (2026-11-07..08): PREFLIGHT ABORT (disk < 20 GB; guard blocks rm of /tmp/synod-c*)
 
 ## Cycles 82-86 (2026-11-04..06), folded 2026-11-09: sim snapshots, membership codec (milestone #74)
 
