@@ -1,7 +1,22 @@
 # sailor — context
 
-last_seen_at: 2026-11-12T00:00:00Z
+last_seen_at: 2026-11-13T00:00:00Z
 rejected_plans: []
+
+## Cycle 52 — 2026-11-13 — STABILIZATION
+
+- Done: found two green PRs from an earlier cycle (opened 11-08, never merged): merged **#83**
+  (taskrunner, terminal; `9e9c28b`) and **#84** (textarea; `86abc94`) of bug #75. #84 conflicted in the
+  `tui.zig` test block: merged main into its branch (no rewrite), local build/fmt/tidy green, merged.
+- **PR #85** open (batch 8: splitpane min-size priority + u16 overflow, chunkedbuffer width table via
+  `UnicodeWidth`, stale test, wide-char wrap). Main merged in; Linux+macOS green, Windows pending at the
+  deadline (minute ~23). NEXT CYCLE: merge #85 first if CI 10/10, then close #75 (all files covered).
+- Milestone #65 item 6 (ADR 0001) ticked; next plan work is item 7 (Paragraph word/char wrap); tick
+  item 6 in docs/plans/003 too. Question #78 still unanswered (needs-human, non-blocking).
+- Lesson: parallel PRs that each add lines to the `tui.zig` test block conflict at merge; open one
+  such PR at a time, or expect a merge-main step plus a full CI rerun (~12 min).
+- Stale worktrees `/tmp/sailor-wt-a|b|sp` exist; `git worktree prune` before `git worktree add`.
+- Disk gate passed at 22 GB on 11-13 (six aborts 11-06..11-12 at 19..12 GB are folded below).
 
 ## Aborted attempt — 2026-11-12 — disk gate, sixth in a row (counter stays 51)
 
