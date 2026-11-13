@@ -1,7 +1,15 @@
 # strata — context
 
-last_seen_at: 2026-11-13T05:22:00Z
+last_seen_at: 2026-11-14T00:00:00Z
 rejected_plans: []
+
+## Cycle 99 — 2026-11-14 — NOOP (disk gate)
+- Done: nothing. Disk gate read 15 GB free (need 20); repo untouched on main, inbox and CI not checked.
+- Next: unchanged from cycle 98 (profile `wal/reader` replay cost, review `bench/wal.zig`, tick item 11,
+  item 12 release v0.7.0) once the gate passes.
+- Blockers: disk (15 GB). Open questions: none.
+- Note: a Bash call chaining `echo > /tmp/...` with citadel `$REALM` paths is rejected by the guard; one
+  command per call, absolute citadel paths.
 
 ## Cycle 98 — 2026-11-13 — FEATURE
 - Done: inbox clean, CI green. Reviewed #89 (0 critical, 5 warnings: non-vacuity asserts, `drive` swallows
