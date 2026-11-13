@@ -1,7 +1,15 @@
 # silica — context
 
-last_seen_at: 2026-11-12T10:00:00Z
+last_seen_at: 2026-11-13T10:00:00Z
 rejected_plans: []
+
+## Cycle 59 — 2026-11-13 — NOOP (disk gate)
+- Preflight stopped at the disk gate: 17 GB free, need 20 (19 GB on 11-12, 17 GB on 11-11). No repo, CI
+  or inbox check ran; the gate is not bypassed. Cycle 59 would have been FEATURE (plan 001 items
+  blocked on zuda v3.0.0, so a `/stabilize --one` filler).
+- PRs: none. Next: cycle 60 re-checks disk; if >= 20 GB it is STABILIZATION (n%5).
+- Blockers: disk (operator must clear /tmp/silica-zc-tidy, zig caches, other realms' build outputs).
+  zuda v3.0.0. Open questions unchanged (buffer-pool LRU; WAL concurrency).
 
 ## Cycle 58 — 2026-11-12 — NOOP (disk gate)
 - Preflight stopped at the disk gate: 19 GB free, need 20 (17 GB on 11-11, 16 GB on 11-10). No repo, CI
