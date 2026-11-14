@@ -21,7 +21,7 @@ Every realm's first plan has the same skeleton; the probe numbers set the size.
 | Realm | 0.16 errors (probe) | Effort | Blocked by | Version impact |
 |---|---|---|---|---|
 | sigil | 1 | trivial | — | none (0.1 → 0.2) — **done**, zon bumped to 0.2.0 (2026-09-12); plans 002-004 released v0.3.0 (2026-10-13, PR #53, first tag); plan 005 released v0.4.0 (2026-10-18, PR #65); plan 006 released v0.5.0 (2026-10-28, PR #79); plan 007 released v0.6.0 (2026-11-05, PR #95); plan 008 proposed (PR sigil#96) |
-| strata | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-16, PR #15); plan 002 released v0.3.0 (2026-10-04, PR #27); plan 003 released v0.4.0 (2026-10-12, PR #45); plan 004 released v0.5.0 (2026-10-19, PR #61); plan 005 released v0.6.0 (2026-11-01, PR #77); plan 006 (KV engine) merged 2026-11-03 (PR #78), items 1-9 merged (WAL commit frame, `WriteBatch`, `scan`, durable-boundary `FaultIo`), milestone strata#79 open |
+| strata | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-16, PR #15); plan 002 released v0.3.0 (2026-10-04, PR #27); plan 003 released v0.4.0 (2026-10-12, PR #45); plan 004 released v0.5.0 (2026-10-19, PR #61); plan 005 released v0.6.0 (2026-11-01, PR #77); plan 006 (KV engine) merged 2026-11-03 (PR #78), items 1-10 merged (WAL commit frame, `WriteBatch`, `scan`, durable-boundary `FaultIo`, seeded `kv.Db` crash model PR #89), item 11 WAL benchmarks merged (PR #90; replay 5.22 s vs the 5 s floor, 4% missed, item left open), milestone strata#79 open |
 | synod | 1 | trivial | — | none — **done**, released v0.2.0 (2026-09-15, PR #15); plan 002 released v0.3.0 (2026-09-30, PR #31); plan 003 released v0.4.0 (2026-10-13, PR #54); plan 004 released v0.5.0 (2026-10-27, PR #71); plan 005 (snapshots, membership, ReadIndex) in progress, item 8 joint consensus merged 2026-11-12 (PR #89), milestone synod#74 open |
 | sirocco | 2 | trivial + PRD rewrite to `std.Io.VTable` | — | none — **done**, released v0.2.0 (2026-09-10); plan 002 released v0.3.0 (2026-10-06, PR #30); plan 003 released v0.4.0 (2026-10-11, PR #43); plan 004 released v0.5.0 (2026-10-26, PR #60) |
 | zuda | 44 + `linkLibC` | medium | — | **MAJOR** → v3.0.0 — toolchain flip merged (PR #60, 2026-10-04), zon at 0.16.0, v3.0.0 pending; plan 001 compile-clean in progress (180 files red on 0.16 in a src-level sweep; btree, graphs and compat shims fixed by merged PR zuda#75 (2026-10-21), graph/bitwise/combinatorics/DP by merged PR zuda#76 (2026-10-25), string algorithms by merged PR zuda#77 (2026-10-26), geometry by merged PR zuda#79 (2026-10-28), sorting by merged PR zuda#80 and trees by merged PR zuda#81 (2026-10-29), compression by merged PR zuda#82 (2026-10-31), linalg by merged PR zuda#85 (2026-11-04); iterators by merged PR zuda#86 (2026-11-05), sorting headers by merged PR zuda#87 (2026-11-06), BLAS by merged PR zuda#88 (2026-11-10), ML remains) |
@@ -88,6 +88,11 @@ operator must free about 10 GB to hold the gate with margin.
 Still open 2026-11-13: `/` reads 15 GB at the citadel cycle. strata (cycle 97) ran when the
 gate read 20 GB; zoltraak (53), zuda (52) and strata (96) stopped at it. Open realm
 work is otherwise unblocked: strata PR #89 (plan 006 item 10) waits for CI and review.
+
+Still open 2026-11-14: `/` reads 11 GB free (49% used) at the citadel cycle, the lowest reading
+yet. strata (99), sirocco (after 90), sigil (106) and synod (100) ended at the gate with no work;
+sirocco PR #84 (group cancel from peers) waits for a cycle to merge it. The operator must free
+about 14 GB to hold the gate with margin.
 
 ## Phase 2 — Foundation v0.1 and first consumers
 
