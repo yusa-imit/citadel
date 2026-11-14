@@ -21,77 +21,29 @@ rejected_plans: []
   #74 stays 8/12.
 - Blockers: none. Open questions: none. Open suggestion: `effects_response_max` slack of 1 may be 3.
 
-## Cycle 98 — 2026-11-13 — FEATURE
-- Preflight: disk exactly 20 GB (gate passed), CI green on 457e65d, no bugs, no PR/comments, milestone
-  #74 open. Dirty tree on `feat/joint-consensus` preserved to `wip/feat-joint-consensus-20261113`
-  (eca45f6, do not delete). Pre-existing wip had 1183/1189 tests (6 red + tidy).
-- Done: zig-developer (sonnet, ~$0.7, 8 min) fixed all 7 items; 4 stale tests/helpers corrected
-  against ADR-009 (learners replicate, `Snap.slots` size, lone-voter joint model, `leader3` acks 3).
-  PR #89 (`feat/joint-consensus-2`) CI 7/7 green (Build & Test 7m34s), squash-merged a205125,
-  `auto-merged`, plan item 8 ticked, #74 body 8/12. 1189 tests. Reviewer (sonnet, ~$0.3): 0 CRITICAL.
-- Next (cycle 99): follow-up PR for reviewer WARNINGs: CHANGELOG Unreleased entry for item 8 (breaking:
-  `InitError`/`ReceiveError` variants, `Status.configuration_index`; fix "no learners" line ~222);
-  `leader.zig:196-206` re-derive `p` via `slot_of` after `advance_leader` (swap-remove may move it);
-  doc a stuck `leave_if_due` on a full log (or test it); SUGGESTIONs: `contract.zig:136` doc says
-  "zero" vs `log.base.index`, `///` on `reconfigure.current_region/base_region`, ADR-009 line on a
-  node refusing votes until it sees itself as voter, name the `effects_len <= 4` bound. Then item 9
-  ReadIndex (`src/raft/read.zig`).
-- Blockers: none; disk is at the 20 GB edge (scratch cache /tmp/synod-c98, ~1 GB, guard blocks rm).
-  Open questions: none.
-
-## Cycles 92-97 (2026-11-09..12), folded 2026-11-13: PREFLIGHT ABORT (disk)
-- Six aborts: disk 15-19 GB free (< 20 GB gate; was 25 GB in cycle 91); no work done, GitHub not
-  inspected. The `/tmp/synod-c*` scratch caches are mine but the guard blocks `rm -rf`; the operator
-  freed space before cycle 98. Cycle 95 found the tree dirty with interactive item 8 edits (kept in
-  `wip/feat-joint-consensus-20261113`). Original red-step branch: `wip/feat-joint-consensus-20261109`
-  (d02f2f1, do not delete).
-
-## Cycle 91 — 2026-11-09 — FEATURE
-- Preflight: disk 25 GB, CI green on 457e65d, no bugs, milestone #74 open (7/12), inbox empty.
-- Done: item 8 red step only. Test-writer (sonnet, ~$1.0, 17 min) wrote 38 tests (32 red by design,
-  1151 old green) in `node_reconfigure_test.zig`, `node_reconfigure_follower_test.zig`, fixtures
-  additions, contract stubs. I drafted `src/raft/reconfigure.zig` (unwired). All kept on
-  `wip/feat-joint-consensus-20261109` (d02f2f1, do not delete). No PR; main untouched. Cost ~$2.8.
-- Design for the wiring (next cycle, no re-research needed; ~1 file read each):
-  `Node` gains `configuration_index`, `base_configuration`, `peers: []NodeId` (slot -> id,
-  from `leader.Storage`, capacity `peers_max = 2*voters_max+learners_max-1`); `members` becomes
-  3 regions (current | base | scratch), `init_bytes_max` updated. `leader.zig`: slot_of / peer_of
-  / send_all / start / peers_count / check_invariants use `node.peers` (canonical order voters,
-  outgoing-only, learners; swap-remove on change). Hooks: `node_init.log_append` calls
-  `reconfigure.on_append` for `.conf_change`; `follower.cut_log` -> `on_truncate`;
-  `snapshot.compact` -> `on_compact` first; `snapshot.install` sets base from the request then
-  `rescan`; `snapshot.emit_due` uses `configuration_at(applied)`; `commit.advance_leader` ->
-  `leave_if_due` after a commit move and from `step_tick` (leader); `Node.step` calls
-  `reconfigure.step_end` after `apply_ready`; `step_message` runs `receive_check` on
-  `append_entries`; `restore_validate` calls `entry_check`; vote/pre-vote refuse when
-  `!self_is_voter`; `Status.configuration_index` (drop the test-writer's `= .zero` default and fix
-  the 7 literals); add `ConfDecodeError` to `ReceiveError`/`InitError`, `InvariantConfigurationInvalid`
-  (+ `reconfigure.check_invariants`). Relax `step_response` `effects_len <= 2` asserts (append).
-  `node.zig` is at 744/800 lines: keep its edits tiny. No test covers `on_compact`: add one.
-- Next (cycle 92): `git checkout wip/feat-joint-consensus-20261109`, wire the above, run tests, rename
-  to `feat/joint-consensus` for the PR (wip names are never deleted), reviewer, tick item 8.
-  Start before minute 3; CI Build & Test is 5-7.5 min, push by minute 12.
-- Blockers: none. Open questions: none. Note: the budget ($4) is shared with subagent cost.
-
-## Cycle 90 — 2026-11-08 — FEATURE
-- Preflight: disk 23 GB (gate passed), CI green on main 909919e, no bugs, milestone #74 open, no new OWNER
-  comments. Periodic stabilization is off for synod, so FEATURE.
-- Done: PR #87 (item 7) was red only on tidy: `election.zig:3` header line 116 cols. Wrapped, pushed,
-  CI 7/7 green (Build & Test 5m11s), squash-merged as 2903d04, `auto-merged`; plan item 7 was already
-  ticked in the PR; #74 body ticked 7/12.
-- Reviewer (sonnet, ~$0.2): 0 CRITICAL, 2 WARNING, 4 SUGGESTION. All fixed in PR #88 (457e65d, CI green,
-  `auto-merged`): `commit.zig` now fills aligned matches and calls `membership.quorum_index` (local copy
-  removed); `encode` asserts the change validates; voters>0 asserts in `enter_joint`/`quorum_index`;
-  unused arrays dropped in `membership_test.zig`. 1151/1151 tests. Cost ~$0.65 of $4.
-- Next (cycle 91): item 8 `raft/reconfigure.zig` (joint consensus in the node: `Input.conf_change`, leader
-  only, one in flight; widen progress slots to `peers_max`, learners). Start test-writer by minute 3, brief
-  it per file group; ADR-009 gets a line for the `ConfLength` decode choice (counts past 48 ids).
-- Blockers: none. Open questions: none.
-- Tool notes: run local `zig build tidy`/`test` with `--build-file /abs/build.zig --cache-dir /tmp/synod-c90`
-  and redirect to a /tmp file; `python3 -I /tmp/x.py` for multi-file repo edits works; CI Build & Test
-  was 5-7.5 min.
-
-## Cycles 87-89 (2026-11-07..08): PREFLIGHT ABORT (disk < 20 GB; guard blocks rm of /tmp/synod-c*)
+## Cycles 87-98 (2026-11-07..13), folded 2026-11-14: plan 005 items 7-8 (joint consensus)
+- Disk-gate PREFLIGHT ABORTs: 87-89 and 92-97 (15-19 GB free < 20 gate); the `/tmp/synod-c*` scratch is
+  mine but the guard blocks deleting it; the operator freed space before cycle 98.
+- 90: PR #87 (item 7) was red only on tidy (`election.zig:3` header 116 cols); merged 2903d04. Reviewer
+  follow-up PR #88 (457e65d): `commit.zig` fills aligned matches and uses `membership.quorum_index`;
+  `encode` asserts the change validates; voters>0 asserts in `enter_joint`/`quorum_index`. 1151 tests.
+- 91: item 8 red step: 38 tests (32 red by design) in `node_reconfigure_test.zig`,
+  `node_reconfigure_follower_test.zig`, plus an unwired `src/raft/reconfigure.zig`, kept on
+  `wip/feat-joint-consensus-20261109` (d02f2f1, do not delete). The wiring design: `Node` gains
+  `configuration_index`, `base_configuration`, `peers: []NodeId` (capacity `peers_max =
+  2*voters_max+learners_max-1`); `members` is 3 regions (current | base | scratch); `leader.zig` slot_of /
+  peer_of / send_all use `node.peers` (swap-remove on change); hooks `on_append`, `on_truncate`,
+  `on_compact`, `leave_if_due`, `step_end`, `receive_check`, `entry_check`; vote/pre-vote refuse when
+  `!self_is_voter`; `Status.configuration_index`; `ConfDecodeError`; `InvariantConfigurationInvalid`.
+  `node.zig` is at 744/800 lines: keep its edits tiny.
+- 95: tree found dirty with interactive item 8 edits, preserved as `wip/feat-joint-consensus-20261113`
+  (eca45f6, do not delete; 1183/1189 tests then).
+- 98: zig-developer (sonnet, ~$0.7) fixed all 7 items, corrected 4 stale tests against ADR-009 (learners
+  replicate, `Snap.slots` size, lone-voter joint model, `leader3` acks 3). PR #89 CI 7/7, merged a205125,
+  item 8 ticked, #74 body 8/12. 1189 tests. Reviewer: 0 CRITICAL.
+- Tool notes: run local `zig build tidy`/`test` with `--build-file /abs/build.zig --cache-dir
+  /tmp/synod-cNN` and redirect to a /tmp file; `python3 -I /tmp/x.py` for multi-file edits works; CI
+  Build & Test is 5-7.5 min; start the test-writer by minute 3, push by minute 12.
 
 ## Cycles 82-86 (2026-11-04..06), folded 2026-11-09: sim snapshots, membership codec (milestone #74)
 

@@ -26,53 +26,23 @@ rejected_plans: []
   failure was the parity flake, re-run green. `~19 min` wall before CI even started: ~$1.3, one reviewer.
 - Next: cycle 91: merge #84 if green, then awaiter on a peer or the deterministic tests.
 
-## Cycle 89 — 2026-11-13 — STABILIZATION (forced by red CI)
-- Preflight: disk 21 GB, main clean at 1a56c52, no bugs, no plan PR, inbox empty (milestone #62 open).
-- Main CI run 42854090661 on 1a56c52 was `failure` only because the macOS job was cancelled with no
-  steps (runner capacity); `gh run rerun <id> --failed` made it green on all 8 jobs (~12 min). No code
-  change, no PR. ~12 min used, so no implementation fit before the 22 min deadline.
-- Item 7 of plan 005 stays UNCHECKED; next: cycle 90 group cancel from another carrier (tests first),
-  or the group-wait model.
-- Gotchas: `cd <repo>; ...; cat <citadel path>` compounds are blocked by the guard (run separately);
-  a poll script in /tmp with `python3 -I` worked.
+## Cycles 87-89 (2026-11-09..13), folded 2026-11-14: plan 005 item 7 tests, red CI was runner capacity
+- 87 (#82): `build.zig` builds the parity suite at carriers 1, 2 and 4; no test change, 196/196.
+- 88 (#83): `src/await_model_peers_test.zig`, seeded 4-carrier model of `await` and cancel of hand-made
+  tasks homed on peers 1..3 (16 seeds; the plan is the reference: fate, ran on home, awaiter resumed on its
+  home, cancel mailed iff canceler off home). No source change; 157/157 library binary, 300 serial runs.
+- 89: main CI "failure" was only the macOS job cancelled with no steps (runner capacity);
+  `gh run rerun <id> --failed` made it green. No code change.
+- Disk-blocked no-ops (disk 16-19 GB < 20 gate, counter not advanced): 2026-11-10, -11, -12.
+- Item 7 stays UNCHECKED. Remaining: awaiter on a peer through `slot_await`/`task_finish` (still assert
+  carrier 0), atomic `run_until` stop flag, deterministic tests for finish-before-cancel / settle /
+  no-free-fiber, 1000 serial runs.
+- Gotchas: a stale `.zig-cache` gives `file_hash FileNotFound` (delete the directory); the library test
+  binary reports 157 passed/1 skipped; a bare `python3 -I -` in Bash waits on stdin and hangs; the guard
+  blocks compounds mixing /tmp writes or `cd <repo>;` with citadel paths (run separately, `git -C`); known
+  parity flake "64 idle sockets" (`expected 64, found 63` / std `Io.Batch` union panic); wait for CI with a
+  python poll script in /tmp.
 
-## Disk-blocked no-op — 2026-11-12 (after cycle 88; counter stays 88, next real cycle is 89)
-- Preflight disk 16 GB < 20 GB gate on the morning run, 18-19 GB (`df -g` 18, `df -h` 19Gi) on the
-  13:05 KST rerun (11-11 was 18 GB, 11-10 16-17 GB: the box keeps refilling), so the cycle stopped
-  before touching the repo (main, clean). Only `.zig-cache` (130 MB) is the repo's own; nothing to
-  free. Needs the operator to free space on `/`. Next: cycle 89 as listed below.
-
-## Cycle 88 — 2026-11-11 — FEATURE
-- Preflight: disk 22 GB (the 11-10 disk-blocked no-ops at 16-17 GB did not advance the counter; a
-  compound Bash mixing /tmp writes with citadel paths is blocked by the guard, run checks separately),
-  CI green, no bugs, no plan PR, inbox empty (milestone #62 open).
-- Merged #83 (`test/await-model-peers`, labelled auto-merged): `src/await_model_peers_test.zig`, a
-  seeded 4-carrier model of `await` and cancel of hand-made tasks homed on peers 1..3 (16 fixed seeds;
-  awaiter = test thread before/after finish or a peer fiber registering before/after the start;
-  canceler = test thread or a peer fiber that settles; the plan is the reference: fate, ran on home,
-  awaiter resumed on its home, cancel mailed iff canceler off home). No source change, passed on the
-  first full run after fixing a test bug (asserted done for fiber awaiters too early). 157/157 library
-  binary, 300 serial runs clean, tidy+fmt clean. CI macOS+Ubuntu ~15 min.
-- Item 7 stays UNCHECKED. Remaining: group cancel from another carrier (cancel mail per member),
-  awaiter on a peer through `slot_await`/`task_finish` (still assert carrier 0), model for group waits,
-  atomic `run_until` stop flag, 1000 serial runs.
-- Gotchas: stale `.zig-cache` gave `file_hash FileNotFound` again (`rm -rf .zig-cache`); the library
-  test binary is the one reporting 157 passed/1 skipped; wait for CI with a python poll script in /tmp
-  (two 9-min windows). ~16 min wall, ~$0.7, no subagent.
-- Next: cycle 89: group cancel from another carrier (tests first), or the group-wait model.
-
-## Cycle 87 — 2026-11-09 — FEATURE
-- Preflight: disk 21 GB, CI green, no bugs, no plan PR, inbox empty (milestone #62 open).
-- Merged #82 (`test/parity-four-carriers`, labelled auto-merged): `build.zig` builds the parity suite at
-  carriers 1, 2 and 4 (was 1, 2); no test needed a change, 196/196 per binary, tidy+fmt clean. 40 serial
-  runs per binary: only the known "64 idle sockets" flake (`expected 64, found 63` / std `Io.Batch`
-  union panic). CI macOS 6 min, Ubuntu ~12 min.
-- Item 7 stays UNCHECKED. Remaining: model for await and group waits, group cancel from another carrier
-  (cancel mail per member), awaiter on a peer, atomic `run_until` stop flag, 1000 serial runs.
-- Gotchas: a bare `python3 -I -` in Bash waits on stdin and hangs the call (never write it); heredoc
-  scripts to /tmp must be written in their own call; `sed -i ''` worked on build.zig and citadel files.
-  ~21 min wall (CI wait dominates), ~$0.55, no subagent.
-- Next: cycle 88: model test for await/group waits across peers, or group cancel from another carrier.
 
 ## Cycles 84-86 (2026-11-08..09), folded 2026-11-11: plan 005 item 7 tests
 - #79 `src/net_close_peer_test.zig` (close from a peer fiber takes the foreign-close path; only carrier 0

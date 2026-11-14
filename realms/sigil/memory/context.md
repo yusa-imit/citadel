@@ -24,95 +24,25 @@ rejected_plans: []
 - Learned: the guard blocks `sleep N; cmd` (use `gh run watch <id> --exit-status`); `gh pr create --label
   auto-merged` at creation works; `zig build bench` takes ~1 min locally.
 
-## Cycle 104 — 2026-11-13 — FEATURE
+## Cycles 90-104 (2026-11-06..13), folded 2026-11-14: plan 008 proposed, PR #96 open, fillers only
 
-- Done: disk 21 GB (passed). Plan PR #96 (plan 008 csv + proto) still OPEN, mergeable, no owner comment or
-  review since 2026-11-07 (3 comments, all the AI's own). One stabilization filler: PR #99 added a measured
-  column (v0.6.0 bench numbers) to PRD section 5; JSON DOM parse, JSON serialize and msgpack encode miss
-  their targets; reflect->struct unmeasured. CI 8/8, merged (main 7671d19). ~$0.4, written directly.
-- Next: same as cycle 100's Next (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1,
-  ADR 0007 via `architect`; closed unmerged -> record reason, plan YAML 3B or config 5A). Filler left:
-  `tools/tidy.zig` self-exemption (full cycle); perf tuning is a later plan.
-- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
-- Learned: a docs-only PR still gets CI 8/8 (checks appear ~1 min after push); `gh run watch <id>
-  --exit-status` needs the run id from `gh pr checks`.
+- Cycle 90 wrote plan 008 (Phase 4CD: csv + proto, 11 items, v0.7.0 MINOR) directly and proposed it as
+  PR #96 (awaiting merge, citadel#98). Cycles 91-104: PR #96 stayed OPEN, no owner comment or review (its
+  comments are all the AI's own; account `yusa-imit` is shared, so authorship alone is not a human answer).
+- Disk-gate no-ops (disk < 20 GB, stop before inbox): cycles 92-93, 98-99, 101-103.
+- Filler PRs, all CI 8/8 and merged: #97 README drift (toml/msgpack/cbor were "stub/planned"), #98 prose
+  lines > 100 cols and Korean README intro, #99 PRD section 5 measured column. Cycle 100 error-variant
+  audit: every msgpack (11 parse, 5 write) and cbor `ParseValueError` variant is named in a test.
+- Tiger Style counts over `src/` clean (52 `catch unreachable` all with proof, max file 747 lines).
+- Learned: the guard blocks `cd <repo>;` (use absolute paths / `git -C`), mixing citadel paths with repo
+  commands in one Bash call (split them), and `sleep N; cmd` (use `gh run watch <id> --exit-status`, id from
+  `gh pr checks`); `awk length()` counts bytes, count chars with `python3 -I` for Korean lines; a
+  runner-cancelled macOS job is infra (`gh run rerun <id> --failed`); `gh pr create --label auto-merged`
+  works at creation; `zig build bench -Doptimize=ReleaseFast` takes ~1 min.
+- Next (unchanged): merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1 (ADR 0007 via
+  `architect`); closed unmerged -> record reason, plan YAML 3B or config 5A. Filler left: `tools/tidy.zig`
+  self-exemption (full cycle); perf tuning is a later plan.
 
-## Cycle 103 — 2026-11-12 — FEATURE (no-op, disk gate)
-
-- Disk read 18 GB (< 20); stopped before inbox, memory only. Plan PR #96 last seen OPEN (cycle 100), main
-  bec2f49. Next, Blockers (disk), Open questions: same as cycle 100. Cycles 101 (18 GB) and 102 (16 GB)
-  were the same.
-
-## Cycle 100 — 2026-11-11 — FEATURE
-
-- Done: plan PR #96 (plan 008 csv + proto) still OPEN, mergeable, no owner comment or review (3 comments,
-  all the AI's own). One stabilization `--one`: error-variant coverage audit, every msgpack (11 parse, 5
-  write) and cbor `ParseValueError` variant is named in at least one `error.X` test assertion (min count
-  1 for `OutOfMemory`); no gaps. No PRs opened or merged. ~$0.3.
-- State: disk 22 GB (passed), main bec2f49 (last completed main CI run is on 6d8f7ba, success, so not red),
-  no issues, repo clean on main. Periodic stabilization off.
-- Next: same as cycle 97's Next (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1,
-  ADR 0007 via `architect`; closed unmerged -> record reason, plan YAML 3B or config 5A). Filler left:
-  `tools/tidy.zig` self-exemption (full cycle).
-- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
-- Learned: the guard blocks `cd <repo>;` even as a prefix of a read-only compound command; use absolute paths.
-
-## Cycles 98-99 (2026-11-10), folded: no-op (disk gate)
-
-- Disk read 16-17 GB (< 20); stopped before inbox, memory only. Plan PR #96 OPEN, main bec2f49 CI success.
-
-## Cycles 95-97 (2026-11-08..09), folded: plan PR #96 open, no owner input; fillers only
-
-- Audits (`--one`, no PRs): Tiger Style counts over `src/` clean (52 `catch unreachable` all with proof, max
-  file 747 lines); last 5 CI runs green; `zig fmt` + `zig build test` green on bec2f49; no root AI files;
-  `build.zig.zon` 0.6.0 matches README tag. A runner-cancelled macOS job is infra (`gh run rerun --failed`).
-- Learned: the guard blocks `cd <repo>;` (use absolute paths / `git -C`) and mixing citadel paths with
-  repo commands in one Bash call (split them).
-
-## Cycle 94 — 2026-11-08 — FEATURE
-
-- Done: plan PR #96 (plan 008 csv + proto) still OPEN; inbox read it: only 2 comments, both the AI's own
-  status notes (account `yusa-imit` is shared, so authorship alone does not make a comment a human
-  answer; none is a change request). One stabilization filler: PR #98 wrapped the remaining prose lines
-  >100 cols (PRD 4, README intro, 000-inherited 2) and rewrote the Korean README intro (it called
-  JSON/TOML/msgpack/CBOR "planned"). CI 8/8, merged (bec2f49). Written directly, ~$0.45.
-- State: disk gate 20 GB (passed, minimum), CI green on main, no issues, repo clean on main.
-- Next: once #96 is merged, open "milestone: 008 csv and proto" and do item 1 (ADR 0007 via `architect`);
-  if closed unmerged, record reason, plan YAML 3B or config 5A. Docs >100 col filler is done (only the
-  README badge URL line and table rows remain, both exempt).
-- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
-- Learned: `awk length()` counts bytes, so Korean lines show as false >100 col hits; count chars with
-  `python3 -I`. `git checkout -b` with a separate `git push` call works fine.
-
-## Cycles 92-93 (2026-11-06..07), folded 2026-11-08: no-op (disk gate)
-- Disk read 17-18 GB (< 20), so each cycle stopped before inbox; memory only. Plan PR #96 stayed OPEN.
-- Next was the same as cycle 94's Next. Blockers: disk. Open questions: reflect omit-null note (PR #80).
-
-## Cycle 91 — 2026-11-06 — FEATURE
-
-- Done: plan PR #96 (plan 008 csv + proto) still open, no comments; so one stabilization filler: README
-  docs drift (toml/msgpack/cbor were "stub/planned", install tag said v0.4.0): PR #97, CI 8/8, merged
-  (7987f20). Written directly. ~$0.4.
-- State at start: CI green on 6d8f7ba, no open issues, repo clean on main, disk gate 20 GB (exactly the
-  minimum, passed).
-- Next: once #96 is merged by the human, open milestone issue "milestone: 008 csv and proto" and implement
-  item 1 (ADR 0007 via `architect`). If #96 closed unmerged, record reason in decisions.md and plan YAML 3B
-  or config 5A. Filler left: docs lines >100 cols (PRD.md ~33, 000-inherited.md 6; README line 5 Korean
-  intro still says "planned" and is 532 cols).
-- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
-- Learned: `gh run watch <id> --interval 20 --exit-status` is the way to wait for CI; get the id from
-  `gh pr checks`/`gh run list --branch`.
-
-## Cycle 90 — 2026-11-06 — FEATURE
-
-- Done: plan 008 (Phase 4CD: csv + proto, 11 items, v0.7.0 MINOR) written directly (no planner
-  subagent, cheaper) and proposed as PR #96, awaiting merge (citadel#98). ~$0.45.
-- State at start: CI green on 6d8f7ba, no open PRs/issues, repo clean on main, disk 26 GB.
-- Next: once #96 is merged by the human, next cycle opens milestone issue "milestone: 008 csv and
-  proto" and implements item 1 (ADR 0007, design via `architect`). If #96 is closed unmerged,
-  record the reason in decisions.md and plan a different theme (YAML 3B or config 5A).
-- Blockers: none. Open questions: none new (reflect omit-null note from PR #80 still open).
-- Learned: the guard blocks a Bash command mixing citadel paths with repo commands (split them).
 
 ## Cycles 86-89 (2026-11-03..05), folded 2026-11-09: milestone #84 items 6-11, v0.6.0
 
