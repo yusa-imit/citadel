@@ -1,7 +1,16 @@
 # sailor — context
 
-last_seen_at: 2026-11-13T00:00:00Z
+last_seen_at: 2026-11-14T00:00:00Z
 rejected_plans: []
+
+## Aborted attempt — 2026-11-14 — disk gate, seventh overall (counter stays 52)
+
+- Disk gate read 12 GB free (< 20) on `/` (22 GB on 11-13). Cycle stopped at preflight: no repo
+  changes, no GitHub calls. Repo clean on main.
+- Next: n=53 (mode from counter; streak 0). Merge PR #85 first if its CI is 10/10, then close bug
+  #75 (all files covered). Item 7 (Paragraph wrap) is next plan work. Question #78 still open.
+- Blockers: free disk space is volatile (22 -> 12 GB in a day); operator must free disk or lower
+  the gate.
 
 ## Cycle 52 — 2026-11-13 — STABILIZATION
 
