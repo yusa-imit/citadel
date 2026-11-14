@@ -24,40 +24,27 @@ rejected_plans: []
 - Notes: reviewer 1 min, fix dev 3 min, CI ~1.5 min: review+fix+merge fits in 10 min. Bench dev ~5 min.
 - Blockers: none. Open questions: none.
 
-## Cycle 97 (2026-11-13), folded
-- Item 10 PR #89: `src/testing/kv_model_test.zig` + `kv_model_fixtures.zig` (Model, Pending, Run: 4 crash
-  rounds per run, 3 page sizes x 3 seeds, crash = `FaultIo.crash()` then writes blocked); `FaultIo` forwards
-  `dirCreateDir/dirOpenDir/dirClose`. Mutants: commit-skips-fsync dies at all sizes; redo-ignores-lsn at
-  4 KiB only. Developer takes ~20 min with mutants: run them in a separate agent. `python3 - <<EOF` + `cd`
-  in Bash is rejected by the guard in strata sessions: use Edit.
-
-## Cycles 90-96 (2026-11-09..12), folded: disk-gate NOOPs and plan 006 item 9
+## Cycles 89-97 (2026-11-09..13), folded 2026-11-14: plan 006 items 8-10 and the disk gate
 - NOOPs at the disk gate in 90-92 and 94-96 (read 15-18 GB, need 20; `/tmp/strata-zc` 1.6 GB cannot close
   the gap, never deleted); repo untouched on main, inbox and CI not checked.
-- 93 (FEATURE, gate 23 GB): merged #88 (item 9): `src/testing/durable.zig` `Durable` undo log (pre-images
-  + old length, dropped at a successful `fileSync`, `FaultIo.crash()` restores newest->oldest; `UndoFull`/
-  `FileClosed` typed); WAL property also runs through it (`.fdatasync` bypasses the vtable on Linux).
-  CI 7/7, 979 tests. Reviewer ran mutants (8 min): brief a 4 min cap. Mutate on a copy with a fresh
-  `--cache-dir` (reusing /tmp/strata-zc gave stale "cached" passes).
-- 93 review warnings: items 1-3 and part of 4 folded into `Durable` in #89; still open: tests for
-  Restore/Capture `Canceled`/IO paths, closed-clean-file leaves `closed_dirty` false, handle reuse after
-  clean close, `n == 0` shrink branch; tautological assert `durable.zig:175`, `durable_test.zig:47`;
-  name the `512 * size` undo budget.
+- 89 (#87, item 8): `kv/iterator.zig` `Range`/`Iterator`, `Db.scan`, `Db.generation()` (a method: `Db` is a
+  by-value handle, counter lives in `State`; `Iterator` holds `*const Io` into State because tidy bans a
+  stored `Io`). Review fixed 2 CRITICAL: `scan` then `get` clobbered the first overflow value in the shared
+  `value_buf` (first `next` re-seeks); `Db.close` with a live iterator asserts `scans_live == 0`.
+- 93 (#88, item 9): `src/testing/durable.zig` `Durable` undo log (pre-images + old length, dropped at a
+  successful `fileSync`, `FaultIo.crash()` restores newest->oldest; `UndoFull`/`FileClosed` typed). Mutate on
+  a copy with a fresh `--cache-dir` (reusing /tmp/strata-zc gave stale "cached" passes); brief a reviewer
+  running mutants with a 4 min cap.
+- 97 (#89, item 10): `src/testing/kv_model_test.zig` + `kv_model_fixtures.zig` (Model, Pending, Run: 4
+  crash rounds per run, 3 page sizes x 3 seeds); `FaultIo` forwards `dirCreateDir/dirOpenDir/dirClose`.
+  Mutants: commit-skips-fsync dies at all sizes; redo-ignores-lsn at 4 KiB only. A developer with mutants
+  takes ~20 min: run them in a separate agent. `python3 - <<EOF` + `cd` in Bash is rejected by the guard.
+- Open (fold into items 10-11): no error-path test for `next` (read fault -> pin released); no death test
+  for the write-during-scan assert; tests for Restore/Capture `Canceled`/IO paths and handle reuse after
+  clean close; tautological asserts `durable.zig:175`, `durable_test.zig:47`; name the `512 * size` undo
+  budget; latch mutants uncaught, `applied` never hit by random runs, crash during recovery/open not
+  exercised, `setLength` unrecorded in `Durable`.
 
-## Cycle 89 — 2026-11-09 — FEATURE
-- Done: inbox clean (no OWNER comments, CI green). Merged #87 (plan 006 item 8): `kv/iterator.zig`
-  `Range`/`Iterator`, `Db.scan`, `Db.generation()` (a method: `Db` is a by-value handle, counter lives in
-  `State`; `Iterator` holds `*const Io` into State because tidy bans a stored `Io`). `get` during a scan is
-  allowed (pin asserts are `== scans_live`); `Shared.bump` asserts no live scan. CI 7/7, 961 tests.
-  Milestone #79 items 1-8 ticked. ~$1.3 of $4, ~15 min (dev 5 min, reviewer 1 min, dev fix 3 min).
-- Review (sonnet): 2 CRITICAL, fixed: `scan` then `get` clobbered the first overflow value in the shared
-  `value_buf` (first `next` now re-seeks, one extra descent per scan); `Db.close` with a live iterator now
-  asserts `scans_live == 0` (deinit before close, documented).
-- Open: no error-path test for `next` (read fault -> pin released, `scans_live` 0; needs item 9 `FaultIo`);
-  no death test for the write-during-scan assert; no test that a failed write bumps the generation or that
-  `scan` works after `Failed`; the earlier open mutant/rotation tests from cycle 88 still stand.
-- Next: item 9 durable-boundary `FaultIo` (`src/testing/`), then fold the open tests into 9/10.
-- Blockers: none. Open questions: none.
 
 ## Cycles 87-88 (2026-11-08), folded: plan 006 items 6-7
 - 87 (#85): `frame.Type.commit`=4, `Recovery.truncate_after` (`wal/truncate.zig`), `CommitScan`
