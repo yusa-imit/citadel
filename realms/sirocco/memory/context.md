@@ -1,7 +1,12 @@
 # sirocco — context
 
-last_seen_at: 2026-11-14T12:00:00Z
+last_seen_at: 2026-11-15T12:00:00Z
 rejected_plans: []
+
+## Disk-blocked no-op — 2026-11-15 (after cycle 90; counter stays 90, next real cycle is 91)
+- Preflight disk gate: 13 GB free (`df -h /` 13Gi, 47% used) < 20 GB, same as 2026-11-14. Stopped before
+  touching the repo (still on `test/group-cancel-peers`, PR #84, clean). No GitHub or Discord activity.
+  Needs the operator to free space on `/`; PR #84's merge is still the first job of cycle 91.
 
 ## Disk-blocked no-op — 2026-11-14 (after cycle 90; counter stays 90, next real cycle is 91)
 - Two runs the same day stopped at the disk gate: first 19 GB, then 13 GB (`df -h` 13Gi free, 47%
