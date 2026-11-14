@@ -1,7 +1,14 @@
 # strata — context
 
-last_seen_at: 2026-11-14T00:00:00Z
+last_seen_at: 2026-11-14T12:00:00Z
 rejected_plans: []
+
+## Cycle 100 — 2026-11-14 — NOOP (disk gate)
+- Done: nothing. Disk gate read 13 GB free (need 20, down from 15 in cycle 99); repo clean on main at
+  0079408 (== origin/main), inbox and CI not checked.
+- Next: unchanged (profile `wal/reader` replay cost, review `bench/wal.zig`, tick item 11, item 12
+  release v0.7.0) once the gate passes. Free space is shrinking: the operator may need to clean disk.
+- Blockers: disk (13 GB). Open questions: none.
 
 ## Cycle 99 — 2026-11-14 — NOOP (disk gate)
 - Done: nothing. Disk gate read 15 GB free (need 20); repo untouched on main, inbox and CI not checked.
