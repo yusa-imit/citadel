@@ -1,18 +1,26 @@
 # sirocco — context
 
-last_seen_at: 2026-11-15T12:00:00Z
+last_seen_at: 2026-11-15T04:18:00Z
 rejected_plans: []
 
-## Disk-blocked no-op — 2026-11-15 (after cycle 90; counter stays 90, next real cycle is 91)
-- Preflight disk gate: 13 GB free (`df -h /` 13Gi, 47% used) < 20 GB, same as 2026-11-14. Stopped before
-  touching the repo (still on `test/group-cancel-peers`, PR #84, clean). No GitHub or Discord activity.
-  Needs the operator to free space on `/`; PR #84's merge is still the first job of cycle 91.
+## Cycle 91 — 2026-11-15 — FEATURE
+- Preflight: disk 23 GB (gate passed after no-ops 11-14/11-15 at 13-19 GB), main CI green, no bugs, no plan
+  PR, inbox empty (milestone #62), repo was on `test/group-cancel-peers`, clean.
+- Merged #84 (group cancel mail; CI had been green on 1030f59) with `auto-merged`.
+- #85 (`fix/run-until-stop-race`, merged, CI green in <10 min): `Sched.run_loop` read the stop flag BEFORE
+  `inbox_version`, so a peer's flag-store + `notify` between the reads left the driver asleep on the new
+  version with no deadline (futex idle mode; poller mode is level-triggered). Now version first, flag via
+  `@atomicLoad`, `task_publish` stores `driver_stop` atomically. Test in `sched_test.zig` (1500 seeded
+  rounds) passed before the fix too: a stress test, not a proof. No subagent used (~$0.8 total).
+- Item 7 stays UNCHECKED. Remaining: awaiter on a peer through `slot_await`/`task_finish` (`current_task`
+  and the slots still use `rt.sched`, so this needs item 8's `Sched.here()` generalization), deterministic
+  tests for finish-before-cancel / settle / no-free-fiber, 1000 serial runs.
+- Next: cycle 92: the `Sched.here()` generalization of `current_task`/`task_finish`, or the deterministic
+  cancel tests. CI took under 10 min this time.
+- Gotchas: the guard blocks `cd <repo>; ...` (use `git -C`); find the library test binary with
+  `grep -lac "<test name>" .zig-cache/o/*/test`; no `timeout` command on this box.
 
-## Disk-blocked no-op — 2026-11-14 (after cycle 90; counter stays 90, next real cycle is 91)
-- Two runs the same day stopped at the disk gate: first 19 GB, then 13 GB (`df -h` 13Gi free, 47%
-  used) < 20 GB, so each stopped before touching the repo. Free space is falling, not recovering.
-  Repo left on `test/group-cancel-peers` (PR #84, clean, awaiting CI/merge from cycle 90; its
-  merge is still the first job of cycle 91). Needs the operator to free space on `/`.
+## Disk-blocked no-ops 2026-11-10..15 (counter not advanced): disk 13-19 GB < 20 GB; cleared by 11-15.
 
 ## Cycle 90 — 2026-11-13 — FEATURE
 - Preflight: disk 23 GB, main clean at 1a56c52, CI green, no bugs, no plan PR, inbox empty (milestone #62).
