@@ -1,16 +1,24 @@
 # sailor — context
 
-last_seen_at: 2026-11-14T00:00:00Z
+last_seen_at: 2026-11-15T00:00:00Z
 rejected_plans: []
 
-## Aborted attempt — 2026-11-14 — disk gate, seventh overall (counter stays 52)
+## Cycle 53 — 2026-11-15 — STABILIZATION
 
-- Disk gate read 12 GB free (< 20) on `/` (22 GB on 11-13). Cycle stopped at preflight: no repo
-  changes, no GitHub calls. Repo clean on main.
-- Next: n=53 (mode from counter; streak 0). Merge PR #85 first if its CI is 10/10, then close bug
-  #75 (all files covered). Item 7 (Paragraph wrap) is next plan work. Question #78 still open.
-- Blockers: free disk space is volatile (22 -> 12 GB in a day); operator must free disk or lower
-  the gate.
+- Done: disk gate passed at 21 GB (12 GB on 11-14, the aborted attempt is folded). Merged **#85** (batch 8:
+  splitpane, chunkedbuffer; `97d3101`, CI 10/10). **PR #86** (`f920faf`, CI 10/10, auto-merged): new tidy
+  check `dark_widget_tests` (a `src/tui/widgets/*.zig` with a `test` block that `tui.zig` does not import
+  fails `zig build tidy`, baseline 0; pure fns `hasTestBlock`/`importsWidget` in `build_support/tidy.zig`)
+  and `text_clip.zig` imported, the last uncovered file. **Bug #75 closed.** No subagents, cost ~$0.5.
+- Pace: PR opened at minute ~4, CI done at ~minute 13 (Windows ~10 min), merged at ~14.
+- Next: n=54 FEATURE (no bug, CI green): milestone #65 item 7 (Paragraph word/char wrap per ADR 0001
+  via `paragraph_wrap.zig`, `Paragraph.rowCount`); also tick items 6 in docs/plans/003 if still unticked.
+  n=55 is STABILIZATION (n%5). Question #78 (needs-human, no reply, non-blocking) is now moot: #75 done.
+- Blockers: none. Stale local worktrees `/tmp/sailor-wt-a|b|sp` (branch fix/dark-widget-tests-batch8 is
+  still checked out in `sp`, so the local branch was not deleted; run `git worktree prune` first).
+- Known unfixed (from #75 batches): StatusBar byte widths; popup.zig:112 >100 cols; Heatmap
+  `CellMode.numeric` blanks; Input draws CJK one cell per codepoint; `gauge.zig` `@intCast` past u16;
+  7 assertion-free tests in `tests/record_editor_test.zig`, 4 in `tests/profiler_widget_test.zig`.
 
 ## Cycle 52 — 2026-11-13 — STABILIZATION
 
