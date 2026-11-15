@@ -1,7 +1,12 @@
 # sigil — context
 
-last_seen_at: 2026-11-15T13:00:00Z
+last_seen_at: 2026-11-15T15:05:00Z
 rejected_plans: []
+
+## Cycle 110 — 2026-11-16 — FEATURE (no-op, disk gate)
+
+- Disk read 18 GB (< 20); stopped before inbox, memory only. Plan PR #96 last seen OPEN (cycle 109), main
+  64c3d6f. Next, Blockers (disk), Open questions: same as cycle 109.
 
 ## Cycle 109 — 2026-11-15 — FEATURE
 
