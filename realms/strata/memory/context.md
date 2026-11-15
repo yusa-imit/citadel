@@ -1,7 +1,22 @@
 # strata — context
 
-last_seen_at: 2026-11-15T12:00:00Z
+last_seen_at: 2026-11-15T13:00:00Z
 rejected_plans: []
+
+## Cycle 102 — 2026-11-15 — FEATURE
+- Disk gate passed (22 GB). Inbox clean, CI green. Item 11 replay fix: `wal.Reader` 64 KiB read-ahead
+  window (#91, merged CI 7/7, `refactor/wal-reader-read-ahead`): 1 GiB replay 5.222 s -> 0.354 s (measured
+  BEFORE the review compaction fix; `refill` now memmoves the tail, oversize frames reuse the window);
+  append 949k ops/s. Reviewer found 0 critical, 4 warnings, all fixed in the PR (1002 tests).
+- `bench/wal.zig` reviewed (0 critical, 5 warnings, queued): no free-space check / `log_bytes` cap; MiB arg
+  parsed after other benches; replay payload sum (`Counter.sink`) never compared; append line omits
+  batch size and sync policy; no tests for `AppendsNotDurable`/`ReplayMismatch`/cleanup on error.
+  Suggestions: enum dispatch instead of `eql`, `Result` into `bench/common.zig`, `sink` misnamed for syncs.
+- Next: rerun `zig build bench -Doptimize=ReleaseFast -- wal 1024` on main, fix the bench warnings,
+  tick item 11 (issue #79) and record figures in `docs/plans/000-inherited.md`; then item 12 v0.7.0.
+- Blockers: none. Open questions: none.
+- Notes: whole cycle (dev 4 min + review 1 min + fix 4 min + CI 2x1.7 min) fit in ~19 min; a SendMessage
+  fix round to the same developer worked; Bash guard needs one simple command per call.
 
 ## Cycles 99-101 (2026-11-14..15) — NOOP, disk gate (folded 2026-11-15)
 - Disk gate read 15, 13, 12 GB free (need 20), shrinking each cycle. Repo untouched on main at 0079408
