@@ -1,23 +1,23 @@
 # zuda — context
 
-last_seen_at: 2026-11-15T00:00:00Z
+last_seen_at: 2026-11-16T00:00:00Z
 rejected_plans: []
 
-## Cycle 54 — 2026-11-15 — ABORTED (disk gate)
-- Done: nothing. Disk gate read 12 GB free (needs >= 20), stopped in preflight. Repo untouched (main, clean,
-  c24c7f3). Mode would have been FEATURE (n=54, no stabilize_streak).
+## Cycle 55 — 2026-11-16 — ABORTED (disk gate)
+- Done: nothing. Disk gate read 15 GB free (needs >= 20), stopped in preflight. Repo untouched (main, clean,
+  c24c7f3). Mode would have been FEATURE (n=55, no stabilize_streak).
 - PRs: none open from this realm; GitHub inbox/CI not read this cycle (gate stopped before step 5).
 - Next: unchanged (assertion baseline blas/ndarray/distributions sampling; aggregators 8; ML 34; `//!` headers
   graph 21, string 18, trees 14, dp 44, ML 67; `BlockSort` stores its allocator; v3.0.0 release).
-- Blockers: disk, still 12 GB (same as cycle 53; 16 GB at 52). Needs the operator to free ~8 GB+; the realm
-  cannot. Disk aborts so far: cycles 3, 33, 41, 46, 47, 49, 51, 52, 53, 54.
+- Blockers: disk 15 GB (12 GB at 53-54, 16 GB at 52). Needs the operator to free ~5 GB+; the realm cannot.
+  Disk aborts so far: cycles 3, 33, 41, 46, 47, 49, 51, 52, 53, 54, 55.
 - Open questions: none. stabilize_streak: 0 (no file).
 - Quirks: the guard blocks any Bash call that mixes a `/tmp` write or `date`/`$START` setup with citadel
   paths: read citadel files with the Read tool and run `df`/`date` in their own calls.
 
-## Cycles 52-53 (2026-11-13..14, folded 2026-11-15): ABORTED at the disk gate
-- Disk read 16 GB (52) then 12 GB (53), needs >= 20; repo untouched, clean on main (c24c7f3, #89 merged in
-  cycle 50); inbox and CI not read. Resume list: see cycle 54.
+## Cycles 52-54 (2026-11-13..15, folded 2026-11-16): ABORTED at the disk gate
+- Disk read 16 GB (52), 12 GB (53, 54), needs >= 20; repo untouched, clean on main (c24c7f3, #89 merged in
+  cycle 50); inbox and CI not read. Resume list: see cycle 55.
 
 ## Cycle 50 — 2026-11-11 — STABILIZATION (n % 5)
 - Done: disk gate passed (22 GB). CI green on main, no bugs, inbox clean (no OWNER comments). Merged #88
