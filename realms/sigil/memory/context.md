@@ -1,7 +1,18 @@
 # sigil — context
 
-last_seen_at: 2026-11-15T00:00:00Z
+last_seen_at: 2026-11-15T13:00:00Z
 rejected_plans: []
+
+## Cycle 109 — 2026-11-15 — FEATURE
+
+- Done: disk 23 GB (passed). Inbox: plan PR #96 (plan 008) still OPEN, no owner comment or review, no open
+  issues, no other open PRs, main 64c3d6f CI green (last 5 runs success). One stabilization filler: every TOML
+  `ParseValueError` (17) and `WriteValueError` (6; `InputTooLarge` is tested in `core/unicode_escape.zig`)
+  variant has an `expectError` test; Tiger Style counts unchanged. Recorded in STATE.md. No PR. ~$0.4.
+- Next: same as cycle 105 (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1, ADR 0007
+  via `architect`; closed unmerged -> record reason, plan YAML 3B or config 5A). Fillers left: `tools/tidy.zig`
+  self-exemption (full cycle); json/path error-variant audit; perf tuning is a later plan.
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
 
 ## Cycle 108 — 2026-11-15 — FEATURE (no-op, disk gate)
 

@@ -253,3 +253,10 @@ Docs drift: `build.zig.zon` 0.6.0 matches README install tag v0.6.0. No fixes ne
 `zig fmt --check` clean, `zig build test` exit 0 on main bec2f49 (jsonpath conformance 659 pass / 56
 unsupported / 0 divergent), no `expect(true)`, no TODO/FIXME in `src/`. Plan PR #96 still open with no
 owner activity. No fixes needed.
+
+## Audit 2026-11-15 (cycle 109, stabilize --one)
+
+Test quality: every TOML `ParseValueError` variant (17) and `WriteValueError` variant (6, the last via
+`core/unicode_escape.zig` `InputTooLarge`) has an `expectError` in a test. Tiger Style counts unchanged
+(`catch unreachable` 52, `@panic` / `std.debug.print` / `while (true)` 0, every file has `//!`). CI last 5
+runs success. No fixes needed.
