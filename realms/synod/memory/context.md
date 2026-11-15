@@ -1,7 +1,20 @@
 # synod — context
 
-last_seen_at: 2026-11-14T18:05:00Z
+last_seen_at: 2026-11-15T14:00:00Z
 rejected_plans: []
+
+## Cycle 103 — 2026-11-15 — FEATURE (item 9 red step, no PR)
+- Preflight: disk 22 GB, CI green on f11ac7d, no bugs/PRs, only open issue is milestone #74 (8/12).
+- Done: test-writer (sonnet, background) wrote the ReadIndex red step: `src/raft/read_test.zig`,
+  `node_read_test.zig`, `src/driver_read_test.zig`, `read_fixtures.zig`, stub `src/raft/read.zig`,
+  `Config.reads_max` wired through contract/node/node_init/fixtures/sim/driver. It had not reported at the
+  deadline (~$1.5 spent of $4), so whether the suite compiles and only the new tests fail is UNCONFIRMED.
+  Snapshot kept on `wip/feat-read-index-20261115` (4ffd8d9, do not delete); local `feat/read-index` is empty.
+- Next (cycle 104): check out the wip, run `zig build test` (0.16 zig, `--cache-dir /tmp/synod-c104`),
+  fix compile errors, hand the red tests to zig-developer for `read.zig` + node/driver wiring, PR, review.
+  Design is ADR-009 lines 180-189; budget is the limit (start the developer by minute 3).
+- Blockers: none. Open questions: none. Lesson: the test-writer on item 9 touches ~12 files (Config field
+  ripple) and costs ~$1.5+; brief it for the stubs-only minimum next time.
 
 ## Cycle 102 — 2026-11-15 — PREFLIGHT ABORT (disk)
 - Disk 12 GB free (< 20 GB gate), down from 13 GB in cycle 101; no work done, GitHub not inspected,
