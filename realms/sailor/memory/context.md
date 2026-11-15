@@ -27,54 +27,13 @@ rejected_plans: []
 - Stale worktrees `/tmp/sailor-wt-a|b|sp` exist; `git worktree prune` before `git worktree add`.
 - Disk gate passed at 22 GB on 11-13 (six aborts 11-06..11-12 at 19..12 GB are folded below).
 
-## Aborted attempt — 2026-11-12 — disk gate, sixth in a row (counter stays 51)
+## Aborted attempts 2026-11-06..11-12 — disk gate, six in a row (folded 2026-11-15)
 
-- Disk gate read 19 GB free (< 20) on `/` (17 GB on 11-11, 16 GB on 11-10). Cycle stopped at preflight:
-  no repo changes, no GitHub calls. Repo clean on main at `635bcae`.
-- Next: n=52 STABILIZATION unchanged (#75 batch 7: taskrunner + terminal + textarea; textarea own agent).
-  Open question #78 (needs-human, non-blocking). Streak 0.
-- Blockers: operator must free disk or lower the gate; `/tmp/sailor-zig-cache` (2.1 GB) would be
-  recreated by the first build, so deleting it does not help.
+- Free disk on `/` read 19, 15, 12, 16, 17, 19 GB (< 20 gate); each cycle stopped at preflight with no
+  repo changes and no GitHub calls; counter stayed 51. Nothing sailor-side can fix it; the 2.1 GB
+  `/tmp/sailor-zig-cache` is recreated by the first build.
 - Quirk: one Bash call mixing `echo > /tmp/x` with reads of citadel paths was blocked by the guard
   ("may not write into another repository"); read citadel files with Read, keep Bash to the repo.
-
-## Aborted attempt — 2026-11-11 — disk gate, fifth in a row (counter stays 51)
-
-- Disk gate read 17 GB free (< 20) on `/` (16 GB on 11-10, 12 GB on 11-09). Cycle stopped at preflight:
-  no repo changes, no GitHub calls. Repo clean on main.
-- Next: n=52 STABILIZATION unchanged (#75 batch 7: taskrunner + terminal + textarea; textarea own agent).
-  Open question #78 (needs-human, non-blocking). Streak 0.
-- Blockers: operator must free disk or lower the gate; nothing sailor-side can fix it.
-
-## Aborted attempt — 2026-11-10 — disk gate, fourth in a row (counter stays 51)
-
-- Disk gate read 16 GB free (< 20) on `/` (12 GB on 11-09, 15 GB on 11-07, 19 GB on 11-06). Cycle
-  stopped at preflight: no repo changes, no GitHub calls. Repo clean on main.
-- Next: n=52 STABILIZATION unchanged (#75 batch 7: taskrunner + terminal + textarea; textarea own agent).
-  Open question #78 (needs-human, non-blocking). Streak 0.
-- Blockers: operator must free disk or lower the gate; nothing sailor-side can fix it.
-
-## Aborted attempt — 2026-11-09 — disk gate, third in a row (counter stays 51)
-
-- Disk gate read 12 GB free (< 20) on `/` (15 GB on 11-07, 19 GB on 11-06): falling each time. Cycle
-  stopped before any work; no repo changes, no GitHub calls.
-- Next: n=52 STABILIZATION unchanged (#75 batch 7: taskrunner + terminal + textarea; textarea own agent).
-  Open question #78 (needs-human, non-blocking). Streak 0.
-- Blockers: operator must free disk (or lower the gate); nothing sailor-side can fix it.
-
-## Aborted attempt — 2026-11-07 — disk gate again (counter stays 51)
-
-- Disk gate read 15 GB free (< 20) on `/` (down from 19 GB yesterday); cycle stopped before any work.
-  Second consecutive disk abort. `/tmp/sailor-zig-cache` is 2.1 GB; deleting it would not clear the gate.
-- Next: n=52 STABILIZATION unchanged (#75 batch 7: taskrunner + terminal + textarea). Operator must
-  free disk or lower the gate; nothing sailor-side can fix it.
-
-## Aborted attempt — 2026-11-06 — disk gate (counter stays 51)
-
-- Preflight disk gate read 19 GB free (< 20) on `/`; cycle stopped before any work, no repo changes.
-  `/tmp/sailor-zig-cache` holds 2.1 GB (own scratch cache) but deleting it was not done: the gate says stop.
-- Next: n=52 STABILIZATION (#75 open): batch 7, taskrunner + terminal + textarea (textarea own agent).
-  Open question #78 (needs-human, non-blocking). Streak 0. Operator: free disk or lower the gate.
 
 ## Cycle 51 — 2026-11-05 — STABILIZATION
 

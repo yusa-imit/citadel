@@ -3,25 +3,11 @@
 last_seen_at: 2026-11-15T12:00:00Z
 rejected_plans: []
 
-## Cycle 101 — 2026-11-15 — NOOP (disk gate)
-- Done: nothing. Disk gate read 12 GB free (need 20; 13 in cycle 100, 15 in 99): still shrinking. Repo
-  clean on main at 0079408 (== origin/main), inbox and CI not checked.
-- Next: unchanged (profile `wal/reader` replay cost, review `bench/wal.zig`, tick item 11, item 12
-  release v0.7.0) once the gate passes. The operator needs to free disk; cycles stay NOOP until then.
-- Blockers: disk (12 GB). Open questions: none.
-
-## Cycle 100 — 2026-11-14 — NOOP (disk gate)
-- Done: nothing. Disk gate read 13 GB free (need 20, down from 15 in cycle 99); repo clean on main at
-  0079408 (== origin/main), inbox and CI not checked.
-- Next: unchanged (profile `wal/reader` replay cost, review `bench/wal.zig`, tick item 11, item 12
-  release v0.7.0) once the gate passes. Free space is shrinking: the operator may need to clean disk.
-- Blockers: disk (13 GB). Open questions: none.
-
-## Cycle 99 — 2026-11-14 — NOOP (disk gate)
-- Done: nothing. Disk gate read 15 GB free (need 20); repo untouched on main, inbox and CI not checked.
+## Cycles 99-101 (2026-11-14..15) — NOOP, disk gate (folded 2026-11-15)
+- Disk gate read 15, 13, 12 GB free (need 20), shrinking each cycle. Repo untouched on main at 0079408
+  (== origin/main); inbox and CI not checked. The operator must free disk; cycles stay NOOP until then.
 - Next: unchanged from cycle 98 (profile `wal/reader` replay cost, review `bench/wal.zig`, tick item 11,
-  item 12 release v0.7.0) once the gate passes.
-- Blockers: disk (15 GB). Open questions: none.
+  item 12 release v0.7.0) once the gate passes. Open questions: none.
 - Note: a Bash call chaining `echo > /tmp/...` with citadel `$REALM` paths is rejected by the guard; one
   command per call, absolute citadel paths.
 

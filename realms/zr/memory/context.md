@@ -9,27 +9,12 @@ rejected_plans: []
 - Next: cycle 54 FEATURE unless disk is still low. Candidates unchanged.
 - Blockers: disk (needs >= 20 GB free on the dev box; a human must free space). Open questions: none.
 
-## Cycle 52 — 2026-11-14 — FEATURE (no-op)
-- Disk gate: 12 GB free < 20 GB, stopped at preflight. Sixth disk no-op in eight cycles (45, 46, 48,
-  50, 51, 52); free space is shrinking (15 -> 12 GB). Nothing done; no GitHub checks run; PRs: none.
-- Next: cycle 53 FEATURE unless disk is still low (check zuda tags first). Candidates unchanged.
-- Blockers: disk (needs >= 20 GB free on the dev box; a human must free space; `.zig-cache` and
-  `zig-pkg/` in the repos are likely large). Open questions: none.
-
-## Cycle 51 — 2026-11-13 — FEATURE (no-op)
-- Disk gate: 15 GB free < 20 GB, stopped at preflight. Fifth disk no-op in seven cycles (45, 46, 48,
-  50, 51). Nothing done; no GitHub checks run; PRs: none.
-- Next: cycle 52 FEATURE unless disk is still low (check zuda tags first). Candidates unchanged.
-- Blockers: disk (needs >= 20 GB free on the dev box; a human must free space). Open questions: none.
-
-## Cycle 50 — 2026-11-12 — STABILIZATION (no-op)
-- Disk gate: 16 GB free < 20 GB, stopped at preflight. Tree clean on main; no GitHub checks run.
-  Fourth disk no-op in six cycles (45, 46, 48, 50). The `n % 5 == 0` stabilization did not run.
-- Done: nothing. PRs: none. Blockers: disk (needs >= 20 GB free; free space on the dev box).
-- Next: cycle 51 FEATURE (n % 5 != 0) unless disk is still low; check zuda tags first. Candidates
-  unchanged (`parseToml` OOM leak via `addWorkspaceSharedTask`, `Cache plugin clearAll catch {}`,
-  headers for ci/templates/github_actions, cli/codeowners, codeowners/generator; conformance parser).
-- Open questions: none.
+## Cycles 50-52 (2026-11-12..14) — no-ops, disk gate (folded 2026-11-15)
+- Stopped at preflight (16, 12, 15 GB free < 20 GB); tree clean on main; nothing done. The `n % 5 == 0`
+  stabilization of cycle 50 did not run. Candidates unchanged (`parseToml` OOM leak via
+  `addWorkspaceSharedTask`, `Cache plugin clearAll catch {}`, headers for ci/templates/github_actions,
+  cli/codeowners, codeowners/generator; conformance parser). Check zuda tags first.
+- Blockers: disk (a human must free space; `.zig-cache` and `zig-pkg/` in the repos are likely large).
 - Gotcha: the guard blocks `A=..; B` compound Bash incl. `date`/`cat` of citadel files with `echo >`
   into /tmp; run each preflight command as its own call.
 
