@@ -1,7 +1,22 @@
 # sirocco — context
 
-last_seen_at: 2026-11-15T04:18:00Z
+last_seen_at: 2026-11-15T16:23:13Z
 rejected_plans: []
+
+## Cycle 92 — 2026-11-16 — FEATURE
+- Preflight MISTAKE: disk was 18 GB (< 20 gate); I misread it and ran a full cycle. No harm (disk 17 GB after);
+  next cycle must stop at the gate if disk < 20. CI green, no bugs/plan PR, inbox empty (milestone #62).
+- PR #86 `test/await-from-peer` merged (CI green ~9 min), `auto-merged`: `task_finish` asks `fiber_carrier(rt)`
+  (`Sched.here()`, in_fiber, carrier 0 or a peer) instead of `rt.sched.in_fiber()`, so a fiber on a peer may
+  `await` a task of carrier 0 and parks/resumes on its own carrier. `src/await_peer_test.zig`: sleeping task,
+  3 peers, awaiter registered before/after finish, `.threaded` + `.auto`; failed first (driver-path assert).
+- Item 7 stays UNCHECKED. Remaining: `current_task` for peer fibers (a mailed fiber has a non-Task arg, so it needs
+  a marker; real placement is item 8), group-wait model test, deterministic cancel tests (finish-before-cancel,
+  settle, no-free-fiber), 1000 serial runs of the library binary.
+- Gotchas: global `zig` is 0.15.2, use PATH=/Users/fn/.zr/toolchains/zig/0.16.0; `rio.async` starts eagerly
+  (a non-parking body is done before it returns); running the test binary without args runs all tests (no filter
+  without --listen), 300 runs take > 10 min; `pkill` mid-loop counts as a failure.
+- Next: cycle 93: deterministic cancel tests or the group-wait model test; keep each PR small.
 
 ## Cycle 91 — 2026-11-15 — FEATURE
 - Preflight: disk 23 GB (gate passed after no-ops 11-14/11-15 at 13-19 GB), main CI green, no bugs, no plan
@@ -22,23 +37,11 @@ rejected_plans: []
 
 ## Disk-blocked no-ops 2026-11-10..15 (counter not advanced): disk 13-19 GB < 20 GB; cleared by 11-15.
 
-## Cycle 90 — 2026-11-13 — FEATURE
-- Preflight: disk 23 GB, main clean at 1a56c52, CI green, no bugs, no plan PR, inbox empty (milestone #62).
-- Opened PR #84 (`test/group-cancel-peers`, NOT merged, CI not finished at the 22 min deadline, comment
-  "awaiting CI" posted; next cycle's inbox merges it if green): `group_request_cancel` mails a cancel
-  (`cancel_mail.request`, `posted` is the once-only flag) to members homed off the canceler's carrier;
-  `member_finish` reads `posted` under the lock and `settle`s before `task_free`; `cancel_mail.handle` also
-  skips a task whose `cancel != .none`. `src/group_peer_test.zig`: `Member.task/wait_cancel`, canceler
-  future, 6 seeds, 6..24 members on peers 1..3, `fibers_max` 32. Local test/tidy/fmt clean, 200 serial
-  runs of the 158-test library binary clean. Parity binary failed once in 31 runs (known flake, signature
-  not captured).
-- Reviewer (sonnet) found no CRITICAL; open WARNINGs: the cancel handler needs a free fiber on the home (a
-  home whose fibers all wait in `settle` stalls; placement in item 8 must keep one spare); group reads idle
-  before the last mailed member settles; no deterministic tests for finish-before-cancel / settle / no-free-fiber.
-- Item 7 stays UNCHECKED. Remaining: awaiter on a peer, atomic `run_until` stop flag, those tests, 1000 runs.
-- Gotchas: a `;` chain after `zig build test` committed and pushed despite a failed run (use `&&`); the
-  failure was the parity flake, re-run green. `~19 min` wall before CI even started: ~$1.3, one reviewer.
-- Next: cycle 91: merge #84 if green, then awaiter on a peer or the deterministic tests.
+## Cycle 90 (2026-11-13), folded 2026-11-16: PR #84 group cancel mail
+- `group_request_cancel` mails a cancel to members homed off the canceler; `member_finish` settles before
+  `task_free`; `src/group_peer_test.zig` (6 seeds). Reviewer WARNING still open: the cancel handler needs a free
+  fiber on the home (placement in item 8 must keep one spare); no deterministic finish-before-cancel tests.
+- Gotcha: a `;` chain after `zig build test` committed despite failure (use `&&`).
 
 ## Cycles 87-89 (2026-11-09..13), folded 2026-11-14: plan 005 item 7 tests, red CI was runner capacity
 - 87 (#82): `build.zig` builds the parity suite at carriers 1, 2 and 4; no test change, 196/196.
