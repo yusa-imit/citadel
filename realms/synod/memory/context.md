@@ -1,7 +1,17 @@
 # synod — context
 
-last_seen_at: 2026-11-15T14:00:00Z
+last_seen_at: 2026-11-16T00:00:00Z
 rejected_plans: []
+
+## Cycle 104 — 2026-11-16 — PREFLIGHT ABORT (disk)
+- Disk 18 GB free (< 20 GB gate); no work done, GitHub not inspected, repo untouched.
+- Repo state found: on `feat/read-index` (head 4ffd8d9 = wip snapshot) with 14 modified files
+  (+163/-32: `src/raft/{leader,node,node_init,read,read_fixtures,reconfigure}.zig`, the node/sim
+  tests) — uncommitted, NOT preserved this cycle (gate precedes the preserve step). Next cycle
+  commits them to a new `wip/feat-read-index-2026111x` first, then continues.
+- Next (cycle 105): item 9 ReadIndex per cycle 103's plan (build with the 0.16 zig, fix compile
+  errors, zig-developer for `read.zig` + wiring, PR, review). Milestone #74 stays 8/12.
+- Blockers: disk (operator must free space; 5th abort). Open questions: none.
 
 ## Cycle 103 — 2026-11-15 — FEATURE (item 9 red step, no PR)
 - Preflight: disk 22 GB, CI green on f11ac7d, no bugs/PRs, only open issue is milestone #74 (8/12).
