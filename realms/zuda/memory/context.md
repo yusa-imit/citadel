@@ -1,23 +1,26 @@
 # zuda — context
 
-last_seen_at: 2026-11-16T00:00:00Z
+last_seen_at: 2026-11-17T00:00:00Z
 rejected_plans: []
 
-## Cycle 55 — 2026-11-16 — ABORTED (disk gate)
-- Done: nothing. Disk gate read 15 GB free (needs >= 20), stopped in preflight. Repo untouched (main, clean,
-  c24c7f3). Mode would have been FEATURE (n=55, no stabilize_streak).
-- PRs: none open from this realm; GitHub inbox/CI not read this cycle (gate stopped before step 5).
-- Next: unchanged (assertion baseline blas/ndarray/distributions sampling; aggregators 8; ML 34; `//!` headers
-  graph 21, string 18, trees 14, dp 44, ML 67; `BlockSort` stores its allocator; v3.0.0 release).
-- Blockers: disk 15 GB (12 GB at 53-54, 16 GB at 52). Needs the operator to free ~5 GB+; the realm cannot.
-  Disk aborts so far: cycles 3, 33, 41, 46, 47, 49, 51, 52, 53, 54, 55.
-- Open questions: none. stabilize_streak: 0 (no file).
-- Quirks: the guard blocks any Bash call that mixes a `/tmp` write or `date`/`$START` setup with citadel
-  paths: read citadel files with the Read tool and run `df`/`date` in their own calls.
+## Cycle 56 — 2026-11-17 — FEATURE
+- Done: disk gate passed at exactly 20 GB (>= 20). CI green on c24c7f3, no bugs, inbox clean (no OWNER comments,
+  milestone #31). Item "Assertion baseline", slice `linalg/blas.zig` (PR #90, merged 7/7, `auto-merged`): flag
+  asserts (`uplo/trans/diag/side`, exactly 4 bytes each, BLAS 'C' rejected: it was read as 'N') on 25 routines,
+  `data.len >= prod(shape)` on every array arg, non-negative norms (NaN ok), `iamax/iamin` < n. `symm`/`syrk` keep
+  `error.InvalidValue` (tested, documented). Tests first: `flag_valid` (all 256 bytes), `result_nonnegative`.
+  Full `zig build test` exit 0 (~3 min warm). Cycle used ~16 of 22 min.
+- Next: same item remainder: `simd_blas.zig` flags (not asserted yet), `ndarray.zig`, distributions sampling;
+  aggregators 8; ML 34; `//!` headers graph 21, string 18, trees 14, dp 44, ML 67; `BlockSort` stores its
+  allocator; then the v3.0.0 release item (last unchecked one on #31).
+- Blockers: none. Open questions: none. stabilize_streak: 0 (no file).
+- Quirks: asserts panic and cannot be tested directly: put the check in a pure predicate and test that. Per-file
+  `zig test` on blas needs the `src/_sweep_blas.zig` root + `--test-filter "linalg.blas"` (586 tests, ~30 s).
+  Bulk perl insertion over `pub fn` signature lines worked (`/^pub fn \w+\(comptime T: type, .*\{$/`).
 
-## Cycles 52-54 (2026-11-13..15, folded 2026-11-16): ABORTED at the disk gate
-- Disk read 16 GB (52), 12 GB (53, 54), needs >= 20; repo untouched, clean on main (c24c7f3, #89 merged in
-  cycle 50); inbox and CI not read. Resume list: see cycle 55.
+## Cycles 52-55 (2026-11-13..16, folded 2026-11-17): ABORTED at the disk gate
+- Disk read 16, 12, 12, 15 GB (needs >= 20); repo untouched, clean on main (c24c7f3); inbox and CI not read.
+  Disk aborts so far: cycles 3, 33, 41, 46, 47, 49, 51-55; it recovered to exactly 20 GB at cycle 56.
 
 ## Cycle 50 — 2026-11-11 — STABILIZATION (n % 5)
 - Done: disk gate passed (22 GB). CI green on main, no bugs, inbox clean (no OWNER comments). Merged #88
