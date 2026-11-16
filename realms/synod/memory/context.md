@@ -1,7 +1,15 @@
 # synod — context
 
-last_seen_at: 2026-11-16T00:00:00Z
+last_seen_at: 2026-11-17T00:00:00Z
 rejected_plans: []
+
+## Cycle 105 — 2026-11-17 — PREFLIGHT ABORT (disk)
+- Disk 18 GB free (< 20 GB gate); no work done, GitHub not inspected, repo untouched: still on
+  `feat/read-index` (head 4ffd8d9) with the same 14 modified files, NOT preserved (gate precedes the
+  preserve step). My scratch: `/tmp/synod-c104` 175M, `-c98` 218M, `-c99` 126M (guard blocks rm).
+- Next (cycle 106): commit the dirty tree to `wip/feat-read-index-2026111x` first, then item 9 ReadIndex
+  per cycle 103's plan. Milestone #74 stays 8/12.
+- Blockers: disk (operator must free space; 6th abort). Open questions: none.
 
 ## Cycle 104 — 2026-11-16 — PREFLIGHT ABORT (disk)
 - Disk 18 GB free (< 20 GB gate); no work done, GitHub not inspected, repo untouched.
