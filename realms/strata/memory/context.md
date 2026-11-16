@@ -116,46 +116,23 @@ rejected_plans: []
   per small item; the guard rejects `;`-chained commands (tag + push + release: separate calls) and
   compound commands in citadel (use Write/Edit there).
 
-## Cycles 72-74 (2026-10-30..31), folded
-- Plan 005 item 9 (WAL integration) in three PRs, CI 7/7, auto-merged: #72 log side (`Type.page_images`=16,
-  `PageRedo` whole-frame-validated idempotent redo, `PageManager.free_at(io,id,lsn)`, `Writer.append_parts`);
-  #73 `Tree.attach(writer, track)` + logged insert (one `page_images` frame per op + `set_lsn`, chain logged
-  first = rule C, `pages.sync` before frame when ids popped = rule A, append failure -> `discardAll` + latch
-  `Failed`, `BufferPool.track_*`); #74 logged `delete` (merge/borrow/collapse in one frame, unlinked pages
-  `discard`ed after the frame), `release_frees` frees via `free_at(durable_lsn)` only when
-  `writer.durable_lsn >= Tree.frees_lsn` (rule B). `freelist.allocate/free` keep max(old,new) trunk lsn.
-- Reviews found 1 CRITICAL (unlinked page stayed dirty with old lsn -> `discard_unlinked`) and several
-  warnings, all fixed. Open: no test replays onto the LIVE file after `free_at` trunk stamps (rule B path c);
-  `track_has` linear; `insert` should assert `pool.gate_on`; `ops_max` helper has 3 copies.
-- Lessons: Bash guard rejects `cd ... && ...` and `;` chains (one command per call); zig-developer once took
-  13 min -> brief a hard stop at 7 min; preflight preserved uncommitted work as `wip/feat-btree-wal-insert-
-  20261031` (keep).
+## Cycles 67-74 (2026-10-26..31), folded 2026-11-16: plan 005 B+Tree items 4-9
 
-## Cycle 71 (2026-10-29), folded
-- Plan 005 item 8 (#71): `btree/overflow.zig` chain of type-18 pages, caller-provided `value_buf`
-  (required param of `Tree.create/open`), overwrite reserves old+new chain slots in `frees_pending`;
-  review warnings fixed (`fail_put`, shared chain ids -> Corrupted, `overflow_fail_test.zig`). Open:
-  overflow `walk` does not check header page id == id; `value_buf` limit also rejects inline values.
-  Preflight preserved uncommitted work as `wip/feat-btree-overflow-20261029` (keep).
-
-## Cycles 67-70 (2026-10-26..28), folded
-- Plan 005 B+Tree items 4-7, one PR each (CI 7/7, auto-merged, issue #63 ticked): 67 (#67)
-  `BufferPool.fetchNew`, `btree/tree.zig` root-leaf `Tree`; 68 (#68) `split_tree.zig`, `descend.zig`,
-  `validate.zig`; 69 (#69) `delete_tree.zig` (merge-first then borrow, bounded `frees_pending`,
-  `BufferPool.discard`; `Tree.create/open` take `frees: []Id`); 70 (#70) `btree/cursor.zig` (one pin at
-  a time; `prev` across a leaf re-descends; bad link/level/order -> `Corrupted`). 761 tests at 70.
-- Reviews found real defects each time (u32 underflow on a crafted page, under-validated split plan,
-  unbounded borrow separator, duplicate id in `frees_pending`): all fixed with tests.
-- Open follow-ups: crafted-page negative tests for `Corrupted` branches in plan_merge/plan_level and
-  cursor `step_back/left_sibling/next/prev`; deep-tree (height 3) assertion in scan tests;
-  `release_frees` free-failure test; pool-level `discard` test; `Del` ~80 KiB stack; pending frees
-  not persisted (item 9); plan item 8 overflow `Entry` must be handed to the cursor.
-- Tool notes: `zig build test` hides `std.debug.print` and traces are stale: run the built test binary
-  (path in `failed command:`) without `--listen`, grep `FAIL|failed|error:|tidy: [0-9]`; reviewer
-  cannot run 0.16 tests (PATH zig is 0.15.2); developer wrote tests after code despite the brief:
-  demand red-first or use test-writer; brief "stop at 8 min"; pipe: dev 6-12 min, reviewer 3 min in
-  parallel with CI, fix 4 min. Preflight found uncommitted work twice: preserved as `wip/*`, keep.
-- Cycles 64-66 were NOOPs at the disk gate (16-18 GB); `/tmp/strata-zc` is the 0.16 zig cache.
+- Items 4-7 (#67-#70, CI 7/7, auto-merged): `BufferPool.fetchNew`, root-leaf `Tree`, `split_tree`,
+  `descend`, `validate`, `delete_tree` (merge-first then borrow, bounded `frees_pending`), `btree/cursor.zig`
+  (one pin at a time; bad link/level/order -> `Corrupted`). Item 8 (#71) `btree/overflow.zig` chain of
+  type-18 pages, caller-provided `value_buf` (required in `Tree.create/open`). Item 9 (#72-#74) WAL
+  integration: `Type.page_images`=16, `PageRedo` idempotent redo, `PageManager.free_at(io,id,lsn)`,
+  `Tree.attach(writer, track)`, one `page_images` frame per op (rule C chain first, rule A sync before frame
+  when ids popped, rule B `release_frees` only when `durable_lsn >= frees_lsn`), append failure ->
+  `discardAll` + latch `Failed`.
+- Every review found real defects (u32 underflow on a crafted page, unlinked page left dirty with old lsn,
+  duplicate id in `frees_pending`): all fixed with tests. Open: no test replays onto the LIVE file after
+  `free_at` trunk stamps; `track_has` linear; crafted-page negative tests for `Corrupted` branches.
+- Tooling: `zig build test` hides `std.debug.print`: run the built test binary without `--listen`; PATH zig
+  was 0.15.2 for reviewers; brief the developer with a hard stop (~8 min) and demand red-first tests; Bash
+  guard wants one simple command per call. Preflight preserved uncommitted work as `wip/*` (keep).
+  Cycles 64-66 NOOP at the disk gate; `/tmp/strata-zc` is the 0.16 zig cache.
 
 ## Cycles 25-63 (2026-10-01..21, folded 2026-11-06)
 - Plan 002 (25-32): `file/file.zig` (`File` leaf value, no cached io; `direct` => `UnsupportedDirectIo`),

@@ -18,70 +18,16 @@ rejected_plans: []
 - Tooling: CI ~16 min total this time (cycle ~19 min incl. 3 poll loops of 22x15 s); `assert` alias was
   added to engine.zig (`const assert = std.debug.assert;`) for comptime check; no subagents, ~$0.55.
 
-## Cycle 60 — 2026-11-14 — NOOP (disk gate)
-- Preflight stopped at the disk gate: 12 GB free, need 20 (17 GB on 11-13, 19 GB on 11-12). No repo, CI
-  or inbox check ran; the gate is not bypassed. Cycle 60 would have been STABILIZATION (n%5).
-- PRs: none. Next: cycle 61 re-checks disk; if >= 20 GB it is FEATURE (plan 001 blocked on zuda v3.0.0,
-  so a `/stabilize --one` filler), unless stabilize_streak forces STABILIZATION.
-- Blockers: disk (operator must clear /tmp/silica-zc-tidy, zig caches, other realms' build outputs;
-  disk has been under the gate for most of the last 10 days). zuda v3.0.0. Open questions unchanged
-  (buffer-pool LRU; WAL concurrency).
+## Cycles 54-60 (2026-11-08..14), folded 2026-11-16: disk gate and fillers
 
-## Cycle 59 — 2026-11-13 — NOOP (disk gate)
-- Preflight stopped at the disk gate: 17 GB free, need 20 (19 GB on 11-12, 17 GB on 11-11). No repo, CI
-  or inbox check ran; the gate is not bypassed. Cycle 59 would have been FEATURE (plan 001 items
-  blocked on zuda v3.0.0, so a `/stabilize --one` filler).
-- PRs: none. Next: cycle 60 re-checks disk; if >= 20 GB it is STABILIZATION (n%5).
-- Blockers: disk (operator must clear /tmp/silica-zc-tidy, zig caches, other realms' build outputs).
-  zuda v3.0.0. Open questions unchanged (buffer-pool LRU; WAL concurrency).
-
-## Cycle 58 — 2026-11-12 — NOOP (disk gate)
-- Preflight stopped at the disk gate: 19 GB free, need 20 (17 GB on 11-11, 16 GB on 11-10). No repo, CI
-  or inbox check ran; the gate is not bypassed. Cycle 58 would have been FEATURE (plan 001 items
-  blocked on zuda v3.0.0, so a `/stabilize --one` filler).
-- PRs: none. Next: cycle 59 re-checks disk; if >= 20 GB run FEATURE. Cycle 60 is the next n%5.
-- Blockers: disk (operator must clear /tmp/silica-zc-tidy, zig caches, other realms' build outputs).
-  zuda v3.0.0. Open questions unchanged (buffer-pool LRU; WAL concurrency).
-
-## Cycle 57 — 2026-11-11 — NOOP (disk gate)
-- Preflight stopped at the disk gate: 17 GB free, need 20 (16 GB on 11-10, 11 GB on 11-09). No repo, CI
-  or inbox check ran; the gate is not bypassed. Cycle 57 would have been FEATURE (plan 001 items blocked
-  on zuda v3.0.0, so a `/stabilize --one` filler).
-- PRs: none. Next: cycle 58 re-checks disk; if >= 20 GB run FEATURE. Cycle 60 is the next n%5.
-- Blockers: disk (operator must clear /tmp/silica-zc-tidy, zig caches, other realms' build outputs).
-  zuda v3.0.0. Open questions unchanged (buffer-pool LRU; WAL concurrency).
-
-## Cycle 56 — 2026-11-10 — NOOP (disk gate)
-- Preflight stopped at the disk gate: 16 GB free, need 20 (11 GB on 11-09, 21 GB on 11-08). No repo,
-  CI or inbox check ran; the gate is not bypassed. Cycle 56 would have been FEATURE (plan 001 items
-  blocked on zuda v3.0.0, so a `/stabilize --one` filler).
-- PRs: none. Next: cycle 57 re-checks disk; if >= 20 GB run FEATURE. Cycle 60 is the next n%5.
-- Blockers: disk (operator must clear /tmp/silica-zc-tidy, zig caches, other realms' build outputs).
-  zuda v3.0.0. Open questions unchanged (buffer-pool LRU; WAL concurrency).
-
-## Cycle 55 — 2026-11-09 — NOOP (disk gate)
-- Preflight stopped at the disk gate: 11 GB free, need 20 (21 GB on 11-08, so ~10 GB lost in a day).
-  No repo, CI or inbox check ran; the gate is not bypassed. Cycle 55 would have been STABILIZATION (n%5).
-- PRs: none. Next: cycle 56 re-checks disk; if >= 20 GB run FEATURE (plan 001 items still blocked on
-  zuda v3.0.0, so a `/stabilize --one` filler).
-- Blockers: disk. An operator should clear /tmp/silica-zc-tidy, zig caches and other realms' build
-  outputs. zuda v3.0.0 (plan 001). Open questions unchanged (buffer-pool LRU; WAL concurrency).
-- Tooling: the guard blocks compound Bash lines touching citadel; run each preflight command separately.
-
-## Cycle 54 — 2026-11-08 — FEATURE
-- Preflight: disk 21 GB (gate passed, 1 GB above), main clean, CI green (197e260), no bug/question issues,
-  no open PRs; inbox nothing new (only own comments on #137, #163). zuda still v2.3.0 (sailor v3.1.0);
-  every unchecked plan 001 item blocked on zuda v3.0.0.
-- Done: one `/stabilize --one` filler, PR #190 (merged, `auto-merged`, CI 7/7): `parseDigitField` and
-  `applyDatetimeToken` (+ `DatetimeParts`) extracted from executor `parseFormattedDatetime` (95 -> under 70),
-  4 tests. A first pass with only the digit helper left ~90 lines: extract the token dispatch too.
-  Baseline `function_length` 26 -> 25. Local fmt + tidy + test green. No subagents, ~$0.5.
-- Next: cycle 55 is STABILIZATION (n%5). Remaining baseline fillers are all 100+ lines except jepsen
-  `dirtyReadTest` 80 — NOT a usable filler: it is only referenced from commented-out code, so it is never
-  compiled and a refactor cannot be verified. Migration waits for zuda v3.0.0 (target sailor v3.1.0).
-- Blockers: zuda v3.0.0. Disk 21 GB, barely above gate. Open questions unchanged (buffer-pool LRU
-  contradiction; WAL concurrency).
-- Tooling: CI build-and-test ~13 min; poll loop of 40x14 s overruns the 590 s tool timeout, use ~22x15 s.
+- Cycle 54: `/stabilize --one` filler PR #190 (`parseDigitField`, `applyDatetimeToken` out of
+  `parseFormattedDatetime` 95 -> under 70; a helper alone left ~90 lines, extract the token dispatch too).
+  Baseline `function_length` 26 -> 25. Cycles 55-60: NOOP at the disk gate (11-21 GB free, need
+  20; no repo, CI or inbox check ran; the gate is never bypassed). Operator should clear
+  /tmp/silica-zc-tidy, zig caches and other realms' build outputs.
+- Jepsen `dirtyReadTest` (80 lines) is NOT a usable filler: only referenced from commented-out code, so
+  it is never compiled and a refactor cannot be verified.
+- Tooling: CI build-and-test ~13-16 min; poll loop of 40x14 s overruns the 590 s tool timeout, use ~22x15 s.
 
 ## Cycles 50-53 (2026-11-04..07), folded 2026-11-09: disk gate and one filler
 
