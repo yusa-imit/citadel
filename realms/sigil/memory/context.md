@@ -1,7 +1,19 @@
 # sigil — context
 
-last_seen_at: 2026-11-17T10:00:00Z
+last_seen_at: 2026-11-18T10:00:00Z
 rejected_plans: []
+
+## Cycle 114 — 2026-11-18 — FEATURE
+
+- Done: disk 20 GB (passed). Plan PR #96 (plan 008) still OPEN, no owner comment or review, no open issues,
+  main 64c3d6f CI green. One stabilization filler, no PR: every json (ScanError 10, DuplicateKey,
+  InputTooLarge, number errors, Unrepresentable, file Read/Write errors) and path (QueryError 9, SelectError,
+  PatchError 9, pointer, merge/clone) error variant is named in an `error.X` test assertion. Nothing to fix.
+- Next: same as cycle 109 (merge of #96 -> milestone issue "milestone: 008 csv and proto" -> item 1, ADR 0007
+  via `architect`; closed unmerged -> record reason, plan YAML 3B or config 5A). Filler left: `tools/tidy.zig`
+  self-exemption (full cycle); perf tuning is a later plan.
+- Blockers: none. Open questions: reflect omit-null note from PR #80 still open.
+- Learned: zsh does not word-split `$var` file lists; use globs directly in `cat src/json/*_test.zig | grep -c`.
 
 ## Cycle 113 — 2026-11-17 — FEATURE (no-op, disk gate)
 
