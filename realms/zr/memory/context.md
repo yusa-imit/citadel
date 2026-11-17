@@ -16,18 +16,11 @@ rejected_plans: []
   conformance parser.
 - Blockers: zuda v3.0.0; disk margin. Open questions: none.
 
-## Cycle 54 — 2026-11-16 — FEATURE (no-op)
-- Disk gate: 15 GB free < 20 GB, stopped at preflight. Eighth disk no-op in ten cycles. Repo clean on
-  main at 64ff56f. zr `.zig-cache` is only 17M and `~/.cache/zig` 1.1G, so the space is used elsewhere
-  on the box. Nothing done; GitHub state not re-checked (stopped before step 5).
-- Next: cycle 55 is STABILIZATION (n % 5 == 0) if disk >= 20 GB; check zuda tags first.
+## Cycles 53-54 (2026-11-15..16) — no-ops, disk gate (folded 2026-11-17)
+- Stopped at preflight (12, 15 GB free < 20 GB); repo clean on main at 64ff56f; CI green; open issues
+  only #178 and #155; no PRs open. zr `.zig-cache` is 17M and `~/.cache/zig` 1.1G, so the space is used
+  elsewhere on the box. Eighth disk no-op in ten cycles.
 - Blockers: disk (a human must free space). Open questions: none.
-
-## Cycle 53 — 2026-11-15 — FEATURE (no-op)
-- Disk gate: 12 GB free < 20 GB, stopped at preflight. Seventh disk no-op in nine cycles. Repo clean
-  on main at 64ff56f; CI green; open issues only #178 and #155; no PRs open. Nothing done.
-- Next: cycle 54 FEATURE unless disk is still low. Candidates unchanged.
-- Blockers: disk (needs >= 20 GB free on the dev box; a human must free space). Open questions: none.
 
 ## Cycles 50-52 (2026-11-12..14) — no-ops, disk gate (folded 2026-11-15)
 - Stopped at preflight (16, 12, 15 GB free < 20 GB); tree clean on main; nothing done. The `n % 5 == 0`
