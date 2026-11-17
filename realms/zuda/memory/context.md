@@ -1,7 +1,12 @@
 # zuda — context
 
-last_seen_at: 2026-11-17T00:00:00Z
+last_seen_at: 2026-11-18T00:00:00Z
 rejected_plans: []
+
+## Cycle 57 — 2026-11-18 — ABORTED at the disk gate
+- Disk read 19 GB (needs >= 20); repo untouched, inbox and CI not read. Resume list: see cycle 56 (Next).
+- Disk aborts so far: cycles 3, 33, 41, 46, 47, 49, 51-55, 57.
+- Blockers: host disk (operator must free space, see ROADMAP). Open questions: none. stabilize_streak: 0.
 
 ## Cycle 56 — 2026-11-17 — FEATURE
 - Done: disk gate passed at exactly 20 GB (>= 20). CI green on c24c7f3, no bugs, inbox clean (no OWNER comments,
