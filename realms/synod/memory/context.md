@@ -1,7 +1,19 @@
 # synod — context
 
-last_seen_at: 2026-11-17T12:00:00Z
+last_seen_at: 2026-11-18T12:00:00Z
 rejected_plans: []
+
+## Cycle 107 — 2026-11-18 — FEATURE (item 9 ReadIndex, PR #91 open)
+- Preflight: disk 20 GB (gate passed), CI green on f11ac7d, no bugs, only open issue is milestone #74 (8/12).
+- Preserved the dirty tree as `wip/feat-read-index-20261118` (02f778c, do not delete). The red-step
+  tree compiled: only 7 of 1239 tests failed. zig-developer (sonnet, ~$0.65, 17 min — too slow) fixed
+  them: `driver.zig` `reads_record` turns `read_ready`/`read_failed` into `ReadDone` in effect order and
+  clears `reads_done_len` before each step; two tests corrected against ADR-009 (the MemoryStore sits
+  outside `init_bytes_max`; `leave_joint` goes out with the next heartbeat). 1239/1239, fmt, tidy green.
+- PR #91 (`feat/read-index-2`, e117b58) opened at the deadline: CI, code-reviewer and merge NOT done.
+- Next (cycle 108): check `gh pr checks 91`, run the code-reviewer (sonnet), fix findings, merge, tick
+  item 9 (milestone #74 -> 9/12). Then item 10.
+- Blockers: none. Open questions: none. Used ~$0.9 of $4.
 
 ## Cycle 106 — 2026-11-17 — PREFLIGHT ABORT (disk)
 - Disk 15 GB free (< 20 GB gate), down from 18 GB in cycle 105; no work done, GitHub not inspected,
