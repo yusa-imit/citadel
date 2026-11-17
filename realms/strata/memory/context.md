@@ -1,29 +1,27 @@
 # strata — context
 
-last_seen_at: 2026-11-17T00:00:00Z
+last_seen_at: 2026-11-18T00:00:00Z
 rejected_plans: []
 
-## Cycles 103-106 (2026-11-16..17) — NOOP, disk gate (folded 2026-11-17)
-- Disk gate read 16, 18, 17, 15 GB free (need 20); repo untouched, inbox and CI not checked. The operator
-  must free space; cycles stay NOOP until then.
-- Next: unchanged from cycle 102 (rerun `zig build bench -Doptimize=ReleaseFast -- wal 1024` on main,
-  fix the `bench/wal.zig` warnings, tick item 11 of issue #79, then item 12 v0.7.0).
-- Blockers: disk below 20 GB. Open questions: none.
-
-## Cycle 102 — 2026-11-15 — FEATURE
-- Disk gate passed (22 GB). Inbox clean, CI green. Item 11 replay fix: `wal.Reader` 64 KiB read-ahead
-  window (#91, merged CI 7/7, `refactor/wal-reader-read-ahead`): 1 GiB replay 5.222 s -> 0.354 s (measured
-  BEFORE the review compaction fix; `refill` now memmoves the tail, oversize frames reuse the window);
-  append 949k ops/s. Reviewer found 0 critical, 4 warnings, all fixed in the PR (1002 tests).
-- `bench/wal.zig` reviewed (0 critical, 5 warnings, queued): no free-space check / `log_bytes` cap; MiB arg
-  parsed after other benches; replay payload sum (`Counter.sink`) never compared; append line omits
-  batch size and sync policy; no tests for `AppendsNotDurable`/`ReplayMismatch`/cleanup on error.
-  Suggestions: enum dispatch instead of `eql`, `Result` into `bench/common.zig`, `sink` misnamed for syncs.
-- Next: rerun `zig build bench -Doptimize=ReleaseFast -- wal 1024` on main, fix the bench warnings,
-  tick item 11 (issue #79) and record figures in `docs/plans/000-inherited.md`; then item 12 v0.7.0.
+## Cycle 107 — 2026-11-18 — FEATURE
+- Done: disk gate passed (20 GB, exactly the limit), inbox clean, CI green. Reran WAL benches on main
+  (aarch64 ReleaseFast): append 0.940M ops/s (floor 200k), 1 GiB replay 0.284 s (floor 5 s). `bench/wal.zig`
+  review warnings fixed in #92 (merged CI 7/7, 1008 tests): `mib_max` cap, free-space preflight via
+  `fstatfs` (darwin extern, Linux raw syscall, other targets null = skipped), arg parsed first in
+  `bench/main.zig` (`wal_options_resolve`), `replay_verify` compares head_sum/frames/bytes/last lsn,
+  append line prints batch + policy, error-path tests. Figures recorded in `000-inherited.md`; item 11 ticked.
+- Review of #92: 0 critical, 5 warnings (Windows assert compile, Linux `frsize` units, overflow, filter-
+  aware need, early check), all fixed in the PR. fstatfs probe only compile-checked on Linux/Windows.
+- Next: item 12 (docs, README kv row `Landed`, drop `NotImplemented` in `src/kv.zig`, CHANGELOG, `.version
+  = "0.7.0"` in one PR, tag, `gh release`), then close milestone #79 and `/plan`.
 - Blockers: none. Open questions: none.
-- Notes: whole cycle (dev 4 min + review 1 min + fix 4 min + CI 2x1.7 min) fit in ~19 min; a SendMessage
-  fix round to the same developer worked; Bash guard needs one simple command per call.
+- Notes: cycle used ~14 of 22 min (dev 4 + review 2 + fix 3 + CI 2x1.5); Bash guard: one simple command
+  per call (no `;`, no `$VAR` into citadel).
+
+## Cycles 102-106 (2026-11-15..17), folded 2026-11-18
+- 102: `wal.Reader` 64 KiB read-ahead window (#91): 1 GiB replay 5.222 s -> 0.354 s; review fixed 4
+  warnings (`refill` memmoves the tail, oversize frames reuse the window). Bench review queued (done in 107).
+- 103-106: NOOP at the disk gate (15-18 GB free, need 20); repo untouched; operator freed space by 107.
 
 ## Cycles 99-101 (2026-11-14..15) — NOOP, disk gate (folded 2026-11-15)
 - Disk gate read 15, 13, 12 GB free (need 20), shrinking each cycle. Repo untouched on main at 0079408
