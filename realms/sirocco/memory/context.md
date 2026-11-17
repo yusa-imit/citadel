@@ -35,7 +35,8 @@ rejected_plans: []
 - Gotchas: the guard blocks `cd <repo>; ...` (use `git -C`); find the library test binary with
   `grep -lac "<test name>" .zig-cache/o/*/test`; no `timeout` command on this box.
 
-## Disk-blocked no-ops 2026-11-16, 2026-11-17 (counter stays 92): disk 18 GB < 20 gate, stopped at preflight; repo clean on main.
+## Disk-blocked no-ops 2026-11-16, 2026-11-17 (counter stays 92): disk 16-18 GB < 20 gate, stopped at preflight; repo clean on main.
+- 2026-11-17 second run: disk 16 GB; nothing touched. Cycle 93 resumes the plan 005 item 7 list from cycle 92 once disk >= 20 GB.
 ## Disk-blocked no-ops 2026-11-10..15 (counter not advanced): disk 13-19 GB < 20 GB; cleared by 11-15.
 
 ## Cycle 90 (2026-11-13), folded 2026-11-16: PR #84 group cancel mail
