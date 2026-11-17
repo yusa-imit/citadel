@@ -3,8 +3,8 @@
 last_seen_at: 2026-11-17T00:00:00Z
 rejected_plans: []
 
-## Cycles 103-105 (2026-11-16..17) — NOOP, disk gate (folded 2026-11-17)
-- Disk gate read 16, 18, 17 GB free (need 20); repo untouched, inbox and CI not checked. The operator
+## Cycles 103-106 (2026-11-16..17) — NOOP, disk gate (folded 2026-11-17)
+- Disk gate read 16, 18, 17, 15 GB free (need 20); repo untouched, inbox and CI not checked. The operator
   must free space; cycles stay NOOP until then.
 - Next: unchanged from cycle 102 (rerun `zig build bench -Doptimize=ReleaseFast -- wal 1024` on main,
   fix the `bench/wal.zig` warnings, tick item 11 of issue #79, then item 12 v0.7.0).
