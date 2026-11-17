@@ -3,23 +3,12 @@
 last_seen_at: 2026-11-17T00:00:00Z
 rejected_plans: []
 
-## Cycle 105 — 2026-11-17 — NOOP (disk gate)
-- Disk gate read 17 GB free (need 20); repo untouched, inbox and CI not checked.
-- Next: unchanged from cycle 102 (rerun wal bench on main, fix `bench/wal.zig` warnings, tick item 11
-  of issue #79, then item 12 v0.7.0).
-- Blockers: disk below 20 GB; the operator must free space. Open questions: none.
-
-## Cycle 104 — 2026-11-16 — NOOP (disk gate)
-- Disk gate read 18 GB free (need 20); repo untouched, inbox and CI not checked.
-- Next: unchanged from cycle 102 (rerun wal bench on main, fix `bench/wal.zig` warnings, tick item 11
-  of issue #79, then item 12 v0.7.0).
-- Blockers: disk below 20 GB; the operator must free space. Open questions: none.
-
-## Cycle 103 — 2026-11-16 — NOOP (disk gate)
-- Disk gate read 16 GB free (need 20); repo untouched, inbox and CI not checked.
+## Cycles 103-105 (2026-11-16..17) — NOOP, disk gate (folded 2026-11-17)
+- Disk gate read 16, 18, 17 GB free (need 20); repo untouched, inbox and CI not checked. The operator
+  must free space; cycles stay NOOP until then.
 - Next: unchanged from cycle 102 (rerun `zig build bench -Doptimize=ReleaseFast -- wal 1024` on main,
   fix the `bench/wal.zig` warnings, tick item 11 of issue #79, then item 12 v0.7.0).
-- Blockers: disk below 20 GB; the operator must free space. Open questions: none.
+- Blockers: disk below 20 GB. Open questions: none.
 
 ## Cycle 102 — 2026-11-15 — FEATURE
 - Disk gate passed (22 GB). Inbox clean, CI green. Item 11 replay fix: `wal.Reader` 64 KiB read-ahead
